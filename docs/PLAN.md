@@ -1,7 +1,7 @@
 # CuentasBot — Plan de arquitectura y Fase 0
 
 > Estado: **PROPUESTA — pendiente de aprobación del dueño.** No hay código de producto todavía.
-> Fecha: 2026-10-03. Fuente de requisitos: [`PROMPT_INICIAL.md`](./PROMPT_INICIAL.md) · Versión 2 (con respuestas del dueño).
+> Fecha: 2026-10-03. Fuente de requisitos: [`PROMPT_INICIAL.md`](./PROMPT_INICIAL.md) · Versión 3 (con respuestas del dueño y hallazgos del paquete HRNO).
 > Esquema SQL inicial: [`schema_draft.sql`](./schema_draft.sql). Decisiones: [`DECISIONES.md`](./DECISIONES.md).
 
 ---
@@ -25,6 +25,36 @@
 
 - **Prorrateo del valor** en periodos parciales (p. ej. contrato que inicia el 6 de julio con corte a fin de mes): por defecto `valor_mensual / 30 × días` (mes comercial) con ajuste en el último pago para que la suma = valor total. Queda **configurable por entidad** en el panel; confírmame si HRNO usa esa convención.
 - **Comprimido de HRNO**: súbelo a esta conversación (y los DOCX originales si los tienes). Los documentos reales van a `fixtures/private/` (ignorado por git).
+
+### Hallazgos del paquete de formatos HRNO (recibido 2026-10-03)
+
+El paquete trae las dos plantillas con etiquetas (borradores con defectos), una cuenta completa de ejemplo (septiembre 2026, informe 3 de 3, contrato de Coordinación Administrativa de Salud Pública), los soportes individuales, los paquetes consolidados, la carpeta `DOCUMENTOS A CARGAR` con el ZIP de SECOP y un JSON con todos los valores esperados. Los datos personales vienen anonimizados. Los archivos **no se suben a este repo**: se guardan localmente en `fixtures/private/hrno/` (ignorado por git); los tests usarán copias sintéticas.
+
+Cambios al plan:
+
+| Hallazgo | Impacto |
+|----------|---------|
+| La tabla de seguridad social del Informe de Actividades es un **objeto Excel incrustado** (imagen EMF). | Se reemplaza por una tabla nativa de Word con etiquetas (tarea 0.9). |
+| Las plantillas tienen texto fijo de meses anteriores (encabezado, cédula, actividades, 14 imágenes) y mezclan datos de periodo y contrato. | Reconstrucción completa con bucles: `obligations[]` con `activities[]` (varios párrafos) y `evidences[]` (1–3 imágenes); el anexo **solo incluye actividades con evidencia**. |
+| Las etiquetas existentes usan `{{ snake_case }}` plano (`contract_number`, `ss_pin`…). | El catálogo base (`TEMPLATE_TAGS.md`) se diseña compatible con esos nombres para que el formato de la entidad cambie lo mínimo; se agregan las que faltan (`contract_start_date`, `prior_payments[]`, `payment_value_words`, etc.). |
+| El Informe de Supervisión conserva encabezado (logos ESE y Gobernación, código/versión) y pie institucional como imágenes de la plantilla. | El motor no toca encabezados/pies con imágenes; solo reemplaza etiquetas. |
+| Balance: pagos anteriores con su comprobante (`ND 001092 $4.000.000`). | Nueva tabla `period_payments` (número de nota/acta, fecha, valor) diligenciada por el contratista o el panel; alimenta `prior_payments[]` y `balance_paid`. |
+| La entidad expide **Certificado de Cumplimiento** (MA-GTH-CC-04) y **Documento Soporte DIAN (DSE)**; el contratista imprime la **ficha SECOP** del contrato. | Nuevos `support_types`: `CERT_CUMPLIMIENTO`, `DSE`, `FICHA_SECOP` (solo se reciben y validan: planilla y valor coinciden). |
+| `DOCUMENTOS A CARGAR` = 9 PDF + ZIP llamado `aprobacindelossoportespresentadosalsupervisordelcon.zip`. | Estructura y nombres del ZIP configurables por entidad (`settings.package`). |
+| SECOP muestra fechas **MM/DD/AAAA** (inicio `07/06/2026` = 6 de julio). | El extractor de la ficha SECOP lo trata explícitamente y siempre pide confirmar fechas. |
+| ARL afiliada **a nombre de la ESE**, una fila por contrato con fechas de cobertura. | Validación de cobertura por contrato (ya prevista en 8.5), leyendo la fila del contrato correcto. |
+| EPS incluye fecha de nacimiento. | El extractor la descarta (no se guarda). |
+| Fecha en "2.2 Inhabilidades" = **fecha de revisión** (fecha del informe), no la de expedición. | Regla por defecto en HRNO, configurable. |
+| IBC = 40 % × (4.000.000 + 8.500.000) = 5.000.000; salud 12,5 %, pensión 16 %, ARL riesgo III 2,436 %. | Casos de prueba de `minIbc` y de validación de la planilla. |
+| El documento real tiene errores (`$4.000.00`, `MCTTE`, `durante en el periodo`, `a los29 días`). | Ver pregunta B. |
+
+### Preguntas del paquete HRNO que siguen abiertas
+
+- **A. Prorrateo del primer periodo:** el contrato inició el 06/07/2026 con 3 pagos iguales de $4.000.000. ¿El informe 1 (julio) se cobró **completo** (pagos iguales sin importar los días) o **prorrateado** del 6 al 31? Si fue completo, la regla por defecto de HRNO sería "pagos iguales" y el prorrateo quedaría solo como opción.
+- **B. Errores del formato oficial** (`MCTTE`, `durante en el periodo`, `a los establecido`, `Se pude verificar`): ¿los corrijo en la plantilla o los dejo idénticos al formato de la ESE? Recomiendo corregirlos; el error de cifra `$4.000.00` siempre se corrige porque el valor lo calcula el sistema.
+- **C. Prórroga y/o adición = SI** con adiciones en $0 en el ejemplo: ¿hubo prórroga real o quedó fijo? Por defecto el sistema lo calcula desde `contract_amendments`.
+- **D. Compromiso del último informe:** ¿fecha de fin del contrato (como el real, `30/09/2026`) o "N/A – informe final"?
+- **E. Contrato EBS** ($8.500.000, "Pago No. 02-06", encabezado distinto): cuando puedas, comparte un ejemplo anonimizado de ese informe para construir la segunda variante.
 
 ---
 
@@ -146,6 +176,7 @@ El DDL completo propuesto está en [`schema_draft.sql`](./schema_draft.sql). Res
 | `staff_members` (vincula `auth.users` con rol `superadmin`/`operator`) | Los roles de panel viven en una tabla, no en `users` (que son contratistas de WhatsApp sin cuenta de Auth). `users.auth_user_id` queda nulo hasta el portal de la Fase 4. |
 | `contract_templates` (contrato ↔ plantilla por tipo) + `contracts.contract_profile` | HRNO tiene variantes por tipo de contrato (Salud Pública vs EBS). |
 | `period_social_security` (N:M) | Una planilla respalda periodos de varios contratos. |
+| `period_payments` (pagos anteriores con comprobante ND/acta) | Balance financiero y columna de pagos del Informe de Supervisión. |
 | `wa_inbound` separado de `messages` | Crudo e idempotente por `wamid`; `messages` es el log legible (resumido, sin datos sensibles). |
 | `outbound_messages` | Cola persistente de salida con `idempotency_key`, estado de entrega (webhooks `statuses` de Meta) y costo. |
 | `webhook_events` | Idempotencia genérica (Meta statuses, Wompi). |

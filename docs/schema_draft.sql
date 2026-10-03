@@ -298,6 +298,16 @@ create table periods (
 );
 create index on periods (status, date_to);
 
+-- Prior payments of the contract (ND / acta), used for the financial balance.
+create table period_payments (
+  id            uuid primary key default gen_random_uuid(),
+  period_id     uuid not null references periods(id) on delete cascade,
+  voucher       text,                            -- e.g. 'ND 001092'
+  paid_on       date,
+  amount        bigint not null,
+  created_at    timestamptz not null default now()
+);
+
 -- ---------------------------------------------------------------------------
 -- Social security, supports, notes, evidences, drafts, documents
 -- ---------------------------------------------------------------------------
@@ -569,7 +579,7 @@ begin
   foreach t in array array[
     'staff_members','organizations','entities','entity_variables','entity_variable_values','templates','support_types','reminder_rules',
     'users','policy_versions','consents','data_requests','contracts','contract_amendments',
-    'contract_templates','obligations','periods','social_security_payments','period_social_security',
+    'contract_templates','obligations','periods','period_payments','social_security_payments','period_social_security',
     'supports','activity_notes','evidences','drafts','generated_documents','plans','subscriptions',
     'payments','wa_inbound','conversations','messages','outbound_messages','webhook_events',
     'support_tickets','ai_usage','events','job_failures'

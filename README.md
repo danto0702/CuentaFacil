@@ -7,7 +7,7 @@ Asistente de WhatsApp que acompaña a contratistas de prestación de servicios d
 ## Documentos
 
 - [`docs/PROMPT_INICIAL.md`](docs/PROMPT_INICIAL.md) — requisitos del dueño.
-- [`docs/PLAN.md`](docs/PLAN.md) — arquitectura, costos y plan de la Fase 0 (v2, con respuestas del dueño).
+- [`docs/PLAN.md`](docs/PLAN.md) — arquitectura, costos y plan de la Fase 0 (v3, con respuestas del dueño y hallazgos del paquete HRNO).
 - [`docs/schema_draft.sql`](docs/schema_draft.sql) — esquema SQL borrador.
 - [`docs/DECISIONES.md`](docs/DECISIONES.md) — decisiones de arquitectura (ADR).
 - [`docs/legal/politica_tratamiento.md`](docs/legal/politica_tratamiento.md) — borrador, **pendiente de revisión por abogado**.
