@@ -33,6 +33,10 @@ Lo mismo se verifica automáticamente en `apps/worker/test/generator.test.ts` (d
 5. Revisa 3–4 valores en letras de casos reales que conozcas.
 6. Confirma la estructura del ZIP contra lo que cargas en SECOP II.
 
+## Decisiones confirmadas
+
+- **F (2026-10-03):** el auxilio de transporte **no** cuenta para el IBC; el 40 % se calcula solo sobre los honorarios (`counts_for_ibc = false` en el concepto de transporte).
+
 ## Limitaciones conocidas (a resolver en la Fase 1)
 
 - La IA y la transcripción son **simuladas** (`FakeAI`, `FakeSTT`): la redacción solo pasa las notas a impersonal y no corrige la gramática ("Se realizó consultas…"). Claude y el proveedor STT reales entran en la Fase 1 con evaluaciones.
@@ -43,7 +47,6 @@ Lo mismo se verifica automáticamente en `apps/worker/test/generator.test.ts` (d
 - El valor del **SMMLV 2026** no está cargado (`system_settings.smmlv`): debe tomarse del decreto oficial.
 - Los **enlaces oficiales** de antecedentes del seed deben verificarse antes de enviarlos a contratistas reales.
 - Al cambiar de corte, el número de cuentas puede no coincidir con el número de pagos del clausulado; el bot muestra el calendario y pide confirmación, pero la regla fina se define con casos reales.
-- Pendiente tu respuesta **F**: ¿el IBC se calcula solo sobre honorarios o también sobre el auxilio de transporte? (por defecto: solo honorarios).
 
 ## Lo que necesito de ti para arrancar la Fase 1
 

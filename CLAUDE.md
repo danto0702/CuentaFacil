@@ -44,7 +44,7 @@ Fase 0 terminada (ver `docs/FASE0_CIERRE.md`), pendiente de aprobación del due�
 - **Periodo / cuenta de cobro:** tramo del contrato que se cobra. El contratista elige el **modo de corte**: `month_end` (del 1 al último día del mes) o `date_to_date` (p. ej. 3-oct → 2-nov); puede cambiarlo en cualquier momento (solo afecta periodos no entregados). Primer y último periodo pueden ser parciales (prorrateo configurable por entidad).
 - **Informe No. X de N / Pago No. X de N:** consecutivos del periodo dentro del contrato (formato configurable: "02 DE 03" o "02-06").
 - **Planilla PILA:** pago de seguridad social del independiente vía operador (Aportes en Línea, SOI, Mi Planilla…): número, PIN/autorización, fecha de pago, periodo de cotización, IBC, salud, pensión, ARL, total, banco. El periodo de cotización exigido (mes en curso o vencido) se configura por entidad; HRNO = mes en curso.
-- **IBC:** Ingreso Base de Cotización; por regla general 40 % de la suma de honorarios mensuales (mín. 1 SMMLV, máx. 25 SMMLV). La validación solo advierte (configurable).
+- **IBC:** Ingreso Base de Cotización; por regla general 40 % de la suma de honorarios mensuales (mín. 1 SMMLV, máx. 25 SMMLV). El auxilio de transporte **no** cuenta (confirmado por el dueño). La validación solo advierte (configurable).
 - **Antecedentes:** Policía, RNMC (medidas correctivas), Procuraduría, Contraloría. El contratista los descarga (captcha) desde el enlace que le envía el bot; vigencia 30 días, se piden en cada cuenta.
 - **Afiliaciones:** certificados de EPS, ARL y fondo de pensiones.
 - **Informe de supervisión:** lo firma el supervisor; el bot genera el borrador prellenado (HRNO: MA-GH-IS-03 v4.0).

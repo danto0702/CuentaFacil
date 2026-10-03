@@ -88,9 +88,9 @@ Documentos reales (no anonimizados) compartidos como referencia: **no se guardan
 - Tabla por cuenta: **valor base, % de ejecución, valor, transporte, total**, y el periodo exacto (p. ej. "Cuenta 1 (2026-08-20 a 2026-09-19)" → corte **fecha a fecha**).
 - → El valor a cobrar puede ser **menor al 100 %**: `periods.execution_pct` y `periods.amount` confirmados con `amount_source = 'certificate'` cuando el certificado existe. El certificado también confirma el modo de corte.
 
-### Pregunta nueva
+### Pregunta F (resuelta)
 
-- **F. IBC y auxilio de transporte:** ¿el 40 % del IBC se calcula solo sobre los **honorarios** ($8.400.000) o sobre el total del pago incluyendo transporte ($9.020.000)? Mi entendimiento es que el auxilio de transporte no hace parte del IBC, pero lo dejo **configurable por concepto** (`counts_for_ibc`) y por defecto solo honorarios.
+- **Respuesta del dueño (2026-10-03): el auxilio de transporte no cuenta en el IBC.** Pregunta original — **F. IBC y auxilio de transporte:** ¿el 40 % del IBC se calcula solo sobre los **honorarios** ($8.400.000) o sobre el total del pago incluyendo transporte ($9.020.000)? Mi entendimiento es que el auxilio de transporte no hace parte del IBC, pero lo dejo **configurable por concepto** (`counts_for_ibc`) y por defecto solo honorarios.
 
 ---
 
@@ -357,7 +357,6 @@ Fuentes: referencia de precios de la API de Anthropic (skill `claude-api`, cach�
 | Ítem | Necesario para |
 |------|----------------|
 | PDFs/DOCX anonimizados de HRNO | **Fase 0** (tarea 0.9) |
-| Respuesta F (IBC y transporte) | **Fase 0** |
 | Meta Business verificado, app, número, token permanente | Inicio de Fase 1 (la verificación puede tardar semanas: conviene empezar ya) |
 | Proyecto Supabase Pro y cuenta Railway | Inicio de Fase 1 |
 | API keys Anthropic y OpenAI (STT) | Inicio de Fase 1 |
