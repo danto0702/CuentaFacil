@@ -5,6 +5,7 @@ export * from './convert.js';
 export * from './ooxml.js';
 export * from './pdf.js';
 export * from './render.js';
+export * from './sample.js';
 export * from './tags.js';
 export * from './tags-doc.js';
 export * from './templates/hrno.js';

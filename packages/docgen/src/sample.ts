@@ -1,5 +1,5 @@
 import sharp from 'sharp';
-import type { CuentaInput, ObligationInput } from '../../src/context.js';
+import type { CuentaInput, ObligationInput } from './context.js';
 
 /**
  * Synthetic HRNO account (fictitious people and numbers), modeled on the structure of the

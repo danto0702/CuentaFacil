@@ -4,8 +4,8 @@ import { join } from 'node:path';
 import { buildTemplateContext } from '../src/context.js';
 import { docxToPdf } from '../src/convert.js';
 import { renderDocx } from '../src/render.js';
+import { syntheticAccount } from '../src/sample.js';
 import { buildHrnoActivityTemplate, buildHrnoSupervisionTemplate } from '../src/templates/hrno.js';
-import { syntheticAccount } from '../test/fixtures/synthetic.js';
 
 const arg = (name: string) => {
   const i = process.argv.indexOf(name);

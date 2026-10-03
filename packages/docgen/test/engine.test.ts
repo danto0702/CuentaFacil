@@ -8,9 +8,9 @@ import { buildTemplateContext } from '../src/context.js';
 import { OFICIO, p } from '../src/ooxml.js';
 import { mergeToPdf, pdfPageCount } from '../src/pdf.js';
 import { renderDocx, TemplateRenderError } from '../src/render.js';
+import { fakePhoto, syntheticAccount } from '../src/sample.js';
 import { inspectTemplate, rootIdentifiers } from '../src/tags.js';
 import { buildZips } from '../src/zip.js';
-import { fakePhoto, syntheticAccount } from './fixtures/synthetic.js';
 
 const docWith = (...lines: string[]) => buildDocx({ body: lines.map((l) => p(l)).join(''), page: OFICIO });
 

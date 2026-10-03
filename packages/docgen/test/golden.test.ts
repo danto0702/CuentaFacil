@@ -3,9 +3,9 @@ import { buildTemplateContext } from '../src/context.js';
 import { docxToPdf, pdfToText } from '../src/convert.js';
 import { pdfPageCount } from '../src/pdf.js';
 import { renderDocx } from '../src/render.js';
+import { syntheticAccount } from '../src/sample.js';
 import { inspectTemplate } from '../src/tags.js';
 import { buildHrnoActivityTemplate, buildHrnoSupervisionTemplate } from '../src/templates/hrno.js';
-import { syntheticAccount } from './fixtures/synthetic.js';
 import { hasBinary, normalizeText } from './helpers.js';
 
 const canConvert = hasBinary('soffice') && hasBinary('pdftotext');
