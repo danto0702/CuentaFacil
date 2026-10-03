@@ -1,7 +1,7 @@
 # CuentasBot — Plan de arquitectura y Fase 0
 
 > Estado: **PROPUESTA — pendiente de aprobación del dueño.** No hay código de producto todavía.
-> Fecha: 2026-10-03. Fuente de requisitos: [`PROMPT_INICIAL.md`](./PROMPT_INICIAL.md) · Versión 3 (con respuestas del dueño y hallazgos del paquete HRNO).
+> Fecha: 2026-10-03. Fuente de requisitos: [`PROMPT_INICIAL.md`](./PROMPT_INICIAL.md) · Versión 4 (respuestas del dueño, paquete HRNO, clausulado y certificado EBS).
 > Esquema SQL inicial: [`schema_draft.sql`](./schema_draft.sql). Decisiones: [`DECISIONES.md`](./DECISIONES.md).
 
 ---
@@ -23,7 +23,7 @@
 
 ### Pendiente por confirmar
 
-- **Prorrateo del valor** en periodos parciales (p. ej. contrato que inicia el 6 de julio con corte a fin de mes): por defecto `valor_mensual / 30 × días` (mes comercial) con ajuste en el último pago para que la suma = valor total. Queda **configurable por entidad** en el panel; confírmame si HRNO usa esa convención.
+- ~~Prorrateo~~ → resuelto: el valor de cada pago sale del **clausulado**; si no trae tabla, mes comercial de 30 días (confirmado por el clausulado EBS).
 - **Comprimido de HRNO**: súbelo a esta conversación (y los DOCX originales si los tienes). Los documentos reales van a `fixtures/private/` (ignorado por git).
 
 ### Hallazgos del paquete de formatos HRNO (recibido 2026-10-03)
@@ -55,6 +55,42 @@ Cambios al plan:
 - **C. Prórroga y/o adición = SI** con adiciones en $0 en el ejemplo: ¿hubo prórroga real o quedó fijo? Por defecto el sistema lo calcula desde `contract_amendments`.
 - **D. Compromiso del último informe:** ¿fecha de fin del contrato (como el real, `30/09/2026`) o "N/A – informe final"?
 - **E. Contrato EBS** ($8.500.000, "Pago No. 02-06", encabezado distinto): cuando puedas, comparte un ejemplo anonimizado de ese informe para construir la segunda variante.
+
+### Respuestas a las preguntas del paquete HRNO (2026-10-03)
+
+| # | Respuesta | Impacto |
+|---|-----------|---------|
+| A | El primer periodo se cobra **completo**, pero lo debe confirmar el contratista, o se toma del **certificado de cumplimiento** si lo tiene. | El valor de cada cuenta tiene **origen trazable**: `clausulado` → `certificado` → `contratista` (ver abajo). El bot siempre muestra el valor y pide confirmación. |
+| B | Corregir los errores del formato oficial. | Las plantillas HRNO salen con la redacción corregida (`M/CTE`, "durante el periodo", "lo establecido", "Se pudo verificar", "a los 29 días"). |
+| C | La prórroga/adición la informa el contratista; por defecto **no hay**. | `PRORROGA y/o ADICION = NO` salvo que existan registros en `contract_amendments`. |
+| D | Último informe: **N/A**. | Compromiso del último periodo = "N/A – informe final". |
+| E | Los **clausulados** definen los pagos. | El clausulado es la fuente del calendario de pagos (siguiente sección). |
+
+### Lo que muestran el clausulado EBS y el certificado de cumplimiento EBS
+
+Documentos reales (no anonimizados) compartidos como referencia: **no se guardan en el repo** y no se citan datos personales.
+
+**Clausulado** (formato MA-GJ-C-EP-05 v4.0, contrato de Equipo Básico de Salud):
+
+1. **Cláusula de valor y forma de pago con tabla explícita de pagos.** Ejemplo: valor total $39.688.000 = un primer pago de $3.608.000 (12 días) + 4 pagos de $9.020.000. Cada pago tiene **conceptos**: honorarios ($8.400.000/mes) y **auxilio de transporte** ($620.000/mes, incluido en el valor del contrato).
+   - El primer pago confirma la convención de **mes comercial de 30 días**: 8.400.000 / 30 × 12 = 3.360.000 y 620.000 / 30 × 12 = 248.000.
+   - → Nueva tabla `payment_schedule` (pago N, días/meses, valor) con `payment_schedule_items` (concepto, valor). El extractor lee esta cláusula y el contratista confirma. El prorrateo calculado solo se usa si el clausulado no trae la tabla.
+2. **Obligaciones agrupadas por componentes con peso** (Caracterización 20 %, Plan comunitario 10 %, Planes individuales 60 %, …) y **metas mensuales por indicador** (p. ej. "Consultas totales: meta 400, 80 por mes"; "Registro caracterizaciones: 25 % por mes").
+   - → Nuevas tablas `obligation_groups` (nombre, peso %) y `obligation_goals` (indicador, meta total, meta por mes). El bot pregunta el avance del mes contra la meta y lo incluye en el informe.
+3. **Pagos sujetos a cumplimiento de metas**: el transporte se descuenta en proporción al cumplimiento, y con menos del 70 % hay glosa/terminación.
+   - → Alerta temprana en el bot si el avance reportado va por debajo del umbral configurado (70 % en HRNO-EBS).
+4. **Lista de documentos de la cuenta definida en el clausulado** (para EBS: informe con evidencia, informe de supervisión, **certificado de ejecución del coordinador EBS**, planilla, afiliaciones, certificado de cumplimiento del supervisor, DSE, antecedentes en un solo PDF).
+   - → El checklist se define por **tipo de contrato** (`contract_profile`), no solo por entidad; el extractor propone el checklist a partir del clausulado.
+5. Plazo en días ("126 días contados a partir del perfeccionamiento") y numeración `CPS-ESEHRNO-0607-2026`.
+
+**Certificado de cumplimiento / ejecución EBS** (expedido por la coordinación EBS):
+
+- Tabla por cuenta: **valor base, % de ejecución, valor, transporte, total**, y el periodo exacto (p. ej. "Cuenta 1 (2026-08-20 a 2026-09-19)" → corte **fecha a fecha**).
+- → El valor a cobrar puede ser **menor al 100 %**: `periods.execution_pct` y `periods.amount` confirmados con `amount_source = 'certificate'` cuando el certificado existe. El certificado también confirma el modo de corte.
+
+### Pregunta nueva
+
+- **F. IBC y auxilio de transporte:** ¿el 40 % del IBC se calcula solo sobre los **honorarios** ($8.400.000) o sobre el total del pago incluyendo transporte ($9.020.000)? Mi entendimiento es que el auxilio de transporte no hace parte del IBC, pero lo dejo **configurable por concepto** (`counts_for_ibc`) y por defecto solo honorarios.
 
 ---
 
@@ -321,7 +357,7 @@ Fuentes: referencia de precios de la API de Anthropic (skill `claude-api`, cach�
 | Ítem | Necesario para |
 |------|----------------|
 | PDFs/DOCX anonimizados de HRNO | **Fase 0** (tarea 0.9) |
-| Confirmación del prorrateo (§1) | **Fase 0** |
+| Respuesta F (IBC y transporte) | **Fase 0** |
 | Meta Business verificado, app, número, token permanente | Inicio de Fase 1 (la verificación puede tardar semanas: conviene empezar ya) |
 | Proyecto Supabase Pro y cuenta Railway | Inicio de Fase 1 |
 | API keys Anthropic y OpenAI (STT) | Inicio de Fase 1 |

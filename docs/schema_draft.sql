@@ -268,10 +268,58 @@ create table contract_templates (
   primary key (contract_id, kind)
 );
 
+-- Payment schedule as defined by the contract clauses (source of truth for amounts).
+create table payment_schedule (
+  id             uuid primary key default gen_random_uuid(),
+  contract_id    uuid not null references contracts(id) on delete cascade,
+  payment_number int not null,
+  days           int,                            -- e.g. 12 for a partial first payment
+  months         int,
+  amount         bigint not null,
+  source         text not null default 'clauses' check (source in ('clauses', 'computed', 'contractor')),
+  unique (contract_id, payment_number)
+);
+
+create table payment_schedule_items (
+  id             uuid primary key default gen_random_uuid(),
+  schedule_id    uuid not null references payment_schedule(id) on delete cascade,
+  concept        text not null,                  -- 'Honorarios', 'Auxilio de transporte'
+  amount         bigint not null,
+  counts_for_ibc boolean not null default true
+);
+
+-- Obligation components with weight and monthly goals (e.g. EBS contracts).
+create table obligation_groups (
+  id           uuid primary key default gen_random_uuid(),
+  contract_id  uuid not null references contracts(id) on delete cascade,
+  number       int not null,
+  name         text not null,
+  weight_pct   numeric(5,2),
+  unique (contract_id, number)
+);
+
+create table obligation_goals (
+  id              uuid primary key default gen_random_uuid(),
+  group_id        uuid not null references obligation_groups(id) on delete cascade,
+  indicator       text not null,                 -- 'Consultas totales'
+  unit            text not null default 'count' check (unit in ('count', 'percent')),
+  total_target    numeric,
+  monthly_targets numeric[] not null default '{}' -- index = period number - 1
+);
+
+create table goal_progress (
+  goal_id      uuid not null references obligation_goals(id) on delete cascade,
+  period_id    uuid not null references periods(id) on delete cascade,
+  achieved     numeric not null,
+  reported_by  text not null,
+  primary key (goal_id, period_id)
+);
+
 create table obligations (
   id                 uuid primary key default gen_random_uuid(),
   contract_id        uuid not null references contracts(id) on delete cascade,
   kind               obligation_kind not null,
+  group_id           uuid references obligation_groups(id),
   number             int not null,
   literal_text       text not null,
   default_text       text not null default 'Actividad cumplida.',
@@ -286,7 +334,9 @@ create table periods (
   payment_number    int not null,
   date_from         date not null,
   date_to           date not null,
-  amount            bigint not null,             -- prorated value to bill
+  amount            bigint not null,             -- value to bill (confirmed)
+  amount_source     text not null default 'schedule' check (amount_source in ('schedule', 'certificate', 'contractor', 'computed')),
+  execution_pct     numeric(5,2) not null default 100,
   status            period_status not null default 'scheduled',
   closed_at         timestamptz,
   delivered_at      timestamptz,
@@ -579,7 +629,7 @@ begin
   foreach t in array array[
     'staff_members','organizations','entities','entity_variables','entity_variable_values','templates','support_types','reminder_rules',
     'users','policy_versions','consents','data_requests','contracts','contract_amendments',
-    'contract_templates','obligations','periods','period_payments','social_security_payments','period_social_security',
+    'contract_templates','payment_schedule','payment_schedule_items','obligation_groups','obligation_goals','goal_progress','obligations','periods','period_payments','social_security_payments','period_social_security',
     'supports','activity_notes','evidences','drafts','generated_documents','plans','subscriptions',
     'payments','wa_inbound','conversations','messages','outbound_messages','webhook_events',
     'support_tickets','ai_usage','events','job_failures'

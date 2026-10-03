@@ -50,3 +50,11 @@
 ## ADR-011 — Modo de corte elegido por el contratista
 - **Decisión:** `contracts.period_mode` ∈ {`month_end`, `date_to_date`}, editable en cualquier momento. Al cambiarlo se recalculan solo los periodos no entregados, con confirmación y registro en `events`.
 - **Consecuencias:** `buildPeriods` es una función pura y determinística; los periodos entregados son inmutables.
+
+## ADR-012 — El clausulado define el calendario y el valor de los pagos
+- **Contexto:** los clausulados de HRNO traen una tabla explícita de pagos con conceptos (honorarios, auxilio de transporte) y primer pago parcial calculado con mes comercial de 30 días; los certificados de cumplimiento pueden fijar un % de ejecución menor a 100 %.
+- **Decisión:** `payment_schedule` (+ conceptos) extraído del clausulado y confirmado por el contratista es la fuente del valor de cada cuenta. Prioridad del valor del periodo: certificado de cumplimiento > calendario del clausulado > valor informado por el contratista > cálculo (30 días comerciales). `periods.amount_source` registra el origen.
+- **Consecuencias:** el prorrateo calculado es solo respaldo; el IBC se calcula sobre los conceptos marcados `counts_for_ibc`.
+
+## ADR-013 — Obligaciones con componentes, pesos y metas mensuales
+- **Decisión:** `obligation_groups` (peso %) y `obligation_goals` (metas por mes) opcionales por contrato; el avance se registra en `goal_progress` y alimenta el informe y una alerta si va por debajo del umbral de la entidad (70 % en HRNO-EBS).
