@@ -8,7 +8,7 @@ SaaS por suscripción que acompaña por WhatsApp a contratistas de prestación d
 Requisitos completos: `docs/PROMPT_INICIAL.md`. Plan vigente: `docs/PLAN.md`. Decisiones: `docs/DECISIONES.md`.
 
 ## Estado
-Planeación. Ninguna fase construida. **No adelantar fases** (ver `docs/PLAN.md` §5–6).
+Fase 0 terminada (ver `docs/FASE0_CIERRE.md`), pendiente de aprobación del dueño. **No adelantar fases** (ver `docs/PLAN.md` §5–6).
 
 ## Stack (propuesto)
 - Supabase: Postgres + RLS, Storage privado, Auth (panel), Edge Functions (webhooks), pgmq, pg_cron.
@@ -25,10 +25,18 @@ Planeación. Ninguna fase construida. **No adelantar fases** (ver `docs/PLAN.md`
 - Documentos reales de entidades solo en `fixtures/private/` (ignorado). Los tests usan fixtures sintéticos.
 - Toda decisión técnica nueva → ADR corto en `docs/DECISIONES.md`.
 - Preguntar al dueño antes de: crear recursos que cuesten dinero, cambiar esquema en producción, enviar mensajes a números reales.
-- Variables de plantilla: catálogo base (`docs/TEMPLATE_TAGS.md`) + variables de entidad `{{var.<key>}}`.
+- Variables de plantilla: catálogo base (`docs/TEMPLATE_TAGS.md`, generado desde `packages/docgen/src/catalog.ts`) + variables de entidad `{{ var_<clave> }}`.
+- Paquetes TypeScript sin compilar, importaciones NodeNext con extensión `.js`. El panel usa `next build --webpack` (ADR-017).
+- La conversación solo usa puertos (`packages/conversation/src/ports.ts`); nada de llamadas directas a Supabase, Meta o Claude desde los flujos.
+- Golden tests: si cambias un formato a propósito, regenera con `pnpm --filter @cuentasbot/docgen exec vitest run -u` y revisa el diff.
 
 ## Comandos
-Se definen en la Fase 0 (`pnpm dev`, `pnpm test`, `pnpm sim`, `pnpm db:reset`).
+- `pnpm install` · `pnpm lint` · `pnpm -r typecheck`
+- `pnpm -r --workspace-concurrency=1 test` (requiere LibreOffice + pdftotext para golden/e2e; se saltan si faltan)
+- `pnpm db:test` (Postgres 16 local, sin Docker)
+- `pnpm sim` / `pnpm sim:demo` (simulador) · `pnpm panel` (panel en modo demo)
+- `pnpm tags:doc` (regenera el catálogo de etiquetas)
+- Deploy: worker con `apps/worker/Dockerfile` en Railway; panel en Railway (Fase 1).
 
 ## Glosario del dominio
 - **Contratista:** persona natural con Contrato de Prestación de Servicios (CPS) con una entidad pública.

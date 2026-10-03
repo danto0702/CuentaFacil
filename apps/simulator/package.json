@@ -6,8 +6,7 @@
   "scripts": {
     "start": "tsx src/main.ts",
     "demo": "tsx src/main.ts --reset --script scripts/demo-completo.txt && tsx src/main.ts --reset --fecha 2026-08-31 --script scripts/demo-prorrateado.txt",
-    "typecheck": "tsc -p .",
-    "test": "vitest run"
+    "typecheck": "tsc -p ."
   },
   "dependencies": {
     "@cuentasbot/conversation": "workspace:*",
