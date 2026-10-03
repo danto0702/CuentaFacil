@@ -13,3 +13,4 @@ fixtures/private/
 .DS_Store
 supabase/.branches/
 supabase/.temp/
+out-*/

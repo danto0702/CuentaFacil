@@ -1,0 +1,23 @@
+{
+  "name": "@cuentasbot/docgen",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p .",
+    "test": "vitest run",
+    "tags:doc": "tsx scripts/tags-doc.ts",
+    "templates": "tsx scripts/build-templates.ts"
+  },
+  "dependencies": {
+    "@cuentasbot/shared": "workspace:*",
+    "docx-templates": "^4.15.0",
+    "jszip": "^3.10.1",
+    "pdf-lib": "^1.17.1",
+    "sharp": "^0.34.0",
+    "zod": "^4.1.0"
+  }
+}
