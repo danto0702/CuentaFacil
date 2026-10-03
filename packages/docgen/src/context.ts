@@ -239,6 +239,10 @@ export async function buildTemplateContext(input: CuentaInput): Promise<Template
     report_number: String(period.number).padStart(2, '0'),
     report_total: String(contract.paymentsCount).padStart(2, '0'),
     report_label: formatReportNumber(period.number, contract.paymentsCount, contract.reportNumberFormat),
+    payment_label:
+      contract.reportNumberFormat === 'NN-NN'
+        ? formatReportNumber(period.number, contract.paymentsCount, 'NN-NN')
+        : `${String(period.number).padStart(2, '0')} de ${String(contract.paymentsCount).padStart(2, '0')}`,
     is_last_report: isLast,
     next_report_date: isLast || !period.nextReportDate ? 'N/A – informe final' : dd(period.nextReportDate),
     report_date: dd(period.reportDate),

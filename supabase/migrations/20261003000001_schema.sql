@@ -136,6 +136,7 @@ create table support_types (
   official_url    text,
   instructions    text,
   profiles        text[],                          -- null = every contract profile of the entity
+  stage           text not null default 'before_generation' check (stage in ('before_generation', 'after_signature')),
   unique (entity_id, code)
 );
 

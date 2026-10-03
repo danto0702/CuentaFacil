@@ -57,7 +57,7 @@ function generalData(): string {
       label('Del Banco: '),
       "{{bank_name}}  Tipo de Cuenta Ahorros ({{x_account_savings || '__'}}) Corriente ({{x_account_checking || '__'}})",
     ]),
-    line([label('Pago No. '), '{{report_number}} de {{report_total}}']),
+    line([label('Pago No. '), '{{payment_label}}']),
     line([label('No. de Planilla de Aportes Salud y Pensión: '), '{{ss_planilla}}']),
     line([label('ARL: '), "Si ({{x_arl_yes || '_'}}) NO ({{x_arl_no || '_'}})"]),
   ].join('');

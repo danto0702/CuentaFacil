@@ -48,7 +48,7 @@ insert into support_types (entity_id, code, label, required, frequency, max_age_
   ('00000000-0000-4000-8000-000000000001', 'EPS', 'Certificado de afiliación EPS', true, 'every_period', 30, 'AFILIACIONES', 1, null, 'Descárgalo del portal de tu EPS.', null),
   ('00000000-0000-4000-8000-000000000001', 'ARL', 'Certificado de afiliación ARL', true, 'every_period', 30, 'AFILIACIONES', 2, null, 'Pídelo a tu ARL; debe cubrir todo el periodo del contrato.', null),
   ('00000000-0000-4000-8000-000000000001', 'AFP', 'Certificado de afiliación a pensión', true, 'every_period', 30, 'AFILIACIONES', 3, null, 'Descárgalo del portal de tu fondo de pensiones.', null),
-  ('00000000-0000-4000-8000-000000000001', 'CERT_CUMPLIMIENTO', 'Certificado de cumplimiento (lo expide la entidad)', true, 'every_period', null, null, null, null, 'Lo expide el supervisor; envíamelo cuando lo tengas.', null),
+  ('00000000-0000-4000-8000-000000000001', 'CERT_CUMPLIMIENTO', 'Certificado de cumplimiento (lo expide la entidad)', true, 'every_period', null, null, null, null, 'Lo expide el supervisor después de firmar; envíamelo cuando lo tengas.', null),
   ('00000000-0000-4000-8000-000000000001', 'CERT_EJECUCION_EBS', 'Certificado de ejecución del coordinador EBS', true, 'every_period', null, null, null, null, 'Lo expide la coordinación de Equipos Básicos de Salud.', array['ebs']),
   ('00000000-0000-4000-8000-000000000001', 'DSE', 'Documento Soporte DIAN (lo expide la entidad)', true, 'every_period', null, null, null, null, 'Lo expide contabilidad de la entidad.', null),
   ('00000000-0000-4000-8000-000000000001', 'FICHA_SECOP', 'Ficha del contrato en SECOP II', true, 'once', null, null, null, null, 'Imprime la ficha del contrato desde SECOP II como PDF.', null),
@@ -56,6 +56,9 @@ insert into support_types (entity_id, code, label, required, frequency, max_age_
   ('00000000-0000-4000-8000-000000000001', 'CEDULA', 'Cédula', true, 'at_start', null, null, null, null, null, null),
   ('00000000-0000-4000-8000-000000000001', 'CUENTA_BANCARIA', 'Certificación bancaria', true, 'at_start', null, null, null, null, null, null)
 on conflict (entity_id, code) do nothing;
+
+update support_types set stage = 'after_signature'
+where entity_id = '00000000-0000-4000-8000-000000000001' and code in ('CERT_CUMPLIMIENTO', 'DSE');
 
 insert into reminder_rules (entity_id, trigger_kind, trigger_value, support_code, action, wa_template)
 select '00000000-0000-4000-8000-000000000001'::uuid, r.trigger_kind, r.trigger_value, r.support_code, r.action, r.wa_template

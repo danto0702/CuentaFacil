@@ -1,0 +1,18 @@
+{
+  "name": "@cuentasbot/simulator",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/main.ts",
+    "demo": "tsx src/main.ts --reset --script scripts/demo-completo.txt && tsx src/main.ts --reset --fecha 2026-08-31 --script scripts/demo-prorrateado.txt",
+    "typecheck": "tsc -p .",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@cuentasbot/conversation": "workspace:*",
+    "@cuentasbot/shared": "workspace:*",
+    "@cuentasbot/worker": "workspace:*",
+    "sharp": "^0.34.0"
+  }
+}

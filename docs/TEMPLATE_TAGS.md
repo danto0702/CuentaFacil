@@ -61,6 +61,7 @@
 | `report_number` | texto | Número de informe con ceros ("03"). |
 | `report_total` | texto | Total de informes con ceros ("03"). |
 | `report_label` | texto | "03 DE 03" o "02-06", según el formato del contrato. |
+| `payment_label` | texto | "03 de 03" o "02-06" (línea "Pago No."). |
 | `is_last_report` | sí/no | Es el último informe del contrato. |
 | `next_report_date` | texto | Fecha del próximo informe, o "N/A – informe final". |
 | `report_date` | texto | Fecha del informe de supervisión, dd/mm/aaaa (vacía si no se ha fijado). |

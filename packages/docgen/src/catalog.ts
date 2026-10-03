@@ -117,6 +117,7 @@ export const TemplateContextSchema = z.object({
   report_number: s('Número de informe con ceros ("03").'),
   report_total: s('Total de informes con ceros ("03").'),
   report_label: s('"03 DE 03" o "02-06", según el formato del contrato.'),
+  payment_label: s('"03 de 03" o "02-06" (línea "Pago No.").'),
   is_last_report: b('Es el último informe del contrato.'),
   next_report_date: s('Fecha del próximo informe, o "N/A – informe final".'),
   report_date: s('Fecha del informe de supervisión, dd/mm/aaaa (vacía si no se ha fijado).'),
