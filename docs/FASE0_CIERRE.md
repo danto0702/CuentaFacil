@@ -11,7 +11,7 @@ Fecha: 2026-10-03 · Rama: `claude/fase-0`
 | Periodo completo: contrato 0001 Salud Pública, informe 03 DE 03 (1 al 30 de septiembre), con pagos anteriores ND 000001 y ND 000002 | `pnpm sim:demo` (primer guion) | 5 PDF (informes, ANTECEDENTES, AFILIACIONES, planilla), 2 DOCX y el ZIP con `CUENTAS SEPTIEMBRE 2026/DOCUMENTOS A CARGAR` |
 | Periodo prorrateado: contrato 0002 EBS, pago 01-05 (20 al 31 de agosto, 12 días) con el valor del clausulado ($ 3.608.000 = honorarios + transporte) | `pnpm sim:demo` (segundo guion) | Igual; % presupuestal 9,09 %, balance y valor en letras correctos |
 
-Lo mismo se verifica automáticamente en `apps/worker/test/generator.test.ts` (de punta a punta con LibreOffice) y en las pruebas golden de `packages/docgen`.
+Lo mismo se verifica automáticamente en `apps/worker/test/generator.test.ts` (de punta a punta con LibreOffice) y en las pruebas golden de `packages/docgen` (comparan el texto del DOCX llenado, que no depende de las fuentes del servidor).
 
 **Pendiente de tu revisión visual:** comparar lado a lado los PDF del simulador con los originales de HRNO (ver "Pruebas manuales").
 
@@ -22,7 +22,7 @@ Lo mismo se verifica automáticamente en `apps/worker/test/generator.test.ts` (d
 - **Conversación** (`packages/conversation`): notas por texto, audio y fotos (álbumes), fechas relativas ("ayer", "el martes", "el 15"), varios contratos y entidades ("¿A cuál contrato? [0001] [0002] [Ambos]"), clasificación a obligación con confianza, checklist con enlaces oficiales, borrador con preguntas para obligaciones sin registros ([Escribir/Audio] [Texto por defecto] [No aplicó]), edición, aprobación, generación y entrega en orden (PDF → DOCX → ZIP), cambio de corte con vista previa y confirmación.
 - **Base de datos** (`supabase/`): esquema completo con RLS por rol, colas pgmq, pg_cron, buckets privados, seed idempotente de HRNO (checklist, enlaces, recordatorios) y datos sintéticos de dos entidades.
 - **Panel** (`apps/panel`): login con Supabase Auth y roles, modo demo, entidades, **formatos y variables** (subir DOCX, ver etiquetas, crear variables, vista previa DOCX/PDF), catálogo, contratistas y cuentas.
-- **Simulador** (`apps/simulator`) y **CI** (`.github/workflows/ci.yml`): lint, tipos, 95 pruebas, base de datos y build del panel.
+- **Simulador** (`apps/simulator`) y **CI** (`.github/workflows/ci.yml`): lint, tipos, 96 pruebas, base de datos y build del panel (en verde).
 
 ## Pruebas manuales (te pido revisarlas)
 
