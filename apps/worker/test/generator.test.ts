@@ -1,6 +1,6 @@
 import { execFileSync } from 'node:child_process';
 import { DEMO_IDS, demoData, FixedClock, MemoryStore } from '@cuentasbot/conversation';
-import { pdfToText } from '@cuentasbot/docgen';
+import { docxPlainText, pdfPageCount } from '@cuentasbot/docgen';
 import JSZip from 'jszip';
 import { describe, expect, it } from 'vitest';
 import { AccountGenerator } from '../src/generator.js';
@@ -54,14 +54,17 @@ describe.skipIf(!hasSoffice)('AccountGenerator (end to end with LibreOffice)', (
       'docx:INFORME DE SUPERVISIÓN SEPTIEMBRE 2026.docx',
       'zip:aprobacindelossoportespresentadosalsupervisordelcon.zip',
     ]);
-    const sup = text(await pdfToText(files[1]!.data));
+    // Values are checked on the DOCX text (font-independent); PDFs only need to exist and have pages.
+    expect(await pdfPageCount(files[0]!.data)).toBeGreaterThanOrEqual(2);
+    expect(await pdfPageCount(files[1]!.data)).toBeGreaterThanOrEqual(2);
+    const sup = text(await docxPlainText(files[6]!.data));
     expect(sup).toContain('DESDE: 01/09/2026 HASTA: 30/09/2026');
     expect(sup).toContain('CUATRO MILLONES DE PESOS M/CTE ($4.000.000)');
     expect(sup).toContain('Valor pagado $ 8.000.000');
-    expect(sup).toMatch(/Valor no ejecutado \$ ?0 /);
+    expect(sup).toContain('Valor no ejecutado $ 0');
     expect(sup).toContain('N/A – informe final');
     expect(sup).toContain('29 días del mes de SEPTIEMBRE de 2026');
-    const act = text(await pdfToText(files[0]!.data));
+    const act = text(await docxPlainText(files[5]!.data));
     expect(act).toContain('Pago No. 03 de 03');
     expect(act).toContain('TOTAL APORTADO (*): $ 1.534.500');
 
@@ -90,12 +93,21 @@ describe.skipIf(!hasSoffice)('AccountGenerator (end to end with LibreOffice)', (
       templates: new CodeTemplateProvider(),
     });
     const files = await gen.generate(DEMO_IDS.ebs, 1);
-    const sup = text(await pdfToText(files[1]!.data));
+    expect(await pdfPageCount(files[1]!.data)).toBeGreaterThanOrEqual(2);
+    const sup = text(
+      await docxPlainText(
+        files.find((f) => f.filename.startsWith('INFORME DE SUPERVISIÓN') && f.group === 'docx')!.data,
+      ),
+    );
     expect(sup).toContain('DESDE: 20/08/2026 HASTA: 31/08/2026');
     expect(sup).toContain('TRES MILLONES SEISCIENTOS OCHO MIL PESOS M/CTE ($3.608.000)');
     expect(sup).toContain('9,09%');
     expect(sup).toContain('Valor no ejecutado $ 36.080.000');
-    const act = text(await pdfToText(files[0]!.data));
+    const act = text(
+      await docxPlainText(
+        files.find((f) => f.filename.startsWith('INFORME AGOSTO') && f.group === 'docx')!.data,
+      ),
+    );
     expect(act).toContain('INFORME – No. 01-05 - DEL 20 AL 31 DE AGOSTO DE 2026');
     expect(act).toContain('Pago No. 01-05');
     expect(act).toContain('APORTES OBLIGATORIOS EN SALUD (*): $ 420.000');

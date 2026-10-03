@@ -9,4 +9,5 @@ export * from './sample.js';
 export * from './tags.js';
 export * from './tags-doc.js';
 export * from './templates/hrno.js';
+export * from './text.js';
 export * from './zip.js';
