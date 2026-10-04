@@ -8,7 +8,7 @@ Nombre comercial: **Pascalia** ([pascalia.lat](https://pascalia.lat)).
 
 ## Sitio web
 
-`web/` contiene la landing estática de pascalia.lat (HTML + CSS, sin build). Para verla en local: `python3 -m http.server -d web 8000`.
+`web/` contiene la landing estática de pascalia.lat (HTML + CSS, sin build). Para verla en local: `python3 -m http.server -d web 8000`. Se publica en GitHub Pages con cada push a `main` que toque `web/`.
 
 ## Documentos
 
