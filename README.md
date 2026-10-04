@@ -2,7 +2,13 @@
 
 Asistente de WhatsApp que acompaña a contratistas de prestación de servicios de entidades públicas colombianas para preparar cada mes su cuenta de cobro: registro de actividades y evidencias, recordatorios de soportes, y generación del Informe de Actividades, el borrador del Informe de Supervisión y los paquetes PDF listos para firmar y cargar en SECOP II.
 
+Nombre comercial: **Pascalia** ([pascalia.lat](https://pascalia.lat)).
+
 **Estado:** planeación (antes de la Fase 0). No hay código de producto todavía.
+
+## Sitio web
+
+`web/` contiene la landing estática de pascalia.lat (HTML + CSS, sin build). Para verla en local: `python3 -m http.server -d web 8000`.
 
 ## Documentos
 

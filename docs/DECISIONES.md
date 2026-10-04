@@ -58,3 +58,9 @@
 
 ## ADR-013 — Obligaciones con componentes, pesos y metas mensuales
 - **Decisión:** `obligation_groups` (peso %) y `obligation_goals` (metas por mes) opcionales por contrato; el avance se registra en `goal_progress` y alimenta el informe y una alerta si va por debajo del umbral de la entidad (70 % en HRNO-EBS).
+
+## ADR-014 — Nombre comercial Pascalia y landing estática en `web/`
+- **Contexto:** el dueño adquirió el dominio `pascalia.lat` y pidió la página antes de construir el producto.
+- **Decisión:** "Pascalia" es el nombre comercial que ve el usuario; "CuentasBot" queda como nombre interno del código. La landing es HTML + CSS estático en `web/` (sin build ni JavaScript), con lista de espera por correo (`contacto@pascalia.lat`). Hosting sugerido: Cloudflare Pages o GitHub Pages (gratis, HTTPS, apuntan al dominio con un registro DNS).
+- **Alternativas:** página dentro del panel Next.js (aún no existe y mezclaría el sitio público con el admin).
+- **Consecuencias:** no se publica la política de datos hasta que la revise un abogado; precio y entidad piloto no se nombran en la página. Cuando haya número de WhatsApp verificado, el botón principal pasa a un enlace `wa.me`.
