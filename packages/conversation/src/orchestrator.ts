@@ -271,7 +271,11 @@ export class Orchestrator {
           { id: 'menu:my_data', title: 'Mis datos' },
           { id: 'menu:help', title: 'Ayuda' },
           { id: 'menu:support', title: 'Hablar con soporte' },
-          { id: 'menu:about', title: `Conocer ${BRAND.company}`, description: 'Nuestros servicios y página web' },
+          {
+            id: 'menu:about',
+            title: `Conocer ${BRAND.company}`,
+            description: 'Nuestros servicios y página web',
+          },
         ],
       ),
     );
