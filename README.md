@@ -56,6 +56,10 @@ pnpm sim -- --base-activity fixtures/private/hrno/PLANTILLA_Informe_Actividades_
 
 Ver [`.env.example`](.env.example). En Fase 0 ninguna es obligatoria: sin `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY` el panel corre en modo demo.
 
+## Sitio web
+
+`web/` contiene la landing estática de pascalia.lat (HTML + CSS, sin build). Para verla en local: `python3 -m http.server -d web 8000`. Se publica en GitHub Pages con cada push a `main` que toque `web/`.
+
 ## Documentos
 
 - [`docs/PROMPT_INICIAL.md`](docs/PROMPT_INICIAL.md) — requisitos del dueño.

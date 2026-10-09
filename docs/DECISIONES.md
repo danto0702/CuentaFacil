@@ -80,3 +80,9 @@
 ## ADR-018 — Documentos que la entidad expide después de la firma
 - **Contexto:** el certificado de cumplimiento y el Documento Soporte DIAN los expide la entidad después de que el supervisor firma el informe.
 - **Decisión:** `support_types.stage = 'after_signature'`: aparecen en el checklist como pendientes "después de la firma", no bloquean la generación de los informes. Para el ZIP final, el contratista los envía y pide *reenviar documentos* (Fase 1).
+
+## ADR-019 — Nombre comercial Pascalia y landing estática en `web/`
+- **Contexto:** el dueño adquirió el dominio `pascalia.lat` y pidió la página antes de construir el producto.
+- **Decisión:** "Pascalia" es el nombre comercial que ve el usuario; "CuentasBot" queda como nombre interno del código. La landing es HTML + CSS estático en `web/` (sin build ni JavaScript), con lista de espera por correo (`contacto@pascalia.lat`). Hosting: GitHub Pages (repo público, gratis, HTTPS), publicado por `.github/workflows/pages.yml` en cada push a `main` que toque `web/`; DNS en Porkbun.
+- **Alternativas:** página dentro del panel Next.js (aún no existe y mezclaría el sitio público con el admin).
+- **Consecuencias:** no se publica la política de datos hasta que la revise un abogado; precio y entidad piloto no se nombran en la página. Cuando haya número de WhatsApp verificado, el botón principal pasa a un enlace `wa.me`.
