@@ -6,11 +6,11 @@
 
 ## 1. Responsable del tratamiento
 
-- **Responsable:** PascalIA — razón social o nombre completo: [PENDIENTE]
-- **NIT / documento:** [PENDIENTE]
-- **Domicilio:** [PENDIENTE]
+- **Responsable:** Danilo Orlando Torrado Blanco, persona natural que opera la marca PascalIA
+- **Documento:** C.C. 1.090.453.097
+- **Domicilio:** Calle 11 # 13-55, barrio Santa Bárbara, Ábrego, Norte de Santander, Colombia
 - **Correo para ejercer derechos:** contacto@pascalia.lat
-- **WhatsApp de atención:** número oficial de CuentaFacil [PENDIENTE] (escribiendo "soporte" o "borrar mis datos")
+- **WhatsApp de atención:** +57 312 388 5012 (escribiendo "soporte" o "borrar mis datos")
 
 ## 2. Datos que tratamos
 
