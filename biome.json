@@ -10,6 +10,7 @@
       "!**/out",
       "!fixtures",
       "!docs",
+      "!web",
       "!**/next-env.d.ts"
     ]
   },
