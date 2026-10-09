@@ -1,6 +1,8 @@
 # CLAUDE.md — CuentasBot
 
 ## Producto
+Servicio: **CuentaFacil de Pascalia** (Pascalia es la empresa); el asistente de WhatsApp se llama **Pascal**. "CuentasBot" queda solo como nombre interno del código (paquetes `@cuentasbot/*`).
+
 SaaS por suscripción que acompaña por WhatsApp a contratistas de prestación de servicios de entidades públicas colombianas para preparar cada mes su cuenta de cobro. Entidad piloto: ESE Hospital Regional Noroccidental (HRNO), Ábrego, Norte de Santander. Multi-entidad desde el diseño; un contratista puede tener varios contratos con entidades distintas.
 
 **Principio rector:** el contratista es responsable de lo que firma. El bot organiza, calcula, redacta borradores y valida; **nunca inventa actividades** y siempre pide aprobación antes de generar documentos finales.

@@ -36,7 +36,7 @@ export default async function PanelLayout({ children }: { children: ReactNode })
   return (
     <div className="shell">
       <nav className="nav">
-        <h1>CuentasBot</h1>
+        <h1>CuentaFacil</h1>
         <Link href="/">Inicio</Link>
         <Link href="/entidades">Entidades y formatos</Link>
         <Link href="/contratistas">Contratistas</Link>

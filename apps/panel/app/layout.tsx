@@ -3,8 +3,8 @@ import type { ReactNode } from 'react';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'CuentasBot · Panel',
-  description: 'Panel administrativo de CuentasBot',
+  title: 'CuentaFacil · Panel',
+  description: 'Panel administrativo de CuentaFacil de Pascalia',
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

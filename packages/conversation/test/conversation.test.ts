@@ -156,7 +156,7 @@ describe('other flows', () => {
   it('greets unknown numbers without storing anything', async () => {
     const h = harness({ phone: '+573999999999' });
     const out = show(await h.say('hola'));
-    expect(out[0]).toMatch(/^👋 Hola. Soy CuentasBot/);
+    expect(out[0]).toMatch(/^👋 ¡Hola! Soy Pascal, el asistente de CuentaFacil de Pascalia/);
     expect(h.store.data.conversations).toEqual([]);
   });
 

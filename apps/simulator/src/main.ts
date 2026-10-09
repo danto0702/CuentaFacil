@@ -72,7 +72,7 @@ async function handleLine(line: string): Promise<boolean> {
 }
 
 console.log(
-  `CuentasBot · simulador local · fecha ${today} · ${session.phone}\nEscribe /ayuda para ver los comandos.\n`,
+  `Pascal · CuentaFacil de Pascalia · simulador local · fecha ${today} · ${session.phone}\nEscribe /ayuda para ver los comandos.\n`,
 );
 
 const script = arg('--script');

@@ -6,7 +6,7 @@ export default function LoginPage() {
   const [error, action, pending] = useActionState(signIn, null);
   return (
     <main className="login card">
-      <h2>CuentasBot · Panel</h2>
+      <h2>CuentaFacil · Panel</h2>
       <form action={action}>
         <label htmlFor="email">Correo</label>
         <input id="email" name="email" type="email" autoComplete="username" required />

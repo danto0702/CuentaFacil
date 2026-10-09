@@ -1,4 +1,6 @@
-# CuentasBot
+# CuentaFacil de Pascalia
+
+> Servicio: **CuentaFacil** (de la empresa **Pascalia**). El asistente de WhatsApp se llama **Pascal**. "CuentasBot" es el nombre interno del código (paquetes `@cuentasbot/*`).
 
 Asistente de WhatsApp que acompaña a contratistas de prestación de servicios de entidades públicas colombianas para preparar cada mes su cuenta de cobro: registro de actividades y evidencias, recordatorios de soportes, y generación del Informe de Actividades, el borrador del Informe de Supervisión y los paquetes PDF listos para firmar y cargar en SECOP II.
 

@@ -98,7 +98,7 @@ export class Orchestrator {
     if (!user) {
       return [
         text(
-          '👋 Hola. Soy CuentasBot, te ayudo a preparar tus cuentas de cobro. Todavía no tienes una cuenta activa; el registro por WhatsApp estará disponible muy pronto.',
+          '👋 ¡Hola! Soy Pascal, el asistente de CuentaFacil de Pascalia. Te ayudo a preparar tus cuentas de cobro. Todavía no tienes una cuenta activa; el registro por WhatsApp estará disponible muy pronto.',
         ),
       ];
     }
@@ -243,7 +243,7 @@ export class Orchestrator {
     if (help) {
       turn.out.push(
         text(
-          'Así me usas:\n1️⃣ Durante el mes, cuéntame lo que haces: texto, audio o fotos. Yo lo anoto en la obligación que corresponde.\n2️⃣ Envíame los soportes (planilla, antecedentes, afiliaciones) cuando los tengas.\n3️⃣ Al cierre escribe *ver borrador*: redacto el informe y tú lo apruebas.\n4️⃣ Escribe *generar* y te envío los documentos listos para firmar.',
+          'Soy Pascal, el asistente de CuentaFacil de Pascalia. Así me usas:\n1️⃣ Durante el mes, cuéntame lo que haces: texto, audio o fotos. Yo lo anoto en la obligación que corresponde.\n2️⃣ Envíame los soportes (planilla, antecedentes, afiliaciones) cuando los tengas.\n3️⃣ Al cierre escribe *ver borrador*: redacto el informe y tú lo apruebas.\n4️⃣ Escribe *generar* y te envío los documentos listos para firmar.',
         ),
       );
     }
