@@ -40,6 +40,7 @@ docs/           plan, decisiones (ADR), catálogo de etiquetas, plantillas de Wh
 | `pnpm sim` | Simulador de WhatsApp interactivo (`pnpm sim -- --fecha 2026-08-31 --reset`) |
 | `pnpm sim:demo` | Guiones de aceptación: periodo completo y periodo prorrateado |
 | `pnpm panel` | Panel en http://localhost:3000 (modo demo sin credenciales de Supabase) |
+| `pnpm wa:templates [--crear]` | Crea en Meta las plantillas de WhatsApp de `infra/whatsapp/templates.json` |
 | `pnpm tags:doc` | Regenera `docs/TEMPLATE_TAGS.md` desde el catálogo |
 | `pnpm --filter @cuentasbot/docgen templates` | Genera las plantillas HRNO en `packages/docgen/out` |
 

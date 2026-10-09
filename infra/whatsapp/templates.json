@@ -1,0 +1,229 @@
+[
+  {
+    "name": "bienvenida_cuentafacil",
+    "language": "es",
+    "category": "UTILITY",
+    "components": [
+      {
+        "type": "HEADER",
+        "format": "TEXT",
+        "text": "Te damos la bienvenida a CuentaFacil"
+      },
+      {
+        "type": "BODY",
+        "text": "Hola {{1}}, soy Pascal, el asistente de CuentaFacil de PascalIA. Gracias por inscribirte.\n\nTe ayudo a preparar tus cuentas de cobro de {{2}}: me cuentas por aquí lo que haces cada día (texto, audio o fotos), te recuerdo los soportes y al cierre del periodo te entrego tu informe de actividades listo para firmar.\n\nPara empezar necesito que aceptes nuestra política de tratamiento de datos personales (Ley 1581 de 2012).",
+        "example": {
+          "body_text": [["María", "la ESE Hospital Regional Noroccidental"]]
+        }
+      },
+      {
+        "type": "FOOTER",
+        "text": "Responde STOP si no quieres recibir mensajes"
+      },
+      {
+        "type": "BUTTONS",
+        "buttons": [
+          {
+            "type": "QUICK_REPLY",
+            "text": "Acepto y comienzo"
+          },
+          {
+            "type": "QUICK_REPLY",
+            "text": "No, gracias"
+          },
+          {
+            "type": "URL",
+            "text": "Ver política de datos",
+            "url": "https://pascalia.lat/politica-de-datos/"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "recordatorio_planilla",
+    "language": "es",
+    "category": "UTILITY",
+    "components": [
+      {
+        "type": "BODY",
+        "text": "Hola {{1}}, te recuerdo pagar tu planilla de seguridad social del mes de {{2}}. Cuando la tengas, envíamela por aquí.",
+        "example": {
+          "body_text": [["María", "octubre"]]
+        }
+      },
+      {
+        "type": "FOOTER",
+        "text": "Responde STOP para no recibir recordatorios"
+      },
+      {
+        "type": "BUTTONS",
+        "buttons": [
+          {
+            "type": "QUICK_REPLY",
+            "text": "Ya la pagué"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "recordatorio_antecedentes",
+    "language": "es",
+    "category": "UTILITY",
+    "components": [
+      {
+        "type": "BODY",
+        "text": "Hola {{1}}, es momento de descargar tus certificados de antecedentes para la cuenta de {{2}}. Te dejo el enlace de la Policía; los demás te los envío al responder.",
+        "example": {
+          "body_text": [["María", "octubre"]]
+        }
+      },
+      {
+        "type": "FOOTER",
+        "text": "Responde STOP para no recibir recordatorios"
+      },
+      {
+        "type": "BUTTONS",
+        "buttons": [
+          {
+            "type": "QUICK_REPLY",
+            "text": "Ver enlaces"
+          },
+          {
+            "type": "URL",
+            "text": "Antecedentes Policía",
+            "url": "https://antecedentes.policia.gov.co:7005/WebJudicial/"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "recordatorio_cierre",
+    "language": "es",
+    "category": "UTILITY",
+    "components": [
+      {
+        "type": "BODY",
+        "text": "Hola {{1}}, hoy cierra tu periodo {{2}} del contrato {{3}}. ¿Revisamos el borrador de tu informe?",
+        "example": {
+          "body_text": [["María", "del 1 al 31 de octubre de 2026", "0001 de 2026"]]
+        }
+      },
+      {
+        "type": "FOOTER",
+        "text": "Responde STOP para no recibir recordatorios"
+      },
+      {
+        "type": "BUTTONS",
+        "buttons": [
+          {
+            "type": "QUICK_REPLY",
+            "text": "Ver borrador"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "recordatorio_diario",
+    "language": "es",
+    "category": "UTILITY",
+    "components": [
+      {
+        "type": "BODY",
+        "text": "Hola {{1}}, ¿qué hiciste hoy en tu contrato? Puedes mandarme un audio o fotos.",
+        "example": {
+          "body_text": [["María"]]
+        }
+      },
+      {
+        "type": "BUTTONS",
+        "buttons": [
+          {
+            "type": "QUICK_REPLY",
+            "text": "No más recordatorios"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "faltan_soportes",
+    "language": "es",
+    "category": "UTILITY",
+    "components": [
+      {
+        "type": "BODY",
+        "text": "Hola {{1}}, para tu cuenta de {{2}} aún me faltan estos soportes: {{3}}. Envíamelos por aquí cuando los tengas.",
+        "example": {
+          "body_text": [["María", "octubre", "planilla de seguridad social y antecedentes"]]
+        }
+      },
+      {
+        "type": "FOOTER",
+        "text": "Responde STOP para no recibir recordatorios"
+      },
+      {
+        "type": "BUTTONS",
+        "buttons": [
+          {
+            "type": "QUICK_REPLY",
+            "text": "¿Qué me falta?"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "aviso_fin_contrato",
+    "language": "es",
+    "category": "UTILITY",
+    "components": [
+      {
+        "type": "BODY",
+        "text": "Hola {{1}}, tu contrato {{2}} termina el {{3}}. Si firmaste un contrato nuevo, envíamelo para seguir con tus cuentas.",
+        "example": {
+          "body_text": [["María", "0001 de 2026", "30 de noviembre de 2026"]]
+        }
+      },
+      {
+        "type": "FOOTER",
+        "text": "Responde STOP para no recibir recordatorios"
+      },
+      {
+        "type": "BUTTONS",
+        "buttons": [
+          {
+            "type": "QUICK_REPLY",
+            "text": "Enviar contrato"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "documentos_listos",
+    "language": "es",
+    "category": "UTILITY",
+    "components": [
+      {
+        "type": "BODY",
+        "text": "Hola {{1}}, tus documentos de la cuenta {{2}} están listos. Responde para recibirlos.",
+        "example": {
+          "body_text": [["María", "0001 de 2026, octubre"]]
+        }
+      },
+      {
+        "type": "BUTTONS",
+        "buttons": [
+          {
+            "type": "QUICK_REPLY",
+            "text": "Enviármelos"
+          }
+        ]
+      }
+    ]
+  }
+]

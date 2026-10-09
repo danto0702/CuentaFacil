@@ -2,6 +2,10 @@
 
 > Marca: el servicio es **CuentaFacil de PascalIA** y el asistente se llama **Pascal**.
 
+> **Fuente de verdad:** [`infra/whatsapp/templates.json`](../infra/whatsapp/templates.json). Para crearlas en Meta: pon `WA_BUSINESS_ACCOUNT_ID` y `WA_ACCESS_TOKEN` en `.env` y corre `pnpm wa:templates` (muestra qué haría) y luego `pnpm wa:templates --crear`. Las que ya existen se saltan.
+
+> Los recordatorios llevan el pie "Responde STOP para no recibir recordatorios".
+
 > Se usan **solo fuera de la ventana de 24 h**. Dentro de la ventana el bot responde con mensajes normales.
 > Categoría **Utilidad** (no marketing). Idioma: `es` (Español). Las variables van como `{{1}}`, `{{2}}`…
 > Meta revisa cada plantilla; los textos deben ser transaccionales y sin promociones. Estado de aprobación: se registra a mano en el panel (Fase 1).
@@ -13,7 +17,7 @@
 | `recordatorio_antecedentes` | Día 25 (HRNO) | Hola {{1}}, es momento de descargar tus certificados de antecedentes para la cuenta de {{2}}. Te dejo el enlace de la Policía; los demás te los envío al responder. | 1: nombre · 2: mes | URL: portal de antecedentes · Respuesta rápida: "Ver enlaces" |
 | `recordatorio_cierre` | Último día del periodo | Hola {{1}}, hoy cierra tu periodo {{2}} del contrato {{3}}. ¿Revisamos el borrador de tu informe? | 1: nombre · 2: rango de fechas · 3: contrato | Respuesta rápida: "Ver borrador" |
 | `recordatorio_diario` | Hora elegida por el contratista (opcional) | Hola {{1}}, ¿qué hiciste hoy en tu contrato? Puedes mandarme un audio o fotos. | 1: nombre | Respuesta rápida: "No más recordatorios" |
-| `faltan_soportes` | 3 días antes del cierre, si falta algo | Hola {{1}}, para tu cuenta de {{2}} aún me faltan: {{3}}. | 1: nombre · 2: mes · 3: lista corta | Respuesta rápida: "¿Qué me falta?" |
+| `faltan_soportes` | 3 días antes del cierre, si falta algo | Hola {{1}}, para tu cuenta de {{2}} aún me faltan estos soportes: {{3}}. Envíamelos por aquí cuando los tengas. | 1: nombre · 2: mes · 3: lista corta | Respuesta rápida: "¿Qué me falta?" |
 | `aviso_fin_contrato` | 15 días antes del fin del contrato | Hola {{1}}, tu contrato {{2}} termina el {{3}}. Si firmaste un contrato nuevo, envíamelo para seguir con tus cuentas. | 1: nombre · 2: contrato · 3: fecha | Respuesta rápida: "Enviar contrato" |
 | `documentos_listos` | Generación terminada fuera de la ventana | Hola {{1}}, tus documentos de la cuenta {{2}} están listos. Responde para recibirlos. | 1: nombre · 2: contrato y periodo | Respuesta rápida: "Enviármelos" |
 | `link_pago` (Fase 3) | Suscripción por vencer | Hola {{1}}, tu suscripción del contrato {{2}} vence el {{3}}. Puedes renovarla aquí. | 1: nombre · 2: contrato · 3: fecha | URL: link de pago Wompi |
@@ -32,9 +36,9 @@ Solo para personas que dieron su número y aceptaron recibir mensajes (formulari
 |-------|-------|
 | Categoría | Utilidad (si Meta la reclasifica como Marketing, se acepta) |
 | Idioma | `es` |
-| Encabezado (texto) | Bienvenido a CuentaFacil |
+| Encabezado (texto) | Te damos la bienvenida a CuentaFacil |
 | Pie | Responde STOP si no quieres recibir mensajes |
-| Botones (respuesta rápida) | `Acepto y comienzo` · `Ver política de datos` · `No, gracias` |
+| Botones | Respuesta rápida: `Acepto y comienzo` · `No, gracias` · Enlace: `Ver política de datos` → https://pascalia.lat/politica-de-datos/ |
 | Ejemplos | `{{1}}` = María · `{{2}}` = la ESE Hospital Regional Noroccidental |
 
 Cuerpo:

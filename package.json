@@ -15,7 +15,8 @@
     "db:test": "bash supabase/tests/run.sh",
     "tags:doc": "pnpm --filter @cuentasbot/docgen tags:doc",
     "sim:demo": "pnpm --filter @cuentasbot/simulator demo",
-    "panel": "pnpm --filter @cuentasbot/panel dev"
+    "panel": "pnpm --filter @cuentasbot/panel dev",
+    "wa:templates": "node --env-file-if-exists=.env scripts/wa-templates.mjs"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.15",
