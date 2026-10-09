@@ -1,46 +1,5 @@
 [
   {
-    "name": "bienvenida_cuentafacil",
-    "language": "es",
-    "category": "UTILITY",
-    "components": [
-      {
-        "type": "HEADER",
-        "format": "TEXT",
-        "text": "Te damos la bienvenida a CuentaFacil"
-      },
-      {
-        "type": "BODY",
-        "text": "Hola {{1}}, soy Pascal, el asistente de CuentaFacil de PascalIA. Gracias por inscribirte.\n\nTe ayudo a preparar tus cuentas de cobro de {{2}}: me cuentas por aquí lo que haces cada día (texto, audio o fotos), te recuerdo los soportes y al cierre del periodo te entrego tu informe de actividades listo para firmar.\n\nPara empezar necesito que aceptes nuestra política de tratamiento de datos personales (Ley 1581 de 2012).",
-        "example": {
-          "body_text": [["María", "la ESE Hospital Regional Noroccidental"]]
-        }
-      },
-      {
-        "type": "FOOTER",
-        "text": "Responde STOP si no quieres recibir mensajes"
-      },
-      {
-        "type": "BUTTONS",
-        "buttons": [
-          {
-            "type": "QUICK_REPLY",
-            "text": "Acepto y comienzo"
-          },
-          {
-            "type": "QUICK_REPLY",
-            "text": "No, gracias"
-          },
-          {
-            "type": "URL",
-            "text": "Ver política de datos",
-            "url": "https://pascalia.lat/politica-de-datos/"
-          }
-        ]
-      }
-    ]
-  },
-  {
     "name": "recordatorio_planilla",
     "language": "es",
     "category": "UTILITY",

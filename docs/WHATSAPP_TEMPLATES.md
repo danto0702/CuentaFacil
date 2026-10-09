@@ -30,6 +30,8 @@ Reglas del bot:
 
 ### `bienvenida_cuentafacil` (plantilla: CuentaFacil escribe primero)
 
+> Creada a mano en Meta (2026-10-09); por eso no está en `infra/whatsapp/templates.json`.
+
 Solo para personas que dieron su número y aceptaron recibir mensajes (formulario, QR, inscripción). Nunca a listas compradas o extraídas.
 
 | Campo | Valor |
