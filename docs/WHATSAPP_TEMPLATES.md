@@ -1,6 +1,6 @@
 # Plantillas de WhatsApp (borrador para registrar en Meta)
 
-> Marca: el servicio es **CuentaFacil de Pascalia** y el asistente se llama **Pascal**.
+> Marca: el servicio es **CuentaFacil de PascalIA** y el asistente se llama **Pascal**.
 
 > Se usan **solo fuera de la ventana de 24 h**. Dentro de la ventana el bot responde con mensajes normales.
 > Categoría **Utilidad** (no marketing). Idioma: `es` (Español). Las variables van como `{{1}}`, `{{2}}`…
@@ -40,7 +40,7 @@ Solo para personas que dieron su número y aceptaron recibir mensajes (formulari
 Cuerpo:
 
 ```
-Hola {{1}}, soy Pascal, el asistente de CuentaFacil de Pascalia. Gracias por inscribirte.
+Hola {{1}}, soy Pascal, el asistente de CuentaFacil de PascalIA. Gracias por inscribirte.
 
 Te ayudo a preparar tus cuentas de cobro de {{2}}: me cuentas por aquí lo que haces cada día (texto, audio o fotos), te recuerdo los soportes y al cierre del periodo te entrego tu informe de actividades listo para firmar.
 
@@ -50,13 +50,13 @@ Para empezar necesito que aceptes nuestra política de tratamiento de datos pers
 ### Bienvenida libre (el contratista escribe primero; no requiere aprobación de Meta)
 
 ```
-👋 ¡Hola! Soy Pascal, el asistente de CuentaFacil de Pascalia.
+👋 ¡Hola! Soy Pascal, el asistente de CuentaFacil de PascalIA.
 
 Te acompaño a preparar tus cuentas de cobro de contratos de prestación de servicios con entidades públicas:
 📝 Registras lo que haces cada día (texto, audio o fotos).
 📎 Te recuerdo la planilla, los antecedentes y las afiliaciones.
 📄 Al cierre te entrego tu informe de actividades y el borrador del informe de supervisión, listos para firmar.
 
-Para continuar, acepta nuestra política de tratamiento de datos: {enlace}
+Para continuar, acepta nuestra política de tratamiento de datos: https://pascalia.lat/politica-de-datos/
 ```
-Botones: `Acepto` · `No acepto`. Pendiente: URL pública de la política de datos.
+Botones: `Acepto` · `No acepto`. Política publicada en https://pascalia.lat/politica-de-datos/ (botón "Ver política de datos" = URL).

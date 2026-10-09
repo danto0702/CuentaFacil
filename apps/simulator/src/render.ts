@@ -9,6 +9,8 @@ export function renderOutgoing(o: Outgoing, savedPath?: string): string {
       return `🤖 ${o.text}\n${o.buttons.map((b, i) => `   [${i + 1}] ${b.title}`).join('\n')}`;
     case 'list':
       return `🤖 ${o.text}\n   ☰ ${o.button}\n${o.rows.map((r, i) => `   (${i + 1}) ${r.title}${r.description ? ` — ${r.description}` : ''}`).join('\n')}`;
+    case 'cta_url':
+      return `🤖 ${o.text}\n   [🔗 ${o.button}] ${o.url}`;
     case 'document':
       return `🤖 📎 ${o.filename}${savedPath ? `  →  ${savedPath}` : ''}`;
   }

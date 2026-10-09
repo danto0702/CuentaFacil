@@ -4,7 +4,7 @@ import './globals.css';
 
 export const metadata: Metadata = {
   title: 'CuentaFacil · Panel',
-  description: 'Panel administrativo de CuentaFacil de Pascalia',
+  description: 'Panel administrativo de CuentaFacil de PascalIA',
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

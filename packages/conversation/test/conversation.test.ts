@@ -156,8 +156,26 @@ describe('other flows', () => {
   it('greets unknown numbers without storing anything', async () => {
     const h = harness({ phone: '+573999999999' });
     const out = show(await h.say('hola'));
-    expect(out[0]).toMatch(/^👋 ¡Hola! Soy Pascal, el asistente de CuentaFacil de Pascalia/);
+    expect(out[0]).toMatch(/^👋 ¡Hola! Soy Pascal, el asistente de CuentaFacil de PascalIA/);
     expect(h.store.data.conversations).toEqual([]);
+  });
+
+  it('tells anyone about PascalIA and links to the website', async () => {
+    const h = harness();
+    const out = show(await h.say('Quiero conocer PascalIA'.replace('Quiero ', '')));
+    expect(out).toEqual([
+      expect.stringMatching(/^🌼 PascalIA crea soluciones .* <Ir a PascalIA → https:\/\/pascalia\.lat\/>$/s),
+    ]);
+    const menu = show(await h.say('menú'));
+    expect(menu[0]).toContain('Conocer PascalIA');
+    expect(show(await h.press('menu:about'))[0]).toContain('https://pascalia.lat/');
+
+    const stranger = harness({ phone: '+573999999999' });
+    const greet = show(await stranger.say('hola'));
+    expect(greet).toHaveLength(2);
+    expect(greet[1]).toContain('<Ir a PascalIA → https://pascalia.lat/>');
+    expect(show(await stranger.say('servicios'))).toHaveLength(1);
+    expect(stranger.store.data.conversations).toEqual([]);
   });
 
   it('shows contracts across entities', async () => {

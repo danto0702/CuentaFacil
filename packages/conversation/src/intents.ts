@@ -12,6 +12,7 @@ export type Command =
   | 'support'
   | 'stop_reminders'
   | 'my_data'
+  | 'about'
   | 'cancel';
 
 const COMMANDS: [Command, string[]][] = [
@@ -29,6 +30,21 @@ const COMMANDS: [Command, string[]][] = [
   ['support', ['soporte', 'hablar con soporte', 'hablar con alguien', 'asesor']],
   ['stop_reminders', ['stop', 'no mas recordatorios', 'detener recordatorios', 'parar recordatorios']],
   ['my_data', ['mis datos']],
+  [
+    'about',
+    [
+      'pascalia',
+      'conocer pascalia',
+      'servicios',
+      'servicios de pascalia',
+      'quienes son',
+      'quien eres',
+      'mas informacion',
+      'saber mas',
+      'pagina web',
+      'sitio web',
+    ],
+  ],
   ['cancel', ['cancelar', 'salir']],
 ];
 

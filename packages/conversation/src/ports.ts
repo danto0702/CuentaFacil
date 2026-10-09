@@ -35,6 +35,8 @@ export type Outgoing =
   | { type: 'text'; text: string }
   | { type: 'buttons'; text: string; buttons: Button[] }
   | { type: 'list'; text: string; button: string; rows: ListRow[] }
+  /** Interactive call-to-action button that opens a URL (WhatsApp "cta_url"); button ≤ 20 characters. */
+  | { type: 'cta_url'; text: string; button: string; url: string }
   | { type: 'document'; filename: string; mime: string; data: Buffer; caption?: string };
 
 export interface Inbound {

@@ -6,7 +6,7 @@ insert into system_settings (key, value) values
 on conflict (key) do nothing;
 
 insert into policy_versions (kind, version, url) values
-  ('privacy_policy', '0.1-borrador', 'https://example.invalid/politica-tratamiento-datos'),
+  ('privacy_policy', '1.0', 'https://pascalia.lat/politica-de-datos/'),
   ('terms', '0.1-borrador', 'https://example.invalid/terminos')
 on conflict (kind, version) do nothing;
 

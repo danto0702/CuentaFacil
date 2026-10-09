@@ -9,6 +9,7 @@ import {
   recutPeriods,
   resolvePeriodAmount,
 } from '@cuentasbot/shared';
+import { BRAND, SIGNATURE } from './brand.js';
 import type {
   Contract,
   ConversationState,
@@ -96,10 +97,13 @@ export class Orchestrator {
     const { store } = this.deps;
     const user = await store.getUserByPhone(msg.from);
     if (!user) {
+      // Unregistered numbers: nothing is stored (no consent yet).
+      if (msg.kind === 'text' && msg.text && matchCommand(msg.text) === 'about') return this.about();
       return [
         text(
-          '👋 ¡Hola! Soy Pascal, el asistente de CuentaFacil de Pascalia. Te ayudo a preparar tus cuentas de cobro. Todavía no tienes una cuenta activa; el registro por WhatsApp estará disponible muy pronto.',
+          `👋 ¡Hola! Soy ${SIGNATURE}. Te ayudo a preparar tus cuentas de cobro. Todavía no tienes una cuenta activa; el registro por WhatsApp estará disponible muy pronto.`,
         ),
+        ...this.about(),
       ];
     }
     const state = (await store.getConversation(user.id)) ?? this.idle(user.id);
@@ -228,6 +232,9 @@ export class Orchestrator {
       case 'stop_reminders':
         turn.out.push(text('🔕 Desactivé tus recordatorios. Puedes seguir usando el servicio normalmente.'));
         return;
+      case 'about':
+        turn.out.push(...this.about());
+        return;
       case 'my_data':
         turn.out.push(
           text(
@@ -243,7 +250,7 @@ export class Orchestrator {
     if (help) {
       turn.out.push(
         text(
-          'Soy Pascal, el asistente de CuentaFacil de Pascalia. Así me usas:\n1️⃣ Durante el mes, cuéntame lo que haces: texto, audio o fotos. Yo lo anoto en la obligación que corresponde.\n2️⃣ Envíame los soportes (planilla, antecedentes, afiliaciones) cuando los tengas.\n3️⃣ Al cierre escribe *ver borrador*: redacto el informe y tú lo apruebas.\n4️⃣ Escribe *generar* y te envío los documentos listos para firmar.',
+          `Soy ${SIGNATURE}. Así me usas:\n1️⃣ Durante el mes, cuéntame lo que haces: texto, audio o fotos. Yo lo anoto en la obligación que corresponde.\n2️⃣ Envíame los soportes (planilla, antecedentes, afiliaciones) cuando los tengas.\n3️⃣ Al cierre escribe *ver borrador*: redacto el informe y tú lo apruebas.\n4️⃣ Escribe *generar* y te envío los documentos listos para firmar.`,
         ),
       );
     }
@@ -264,9 +271,22 @@ export class Orchestrator {
           { id: 'menu:my_data', title: 'Mis datos' },
           { id: 'menu:help', title: 'Ayuda' },
           { id: 'menu:support', title: 'Hablar con soporte' },
+          { id: 'menu:about', title: `Conocer ${BRAND.company}`, description: 'Nuestros servicios y página web' },
         ],
       ),
     );
+  }
+
+  /** Who we are and where to learn more (answers "conocer PascalIA", "servicios", etc.). */
+  private about(): Outgoing[] {
+    return [
+      {
+        type: 'cta_url',
+        text: `🌼 ${BRAND.company} crea soluciones de inteligencia artificial para organizaciones y personas: consultoría, desarrollo y capacitación. ${BRAND.service} es nuestro servicio para contratistas del Estado.\n\nConoce todos nuestros servicios en nuestra página.`,
+        button: `Ir a ${BRAND.company}`,
+        url: BRAND.website,
+      },
+    ];
   }
 
   private async activeContracts(turn: Turn, date?: IsoDate): Promise<Contract[]> {

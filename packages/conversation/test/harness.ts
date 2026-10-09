@@ -50,6 +50,7 @@ export function show(out: Outgoing[]): string[] {
     if (o.type === 'text') return o.text;
     if (o.type === 'buttons') return `${o.text} [${o.buttons.map((b) => b.title).join('] [')}]`;
     if (o.type === 'list') return `${o.text} {${o.rows.map((r) => r.title).join(' | ')}}`;
+    if (o.type === 'cta_url') return `${o.text} <${o.button} → ${o.url}>`;
     return `📎 ${o.filename}`;
   });
 }

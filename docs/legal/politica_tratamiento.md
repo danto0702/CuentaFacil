@@ -1,16 +1,16 @@
-# Política de Tratamiento de Datos Personales — CuentasBot
+# Política de Tratamiento de Datos Personales — CuentaFacil de PascalIA
 
-> ⚠️ **BORRADOR — PENDIENTE DE REVISIÓN POR ABOGADO.** No publicar ni usar para recoger consentimientos hasta su aprobación.
-> Versión: 0.1 (borrador) · Fecha: 2026-10-03
+> ✅ **Versión 1.0, aprobada por el abogado.** Publicada en https://pascalia.lat/politica-de-datos/ (repo `danto0702/pascalia-web`).
+> Fecha: 2026-10-09. Si el texto cambia, sube la versión aquí, en la página y en `policy_versions`: cada contratista acepta una versión concreta.
 > Marco normativo: Ley 1581 de 2012, Decreto 1377 de 2013 (compilado en el Decreto 1074 de 2015) y demás normas que los modifiquen o complementen.
 
 ## 1. Responsable del tratamiento
 
-- **Razón social / nombre:** [PENDIENTE]
+- **Responsable:** PascalIA — razón social o nombre completo: [PENDIENTE]
 - **NIT / documento:** [PENDIENTE]
 - **Domicilio:** [PENDIENTE]
-- **Correo para ejercer derechos:** [PENDIENTE]
-- **WhatsApp de atención:** [PENDIENTE] (escribiendo "soporte" o "borrar mis datos")
+- **Correo para ejercer derechos:** contacto@pascalia.lat
+- **WhatsApp de atención:** número oficial de CuentaFacil [PENDIENTE] (escribiendo "soporte" o "borrar mis datos")
 
 ## 2. Datos que tratamos
 
@@ -44,16 +44,16 @@ Para prestar el servicio, los datos se **almacenan y procesan fuera de Colombia,
 
 | Proveedor | Servicio | Ubicación del tratamiento | Datos |
 |-----------|----------|---------------------------|-------|
-| Supabase Inc. | Base de datos y almacenamiento de archivos | EE. UU. (región `us-east-1`) | Todos los datos del servicio |
+| Supabase Inc. | Base de datos y almacenamiento de archivos | EE. UU. | Todos los datos del servicio |
 | Railway Corp. | Servidores de procesamiento y panel administrativo | EE. UU. | Datos en tránsito durante el procesamiento |
 | Meta Platforms, Inc. (WhatsApp Business) | Canal de mensajería | EE. UU. y otros países donde opera Meta | Mensajes, archivos y número de WhatsApp |
 | Anthropic PBC | Inteligencia artificial (lectura de documentos y redacción) | EE. UU. | Solo el contenido necesario para cada tarea (notas, documentos, obligaciones) |
 | OpenAI, L.L.C. | Transcripción de notas de voz | EE. UU. | Audio de las notas de voz |
 | Wompi (Bancolombia S.A.) | Pagos | Colombia | Datos de la transacción de pago |
 
-Al aceptar esta política, el titular **autoriza de manera previa, expresa e informada la transmisión y transferencia internacional** de sus datos a estos proveedores y países para las finalidades descritas. [NOTA PARA EL ABOGADO: validar si EE. UU. se considera país con nivel adecuado de protección según la Superintendencia de Industria y Comercio, y si se requiere declaración de conformidad o contrato de transmisión; validar si aplica la figura de transmisión (art. 25 Ley 1581 / art. 2.2.2.25.5.2 Decreto 1074) para encargados.]
+Al aceptar esta política, el titular **autoriza de manera previa, expresa e informada la transmisión y transferencia internacional** de sus datos a estos proveedores y países para las finalidades descritas.
 
-Los proveedores de inteligencia artificial reciben los datos **solo en la medida necesaria** para cada tarea y, según sus condiciones comerciales para API, no los usan para entrenar sus modelos. [VERIFICAR condiciones vigentes de cada proveedor antes de publicar.]
+Los proveedores de inteligencia artificial reciben los datos **solo en la medida necesaria** para cada tarea y, según sus condiciones comerciales para API, no los usan para entrenar sus modelos.
 
 ## 5. Derechos del titular
 
@@ -76,7 +76,7 @@ Almacenamiento cifrado; los datos financieros y de identificación se cifran adi
 
 ## 9. Responsabilidad sobre los documentos
 
-CuentasBot es una herramienta de apoyo. El titular revisa, aprueba y firma sus documentos bajo su propia responsabilidad. El servicio no tiene relación con la entidad contratante salvo acuerdo expreso.
+CuentaFacil es una herramienta de apoyo. El titular revisa, aprueba y firma sus documentos bajo su propia responsabilidad. El servicio no tiene relación con la entidad contratante salvo acuerdo expreso.
 
 ## 10. Vigencia y cambios
 

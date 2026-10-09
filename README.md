@@ -1,6 +1,6 @@
-# CuentaFacil de Pascalia
+# CuentaFacil de PascalIA
 
-> Servicio: **CuentaFacil** (de la empresa **Pascalia**). El asistente de WhatsApp se llama **Pascal**. "CuentasBot" es el nombre interno del código (paquetes `@cuentasbot/*`).
+> Servicio: **CuentaFacil** (de la empresa **PascalIA**). El asistente de WhatsApp se llama **Pascal**. "CuentasBot" es el nombre interno del código (paquetes `@cuentasbot/*`).
 
 Asistente de WhatsApp que acompaña a contratistas de prestación de servicios de entidades públicas colombianas para preparar cada mes su cuenta de cobro: registro de actividades y evidencias, recordatorios de soportes, y generación del Informe de Actividades, el borrador del Informe de Supervisión y los paquetes PDF listos para firmar y cargar en SECOP II.
 
@@ -63,4 +63,4 @@ Ver [`.env.example`](.env.example). En Fase 0 ninguna es obligatoria: sin `NEXT_
 - [`docs/DECISIONES.md`](docs/DECISIONES.md) — decisiones de arquitectura (ADR).
 - [`docs/TEMPLATE_TAGS.md`](docs/TEMPLATE_TAGS.md) — catálogo de etiquetas para los formatos.
 - [`docs/WHATSAPP_TEMPLATES.md`](docs/WHATSAPP_TEMPLATES.md) — plantillas de WhatsApp para registrar en Meta.
-- [`docs/legal/politica_tratamiento.md`](docs/legal/politica_tratamiento.md) — borrador, **pendiente de revisión por abogado**.
+- [`docs/legal/politica_tratamiento.md`](docs/legal/politica_tratamiento.md) — versión 1.0 aprobada por el abogado, publicada en https://pascalia.lat/politica-de-datos/.

@@ -1,4 +1,4 @@
-# CuentaFacil de Pascalia (CuentasBot) — Plan de arquitectura y Fase 0
+# CuentaFacil de PascalIA (CuentasBot) — Plan de arquitectura y Fase 0
 
 > Estado: **PROPUESTA — pendiente de aprobación del dueño.** No hay código de producto todavía.
 > Fecha: 2026-10-03. Fuente de requisitos: [`PROMPT_INICIAL.md`](./PROMPT_INICIAL.md) · Versión 4 (respuestas del dueño, paquete HRNO, clausulado y certificado EBS).
