@@ -1,0 +1,28 @@
+{
+  "name": "cuentasbot",
+  "private": true,
+  "packageManager": "pnpm@10.28.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "sim": "pnpm --filter @cuentasbot/simulator start",
+    "db:test": "bash supabase/tests/run.sh",
+    "tags:doc": "pnpm --filter @cuentasbot/docgen tags:doc",
+    "sim:demo": "pnpm --filter @cuentasbot/simulator demo",
+    "panel": "pnpm --filter @cuentasbot/panel dev"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.5.15",
+    "@types/node": "^22.0.0",
+    "tsx": "^4.20.0",
+    "turbo": "^2.5.0",
+    "typescript": "^5.9.0",
+    "vitest": "^3.2.0"
+  }
+}

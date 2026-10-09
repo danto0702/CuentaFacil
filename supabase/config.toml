@@ -1,0 +1,12 @@
+# Supabase CLI configuration (local development with `supabase start`).
+project_id = "cuentasbot"
+
+[db]
+major_version = 15
+
+[db.seed]
+enabled = true
+sql_paths = ["./seed.sql"]
+
+[auth]
+site_url = "http://localhost:3000"

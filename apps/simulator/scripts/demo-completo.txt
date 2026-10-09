@@ -1,0 +1,22 @@
+# Criterio de aceptación Fase 0 — periodo completo (contrato 0001 Salud Pública, informe 03 DE 03).
+# Fecha simulada: 2026-09-28.
+hola
+Hoy capacité a 30 personas en misión médica en El Carmen
+1
+/foto
+/foto
+Ayer asistí a la reunión de entidades territoriales en el COVE de Ábrego
+1
+nota: el 15 hice seguimiento a la notificación de eventos epidemiológicos de las IPS de Ábrego y El Carmen
+1
+qué me falta
+ver borrador
+1
+1
+Se reorganizó el cronograma de las líneas de salud pública (PAI y SAN) en cada IPS.
+2
+4
+agrega que se entregaron 32 carnés de misión médica
+1
+generar
+1

@@ -1,0 +1,22 @@
+{
+  "name": "@cuentasbot/worker",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p .",
+    "test": "vitest run",
+    "start": "tsx src/main.ts"
+  },
+  "dependencies": {
+    "@cuentasbot/conversation": "workspace:*",
+    "@cuentasbot/docgen": "workspace:*",
+    "@cuentasbot/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "jszip": "^3.10.1"
+  }
+}

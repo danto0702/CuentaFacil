@@ -44,7 +44,8 @@
 
 ## ADR-010 — Variables definidas por la entidad en las plantillas
 - **Contexto:** cada institución tiene formatos con datos propios (código y versión del formato, lugar de reunión, radicado…). El dueño pidió poder cargarlos desde el panel.
-- **Decisión:** tabla `entity_variables` (tipo, alcance `entity|contract|period|user`, origen `admin|ask_contractor|computed`) y valores en `entity_variable_values`. En el DOCX se usan como `{{var.<key>}}`. Las variables calculadas usan un evaluador de expresiones seguro (sin `eval`).
+- **Decisión:** tabla `entity_variables` (tipo, alcance `entity|contract|period|user`, origen `admin|ask_contractor|computed`) y valores en `entity_variable_values`. En el DOCX se usan como `{{ var_<key> }}`. Las variables calculadas usan un evaluador de expresiones seguro (sin `eval`).
+- **Actualización (Fase 0):** la sintaxis es `{{ var_<clave> }}` y no `{{ var.<clave> }}`, porque `var` es palabra reservada en las expresiones del motor.
 - **Consecuencias:** incorporar una entidad nueva no requiere código; el validador bloquea la activación de una plantilla con etiquetas desconocidas.
 
 ## ADR-011 — Modo de corte elegido por el contratista
@@ -59,7 +60,28 @@
 ## ADR-013 — Obligaciones con componentes, pesos y metas mensuales
 - **Decisión:** `obligation_groups` (peso %) y `obligation_goals` (metas por mes) opcionales por contrato; el avance se registra en `goal_progress` y alimenta el informe y una alerta si va por debajo del umbral de la entidad (70 % en HRNO-EBS).
 
-## ADR-014 — Nombre comercial Pascalia y landing estática en `web/`
+## ADR-014 — Plantillas HRNO escritas en código y modo "sobre el DOCX original"
+- **Contexto:** los borradores de plantilla de HRNO tenían texto fijo, una tabla de Excel incrustada y etiquetas partidas entre fragmentos de texto.
+- **Decisión:** los formatos se describen en TypeScript con un constructor OOXML mínimo (`packages/docgen/src/templates/hrno.ts`). Sin archivo base generan un DOCX autónomo (usado en CI); con el DOCX original de la entidad conservan estilos, encabezado, pie y logos y solo reemplazan el cuerpo.
+- **Consecuencias:** las pruebas golden no dependen de archivos reales; los documentos de la entidad nunca entran al repositorio. Las entidades nuevas suben su DOCX con etiquetas desde el panel (no requieren código).
+
+## ADR-015 — Puertos y adaptadores para la conversación
+- **Decisión:** el orquestador solo conoce interfaces (`Store`, `AI`, `STT`, `Clock`, `Generator`). En Fase 0: store en memoria, IA y STT simuladas y deterministas. En Fase 1: store sobre Supabase, Claude y el proveedor STT reales, sin cambiar los flujos.
+- **Consecuencias:** las conversaciones grabadas son pruebas rápidas y sin costo; el simulador y WhatsApp comparten exactamente el mismo código.
+
+## ADR-016 — Pruebas de base de datos sin Docker
+- **Decisión:** `supabase/tests/run.sh` levanta un Postgres temporal, aplica *stubs* de `auth` y roles de Supabase, las migraciones y el seed (dos veces, para probar idempotencia) y ejecuta pruebas SQL de RLS. pgmq, pg_cron y Storage se omiten si no existen.
+- **Consecuencias:** CI no necesita Docker ni la CLI de Supabase. La verificación contra un Supabase real (con `supabase start` o el proyecto) queda para el inicio de la Fase 1.
+
+## ADR-017 — Panel con Next.js compilado con webpack
+- **Decisión:** el panel compila con `next build --webpack` y `resolve.extensionAlias` para consumir los paquetes del monorepo escritos con importaciones NodeNext (`./x.js` → `./x.ts`). sharp, docx-templates, jszip y pdf-lib quedan como paquetes externos del servidor.
+- **Consecuencias:** sin paso de compilación para los paquetes compartidos. Revisar cuando Turbopack soporte alias de extensión.
+
+## ADR-018 — Documentos que la entidad expide después de la firma
+- **Contexto:** el certificado de cumplimiento y el Documento Soporte DIAN los expide la entidad después de que el supervisor firma el informe.
+- **Decisión:** `support_types.stage = 'after_signature'`: aparecen en el checklist como pendientes "después de la firma", no bloquean la generación de los informes. Para el ZIP final, el contratista los envía y pide *reenviar documentos* (Fase 1).
+
+## ADR-019 — Nombre comercial Pascalia y landing estática en `web/`
 - **Contexto:** el dueño adquirió el dominio `pascalia.lat` y pidió la página antes de construir el producto.
 - **Decisión:** "Pascalia" es el nombre comercial que ve el usuario; "CuentasBot" queda como nombre interno del código. La landing es HTML + CSS estático en `web/` (sin build ni JavaScript), con lista de espera por correo (`contacto@pascalia.lat`). Hosting: GitHub Pages (repo público, gratis, HTTPS), publicado por `.github/workflows/pages.yml` en cada push a `main` que toque `web/`; DNS en Porkbun.
 - **Alternativas:** página dentro del panel Next.js (aún no existe y mezclaría el sitio público con el admin).
