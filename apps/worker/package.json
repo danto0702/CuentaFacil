@@ -12,9 +12,13 @@
     "start": "tsx src/main.ts"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.133.0",
     "@cuentasbot/conversation": "workspace:*",
     "@cuentasbot/docgen": "workspace:*",
-    "@cuentasbot/shared": "workspace:*"
+    "@cuentasbot/shared": "workspace:*",
+    "@supabase/supabase-js": "^2.117.2",
+    "openai": "^7.32.0",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "jszip": "^3.10.1"
