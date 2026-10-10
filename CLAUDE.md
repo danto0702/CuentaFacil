@@ -38,7 +38,7 @@ Fase 0 terminada (ver `docs/FASE0_CIERRE.md`), pendiente de aprobación del due�
 - `pnpm db:test` (Postgres 16 local, sin Docker)
 - `pnpm sim` / `pnpm sim:demo` (simulador) · `pnpm panel` (panel en modo demo)
 - `pnpm tags:doc` (regenera el catálogo de etiquetas)
-- Deploy: worker con `apps/worker/Dockerfile` en Railway; panel en Railway (Fase 1).
+- Deploy (Railway, proyecto `positive-dream`, región US East): servicio `@cuentasbot/panel` con `apps/panel/Dockerfile`, rama `claude/fase-1a`, healthcheck `/login`, dominio `cuentasbotpanel-production.up.railway.app`; servicio `@cuentasbot/worker` con `apps/worker/Dockerfile` (se activa en la Fase 1a). La configuración vive en el servicio de Railway (config-as-code `railway.json` está deprecado).
 
 ## Glosario del dominio
 - **Contratista:** persona natural con Contrato de Prestación de Servicios (CPS) con una entidad pública.
