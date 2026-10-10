@@ -149,3 +149,26 @@ Una **cuenta** cubre uno o más periodos consecutivos del mismo contrato (`accou
 5. ~~Atención humana~~ **Resuelta:** atiende el dueño, de lunes a sábado, 8–12 y 2–6.
 6. **Política de datos 1.1:** borrador en [`legal/politica_tratamiento_v1_1.md`](./legal/politica_tratamiento_v1_1.md), pendiente de revisión del abogado.
 7. ~~Días de atención~~ **Resuelta:** de lunes a sábado.
+
+## 11. Balance de costos e ingresos por volumen (2026-10-10)
+
+Supuestos: 1,43 contratos por contratista; 1 contrato nuevo cada 4 cuentas; 200 mensajes salientes y 15 min de audio por contratista al mes; ~9 soportes leídos por cuenta; redacción con 3 rondas; IA con Claude Haiku 5.5 (notas, intención) y Claude Sonnet 5.5 (soportes, redacción, control de calidad, configuración) + 30 % de margen; TRM de referencia COP 4.000/US$; todos los pagos por Wompi (2,65 % + COP 700 + IVA). Precios: Claude (referencia de la API, 2026-10-06), WhatsApp Colombia US$0,0008 por mensaje de utilidad/servicio con 1.000 gratis al mes (fuente secundaria: confirmar en el administrador de WhatsApp), Supabase Pro, Railway por uso, OpenAI `gpt-4o-transcribe` US$0,006/min.
+
+| Cuentas/mes | 50 | 100 | 200 | 300 |
+|---|--:|--:|--:|--:|
+| Contratistas (aprox.) | 35 | 70 | 140 | 210 |
+| WhatsApp (US$) | 5 | 11 | 23 | 35 |
+| Transcripción (US$) | 3 | 6 | 13 | 19 |
+| IA Claude (US$) | 31 | 62 | 124 | 185 |
+| Supabase (US$) | 25 | 25 | 25 | 35 |
+| Railway (US$) | 20 | 20 | 30 | 30 |
+| Dominio y varios (US$) | 3 | 3 | 3 | 3 |
+| **Costo operativo (US$)** | **87** | **127** | **217** | **307** |
+| Costo operativo (COP) | 349.000 | 509.000 | 869.000 | 1.229.000 |
+| Costo por cuenta (COP) | 6.980 | 5.090 | 4.340 | 4.100 |
+| Ingresos: informes ($50.000) | 2.500.000 | 5.000.000 | 10.000.000 | 15.000.000 |
+| Ingresos: configuraciones ($10.000) | 125.000 | 250.000 | 500.000 | 750.000 |
+| Comisión Wompi (COP) | 135.000 | 270.000 | 539.000 | 809.000 |
+| **Margen antes de impuestos y de tu tiempo (COP)** | **2.141.000** | **4.471.000** | **9.092.000** | **13.712.000** |
+
+No incluye: impuestos (renta, IVA si aplica), tu tiempo en atención humana, ni el costo de los pagos en efectivo (que no pagan comisión a Wompi). Piloto 1a (sin cobro, pocas cuentas): ≈ US$50–60/mes.
