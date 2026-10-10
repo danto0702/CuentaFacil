@@ -14,7 +14,7 @@
 | Afiliaciones | Una vez | **Cada cuenta** (vigencia 30 días), igual que los antecedentes |
 | Certificación | Soporte "después de la firma" | Indicador por contrato **"requiere certificación"**; pueden ser **varias** (supervisor o coordinador) y van en el ZIP |
 | Firma | Pospuesta | **Opcional** en la configuración; sin firma se entrega sin firma |
-| Cobro | Fase 3, suscripción | **$10.000 por configurar un contrato** y **$50.000 por informe** antes de entregar el ZIP; Wompi y **códigos de pago en efectivo** |
+| Cobro | Fase 3, suscripción | **$15.000 por configurar un contrato** y **$50.000 por informe** antes de entregar el ZIP; Wompi y **códigos de pago en efectivo** |
 | Varios meses | Una cuenta por periodo | **Unión de cuentas**: un informe para dos o más meses, se cobra como uno |
 | Correcciones | Regenerar | **Gratis**, también a partir de una **captura de pantalla** con lo que pidió el supervisor |
 | Casos difíciles | Bandeja de soporte | **Gestión personalizada por una persona**, sin costo adicional |
@@ -35,7 +35,7 @@
    - ¿Es tu **primer informe** de este contrato? Si no: cuáles ya cobró (número de informe y valor) y **que envíe el informe anterior** (DOCX preferido; PDF también sirve).
    - **Firma** (opcional): foto de la firma en papel blanco → se limpia el fondo → vista previa → confirma.
    - Prórroga o adición: por defecto no hay.
-6. **Pago de configuración: $10.000** (Wompi o código). El contrato queda **activo** y empieza el reporte diario.
+6. **Pago de configuración: $15.000** (Wompi o código). El contrato queda **activo** y empieza el reporte diario.
 
 ### 2.2 Reporte de actividades (durante el periodo)
 
@@ -80,12 +80,12 @@ Una **cuenta** cubre uno o más periodos consecutivos del mismo contrato (`accou
 
 | Concepto | Valor | Cuándo |
 |----------|-------|--------|
-| Configuración de contrato | $10.000 | Después de mostrar el resumen de la configuración, antes de activar el contrato. Cubre prórrogas y adiciones |
+| Configuración de contrato | $15.000 | Después de mostrar el resumen de la configuración, antes de activar el contrato. Cubre prórrogas y adiciones |
 | Informe | $50.000 | Por contrato y por cuenta (una cuenta unida de varios meses paga uno), antes de entregar archivos |
 | Correcciones y gestión personalizada | $0 | Siempre |
 
 - **Wompi**: link de pago enviado por WhatsApp (botón URL). El webhook firmado de Wompi confirma y dispara la entrega. Idempotencia por referencia.
-- **Códigos en efectivo**: en el panel, **Pagos › Generar código** con: valor, tipo de servicio (configuración $10.000 / informe $50.000), nombre y documento de quien paga. Se genera un código corto (ej. `PF-7K3M-Q9`) **atado al contratista** (su documento): solo funciona desde su conversación, sirve para **un solo servicio** (una configuración o una cuenta) y **vence a los 30 días**. La persona lo escribe en el chat; el sistema valida contratista, valor y servicio contra lo pendiente y lo marca usado. Todo queda en `payments` con método `cash_code` y quién lo generó.
+- **Códigos en efectivo**: en el panel, **Pagos › Generar código** con: valor, tipo de servicio (configuración $15.000 / informe $50.000), nombre y documento de quien paga. Se genera un código corto (ej. `PF-7K3M-Q9`) **atado al contratista** (su documento): solo funciona desde su conversación, sirve para **un solo servicio** (una configuración o una cuenta) y **vence a los 30 días**. La persona lo escribe en el chat; el sistema valida contratista, valor y servicio contra lo pendiente y lo marca usado. Todo queda en `payments` con método `cash_code` y quién lo generó.
 - Precios en `system_settings` (no en el código), para poder cambiarlos sin desplegar.
 
 ## 5. Validaciones (de la especificación, con las respuestas del dueño)
@@ -136,14 +136,14 @@ Una **cuenta** cubre uno o más periodos consecutivos del mismo contrato (`accou
 | Fase | Contenido | Recursos pagados |
 |------|-----------|------------------|
 | **1a — Núcleo real, piloto interno** | Supabase, worker, webhook de WhatsApp y colas; configuración por documentos (extracción de contrato y clausulado, base de contratos, informe anterior); reporte diario (voz/texto/foto); cierre con soportes y lectura automática; validaciones; revisión en el chat; generación y entrega; firma opcional; correcciones con captura; atención humana. Solo con tu número y 2–3 contratistas de confianza, sin cobro. | Supabase Pro, Railway, Anthropic, STT, Meta (pido autorización antes) |
-| **1b — Cobro y unión de cuentas** | Códigos de pago en efectivo (panel), cobro de $10.000 y $50.000, unión de cuentas, recordatorios con plantillas. Piloto con contratistas de HRNO. | — |
+| **1b — Cobro y unión de cuentas** | Códigos de pago en efectivo (panel), cobro de $15.000 y $50.000, unión de cuentas, recordatorios con plantillas. Piloto con contratistas de HRNO. | — |
 | **2 — Wompi y operación** | Wompi (sandbox → producción), panel de pagos y métricas, más entidades y formatos. | Cuenta Wompi |
 | **3 — Escala** | Portal web de solo lectura, Drive/correo, entidades sin plantilla. | — |
 
 ## 10. Preguntas abiertas
 
-1. ~~Configuración de $10.000~~ **Resuelta (2026-10-10):** se cobra después de mostrar el resumen y antes de activar el contrato; cubre prórrogas y adiciones del mismo contrato. Un contrato nuevo paga de nuevo.
-2. ~~Códigos en efectivo~~ **Resuelta:** atado al contratista, válido para un solo servicio (una cuenta de $50.000 o una configuración de $10.000), vence a los 30 días.
+1. ~~Configuración de $15.000~~ **Resuelta (2026-10-10):** se cobra después de mostrar el resumen y antes de activar el contrato; cubre prórrogas y adiciones del mismo contrato. Un contrato nuevo paga de nuevo.
+2. ~~Códigos en efectivo~~ **Resuelta:** atado al contratista, válido para un solo servicio (una cuenta de $50.000 o una configuración de $15.000), vence a los 30 días.
 3. ~~Base de contratos~~ **Resuelta:** es información pública de SECOP II; se carga en el panel mes a mes.
 4. ~~Informe anterior en PDF~~ **Resuelta:** basta con copiar estilo y redacción.
 5. ~~Atención humana~~ **Resuelta:** atiende el dueño, de lunes a sábado, 8–12 y 2–6.
@@ -152,23 +152,16 @@ Una **cuenta** cubre uno o más periodos consecutivos del mismo contrato (`accou
 
 ## 11. Balance de costos e ingresos por volumen (2026-10-10)
 
-Supuestos: 1,43 contratos por contratista; 1 contrato nuevo cada 4 cuentas; 200 mensajes salientes y 15 min de audio por contratista al mes; ~9 soportes leídos por cuenta; redacción con 3 rondas; IA con Claude Haiku 5.5 (notas, intención) y Claude Sonnet 5.5 (soportes, redacción, control de calidad, configuración) + 30 % de margen; TRM de referencia COP 4.000/US$; todos los pagos por Wompi (2,65 % + COP 700 + IVA). Precios: Claude (referencia de la API, 2026-10-06), WhatsApp Colombia US$0,0008 por mensaje de utilidad/servicio con 1.000 gratis al mes (fuente secundaria: confirmar en el administrador de WhatsApp), Supabase Pro, Railway por uso, OpenAI `gpt-4o-transcribe` US$0,006/min.
+Modelo editable en [`finanzas/Balance_CuentaFacil.xlsx`](./finanzas/Balance_CuentaFacil.xlsx) (hoja *Supuestos* en azul; *Balance* para 50/100/200/300 cuentas; *Conclusión*). Con los supuestos por defecto (configuración a $15.000, 80 % de pagos por Wompi, 12 min de tu tiempo por cuenta a $30.000/h, provisión de impuestos del 7 %, TRM 4.000):
 
 | Cuentas/mes | 50 | 100 | 200 | 300 |
 |---|--:|--:|--:|--:|
-| Contratistas (aprox.) | 35 | 70 | 140 | 210 |
-| WhatsApp (US$) | 5 | 11 | 23 | 35 |
-| Transcripción (US$) | 3 | 6 | 13 | 19 |
-| IA Claude (US$) | 31 | 62 | 124 | 185 |
-| Supabase (US$) | 25 | 25 | 25 | 35 |
-| Railway (US$) | 20 | 20 | 30 | 30 |
-| Dominio y varios (US$) | 3 | 3 | 3 | 3 |
-| **Costo operativo (US$)** | **87** | **127** | **217** | **307** |
-| Costo operativo (COP) | 349.000 | 509.000 | 869.000 | 1.229.000 |
-| Costo por cuenta (COP) | 6.980 | 5.090 | 4.340 | 4.100 |
-| Ingresos: informes ($50.000) | 2.500.000 | 5.000.000 | 10.000.000 | 15.000.000 |
-| Ingresos: configuraciones ($10.000) | 125.000 | 250.000 | 500.000 | 750.000 |
-| Comisión Wompi (COP) | 135.000 | 270.000 | 539.000 | 809.000 |
-| **Margen antes de impuestos y de tu tiempo (COP)** | **2.141.000** | **4.471.000** | **9.092.000** | **13.712.000** |
+| Ingresos | 2.687.500 | 5.375.000 | 10.750.000 | 16.125.000 |
+| Costos totales | 1.291.000 | 2.354.000 | 4.146.000 | 5.938.000 |
+| **Utilidad neta** | **1.396.000** | **3.021.000** | **6.604.000** | **10.187.000** |
+| Margen neto | 52 % | 56 % | 61 % | 63 % |
+| Costo por cuenta | 25.800 | 23.500 | 20.700 | 19.800 |
+| Horas del dueño | 10 | 20 | 40 | 60 |
+| Punto de equilibrio (cuentas/mes) | 12 | 17 | 18 | 19 |
 
-No incluye: impuestos (renta, IVA si aplica), tu tiempo en atención humana, ni el costo de los pagos en efectivo (que no pagan comisión a Wompi). Piloto 1a (sin cobro, pocas cuentas): ≈ US$50–60/mes.
+Conclusión: los precios son convenientes. Riesgos a cubrir: IVA (a ~290 cuentas/mes se supera 3.500 UVT → publicar precios "IVA incluido"), cuentas unidas cobradas como un solo informe (propuesta: $25.000 por mes adicional, pendiente de decisión) y el tiempo del dueño (apoyo desde ~250 cuentas/mes).

@@ -49,7 +49,7 @@ Fase 0 terminada (ver `docs/FASE0_CIERRE.md`), pendiente de aprobación del due�
 - **IBC:** Ingreso Base de Cotización; por regla general 40 % de la suma de honorarios mensuales (mín. 1 SMMLV, máx. 25 SMMLV). El auxilio de transporte **no** cuenta (confirmado por el dueño). La validación solo advierte (configurable).
 - **Antecedentes:** Policía, RNMC (medidas correctivas), Procuraduría, Contraloría. El contratista los descarga (captcha) desde el enlace que le envía el bot; vigencia 30 días, se piden en cada cuenta.
 - **Afiliaciones:** certificados de EPS, ARL y fondo de pensiones; se piden en cada cuenta (vigencia 30 días).
-- **Momentos del servicio:** configuración (contrato SECOP + clausulado, $10.000), reporte diario, cierre (soportes, revisión en el chat, $50.000 por informe, ZIP). Ver `docs/PLAN_V5.md`.
+- **Momentos del servicio:** configuración (contrato SECOP + clausulado, $15.000), reporte diario, cierre (soportes, revisión en el chat, $50.000 por informe, ZIP). Ver `docs/PLAN_V5.md`.
 - **Unión de cuentas:** un informe para varios periodos consecutivos; una planilla y una tabla de seguridad social por mes; se cobra un informe.
 - **Certificación:** algunos contratos la requieren (indicador por contrato); la sube el contratista, puede haber varias.
 - **Informe de supervisión:** lo firma el supervisor; el bot genera el borrador prellenado (HRNO: MA-GH-IS-03 v4.0). Fecha del informe, constancia, aprobación y firma del supervisor **siempre en blanco**.
