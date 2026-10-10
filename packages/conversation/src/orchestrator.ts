@@ -22,6 +22,7 @@ import type {
 } from './domain.js';
 import { type Command, forcedNote, matchCommand } from './intents.js';
 import type { Deps, Inbound, ListRow, Outgoing } from './ports.js';
+import { POLICY_VERSION, SETUP_FLOW, SetupFlow } from './setup.js';
 import { clip, parseActivityDate } from './text.js';
 
 const MAX_BUTTONS = 3;
@@ -90,21 +91,36 @@ function obligationRow(o: Obligation): { id: string; title: string; description:
 }
 
 export class Orchestrator {
-  constructor(private readonly deps: Deps) {}
+  private readonly setup: SetupFlow;
+
+  constructor(private readonly deps: Deps) {
+    this.setup = new SetupFlow(deps);
+  }
 
   /** Handles one inbound WhatsApp message and returns the replies to send, in order. */
   async handle(msg: Inbound): Promise<Outgoing[]> {
     const { store } = this.deps;
     const user = await store.getUserByPhone(msg.from);
     if (!user) {
-      // Unregistered numbers: nothing is stored (no consent yet).
+      // Unregistered numbers: nothing is stored until the person accepts the data policy.
+      if (msg.kind === 'reply' && msg.replyId === 'consent:no') return this.setup.declined();
+      if (msg.kind === 'reply' && msg.replyId === 'consent:yes') {
+        const created = await store.createUser(msg.from);
+        await store.recordConsent({
+          userId: created.id,
+          phone: msg.from,
+          policyVersion: POLICY_VERSION,
+          accepted: true,
+          wamid: msg.id,
+        });
+        const turn: Turn = { user: created, state: this.idle(created.id), out: [] };
+        this.setup.start(turn);
+        turn.state.updatedAt = this.deps.clock.now().toISOString();
+        await store.saveConversation(turn.state);
+        return turn.out;
+      }
       if (msg.kind === 'text' && msg.text && matchCommand(msg.text) === 'about') return this.about();
-      return [
-        text(
-          `👋 ¡Hola! Soy ${SIGNATURE}. Te ayudo a preparar tus cuentas de cobro. Todavía no tienes una cuenta activa; el registro por WhatsApp estará disponible muy pronto.`,
-        ),
-        ...this.about(),
-      ];
+      return this.setup.welcome();
     }
     const state = (await store.getConversation(user.id)) ?? this.idle(user.id);
     const turn: Turn = { user, state, out: [] };
@@ -137,6 +153,18 @@ export class Orchestrator {
       const transcript = await this.deps.stt.transcribe(msg.media.data, msg.media.mime);
       turn.out.push(text(`🎙️ Te entendí: «${clip(transcript, 300)}»`));
       return this.dispatch(turn, { ...msg, kind: 'text', text: transcript });
+    }
+
+    if (turn.state.flow === SETUP_FLOW) {
+      const cmd = msg.kind === 'text' && msg.text ? matchCommand(msg.text) : null;
+      if (cmd === 'cancel') {
+        this.reset(turn);
+        turn.out.push(
+          text('Listo, dejé la configuración en pausa. Cuando quieras retomarla escribe *agregar contrato*.'),
+        );
+        return;
+      }
+      if (cmd !== 'about' && cmd !== 'support') return this.setup.handle(turn, msg);
     }
 
     if (msg.kind === 'text' && msg.text) {
@@ -235,6 +263,9 @@ export class Orchestrator {
       case 'about':
         turn.out.push(...this.about());
         return;
+      case 'add_contract':
+        this.setup.start(turn, 'another');
+        return;
       case 'my_data':
         turn.out.push(
           text(
@@ -267,6 +298,7 @@ export class Orchestrator {
             description: 'Informes y paquetes listos para firmar',
           },
           { id: 'menu:contracts', title: 'Mis contratos' },
+          { id: 'menu:add_contract', title: 'Agregar contrato', description: 'Configurar un contrato nuevo' },
           { id: 'menu:cut_mode', title: 'Cambiar corte', description: 'Fin de mes o fecha a fecha' },
           { id: 'menu:my_data', title: 'Mis datos' },
           { id: 'menu:help', title: 'Ayuda' },
@@ -371,6 +403,10 @@ export class Orchestrator {
   // Notes and evidences
   // -------------------------------------------------------------------------
   private async onIdle(turn: Turn, msg: Inbound): Promise<void> {
+    if ((await this.deps.store.listContracts(turn.user.id)).length === 0) {
+      this.setup.start(turn, 'first');
+      return;
+    }
     if (msg.kind === 'image' && msg.media) {
       const id = this.deps.newId();
       await this.deps.store.addEvidence({

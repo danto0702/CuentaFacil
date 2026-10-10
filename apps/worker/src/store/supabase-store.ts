@@ -6,6 +6,7 @@ import type {
   Entity,
   EntitySettings,
   Evidence,
+  NewContract,
   Note,
   Obligation,
   Period,
@@ -18,7 +19,7 @@ import type {
 } from '@cuentasbot/conversation';
 import type { IsoDate, ScheduledPayment } from '@cuentasbot/shared';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import type { FieldCipher } from '../crypto.js';
+import { type FieldCipher, last4 } from '../crypto.js';
 
 type Row = Record<string, unknown>;
 
@@ -131,6 +132,192 @@ export class SupabaseStore implements Store {
       ...(r.profiles ? { profiles: r.profiles as string[] } : {}),
       stage: r.stage === 'after_signature' ? 'after_signature' : 'before_generation',
     }));
+  }
+
+  async createUser(phone: string): Promise<User> {
+    const r = must(
+      await this.sb
+        .from('users')
+        .upsert({ phone_e164: phone, status: 'onboarding', deleted_at: null }, { onConflict: 'phone_e164' })
+        .select('*')
+        .single(),
+      'createUser',
+    ) as Row;
+    return this.toUser(r);
+  }
+
+  async recordConsent(c: {
+    userId: string;
+    phone: string;
+    policyVersion: string;
+    accepted: boolean;
+    wamid: string;
+  }): Promise<void> {
+    const policy = must(
+      await this.sb
+        .from('policy_versions')
+        .select('id')
+        .eq('kind', 'privacy_policy')
+        .eq('version', c.policyVersion)
+        .single(),
+      'recordConsent.policy',
+    ) as Row;
+    must(
+      await this.sb.from('consents').insert({
+        user_id: c.userId,
+        phone_e164: c.phone,
+        policy_version_id: policy.id,
+        accepted: c.accepted,
+        evidence_wamid: c.wamid,
+      }),
+      'recordConsent',
+    );
+  }
+
+  async saveUserProfile(u: User): Promise<void> {
+    if (!this.cipher) throw new Error('ENCRYPTION_KEY/BLIND_INDEX_KEY are not configured');
+    const doc = u.docNumber.replace(/\D/g, '');
+    must(
+      await this.sb
+        .from('users')
+        .update({
+          full_name: u.fullName,
+          doc_type: 'CC',
+          doc_number_enc: doc ? this.cipher.encrypt(doc) : null,
+          doc_number_bidx: doc ? this.cipher.blindIndex(doc) : null,
+          doc_number_last4: doc ? last4(doc) : null,
+          doc_issued_in: u.docIssuedIn || null,
+          tax_regime: u.regime,
+          bank_name: u.bankName || null,
+          bank_account_type: u.accountType,
+          bank_account_enc: u.accountNumber ? this.cipher.encrypt(u.accountNumber) : null,
+          bank_account_last4: u.accountNumber ? last4(u.accountNumber) : null,
+          has_arl: u.hasArl,
+          status: 'active',
+        })
+        .eq('id', u.id),
+      'saveUserProfile',
+    );
+  }
+
+  async findEntity(nit: string | null, name: string): Promise<Entity | null> {
+    const rows = must(
+      await this.sb.from('entities').select('id, name, nit').eq('status', 'active'),
+      'findEntity',
+    ) as Row[];
+    const digits = (v: unknown) => str(v).replace(/\D/g, '').slice(0, 9);
+    const upper = name.toLocaleUpperCase('es-CO');
+    const hit =
+      (nit ? rows.find((r) => digits(r.nit) && digits(r.nit) === digits(nit)) : undefined) ??
+      rows.find((r) => upper.includes(str(r.name).toLocaleUpperCase('es-CO')));
+    return hit ? this.getEntity(str(hit.id)) : null;
+  }
+
+  /** Creates (or, for the same contractor, reconfigures) a contract with its obligations and schedule. */
+  async createContract(input: NewContract): Promise<Contract> {
+    const e = input.extraction;
+    const paymentsCount = e.paymentsCount ?? (e.schedule.length || 1);
+    const row = {
+      user_id: input.userId,
+      entity_id: input.entityId,
+      number: e.number,
+      number_full: e.fullNumber,
+      secop_code: e.secopId,
+      object_text: e.object,
+      process_area: e.processArea,
+      start_date: input.startDate,
+      end_date: input.endDate,
+      term_text: e.termText,
+      total_value: e.totalValue,
+      monthly_value: e.monthlyValue ?? Math.round(e.totalValue / paymentsCount),
+      payments_count: paymentsCount,
+      period_mode: input.periodMode,
+      period_mode_set_at: new Date().toISOString(),
+      supervisor_name: e.supervisor?.name ?? null,
+      supervisor_title: e.supervisor?.title ?? null,
+      status: 'active',
+      extracted: e,
+      confirmed_at: new Date().toISOString(),
+      short_label: input.shortLabel,
+      requires_certification: input.requiresCertification,
+    };
+    const existing = must(
+      await this.sb
+        .from('contracts')
+        .select('id, user_id')
+        .eq('entity_id', input.entityId)
+        .eq('number_full', e.fullNumber)
+        .maybeSingle(),
+      'createContract.lookup',
+    ) as Row | null;
+    if (existing && str(existing.user_id) !== input.userId) {
+      throw new Error('createContract: contract already registered by another contractor');
+    }
+    let id: string;
+    if (existing) {
+      id = str(existing.id);
+      must(await this.sb.from('contracts').update(row).eq('id', id), 'createContract.update');
+      must(
+        await this.sb.from('payment_schedule').delete().eq('contract_id', id),
+        'createContract.clearSchedule',
+      );
+      must(
+        await this.sb.from('obligations').delete().eq('contract_id', id),
+        'createContract.clearObligations',
+      );
+    } else {
+      id = str(
+        (
+          must(
+            await this.sb.from('contracts').insert(row).select('id').single(),
+            'createContract.insert',
+          ) as Row
+        ).id,
+      );
+    }
+    if (e.obligations.length) {
+      must(
+        await this.sb.from('obligations').insert(
+          e.obligations.map((o) => ({
+            contract_id: id,
+            kind: o.kind,
+            number: o.number,
+            literal_text: o.text,
+          })),
+        ),
+        'createContract.obligations',
+      );
+    }
+    for (const p of e.schedule) {
+      const sched = must(
+        await this.sb
+          .from('payment_schedule')
+          .insert({
+            contract_id: id,
+            payment_number: p.paymentNumber,
+            days: p.days ?? null,
+            months: p.months ?? null,
+            amount: p.amount,
+          })
+          .select('id')
+          .single(),
+        'createContract.schedule',
+      ) as Row;
+      if (p.items.length) {
+        must(
+          await this.sb.from('payment_schedule_items').insert(
+            p.items.map((i) => ({
+              schedule_id: sched.id,
+              concept: i.concept,
+              amount: i.amount,
+              counts_for_ibc: i.countsForIbc,
+            })),
+          ),
+          'createContract.scheduleItems',
+        );
+      }
+    }
+    return this.getContract(id);
   }
 
   // -------------------------------------------------------------------------

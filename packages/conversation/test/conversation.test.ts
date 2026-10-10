@@ -172,8 +172,8 @@ describe('other flows', () => {
 
     const stranger = harness({ phone: '+573999999999' });
     const greet = show(await stranger.say('hola'));
-    expect(greet).toHaveLength(2);
-    expect(greet[1]).toContain('<Ir a PascalIA → https://pascalia.lat/>');
+    expect(greet).toHaveLength(3);
+    expect(greet[1]).toContain('<Ver política → https://pascalia.lat/politica-de-datos/>');
     expect(show(await stranger.say('servicios'))).toHaveLength(1);
     expect(stranger.store.data.conversations).toEqual([]);
   });

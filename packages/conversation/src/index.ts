@@ -6,4 +6,5 @@ export * from './intents.js';
 export * from './memory-store.js';
 export * from './orchestrator.js';
 export * from './ports.js';
+export * from './setup.js';
 export * from './text.js';

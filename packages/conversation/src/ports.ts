@@ -1,10 +1,13 @@
 import type { IsoDate } from '@cuentasbot/shared';
 import type {
   Contract,
+  ContractExtraction,
   ConversationState,
+  DocumentInput,
   Draft,
   Entity,
   Evidence,
+  NewContract,
   Note,
   Obligation,
   Period,
@@ -71,6 +74,10 @@ export interface AI {
   /** Must only use facts present in the notes; returns needs_input when there is nothing to say. */
   draftObligation(obligation: Obligation, notes: Note[]): Promise<DraftResult>;
   rewrite(paragraphs: string[], instruction: string, obligation: Obligation): Promise<string[]>;
+  /** Reads the SECOP contract and the clauses (setup model). Never invents values: unknowns are null. */
+  extractContract(docs: DocumentInput[]): Promise<ContractExtraction>;
+  /** Applies the contractor's correction ("el valor mensual es 4.000.000") to an extraction. */
+  correctExtraction(extraction: ContractExtraction, instruction: string): Promise<ContractExtraction>;
 }
 
 export interface STT {
@@ -105,6 +112,22 @@ export interface Store {
   listSupports(userId: string): Promise<SupportFile[]>;
   getSocialSecurity(userId: string, contributionMonth: IsoDate): Promise<SocialSecurity | null>;
 
+  /** New contractor after consent (status onboarding). */
+  createUser(phone: string): Promise<User>;
+  recordConsent(input: {
+    userId: string;
+    phone: string;
+    policyVersion: string;
+    accepted: boolean;
+    wamid: string;
+  }): Promise<void>;
+  /** Saves identity and bank data taken from the contract (encrypted at rest). */
+  saveUserProfile(user: User): Promise<void>;
+  /** Matches the contracting entity by NIT (digits) or name; null if the entity is not configured. */
+  findEntity(nit: string | null, name: string): Promise<Entity | null>;
+  /** Creates an active contract with its obligations and payment schedule. */
+  createContract(input: NewContract): Promise<Contract>;
+
   getConversation(userId: string): Promise<ConversationState | null>;
   saveConversation(state: ConversationState): Promise<void>;
 }
@@ -130,4 +153,6 @@ export interface Deps {
   newId(): string;
   /** Minimum confidence to accept the AI's obligation suggestion without asking. */
   confidenceThreshold: number;
+  /** Sends a message right away, before the turn ends (e.g. "estoy leyendo tus documentos…"). */
+  progress?: (to: string, out: Outgoing) => Promise<void>;
 }

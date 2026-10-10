@@ -45,20 +45,23 @@ const llm = new Llm(new Anthropic({ apiKey: cfg.ANTHROPIC_API_KEY }), async (u) 
   if (error) log.error('ai_usage.insert_failed', { error: error.message });
 });
 
+const messenger = new WhatsAppClient({
+  accessToken: cfg.WA_ACCESS_TOKEN,
+  phoneNumberId: cfg.WA_PHONE_NUMBER_ID,
+  graphVersion: cfg.WA_GRAPH_API_VERSION,
+});
+
 const orchestrator = new Orchestrator({
   store,
-  ai: new ClaudeAI(llm, { fast: cfg.AI_MODEL_FAST, smart: cfg.AI_MODEL_SMART }),
+  ai: new ClaudeAI(llm, { fast: cfg.AI_MODEL_FAST, smart: cfg.AI_MODEL_SMART, setup: cfg.AI_MODEL_SETUP }),
   stt: new OpenAISTT(new OpenAI({ apiKey: cfg.OPENAI_API_KEY }), cfg.STT_MODEL),
   clock,
   generator: new AccountGenerator({ store, clock, templates: new CodeTemplateProvider() }),
   newId: randomUUID,
   confidenceThreshold: cfg.AI_CONFIDENCE_THRESHOLD,
-});
-
-const messenger = new WhatsAppClient({
-  accessToken: cfg.WA_ACCESS_TOKEN,
-  phoneNumberId: cfg.WA_PHONE_NUMBER_ID,
-  graphVersion: cfg.WA_GRAPH_API_VERSION,
+  progress: async (to, out) => {
+    await messenger.send(to, out);
+  },
 });
 
 const pipeline = new InboundPipeline({

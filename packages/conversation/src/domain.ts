@@ -181,3 +181,52 @@ export interface SupportType {
   /** Documents the entity issues after the supervisor signs (DSE, certificado de cumplimiento) don't block generation. */
   stage?: 'before_generation' | 'after_signature';
 }
+
+/** What the AI reads from the SECOP contract + clauses PDFs during setup (plan v5 §2.1). */
+export interface ContractExtraction {
+  secopId: string | null;
+  /** Short number as used in the formats ("0330"). */
+  number: string;
+  /** As written in SECOP ("CPS-0330-2026"). */
+  fullNumber: string;
+  object: string;
+  entity: { name: string; nit: string | null };
+  contractor: {
+    fullName: string;
+    docNumber: string;
+    docIssuedIn: string | null;
+    bankName: string | null;
+    accountType: 'ahorros' | 'corriente' | null;
+    accountNumber: string | null;
+  };
+  totalValue: number;
+  monthlyValue: number | null;
+  paymentsCount: number | null;
+  termText: string;
+  startDate: IsoDate | null;
+  endDate: IsoDate | null;
+  processArea: string | null;
+  supervisor: { name: string; title: string } | null;
+  /** Literal text, in the clauses' order. */
+  obligations: { kind: 'specific' | 'general'; number: number; text: string }[];
+  schedule: ScheduledPayment[];
+  /** Anything the AI could not confirm, in Colombian Spanish, for the summary. */
+  warnings: string[];
+}
+
+export interface DocumentInput {
+  label: string;
+  data: Buffer;
+  mime: string;
+}
+
+export interface NewContract {
+  userId: string;
+  entityId: string;
+  extraction: ContractExtraction;
+  startDate: IsoDate;
+  endDate: IsoDate;
+  periodMode: PeriodMode;
+  requiresCertification: boolean;
+  shortLabel: string;
+}

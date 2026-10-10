@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { compareIso, type IsoDate } from '@cuentasbot/shared';
 import type {
   Contract,
@@ -5,6 +6,7 @@ import type {
   Draft,
   Entity,
   Evidence,
+  NewContract,
   Note,
   Period,
   PriorPaymentRecord,
@@ -14,6 +16,7 @@ import type {
   User,
 } from './domain.js';
 import type { Store } from './ports.js';
+import { contractFromSetup } from './setup.js';
 
 export interface MemoryData {
   users: User[];
@@ -28,6 +31,7 @@ export interface MemoryData {
   supports: SupportFile[];
   socialSecurity: SocialSecurity[];
   conversations: ConversationState[];
+  consents?: { userId: string; phone: string; policyVersion: string; accepted: boolean; wamid: string }[];
 }
 
 export function emptyData(): MemoryData {
@@ -44,6 +48,7 @@ export function emptyData(): MemoryData {
     supports: [],
     socialSecurity: [],
     conversations: [],
+    consents: [],
   };
 }
 
@@ -143,6 +148,48 @@ export class MemoryStore implements Store {
       (x) => x.userId === userId && x.contributionMonth === contributionMonth,
     );
     return s ? clone(s) : null;
+  }
+  async createUser(phone: string) {
+    const user: User = {
+      id: randomUUID(),
+      phone,
+      fullName: '',
+      docNumber: '',
+      docIssuedIn: '',
+      regime: 'simplificado',
+      bankName: '',
+      accountType: 'ahorros',
+      accountNumber: '',
+      hasArl: true,
+      remindersOptOut: false,
+    };
+    this.data.users.push(user);
+    return clone(user);
+  }
+  async recordConsent(c: {
+    userId: string;
+    phone: string;
+    policyVersion: string;
+    accepted: boolean;
+    wamid: string;
+  }) {
+    this.data.consents = [...(this.data.consents ?? []), clone(c)];
+  }
+  async saveUserProfile(user: User) {
+    this.data.users = this.data.users.map((u) => (u.id === user.id ? clone(user) : u));
+  }
+  async findEntity(nit: string | null, name: string) {
+    const digits = (v: string) => v.replace(/\D/g, '').slice(0, 9);
+    const n = name.toLocaleUpperCase('es-CO');
+    const e = this.data.entities.find(
+      (x) => (nit && digits(x.nit) === digits(nit)) || n.includes(x.name.toLocaleUpperCase('es-CO')),
+    );
+    return e ? clone(e) : null;
+  }
+  async createContract(input: NewContract) {
+    const c = contractFromSetup(randomUUID(), input);
+    this.data.contracts.push(c);
+    return clone(c);
   }
   async getConversation(userId: string) {
     const c = this.data.conversations.find((x) => x.userId === userId);

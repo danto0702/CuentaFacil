@@ -13,6 +13,7 @@ export type Command =
   | 'stop_reminders'
   | 'my_data'
   | 'about'
+  | 'add_contract'
   | 'cancel';
 
 const COMMANDS: [Command, string[]][] = [
@@ -45,6 +46,7 @@ const COMMANDS: [Command, string[]][] = [
       'sitio web',
     ],
   ],
+  ['add_contract', ['agregar contrato', 'nuevo contrato', 'configurar contrato', 'registrar contrato']],
   ['cancel', ['cancelar', 'salir']],
 ];
 

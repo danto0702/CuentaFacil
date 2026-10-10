@@ -1,5 +1,5 @@
 import type { IsoDate } from '@cuentasbot/shared';
-import type { Note, Obligation } from './domain.js';
+import type { ContractExtraction, DocumentInput, Note, Obligation } from './domain.js';
 import type { AI, ClassifyResult, Clock, DraftResult, STT } from './ports.js';
 import { normalize } from './text.js';
 
@@ -48,7 +48,53 @@ export function impersonal(text: string): string {
  * Deterministic stand-in for Claude, used by tests and the simulator.
  * It never invents: drafts are the contractor's own notes in impersonal form.
  */
+/** Synthetic extraction (fictitious contractor) returned by FakeAI.extractContract. */
+export function sampleExtraction(): ContractExtraction {
+  return {
+    secopId: 'CO1.PCCNTR.0000001',
+    number: '0999',
+    fullNumber: 'CPS-0999-2026',
+    object: 'PRESTACIÓN DE SERVICIOS PROFESIONALES DE APOYO A LA GESTIÓN EN SALUD PÚBLICA.',
+    entity: { name: 'ESE HOSPITAL REGIONAL NOROCCIDENTAL', nit: '807.008.842-9' },
+    contractor: {
+      fullName: 'MARÍA FERNANDA PRUEBA PÉREZ',
+      docNumber: '1000000001',
+      docIssuedIn: 'CÚCUTA',
+      bankName: 'BANCOLOMBIA',
+      accountType: 'ahorros',
+      accountNumber: '00000000001',
+    },
+    totalValue: 12_000_000,
+    monthlyValue: 4_000_000,
+    paymentsCount: 3,
+    termText: '3 MESES',
+    startDate: null,
+    endDate: '2026-12-31',
+    processArea: 'SALUD PÚBLICA',
+    supervisor: { name: 'SUPERVISOR DE PRUEBA', title: 'SUBGERENTE' },
+    obligations: [
+      { kind: 'specific', number: 1, text: 'Realizar seguimiento a la vigilancia en salud pública.' },
+      { kind: 'specific', number: 2, text: 'Capacitar al personal en la ruta de misión médica.' },
+      { kind: 'specific', number: 3, text: 'Reserva y confidencialidad de la información.' },
+    ],
+    schedule: [],
+    warnings: [],
+  };
+}
+
 export class FakeAI implements AI {
+  constructor(private readonly extraction: ContractExtraction = sampleExtraction()) {}
+
+  async extractContract(_docs: DocumentInput[]): Promise<ContractExtraction> {
+    return structuredClone(this.extraction);
+  }
+
+  /** Understands "el valor mensual es $N" for tests; otherwise returns the extraction unchanged. */
+  async correctExtraction(e: ContractExtraction, instruction: string): Promise<ContractExtraction> {
+    const m = /mensual\D+([\d.]+)/i.exec(instruction);
+    return m ? { ...e, monthlyValue: Number(m[1]!.replace(/\./g, '')) } : structuredClone(e);
+  }
+
   async classifyNote(text: string, obligations: Obligation[]): Promise<ClassifyResult> {
     const note = words(text);
     let best: { key: string; score: number } | null = null;
