@@ -85,7 +85,7 @@ Una **cuenta** cubre uno o más periodos consecutivos del mismo contrato (`accou
 | Correcciones y gestión personalizada | $0 | Siempre |
 
 - **Wompi**: link de pago enviado por WhatsApp (botón URL). El webhook firmado de Wompi confirma y dispara la entrega. Idempotencia por referencia.
-- **Códigos en efectivo**: en el panel, **Pagos › Generar código** con: valor, tipo de servicio (configuración / informe), nombre y documento de quien paga, y opcionalmente el contrato. Se genera un código corto (ej. `PF-7K3M-Q9`), de **un solo uso** y con vencimiento. La persona lo escribe en el chat; el sistema valida que el valor y el servicio correspondan a lo que está pendiente y lo marca usado. Todo queda en `payments` con método `cash_code` y quién lo generó.
+- **Códigos en efectivo**: en el panel, **Pagos › Generar código** con: valor, tipo de servicio (configuración $10.000 / informe $50.000), nombre y documento de quien paga. Se genera un código corto (ej. `PF-7K3M-Q9`) **atado al contratista** (su documento): solo funciona desde su conversación, sirve para **un solo servicio** (una configuración o una cuenta) y **vence a los 30 días**. La persona lo escribe en el chat; el sistema valida contratista, valor y servicio contra lo pendiente y lo marca usado. Todo queda en `payments` con método `cash_code` y quién lo generó.
 - Precios en `system_settings` (no en el código), para poder cambiarlos sin desplegar.
 
 ## 5. Validaciones (de la especificación, con las respuestas del dueño)
@@ -110,15 +110,17 @@ Una **cuenta** cubre uno o más periodos consecutivos del mismo contrato (`accou
 ## 6. Gestión personalizada (humana)
 
 - Se activa cuando: falla la extracción o el control de calidad, la persona escribe *hablar con una persona*, o un caso no está cubierto (formato raro, contrato de un tercero, etc.).
-- La conversación pasa a estado **atención humana**: el bot deja de responder solo y avisa el tiempo estimado; en el panel aparece en **Bandeja** con el contexto (documentos, extracciones, errores).
+- La conversación pasa a estado **atención humana**: el bot deja de responder solo y avisa el horario; en el panel aparece en **Bandeja** con el contexto (documentos, extracciones, errores).
+- **Atiende el dueño**, de **8:00 a. m. a 12:00 m. y de 2:00 p. m. a 6:00 p. m.** (hora de Colombia). Fuera de ese horario Pascal responde: "Te atiende una persona de nuestro equipo a partir de las 8:00 a. m.". El horario queda en `system_settings`.
 - El operador puede corregir datos, subir un DOCX corregido, marcar validaciones como resueltas (queda registrado) y enviar mensajes por el bot. Al terminar, devuelve la conversación a Pascal.
 - Sin costo adicional; el pago del informe sigue siendo el mismo.
 
 ## 7. Base de contratos de la entidad
 
-- Panel → **Entidades › Base de contratos**: subir el Excel; se mapean columnas (código, objeto, valor, tiempo de ejecución en días, contratista "documento + nombre", fecha de registro, **fecha del acta de inicio**) y se reemplaza la versión anterior.
+- **Fuente:** información pública de contratación de la entidad (SECOP II). El archivo de referencia cubre del 1 de enero al 10 de octubre de 2026 (658 contratos de HRNO).
+- Panel → **Entidades › Base de contratos**: **cargar el Excel mes a mes**; se mapean columnas (código, objeto, valor, tiempo de ejecución en días, contratista "documento + nombre", fecha de registro, **fecha del acta de inicio**) y se **agregan o actualizan** filas por `(entidad, código, documento)`, sin borrar las anteriores. Cada carga queda registrada (fecha, archivo, filas nuevas y actualizadas).
 - Tabla `entity_contract_registry` (solo staff y `service_role`; el contratista nunca la ve completa). Búsqueda por `(entidad, número, documento)`.
-- Datos personales de terceros: se guardan cifrados en reposo como el resto, con retención igual a la de la entidad, y la política de datos debe mencionar esta fuente (ver pregunta 3).
+- Aunque la fuente es pública, los documentos de identidad se guardan cifrados y solo se usan para precargar la configuración de quien se registra; la política 1.1 menciona esta fuente.
 
 ## 8. Formatos y estilo por contrato
 
@@ -126,6 +128,7 @@ Una **cuenta** cubre uno o más periodos consecutivos del mismo contrato (`accou
 - **Contrato con informes previos** → se pide el informe anterior:
   - Se extrae el **estilo**: número de informe (`03 DE 03` vs `3 de 6`), texto del periodo, mayúsculas, tiempo verbal, numeración de obligaciones, rótulos de anexos; se guarda en `contracts.style` y la plantilla lo aplica.
   - Se guarda la **redacción anterior por obligación** como referencia para proponer textos y para la búsqueda de residuos.
+  - Si el informe anterior solo está en **PDF**, basta con copiar estilo y redacción (no pasa a atención humana).
   - Si el DOCX trae un formato de la entidad distinto al cargado (otra versión), se marca para que un operador lo revise y lo suba al panel como nueva versión (gestión personalizada).
 
 ## 9. Fases propuestas (reemplaza la sección 6 de `PLAN.md`)
@@ -140,8 +143,9 @@ Una **cuenta** cubre uno o más periodos consecutivos del mismo contrato (`accou
 ## 10. Preguntas abiertas
 
 1. ~~Configuración de $10.000~~ **Resuelta (2026-10-10):** se cobra después de mostrar el resumen y antes de activar el contrato; cubre prórrogas y adiciones del mismo contrato. Un contrato nuevo paga de nuevo.
-2. **Códigos en efectivo**: ¿el código debe quedar atado al documento del contratista (solo él puede usarlo) o puede usarlo cualquiera que lo tenga? ¿Vencimiento? (Propuesta: atado al documento y al servicio; vence en 30 días.)
-3. **Base de contratos**: ¿la entrega la ESE (con autorización para este uso) o la descargas de una fuente pública? ¿Cada cuánto se actualiza? Esto define cómo la cubre la política de datos.
-4. **Informe anterior solo en PDF**: ¿basta con copiar estilo y redacción a la plantilla de la entidad, o en ese caso pasamos a gestión personalizada?
-5. **Atención humana**: ¿quién atiende (tú u otra persona), en qué horario, y qué tiempo de respuesta prometemos?
-6. **Política de datos**: con la firma, los pagos, la base de contratos y la atención humana hay que actualizarla (versión 1.1) y que la revise el abogado antes del piloto 1b.
+2. ~~Códigos en efectivo~~ **Resuelta:** atado al contratista, válido para un solo servicio (una cuenta de $50.000 o una configuración de $10.000), vence a los 30 días.
+3. ~~Base de contratos~~ **Resuelta:** es información pública de SECOP II; se carga en el panel mes a mes.
+4. ~~Informe anterior en PDF~~ **Resuelta:** basta con copiar estilo y redacción.
+5. ~~Atención humana~~ **Resuelta:** atiende el dueño, 8–12 y 2–6.
+6. **Política de datos 1.1:** borrador en [`legal/politica_tratamiento_v1_1.md`](./legal/politica_tratamiento_v1_1.md), pendiente de revisión del abogado.
+7. **Atención humana:** ¿el horario es de lunes a viernes, o también sábados? (Supuesto: lunes a viernes, sin festivos.)

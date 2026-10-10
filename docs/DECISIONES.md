@@ -106,7 +106,7 @@
 - **Decisión:** $10.000 por configurar un contrato y $50.000 por informe (por contrato y por cuenta), cobrados antes de activar el contrato y antes de entregar archivos. Precios en `system_settings`. Reemplaza el modelo de suscripción de la Fase 3. La configuración se cobra después de mostrar el resumen y cubre prórrogas y adiciones del mismo contrato (respuesta del dueño, 2026-10-10).
 
 ## ADR-025 — Códigos de pago en efectivo
-- **Decisión:** el panel genera códigos de un solo uso con valor, tipo de servicio, nombre y documento de quien paga; el contratista lo escribe en el chat y el sistema lo valida contra lo pendiente. Se registran en `payments` (método `cash_code`) con el usuario del panel que lo generó.
+- **Decisión:** el panel genera códigos de un solo uso con valor, tipo de servicio, nombre y documento de quien paga; el contratista lo escribe en el chat y el sistema lo valida contra lo pendiente. Se registran en `payments` (método `cash_code`) con el usuario del panel que lo generó. Cada código queda atado al contratista (documento), sirve para un solo servicio y vence a los 30 días.
 
 ## ADR-026 — Campos del supervisor siempre en blanco
 - **Decisión:** fecha del informe de supervisión, día y mes de la constancia, columna de aprobación y firma del supervisor nunca se llenan. Solo se inserta la firma del contratista, si la dio.
@@ -116,3 +116,7 @@
 
 ## ADR-028 — Gestión personalizada sin costo
 - **Decisión:** estado de conversación `human_attention`: el bot deja de responder solo, el caso aparece en la bandeja del panel con su contexto y un operador lo resuelve y lo devuelve. Se activa por fallas de extracción o de control de calidad, por pedido del contratista o por casos no cubiertos.
+
+## ADR-029 — Base de contratos cargada mes a mes desde SECOP II
+- **Decisión:** el panel recibe el Excel público de contratos de cada entidad y hace *upsert* por `(entidad, código, documento)`; nunca borra filas previas. Se usa para precargar fecha del acta de inicio, plazo y valor en la configuración.
+- **Consecuencias:** tabla `entity_contract_registry` (solo staff y `service_role`) y `registry_imports` para auditar cada carga.
