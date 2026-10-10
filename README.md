@@ -63,7 +63,8 @@ Ver [`.env.example`](.env.example). En Fase 0 ninguna es obligatoria: sin `NEXT_
 ## Documentos
 
 - [`docs/PROMPT_INICIAL.md`](docs/PROMPT_INICIAL.md) — requisitos del dueño.
-- [`docs/PLAN.md`](docs/PLAN.md) — arquitectura, costos y plan por fases.
+- [`docs/PLAN.md`](docs/PLAN.md) — arquitectura, costos y Fase 0.
+- [`docs/PLAN_V5.md`](docs/PLAN_V5.md) — modelo de servicio (configuración, reporte, cierre, pagos, unión de cuentas) y fases siguientes.
 - [`docs/DECISIONES.md`](docs/DECISIONES.md) — decisiones de arquitectura (ADR).
 - [`docs/TEMPLATE_TAGS.md`](docs/TEMPLATE_TAGS.md) — catálogo de etiquetas para los formatos.
 - [`docs/WHATSAPP_TEMPLATES.md`](docs/WHATSAPP_TEMPLATES.md) — plantillas de WhatsApp para registrar en Meta.

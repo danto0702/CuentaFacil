@@ -86,3 +86,33 @@
 - **Decisión:** "Pascalia" es el nombre comercial que ve el usuario; "CuentasBot" queda como nombre interno del código. La landing es HTML + CSS estático en `web/` (sin build ni JavaScript), con lista de espera por correo (`contacto@pascalia.lat`). Hosting: GitHub Pages (repo público, gratis, HTTPS), publicado por `.github/workflows/pages.yml` en cada push a `main` que toque `web/`; DNS en Porkbun.
 - **Alternativas:** página dentro del panel Next.js (aún no existe y mezclaría el sitio público con el admin).
 - **Consecuencias:** no se publica la política de datos hasta que la revise un abogado; precio y entidad piloto no se nombran en la página. Cuando haya número de WhatsApp verificado, el botón principal pasa a un enlace `wa.me`.
+
+## ADR-020 — Configuración del contrato por documentos (2026-10-10)
+- **Decisión:** el contratista configura cada contrato por WhatsApp enviando el contrato de SECOP y el clausulado; Claude extrae los datos y las obligaciones literales en JSON validado con Zod y el contratista confirma. La fecha de inicio se toma de la base de contratos de la entidad (`FECHA ACTAINICIO`) y, si no está, se pregunta.
+- **Consecuencias:** el panel ya no es el camino principal para dar de alta contratos; sigue sirviendo para corregir y para la atención humana.
+
+## ADR-021 — Estilo por contrato a partir del informe anterior
+- **Decisión:** contrato nuevo → plantilla de la entidad. Contrato con informes previos → se pide el informe anterior y se extrae su estilo (`contracts.style`) y la redacción por obligación; la plantilla de la entidad aplica ese estilo.
+- **Alternativas:** convertir cada DOCX del contratista en plantilla propia (más fiel, pero exige revisión humana por contrato). Se reserva para la atención humana.
+
+## ADR-022 — Soportes por cuenta con vigencia de 30 días
+- **Decisión:** antecedentes (4, en cualquier orden) y afiliaciones (3) se piden en cada cuenta; vencen a los 30 días. Certificaciones: indicador `requires_certification` por contrato y 0..N archivos por cuenta, incluidos en el ZIP.
+
+## ADR-023 — Unión de cuentas
+- **Decisión:** una cuenta (`accounts`) agrupa uno o más periodos consecutivos (`account_periods`). Cada periodo exige su planilla y genera su propia tabla de seguridad social en ambos informes; antecedentes y afiliaciones una vez; valor = suma; se cobra un informe.
+- **Consecuencias:** el contexto de plantilla pasa de `period` a `account` con `periods[]`; los formatos HRNO se ajustan para repetir la tabla de seguridad social.
+
+## ADR-024 — Cobro por configuración y por informe
+- **Decisión:** $10.000 por configurar un contrato y $50.000 por informe (por contrato y por cuenta), cobrados antes de activar el contrato y antes de entregar archivos. Precios en `system_settings`. Reemplaza el modelo de suscripción de la Fase 3.
+
+## ADR-025 — Códigos de pago en efectivo
+- **Decisión:** el panel genera códigos de un solo uso con valor, tipo de servicio, nombre y documento de quien paga; el contratista lo escribe en el chat y el sistema lo valida contra lo pendiente. Se registran en `payments` (método `cash_code`) con el usuario del panel que lo generó.
+
+## ADR-026 — Campos del supervisor siempre en blanco
+- **Decisión:** fecha del informe de supervisión, día y mes de la constancia, columna de aprobación y firma del supervisor nunca se llenan. Solo se inserta la firma del contratista, si la dio.
+
+## ADR-027 — IBC advierte y antecedentes con hallazgo bloquean
+- **Decisión:** IBC inferior al 40 % advierte; si el contratista acepta, se registra en `events`. Un certificado de antecedentes con hallazgo bloquea la cuenta y se avisa.
+
+## ADR-028 — Gestión personalizada sin costo
+- **Decisión:** estado de conversación `human_attention`: el bot deja de responder solo, el caso aparece en la bandeja del panel con su contexto y un operador lo resuelve y lo devuelve. Se activa por fallas de extracción o de control de calidad, por pedido del contratista o por casos no cubiertos.
