@@ -10,7 +10,8 @@ on conflict (key) do nothing;
 insert into policy_versions (kind, version, url) values
   ('privacy_policy', '1.0', 'https://pascalia.lat/politica-de-datos/'),
   ('privacy_policy', '1.1', 'https://pascalia.lat/politica-de-datos/'),
-  ('terms', '0.1-borrador', 'https://example.invalid/terminos')
+  ('terms', '0.1-borrador', 'https://example.invalid/terminos'),
+  ('terms', '1.0', 'https://pascalia.lat/terminos/')
 on conflict (kind, version) do nothing;
 
 insert into entities (id, name, short_name, nit, municipality, department, settings) values (

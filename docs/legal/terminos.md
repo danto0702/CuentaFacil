@@ -1,9 +1,8 @@
 # Términos y Condiciones del Servicio — CuentaFacil de PascalIA
 
-> 📝 **BORRADOR versión 0.1 — pendiente de revisión del abogado.** No publicar hasta su aprobación.
-> Fecha: 2026-10-10. Al aprobarse: publicar en https://pascalia.lat/terminos/, registrar la versión en `policy_versions` (tipo `terms`) y pedir su aceptación junto con la política de datos.
+> ✅ **Versión 1.0, vigente desde el 10 de octubre de 2026.** Publicada en https://pascalia.lat/terminos/ (repo `danto0702/pascalia-web`) por decisión del responsable, antes de la revisión del abogado. Si el abogado pide cambios, se publica una nueva versión.
 
-## Notas para el abogado (borrar al aprobar)
+## Preguntas pendientes para el abogado (no se publican)
 
 1. **Derecho de retracto (Ley 1480 de 2011, art. 47).** El servicio se contrata y se paga por WhatsApp, a distancia. Proponemos que el retracto no aplique porque el servicio empieza a prestarse, con el acuerdo del usuario, en el momento en que paga: la configuración se activa y los documentos se entregan de inmediato. ¿Es suficiente con la redacción de la sección 7?
 2. **Reversión del pago (Ley 1480, art. 51).** Aplica a los pagos electrónicos con Wompi. ¿Hace falta decir algo más que lo de la sección 7?
