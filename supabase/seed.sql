@@ -3,7 +3,8 @@
 -- Idempotent: safe to run more than once.
 
 insert into system_settings (key, value) values
-  ('smmlv', '{"2025": 1423500, "2026": null}'::jsonb)   -- 2026 must be set from the official decree before Phase 1
+  -- 2026: Decreto 1469 de 2025 (ratified by Decreto 159 de 2026). Contractors get no transport allowance, so only SMMLV.
+  ('smmlv', '{"2025": 1423500, "2026": 1750905}'::jsonb)
 on conflict (key) do nothing;
 
 insert into policy_versions (kind, version, url) values

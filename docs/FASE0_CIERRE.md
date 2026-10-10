@@ -44,7 +44,7 @@ Lo mismo se verifica automáticamente en `apps/worker/test/generator.test.ts` (d
 - El **Dockerfile** del worker no se pudo construir aquí (sin Docker). Se valida al crear el servicio en Railway.
 - Las migraciones se probaron en Postgres 16 con *stubs* de Supabase; falta aplicarlas a un proyecto Supabase real (pgmq, pg_cron, Storage).
 - HEIC de iPhone: los binarios precompilados de sharp no lo leen; en la Fase 1 se agrega libheif a la imagen o un conversor.
-- El valor del **SMMLV 2026** no está cargado (`system_settings.smmlv`): debe tomarse del decreto oficial.
+- ~~El valor del **SMMLV 2026** no está cargado~~ Cargado el 2026-10-10: $1.750.905 (Decreto 1469 de 2025).
 - Los **enlaces oficiales** de antecedentes del seed deben verificarse antes de enviarlos a contratistas reales.
 - Al cambiar de corte, el número de cuentas puede no coincidir con el número de pagos del clausulado; el bot muestra el calendario y pide confirmación, pero la regla fina se define con casos reales.
 
