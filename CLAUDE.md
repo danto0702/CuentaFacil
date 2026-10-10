@@ -16,7 +16,7 @@ Fase 0 terminada (ver `docs/FASE0_CIERRE.md`), pendiente de aprobación del due�
 - Supabase: Postgres + RLS, Storage privado, Auth (panel), Edge Functions (webhooks), pgmq, pg_cron.
 - Worker Node 22 + TypeScript en Docker (Railway) con LibreOffice headless, Ghostscript, qpdf, libvips/libheif.
 - Panel Next.js (App Router) + Supabase Auth (Railway).
-- IA: Claude API (`AI_MODEL_FAST`, `AI_MODEL_SMART`), salidas estructuradas validadas con Zod.
+- IA: Claude API — `AI_MODEL_FAST` = Haiku 5.5 (clasificación, intención), `AI_MODEL_SMART` = Sonnet 5.5 (soportes, redacción, correcciones, QA), `AI_MODEL_SETUP` = Opus 5.5 (configuración del contrato). Salidas estructuradas validadas con Zod (ADR-030).
 - STT: adaptador `STT_PROVIDER` (OpenAI `gpt-4o-transcribe` por defecto).
 - Monorepo pnpm + Turborepo, Biome, Vitest, pgTAP.
 

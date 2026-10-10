@@ -120,3 +120,7 @@
 ## ADR-029 — Base de contratos cargada mes a mes desde SECOP II
 - **Decisión:** el panel recibe el Excel público de contratos de cada entidad y hace *upsert* por `(entidad, código, documento)`; nunca borra filas previas. Se usa para precargar fecha del acta de inicio, plazo y valor en la configuración.
 - **Consecuencias:** tabla `entity_contract_registry` (solo staff y `service_role`) y `registry_imports` para auditar cada carga.
+
+## ADR-030 — Modelos de Claude por tarea (2026-10-10)
+- **Decisión:** `AI_MODEL_FAST=claude-haiku-5-5` para clasificar notas/fotos e interpretar mensajes; `AI_MODEL_SMART=claude-sonnet-5-5` para leer soportes, redactar, aplicar correcciones y control de calidad; `AI_MODEL_SETUP=claude-opus-5-5` para la configuración del contrato (contrato SECOP, clausulado, informe anterior), que ocurre una vez por contrato y es crítica.
+- **Consecuencias:** costo de IA por configuración ≈ US$0,28; el resto del modelo financiero no cambia. En el piloto se mide la precisión por tarea y se sube o baja de modelo por variable de entorno, sin cambiar código.

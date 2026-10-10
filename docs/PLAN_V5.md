@@ -24,7 +24,7 @@
 ### 2.1 Configuración (una vez por contrato)
 
 1. **Documentos.** Pascal pide el **contrato de SECOP** (PDF "CO1.PCCNTR…") y el **clausulado**.
-2. **Extracción (IA, salida JSON validada).**
+2. **Extracción (IA con Claude Opus 5.5, salida JSON validada — ADR-030).**
    - Contrato SECOP: ID SECOP, número (CPS-NNNN-AAAA), objeto, valor, duración, fecha de terminación, entidad, contratista, documento, banco, tipo y número de cuenta.
    - Clausulado: objeto, **obligaciones específicas (texto literal, en orden)**, obligaciones generales, valor y forma de pago (mensualidades, primer pago), duración, documentos que exige la cuenta.
 3. **Base de contratos de la entidad.** Se busca por número de contrato + documento del contratista y se toman **fecha del acta de inicio**, tiempo de ejecución (días) y valor inicial. Si no está, o no coincide con el PDF, se pregunta.
