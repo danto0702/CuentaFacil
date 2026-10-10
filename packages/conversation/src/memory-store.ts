@@ -10,6 +10,7 @@ import type {
   Note,
   Period,
   PriorPaymentRecord,
+  RegistryEntry,
   SocialSecurity,
   SupportFile,
   SupportType,
@@ -32,6 +33,8 @@ export interface MemoryData {
   socialSecurity: SocialSecurity[];
   conversations: ConversationState[];
   consents?: { userId: string; phone: string; policyVersion: string; accepted: boolean; wamid: string }[];
+  /** Entity contract registry, keyed by entity, contract code (no leading zeros) and document digits. */
+  registry?: (RegistryEntry & { entityId: string; contractCode: string; docNumber: string })[];
 }
 
 export function emptyData(): MemoryData {
@@ -185,6 +188,13 @@ export class MemoryStore implements Store {
       (x) => (nit && digits(x.nit) === digits(nit)) || n.includes(x.name.toLocaleUpperCase('es-CO')),
     );
     return e ? clone(e) : null;
+  }
+  async findRegistryEntry(entityId: string, contractCode: string, docNumber: string) {
+    const doc = docNumber.replace(/\D/g, '');
+    const hit = (this.data.registry ?? []).find(
+      (r) => r.entityId === entityId && r.contractCode === contractCode && r.docNumber === doc,
+    );
+    return hit ? { startDate: hit.startDate, termDays: hit.termDays, initialValue: hit.initialValue } : null;
   }
   async createContract(input: NewContract) {
     const c = contractFromSetup(randomUUID(), input);

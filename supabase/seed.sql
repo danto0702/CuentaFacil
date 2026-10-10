@@ -36,6 +36,11 @@ insert into entities (id, name, short_name, nit, municipality, department, setti
   }'::jsonb
 ) on conflict (id) do nothing;
 
+-- Same supervisor for every HRNO contractor (owner, 2026-10-10). Wins over what the AI reads.
+update entities
+set settings = settings || '{"contract_defaults": {"supervisor": {"name": "CARLOS EDUARDO BONILLA DIAZ", "title": "Subgerente"}}}'::jsonb
+where id = '00000000-0000-4000-8000-000000000001';
+
 insert into entity_variables (entity_id, key, label, type, scope, source, default_value) values
   ('00000000-0000-4000-8000-000000000001', 'codigo_formato_supervision', 'Código del formato de supervisión', 'text', 'entity', 'admin', '"MA-GH-IS-03"'),
   ('00000000-0000-4000-8000-000000000001', 'version_formato_supervision', 'Versión del formato de supervisión', 'text', 'entity', 'admin', '"4.0"')

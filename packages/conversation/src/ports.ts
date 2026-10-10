@@ -12,6 +12,7 @@ import type {
   Obligation,
   Period,
   PriorPaymentRecord,
+  RegistryEntry,
   SocialSecurity,
   SupportFile,
   SupportType,
@@ -125,6 +126,8 @@ export interface Store {
   saveUserProfile(user: User): Promise<void>;
   /** Matches the contracting entity by NIT (digits) or name; null if the entity is not configured. */
   findEntity(nit: string | null, name: string): Promise<Entity | null>;
+  /** Looks up the entity contract registry by contract code and contractor document; null if absent. */
+  findRegistryEntry(entityId: string, contractCode: string, docNumber: string): Promise<RegistryEntry | null>;
   /** Creates an active contract with its obligations and payment schedule. */
   createContract(input: NewContract): Promise<Contract>;
 

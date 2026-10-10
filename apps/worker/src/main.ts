@@ -16,6 +16,8 @@ import { loadConfig } from './runtime/config.js';
 import { jsonLogger as log } from './runtime/log.js';
 import { InboundPipeline } from './runtime/pipeline.js';
 import { Queue } from './runtime/queue.js';
+import { processRegistryImports, queueRegistryUploads } from './runtime/registry-import.js';
+import { parseRegistryWorkbook } from './runtime/registry-xlsx.js';
 import { SupabasePipelineDb } from './runtime/supabase-db.js';
 import { SupabaseStore } from './store/supabase-store.js';
 import { CodeTemplateProvider } from './templates.js';
@@ -105,6 +107,8 @@ async function notifyFailure(inboxId: number): Promise<void> {
 
 const inbound = new Queue<{ inbox_id: number; provider: string }>(sb, 'inbound');
 const VISIBILITY_SECONDS = 180;
+/** How often the worker looks for new entity contract registry uploads. */
+const REGISTRY_CHECK_MS = 60_000;
 let stopping = false;
 
 async function failed(msgId: number, payload: unknown, error: unknown, attempts: number): Promise<void> {
@@ -125,7 +129,14 @@ async function failed(msgId: number, payload: unknown, error: unknown, attempts:
 async function loop(): Promise<void> {
   log.info('worker.started', { queue: inbound.name });
   void whatsappDiagnostic();
+  let nextRegistryCheck = 0;
   while (!stopping) {
+    if (cipher && Date.now() >= nextRegistryCheck) {
+      nextRegistryCheck = Date.now() + REGISTRY_CHECK_MS;
+      await queueRegistryUploads(sb, parseRegistryWorkbook, log)
+        .then(() => processRegistryImports(sb, cipher, log))
+        .catch((e) => log.error('registry.check_failed', { error: String(e) }));
+    }
     let batch: Awaited<ReturnType<typeof inbound.read>> = [];
     try {
       batch = await inbound.read(VISIBILITY_SECONDS, 5);

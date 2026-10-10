@@ -11,6 +11,7 @@ import type {
   Obligation,
   Period,
   PriorPaymentRecord,
+  RegistryEntry,
   SocialSecurity,
   Store,
   SupportFile,
@@ -42,6 +43,7 @@ export function entitySettingsFromDb(s: Row): EntitySettings {
   const ibc = (s.ibc ?? {}) as Row;
   const meeting = (s.meeting ?? {}) as Row;
   const pkg = (s.package ?? {}) as Row;
+  const supervisor = ((s.contract_defaults ?? {}) as Row).supervisor as Row | undefined;
   return {
     defaultActivityText: str(s.default_activity_text, 'Actividad cumplida.'),
     certificateMaxAgeDays: num(s.certificate_max_age_days ?? 30),
@@ -54,6 +56,9 @@ export function entitySettingsFromDb(s: Row): EntitySettings {
       periodFolder: str(pkg.period_folder, 'CUENTAS {MES} {AÑO}'),
       uploadFolder: str(pkg.upload_folder, 'DOCUMENTOS A CARGAR'),
       zipName: str(pkg.zip_name, 'cuenta.zip'),
+    },
+    contractDefaults: {
+      supervisor: supervisor?.name ? { name: str(supervisor.name), title: str(supervisor.title) } : null,
     },
   };
 }
@@ -211,6 +216,32 @@ export class SupabaseStore implements Store {
       (nit ? rows.find((r) => digits(r.nit) && digits(r.nit) === digits(nit)) : undefined) ??
       rows.find((r) => upper.includes(str(r.name).toLocaleUpperCase('es-CO')));
     return hit ? this.getEntity(str(hit.id)) : null;
+  }
+
+  async findRegistryEntry(
+    entityId: string,
+    contractCode: string,
+    docNumber: string,
+  ): Promise<RegistryEntry | null> {
+    if (!this.cipher) return null;
+    const rows = must(
+      await this.sb
+        .from('entity_contract_registry')
+        .select('start_date, term_days, initial_value')
+        .eq('entity_id', entityId)
+        .eq('contract_code', contractCode)
+        .eq('contractor_doc_bidx', this.cipher.blindIndex(docNumber))
+        .order('registered_on', { ascending: false })
+        .limit(1),
+      'findRegistryEntry',
+    ) as Row[];
+    const r = rows[0];
+    if (!r) return null;
+    return {
+      startDate: r.start_date ? (str(r.start_date) as IsoDate) : null,
+      termDays: r.term_days === null ? null : num(r.term_days),
+      initialValue: r.initial_value === null ? null : num(r.initial_value),
+    };
   }
 
   /** Creates (or, for the same contractor, reconfigures) a contract with its obligations and schedule. */

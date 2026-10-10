@@ -17,6 +17,7 @@
     "@cuentasbot/docgen": "workspace:*",
     "@cuentasbot/shared": "workspace:*",
     "@supabase/supabase-js": "^2.117.2",
+    "exceljs": "^4.4.0",
     "openai": "^7.32.0",
     "zod": "^4.6.5"
   },

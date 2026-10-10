@@ -1,4 +1,6 @@
 import { describe, expect, it } from 'vitest';
+import { DEMO_IDS } from '../src/demo.js';
+import { FakeAI, sampleExtraction } from '../src/fakes.js';
 import { harness, show } from './harness.js';
 
 const NEW_PHONE = '+573009998877';
@@ -101,5 +103,63 @@ describe('registration and contract setup by documents', () => {
     expect(show(await h.say('cancelar'))[0]).toMatch(/dejé la configuración en pausa/);
     // No contracts yet: any message restarts the setup.
     expect(show(await h.say('hola qué tal'))[0]).toMatch(/Para empezar necesito configurar tu contrato/);
+  });
+});
+
+describe('entity rules over the AI reading', () => {
+  it('uses the registry start date, the entity supervisor and only the specific obligations; asks the place of issue', async () => {
+    const extraction = {
+      ...sampleExtraction(),
+      contractor: { ...sampleExtraction().contractor, docIssuedIn: null },
+      supervisor: { name: 'OTRA PERSONA', title: '' },
+      obligations: [
+        ...sampleExtraction().obligations,
+        { kind: 'general' as const, number: 1, text: 'Cumplir con las metas asignadas.' },
+      ],
+      warnings: [
+        'SECOP no registra fecha de inicio; verificar la fecha del acta de inicio.',
+        'El clausulado no indica el cargo del supervisor.',
+        'No aparece el lugar de expedición de la cédula del contratista.',
+        'El NIT de la entidad se tomó del encabezado del clausulado.',
+        'La fecha de terminación no cuadra con el plazo.',
+      ],
+    };
+    const h = harness({ phone: NEW_PHONE, today: '2026-10-10', ai: new FakeAI(extraction) });
+    h.store.data.registry = [
+      {
+        entityId: DEMO_IDS.hrno,
+        contractCode: '999',
+        docNumber: '1000000001',
+        startDate: '2026-10-01',
+        termDays: 90,
+        initialValue: 12_000_000,
+      },
+    ];
+    await h.press('consent:yes');
+    await h.document('contrato.pdf');
+    let out = show(await h.document('clausulado.pdf'));
+    expect(out[0]).toContain('• Inicio (acta de inicio): 01/10/2026 (base de contratos de la entidad)');
+    expect(out[0]).toContain('• Supervisor: CARLOS EDUARDO BONILLA DIAZ (Subgerente)');
+    expect(out[0]).toContain('• Obligaciones específicas: 3');
+    expect(out[0]).toContain('⚠️ La fecha de terminación no cuadra con el plazo.');
+    expect(out[0]).not.toMatch(/supervisor\.|NIT de la entidad|expedición|acta de inicio\./);
+    expect(out[1]).not.toContain('metas asignadas');
+
+    out = show(await h.press('setup:ok'));
+    expect(out[0]).toMatch(/expedida tu cédula/);
+    out = show(await h.say('Ábrego, Norte de Santander'));
+    // Start date known from the registry → straight to the cut-off question.
+    expect(out[0]).toMatch(/¿Cómo cortas tus cuentas\?/);
+    await h.press('mode:month_end');
+    await h.press('cert:no');
+    await h.press('prior:none');
+    await h.press('sig:skip');
+
+    const user = (await h.store.getUserByPhone(NEW_PHONE))!;
+    expect(user.docIssuedIn).toBe('Ábrego, Norte de Santander');
+    const [contract] = await h.store.listContracts(user.id);
+    expect(contract!.startDate).toBe('2026-10-01');
+    expect(contract!.supervisor).toEqual({ name: 'CARLOS EDUARDO BONILLA DIAZ', title: 'Subgerente' });
+    expect(contract!.obligations.map((o) => o.kind)).toEqual(['specific', 'specific', 'specific']);
   });
 });

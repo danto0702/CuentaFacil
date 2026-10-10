@@ -15,13 +15,13 @@ export const fakeGenerator: Generator = {
 };
 
 /** Drives the orchestrator like a WhatsApp user would, recording every reply. */
-export function harness(opts: { today?: string; generator?: Generator; phone?: string } = {}) {
+export function harness(opts: { today?: string; generator?: Generator; phone?: string; ai?: FakeAI } = {}) {
   const store = new MemoryStore(demoData());
   const clock = new FixedClock(opts.today ?? '2026-09-28');
   let seq = 0;
   const orchestrator = new Orchestrator({
     store,
-    ai: new FakeAI(),
+    ai: opts.ai ?? new FakeAI(),
     stt: new FakeSTT(),
     clock,
     generator: opts.generator ?? fakeGenerator,

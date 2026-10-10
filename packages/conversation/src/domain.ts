@@ -18,6 +18,8 @@ export interface EntitySettings {
   ibcBlocking: boolean;
   generateWithMissing: boolean;
   package: { periodFolder: string; uploadFolder: string; zipName: string };
+  /** Values that are the same for every contractor of the entity; they win over what the AI reads. */
+  contractDefaults: { supervisor: { name: string; title: string } | null };
 }
 
 export interface User {
@@ -212,6 +214,13 @@ export interface ContractExtraction {
   schedule: ScheduledPayment[];
   /** Anything the AI could not confirm, in Colombian Spanish, for the summary. */
   warnings: string[];
+}
+
+/** A row of the entity contract registry (public SECOP II data, plan v5 §7). */
+export interface RegistryEntry {
+  startDate: IsoDate | null;
+  termDays: number | null;
+  initialValue: number | null;
 }
 
 export interface DocumentInput {

@@ -8,7 +8,7 @@ import {
   toIso,
 } from '@cuentasbot/shared';
 import { BRAND, SIGNATURE } from './brand.js';
-import type { ContractExtraction, ConversationState, Period, User } from './domain.js';
+import type { ContractExtraction, ConversationState, Entity, Period, RegistryEntry, User } from './domain.js';
 import type { Deps, Inbound, Outgoing } from './ports.js';
 import { clip } from './text.js';
 
@@ -32,6 +32,43 @@ interface SetupCtx {
   mode?: PeriodMode;
   requiresCertification?: boolean;
   priorCount?: number;
+  /** Where the start date came from: the entity contract registry or the contractor. */
+  startFromRegistry?: boolean;
+  docIssuedIn?: string;
+  /** Version of applyEntityRules already applied to `extraction`. */
+  rules?: number;
+}
+
+/** Bump when applyEntityRules changes, so in-flight setups are re-checked on confirmation. */
+const RULES_VERSION = 1;
+
+/** Contract code as kept in the entity registry: first digit group without leading zeros ("CPS-0330-2026" → "330"). */
+export function registryCode(contractNumber: string): string | null {
+  const digits = contractNumber.match(/\d+/)?.[0];
+  return digits ? String(Number(digits)) : null;
+}
+
+// Warnings about data the entity rules or the setup questions already settle.
+const SETTLED_WARNING = /supervisor|\bNIT\b|expedici|acta de inicio|fecha de inicio/i;
+
+/**
+ * Applies what is known about the entity over the AI reading (plan v5 §2.1): reports use only the
+ * specific obligations; the supervisor and NIT come from the entity; the start date comes from the
+ * entity contract registry or, if absent, is asked to the contractor.
+ */
+export function applyEntityRules(
+  e: ContractExtraction,
+  entity: Entity,
+  registry: RegistryEntry | null,
+): ContractExtraction {
+  return {
+    ...e,
+    entity: { ...e.entity, name: entity.name, nit: entity.nit },
+    supervisor: entity.settings.contractDefaults.supervisor ?? e.supervisor,
+    startDate: registry?.startDate ?? null,
+    obligations: e.obligations.filter((o) => o.kind === 'specific'),
+    warnings: e.warnings.filter((w) => !SETTLED_WARNING.test(w)),
+  };
 }
 
 const text = (t: string): Outgoing => ({ type: 'text', text: t });
@@ -129,6 +166,8 @@ export class SetupFlow {
         return this.onConfirm(turn, msg);
       case 'correct_text':
         return this.onCorrection(turn, msg);
+      case 'doc_issued_in':
+        return this.onDocIssuedIn(turn, msg);
       case 'start_date':
         return this.onStartDate(turn, msg);
       case 'end_date':
@@ -214,13 +253,32 @@ export class SetupFlow {
       );
       return;
     }
-    this.go(turn, 'confirm', { clausesDocId: id, extraction, entityId: entity.id });
-    this.showSummary(turn, extraction, entity.name);
+    this.go(turn, 'confirm', { clausesDocId: id, entityId: entity.id });
+    await this.checkAndShow(turn, extraction, entity);
   }
 
-  private showSummary(turn: SetupTurn, e: ContractExtraction, entityName: string): void {
-    const specific = e.obligations.filter((o) => o.kind === 'specific').length;
-    const general = e.obligations.length - specific;
+  /** Applies the entity rules, stores the result and shows the summary for confirmation. */
+  private async checkAndShow(turn: SetupTurn, raw: ContractExtraction, entity: Entity): Promise<void> {
+    const code = registryCode(raw.number) ?? registryCode(raw.fullNumber);
+    const registry =
+      code && raw.contractor.docNumber
+        ? await this.deps.store.findRegistryEntry(entity.id, code, raw.contractor.docNumber)
+        : null;
+    const extraction = applyEntityRules(raw, entity, registry);
+    this.go(turn, 'confirm', {
+      extraction,
+      startFromRegistry: Boolean(registry?.startDate),
+      rules: RULES_VERSION,
+    });
+    this.showSummary(turn, extraction, entity.name, Boolean(registry?.startDate));
+  }
+
+  private showSummary(
+    turn: SetupTurn,
+    e: ContractExtraction,
+    entityName: string,
+    fromRegistry: boolean,
+  ): void {
     const lines = [
       '📋 *Esto es lo que leí de tus documentos:*',
       `• Contrato: ${e.fullNumber}${e.secopId ? ` (SECOP ${e.secopId})` : ''}`,
@@ -228,18 +286,18 @@ export class SetupFlow {
       `• Objeto: ${clip(e.object, 220)}`,
       `• Valor total: ${formatCOP(e.totalValue)}${e.monthlyValue ? ` · mensual ${formatCOP(e.monthlyValue)}` : ''}${e.paymentsCount ? ` · ${e.paymentsCount} pagos` : ''}`,
       `• Plazo: ${e.termText}${e.endDate ? `, hasta el ${formatDdMmYyyy(e.endDate)}` : ''}`,
-      `• Inicio (acta de inicio): ${e.startDate ? formatDdMmYyyy(e.startDate) : 'no lo encontré, te lo pregunto en un momento'}`,
+      `• Inicio (acta de inicio): ${e.startDate ? `${formatDdMmYyyy(e.startDate)}${fromRegistry ? ' (base de contratos de la entidad)' : ''}` : 'no lo encontré en la base de contratos de la entidad, te lo pregunto en un momento'}`,
       `• Supervisor: ${e.supervisor ? `${e.supervisor.name} (${e.supervisor.title})` : 'no lo encontré'}`,
       `• A nombre de: ${e.contractor.fullName}, C.C. ${mask(e.contractor.docNumber)}`,
       `• Cuenta: ${[e.contractor.accountType, e.contractor.bankName].filter(Boolean).join(' ') || 'no la encontré'} ${mask(e.contractor.accountNumber)}`,
-      `• Obligaciones: ${specific} específicas${general ? ` y ${general} generales` : ''}`,
+      `• Obligaciones específicas: ${e.obligations.length}`,
       ...(e.warnings.length ? ['', ...e.warnings.map((w) => `⚠️ ${w}`)] : []),
     ];
     turn.out.push(text(lines.join('\n')));
     // Obligations in chunks under WhatsApp's 4096-character limit.
     let chunk = '*Obligaciones (como quedarán en tus informes):*';
     for (const o of e.obligations) {
-      const line = `\n${o.kind === 'general' ? 'G' : ''}${o.number}. ${clip(o.text, 300)}`;
+      const line = `\n${o.number}. ${clip(o.text, 300)}`;
       if (chunk.length + line.length > 3500) {
         turn.out.push(text(chunk));
         chunk = '';
@@ -274,10 +332,41 @@ export class SetupFlow {
       );
       return;
     }
-    const e = this.ctx(turn).extraction!;
+    const ctx = this.ctx(turn);
+    if (ctx.rules !== RULES_VERSION) {
+      // Setup started before these rules existed: re-check and show the summary again.
+      const entity = await this.deps.store.getEntity(ctx.entityId!);
+      return this.checkAndShow(turn, ctx.extraction!, entity);
+    }
+    return this.afterConfirm(turn);
+  }
+
+  /** After the summary: place of issue of the ID (if missing), then the dates. */
+  private afterConfirm(turn: SetupTurn): void {
+    const ctx = this.ctx(turn);
+    const e = ctx.extraction!;
+    if (!ctx.docIssuedIn && !e.contractor.docIssuedIn) {
+      this.go(turn, 'doc_issued_in');
+      turn.out.push(
+        text('🪪 ¿En qué municipio fue *expedida tu cédula*? Escríbelo así: Ábrego, Norte de Santander'),
+      );
+      return;
+    }
     if (!e.startDate) return this.askStartDate(turn);
     this.go(turn, 'mode', { startDate: e.startDate });
     return this.afterDates(turn);
+  }
+
+  private async onDocIssuedIn(turn: SetupTurn, msg: Inbound): Promise<void> {
+    const place = msg.text?.trim().replace(/\s+/g, ' ');
+    if (!place || place.length < 3 || place.length > 80) {
+      turn.out.push(
+        text('Escríbeme el municipio de expedición de tu cédula, por ejemplo: Ábrego, Norte de Santander'),
+      );
+      return;
+    }
+    this.go(turn, 'doc_issued_in', { docIssuedIn: place });
+    return this.afterConfirm(turn);
   }
 
   private async onCorrection(turn: SetupTurn, msg: Inbound): Promise<void> {
@@ -288,8 +377,18 @@ export class SetupFlow {
     const ctx = this.ctx(turn);
     const corrected = await this.deps.ai.correctExtraction(ctx.extraction!, msg.text);
     const entity = await this.deps.store.getEntity(ctx.entityId!);
-    this.go(turn, 'confirm', { extraction: corrected });
-    this.showSummary(turn, corrected, entity.name);
+    // The contractor's correction wins, except for what the entity rules fix (supervisor, NIT, registry date).
+    const registryDate = ctx.startFromRegistry ? ctx.extraction!.startDate : null;
+    const extraction = {
+      ...applyEntityRules(
+        corrected,
+        entity,
+        registryDate ? { startDate: registryDate, termDays: null, initialValue: null } : null,
+      ),
+      ...(registryDate ? {} : { startDate: corrected.startDate }),
+    };
+    this.go(turn, 'confirm', { extraction, rules: RULES_VERSION });
+    this.showSummary(turn, extraction, entity.name, Boolean(registryDate));
   }
 
   // ---------------------------------------------------------------------------
@@ -474,7 +573,7 @@ export class SetupFlow {
       ...turn.user,
       fullName: e.contractor.fullName || turn.user.fullName,
       docNumber: e.contractor.docNumber || turn.user.docNumber,
-      docIssuedIn: e.contractor.docIssuedIn ?? turn.user.docIssuedIn,
+      docIssuedIn: ctx.docIssuedIn ?? e.contractor.docIssuedIn ?? turn.user.docIssuedIn,
       bankName: e.contractor.bankName ?? turn.user.bankName,
       accountType: e.contractor.accountType ?? turn.user.accountType,
       accountNumber: e.contractor.accountNumber ?? turn.user.accountNumber,
