@@ -2,6 +2,7 @@
 
 > Estado: **PROPUESTA — pendiente de aprobación del dueño.** No hay código de producto todavía.
 > Fecha: 2026-10-03. Fuente de requisitos: [`PROMPT_INICIAL.md`](./PROMPT_INICIAL.md) · Versión 4 (respuestas del dueño, paquete HRNO, clausulado y certificado EBS).
+> **Actualización 2026-10-10:** el modelo de servicio y las fases siguientes están en [`PLAN_V5.md`](./PLAN_V5.md), que reemplaza la sección 6 de este documento.
 > Esquema SQL inicial: [`schema_draft.sql`](./schema_draft.sql). Decisiones: [`DECISIONES.md`](./DECISIONES.md).
 
 ---
@@ -162,7 +163,7 @@ Documentos reales (no anonimizados) compartidos como referencia: **no se guardan
 | Transcripción | **OpenAI `gpt-4o-transcribe`** (≈ US$0,006/min) con `prompt` de vocabulario (municipios, programas, siglas: EBS, PAI, ESE, IEC…), detrás de un adaptador `STT_PROVIDER` | `gpt-4o-mini-transcribe` (≈ US$0,003/min), Deepgram Nova-3 multilingüe (≈ US$0,0058–0,0092/min, *keyterm prompting*) | Buena precisión en español latinoamericano, acepta OGG/Opus de WhatsApp sin transcodificar, permite pistas de vocabulario. Costo mensual pequeño (~US$20). **En Fase 1 hago una evaluación con ~30 audios reales** y, si `mini` empata en calidad, bajamos a la mitad. |
 | Plantillas | **docx-templates** | docxtemplater (+módulo de imágenes de pago), Carbone, generar DOCX con `docx` (código) | Ver ADR-003. |
 | PDF | **pdf-lib** (unir, metadatos), **Ghostscript** (compresión de escaneos), **qpdf** (linealizar/reparar), **sharp/libvips con libheif** (HEIC→JPEG, orientación EXIF, redimensionar) | pdfkit, ImageMagick | Bibliotecas maduras; Ghostscript se usa como binario en nuestro servidor (sin distribución → AGPL no nos obliga a publicar código, lo dejo en el ADR para revisión). |
-| IA | Claude API: `AI_MODEL_FAST=claude-haiku-4-5` (clasificación, intención, extracción simple), `AI_MODEL_SMART=claude-sonnet-5-5` (contratos, planillas, redacción) | — | Ver §2.5. |
+| IA | Claude API: `AI_MODEL_FAST=claude-haiku-5-5` (clasificación, intención), `AI_MODEL_SMART=claude-sonnet-5-5` (soportes, redacción, correcciones, control de calidad), `AI_MODEL_SETUP=claude-opus-5-5` (configuración: contrato, clausulado, informe anterior) — ADR-030 | — | Ver §2.5. |
 | Errores | Sentry (plan gratuito) | — | Trazas del worker y del panel; **scrubbing** de datos personales antes de enviar. |
 
 ### 2.5 Uso de Claude (verificado en la referencia de API vigente al 2026-10-03)
@@ -184,8 +185,9 @@ SUPABASE_DB_URL=                 # conexión directa (Supavisor, modo sesión) p
 WA_GRAPH_API_VERSION=            # fijada explícitamente; se revisa en cada actualización de Meta
 WA_OUTBOUND_RATE_PER_SEC=20      # token bucket según el tier del número
 # IA
-AI_MODEL_FAST=claude-haiku-4-5
+AI_MODEL_FAST=claude-haiku-5-5
 AI_MODEL_SMART=claude-sonnet-5-5
+AI_MODEL_SETUP=claude-opus-5-5
 AI_CONFIDENCE_THRESHOLD=0.8
 AI_COST_ALERT_USD_PER_PERIOD=2
 STT_MODEL=gpt-4o-transcribe
@@ -346,6 +348,8 @@ Fuentes: referencia de precios de la API de Anthropic (skill `claude-api`, cach�
 ---
 
 ## 6. Fases siguientes (ajustadas con las respuestas)
+
+> Reemplazada por la sección 9 de [`PLAN_V5.md`](./PLAN_V5.md).
 
 - **Fase 1** – MVP WhatsApp HRNO sin cobro: webhook + colas reales, **multi-contrato (incluso de entidades distintas)**, onboarding con contrato cargado desde el panel, notas (texto/foto/audio), soportes con clasificación, checklist, recordatorios con plantillas, redacción IA + aprobación, entrega por WhatsApp. Evaluación STT. **Recursos pagados: Meta, Supabase Pro, Railway, Anthropic, STT → te pido autorización antes.**
 - **Fase 2** – Extracción de contrato en auto-registro, extracción de planillas/certificados, validaciones 8.5, firma escaneada.
