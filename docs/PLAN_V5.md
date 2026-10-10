@@ -147,7 +147,7 @@ Una **cuenta** cubre uno o más periodos consecutivos del mismo contrato (`accou
 3. ~~Base de contratos~~ **Resuelta:** es información pública de SECOP II; se carga en el panel mes a mes.
 4. ~~Informe anterior en PDF~~ **Resuelta:** basta con copiar estilo y redacción.
 5. ~~Atención humana~~ **Resuelta:** atiende el dueño, de lunes a sábado, 8–12 y 2–6.
-6. **Política de datos 1.1:** borrador en [`legal/politica_tratamiento_v1_1.md`](./legal/politica_tratamiento_v1_1.md), pendiente de revisión del abogado.
+6. **Política de datos 1.1:** aprobada por el abogado y publicada el 10 de octubre de 2026 ([`legal/politica_tratamiento.md`](./legal/politica_tratamiento.md)).
 7. ~~Días de atención~~ **Resuelta:** de lunes a sábado.
 
 ## 11. Balance de costos e ingresos por volumen (2026-10-10)

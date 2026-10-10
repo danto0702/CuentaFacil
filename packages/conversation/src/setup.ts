@@ -14,7 +14,7 @@ import { clip } from './text.js';
 
 /** Conversation flow name for contract setup (plan v5 §2.1). */
 export const SETUP_FLOW = 'setup';
-export const POLICY_VERSION = '1.0';
+export const POLICY_VERSION = '1.1';
 
 export interface SetupTurn {
   user: User;

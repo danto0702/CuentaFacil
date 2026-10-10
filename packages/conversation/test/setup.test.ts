@@ -20,7 +20,7 @@ describe('registration and contract setup by documents', () => {
     expect(out[0]).toMatch(/Envíame el \*PDF del contrato\*/);
     const user = await h.store.getUserByPhone(NEW_PHONE);
     expect(user).not.toBeNull();
-    expect(h.store.data.consents?.[0]).toMatchObject({ policyVersion: '1.0', accepted: true });
+    expect(h.store.data.consents?.[0]).toMatchObject({ policyVersion: '1.1', accepted: true });
 
     // A photo instead of the PDF → asks again.
     expect(show(await h.photo())[0]).toMatch(/Necesito el contrato en \*PDF\*/);

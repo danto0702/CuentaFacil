@@ -68,4 +68,4 @@ Ver [`.env.example`](.env.example). En Fase 0 ninguna es obligatoria: sin `NEXT_
 - [`docs/DECISIONES.md`](docs/DECISIONES.md) — decisiones de arquitectura (ADR).
 - [`docs/TEMPLATE_TAGS.md`](docs/TEMPLATE_TAGS.md) — catálogo de etiquetas para los formatos.
 - [`docs/WHATSAPP_TEMPLATES.md`](docs/WHATSAPP_TEMPLATES.md) — plantillas de WhatsApp para registrar en Meta.
-- [`docs/legal/politica_tratamiento.md`](docs/legal/politica_tratamiento.md) — versión 1.0 aprobada por el abogado, publicada en https://pascalia.lat/politica-de-datos/.
+- [`docs/legal/politica_tratamiento.md`](docs/legal/politica_tratamiento.md) — versión 1.1 aprobada por el abogado, publicada en https://pascalia.lat/politica-de-datos/.
