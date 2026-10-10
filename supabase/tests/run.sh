@@ -27,6 +27,8 @@ for f in "$ROOT"/migrations/*.sql; do
 done
 PGOPTIONS='--client-min-messages=warning' "${PSQL[@]}" -f "$ROOT/seed.sql"
 PGOPTIONS='--client-min-messages=warning' "${PSQL[@]}" -f "$ROOT/seed.sql"   # idempotency
+PGOPTIONS='--client-min-messages=warning' "${PSQL[@]}" -f "$ROOT/seed_test.sql"
+PGOPTIONS='--client-min-messages=warning' "${PSQL[@]}" -f "$ROOT/seed_test.sql"   # idempotency
 echo "→ seed (x2)"
 for t in "$ROOT"/tests/*.test.sql; do
   echo "→ $(basename "$t")"

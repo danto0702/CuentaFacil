@@ -6,7 +6,7 @@ major_version = 15
 
 [db.seed]
 enabled = true
-sql_paths = ["./seed.sql"]
+sql_paths = ["./seed.sql", "./seed_test.sql"]
 
 [auth]
 site_url = "http://localhost:3000"
