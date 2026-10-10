@@ -20,6 +20,7 @@ import { SupabasePipelineDb } from './runtime/supabase-db.js';
 import { SupabaseStore } from './store/supabase-store.js';
 import { CodeTemplateProvider } from './templates.js';
 import { WhatsAppClient } from './whatsapp/client.js';
+import { parseWebhook } from './whatsapp/parse.js';
 
 const cfg = loadConfig();
 const sb = createClient(cfg.SUPABASE_URL, cfg.SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } });
@@ -59,8 +60,9 @@ const orchestrator = new Orchestrator({
   generator: new AccountGenerator({ store, clock, templates: new CodeTemplateProvider() }),
   newId: randomUUID,
   confidenceThreshold: cfg.AI_CONFIDENCE_THRESHOLD,
+  // Interim "working on it" messages go out only on the first attempt, so retries don't repeat them.
   progress: async (to, out) => {
-    await messenger.send(to, out);
+    if (currentAttempt <= 1) await messenger.send(to, out);
   },
 });
 
@@ -88,6 +90,19 @@ async function whatsappDiagnostic(): Promise<void> {
   }
 }
 
+let currentAttempt = 1;
+
+const FAILURE_TEXT =
+  'Lo siento, tuve un problema procesando tu último mensaje y no lo pude completar. 🙏 Por favor envíalo de nuevo en unos minutos; si sigue fallando, escribe *soporte*.';
+
+/** Tells the sender that their message could not be processed after every retry. */
+async function notifyFailure(inboxId: number): Promise<void> {
+  const { data } = await sb.from('webhook_inbox').select('body').eq('id', inboxId).single();
+  if (!data) return;
+  const senders = new Set(parseWebhook(JSON.parse(data.body)).messages.map((m) => m.from));
+  for (const to of senders) await messenger.send(to, { type: 'text', text: FAILURE_TEXT });
+}
+
 const inbound = new Queue<{ inbox_id: number; provider: string }>(sb, 'inbound');
 const VISIBILITY_SECONDS = 180;
 let stopping = false;
@@ -98,11 +113,13 @@ async function failed(msgId: number, payload: unknown, error: unknown, attempts:
     .from('job_failures')
     .insert({ queue: 'inbound', msg_id: msgId, payload, error: String(error), attempts });
   const inboxId = (payload as { inbox_id?: number }).inbox_id;
-  if (inboxId)
+  if (inboxId) {
     await sb
       .from('webhook_inbox')
       .update({ status: 'failed', error: String(error).slice(0, 500) })
       .eq('id', inboxId);
+    await notifyFailure(inboxId).catch((e) => log.error('inbound.notify_failed', { error: String(e) }));
+  }
 }
 
 async function loop(): Promise<void> {
@@ -121,6 +138,7 @@ async function loop(): Promise<void> {
     }
     for (const m of batch) {
       try {
+        currentAttempt = m.readCount;
         if (m.message.provider === 'whatsapp') await pipeline.processInbox(m.message.inbox_id);
         await inbound.delete(m.msgId);
       } catch (e) {
