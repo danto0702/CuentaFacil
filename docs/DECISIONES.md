@@ -124,3 +124,8 @@
 ## ADR-030 — Modelos de Claude por tarea (2026-10-10)
 - **Decisión:** `AI_MODEL_FAST=claude-haiku-5-5` para clasificar notas/fotos e interpretar mensajes; `AI_MODEL_SMART=claude-sonnet-5-5` para leer soportes, redactar, aplicar correcciones y control de calidad; `AI_MODEL_SETUP=claude-opus-5-5` para la configuración del contrato (contrato SECOP, clausulado, informe anterior), que ocurre una vez por contrato y es crítica.
 - **Consecuencias:** costo de IA por configuración ≈ US$0,28; el resto del modelo financiero no cambia. En el piloto se mide la precisión por tarea y se sube o baja de modelo por variable de entorno, sin cambiar código.
+
+## ADR-031 — Supabase en Canadá (ca-central-1)
+- **Contexto:** el proyecto de producción de Supabase se creó en `ca-central-1` (Montreal); la región no se puede cambiar después.
+- **Decisión:** se mantiene en Canadá (decisión del dueño, 2026-10-10). Railway sigue en US East (no tiene región en Canadá); Meta, Anthropic y OpenAI en EE. UU.
+- **Consecuencias:** la política de datos 1.1 declara Canadá y EE. UU.; hasta que el abogado la apruebe y se publique, la base de datos solo recibe datos de prueba y del propio responsable. Reemplaza la mención a `us-east-1` de ADR-002.

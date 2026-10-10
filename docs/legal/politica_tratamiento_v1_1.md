@@ -13,6 +13,7 @@ Cambios frente a la 1.0, todos por nuevas funciones del servicio:
 4. **Atención por una persona** — sección 4-C. El dueño revisa la conversación y los documentos cuando el titular lo pide o la generación automática falla.
 5. **Capturas de pantalla para correcciones** — sección 2. Pueden contener datos de terceros (p. ej. el supervisor).
 6. **Documentos contractuales** (contrato SECOP, clausulado, informes anteriores, certificaciones de cumplimiento) — sección 2.
+7. **Ubicación de la base de datos: Canadá** — sección 4. La versión 1.0 publicada dice que los datos se almacenan en EE. UU.; la base de datos quedó en Canadá (Supabase, región `ca-central-1`). Los demás proveedores siguen en EE. UU. ¿Basta con actualizar la tabla y la autorización de transferencia, considerando que Canadá y EE. UU. figuran como países con nivel adecuado de protección según la SIC? Mientras no se apruebe esta versión, en la base de datos solo se cargan datos de prueba y del propio responsable.
 
 > Marco normativo: Ley 1581 de 2012, Decreto 1377 de 2013 (compilado en el Decreto 1074 de 2015) y demás normas que los modifiquen o complementen.
 
@@ -58,11 +59,11 @@ Las fotografías de evidencia pueden contener imágenes de **terceros** (por eje
 
 ## 4. Encargados del tratamiento y transferencia internacional de datos
 
-Para prestar el servicio, los datos se **almacenan y procesan fuera de Colombia, en los Estados Unidos de América**, a través de los siguientes proveedores, que actúan como **encargados del tratamiento** bajo contratos que les exigen medidas de seguridad y confidencialidad:
+Para prestar el servicio, los datos se **almacenan y procesan fuera de Colombia, en Canadá y en los Estados Unidos de América**, a través de los siguientes proveedores, que actúan como **encargados del tratamiento** bajo contratos que les exigen medidas de seguridad y confidencialidad:
 
 | Proveedor | Servicio | Ubicación del tratamiento | Datos |
 |-----------|----------|---------------------------|-------|
-| Supabase Inc. | Base de datos y almacenamiento de archivos | EE. UU. | Todos los datos del servicio |
+| Supabase Inc. | Base de datos y almacenamiento de archivos | Canadá (región ca-central-1, Montreal) | Todos los datos del servicio |
 | Railway Corp. | Servidores de procesamiento y panel administrativo | EE. UU. | Datos en tránsito durante el procesamiento |
 | Meta Platforms, Inc. (WhatsApp Business) | Canal de mensajería | EE. UU. y otros países donde opera Meta | Mensajes, archivos y número de WhatsApp |
 | Anthropic PBC | Inteligencia artificial (lectura de documentos y redacción) | EE. UU. | Solo el contenido necesario para cada tarea (notas, documentos, obligaciones) |
