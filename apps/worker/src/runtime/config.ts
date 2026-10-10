@@ -14,6 +14,8 @@ const schema = z.object({
   AI_CONFIDENCE_THRESHOLD: z.coerce.number().min(0).max(1).default(0.8),
   OPENAI_API_KEY: z.string().min(20),
   STT_MODEL: z.string().default('gpt-4o-transcribe'),
+  ENCRYPTION_KEY: z.string().optional(),
+  BLIND_INDEX_KEY: z.string().optional(),
   WORKER_POLL_MS: z.coerce.number().int().positive().default(1000),
   WORKER_MAX_ATTEMPTS: z.coerce.number().int().positive().default(5),
 });
