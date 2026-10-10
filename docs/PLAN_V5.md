@@ -111,7 +111,7 @@ Una **cuenta** cubre uno o más periodos consecutivos del mismo contrato (`accou
 
 - Se activa cuando: falla la extracción o el control de calidad, la persona escribe *hablar con una persona*, o un caso no está cubierto (formato raro, contrato de un tercero, etc.).
 - La conversación pasa a estado **atención humana**: el bot deja de responder solo y avisa el horario; en el panel aparece en **Bandeja** con el contexto (documentos, extracciones, errores).
-- **Atiende el dueño**, de **8:00 a. m. a 12:00 m. y de 2:00 p. m. a 6:00 p. m.** (hora de Colombia). Fuera de ese horario Pascal responde: "Te atiende una persona de nuestro equipo a partir de las 8:00 a. m.". El horario queda en `system_settings`.
+- **Atiende el dueño**, **de lunes a sábado**, de **8:00 a. m. a 12:00 m. y de 2:00 p. m. a 6:00 p. m.** (hora de Colombia; festivos no). Fuera de ese horario Pascal responde: "Te atiende una persona de nuestro equipo a partir de las 8:00 a. m.". El horario queda en `system_settings`.
 - El operador puede corregir datos, subir un DOCX corregido, marcar validaciones como resueltas (queda registrado) y enviar mensajes por el bot. Al terminar, devuelve la conversación a Pascal.
 - Sin costo adicional; el pago del informe sigue siendo el mismo.
 
@@ -146,6 +146,6 @@ Una **cuenta** cubre uno o más periodos consecutivos del mismo contrato (`accou
 2. ~~Códigos en efectivo~~ **Resuelta:** atado al contratista, válido para un solo servicio (una cuenta de $50.000 o una configuración de $10.000), vence a los 30 días.
 3. ~~Base de contratos~~ **Resuelta:** es información pública de SECOP II; se carga en el panel mes a mes.
 4. ~~Informe anterior en PDF~~ **Resuelta:** basta con copiar estilo y redacción.
-5. ~~Atención humana~~ **Resuelta:** atiende el dueño, 8–12 y 2–6.
+5. ~~Atención humana~~ **Resuelta:** atiende el dueño, de lunes a sábado, 8–12 y 2–6.
 6. **Política de datos 1.1:** borrador en [`legal/politica_tratamiento_v1_1.md`](./legal/politica_tratamiento_v1_1.md), pendiente de revisión del abogado.
-7. **Atención humana:** ¿el horario es de lunes a viernes, o también sábados? (Supuesto: lunes a viernes, sin festivos.)
+7. ~~Días de atención~~ **Resuelta:** de lunes a sábado.
