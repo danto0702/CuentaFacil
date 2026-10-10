@@ -48,7 +48,7 @@ select set_config('request.jwt.claim.sub', '10000000-0000-4000-8000-000000000002
 select pg_temp.assert((select count(*) from contracts) = 3, 'operator sees all contracts');
 select pg_temp.assert((select count(*) from payments) = 0, 'operator cannot see payments');
 select pg_temp.assert((select count(*) from subscriptions) = 0, 'operator cannot see subscriptions');
-select pg_temp.assert((select count(*) from subscriptions_operator) = 1, 'operator sees subscription status view');
+select pg_temp.assert((select count(*) from operator_subscriptions()) = 1, 'operator sees subscription status view');
 update contracts set supervisor_title = 'SUBGERENTE' where id = '00000000-0000-4000-8000-000000000201';
 do $$ declare n int; begin
   delete from obligations where contract_id = '00000000-0000-4000-8000-000000000203';
