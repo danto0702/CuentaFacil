@@ -426,6 +426,12 @@ export class Orchestrator {
     if (msg.kind === 'text' && msg.text) return this.startNote(turn, msg.text);
     if (msg.kind === 'reply' && msg.replyId?.startsWith('chg:'))
       return this.askObligation(turn, msg.replyId.slice(4));
+    if (msg.kind === 'reply' && msg.replyId?.startsWith('nok:')) {
+      const note = await this.deps.store.getNote(msg.replyId.slice(4));
+      await this.deps.store.updateNote({ ...note, confidence: 1 });
+      turn.out.push(text('👍 Perfecto.'));
+      return;
+    }
     return this.menu(turn, false);
   }
 
@@ -496,7 +502,8 @@ export class Orchestrator {
         text: noteText,
         evidenceIds,
         createdAt: this.deps.clock.now().toISOString(),
-        ...(result.obligationKey && result.confidence >= this.deps.confidenceThreshold
+        // Pascal always proposes the best match; the contractor confirms or changes it.
+        ...(result.obligationKey
           ? { obligationKey: result.obligationKey, confidence: result.confidence }
           : {}),
       };
@@ -507,10 +514,16 @@ export class Orchestrator {
       const where = contracts.length > 1 ? ` (${c.shortLabel})` : '';
       if (note.obligationKey) {
         const o = c.obligations.find((x) => x.key === note.obligationKey)!;
+        const sure = result.confidence >= this.deps.confidenceThreshold;
         turn.out.push(
           buttons(
-            `✅ Anotado el ${formatDdMmYyyy(date)}${photos}${where} en la obligación ${o.number}: «${clip(o.text, 80)}»`,
-            [{ id: `chg:${note.id}`, title: 'Cambiar obligación' }],
+            sure
+              ? `✅ Anotado el ${formatDdMmYyyy(date)}${photos}${where} en la obligación ${o.number}: «${clip(o.text, 80)}»`
+              : `📝 Anotado el ${formatDdMmYyyy(date)}${photos}${where}. Creo que va en la obligación ${o.number}: «${clip(o.text, 80)}». ¿Está bien?`,
+            [
+              { id: `nok:${note.id}`, title: '✅ Está bien' },
+              { id: `chg:${note.id}`, title: 'Cambiar obligación' },
+            ],
           ),
         );
       } else {

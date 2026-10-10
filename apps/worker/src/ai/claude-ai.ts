@@ -154,7 +154,7 @@ export class ClaudeAI implements AI {
       effort: 'low',
       maxTokens: 2000,
       system:
-        "You assign a public-sector contractor's daily activity note to the contract obligation it best supports. Obligations are listed as E<n> (specific) or G<n> (general). Prefer specific obligations. Return null when no obligation fits. Confidence reflects how unambiguous the match is.",
+        "You assign a public-sector contractor's daily activity note to the contract obligation it best supports. Obligations are listed as E<n> (specific) or G<n> (general). Prefer specific obligations. Always choose the single best-fitting obligation, even when several could apply; return null only when the note is not a work activity at all. Confidence reflects how unambiguous the match is.",
       content: [{ type: 'text', text: `Obligations:\n${obligationList(obligations)}\n\nNote:\n${text}` }],
       schema: classifySchema,
     });

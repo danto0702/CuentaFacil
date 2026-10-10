@@ -23,11 +23,21 @@ describe('recorded conversation: a month of notes to delivery', () => {
     out = show(await h.press(`c:${DEMO_IDS.salud}`));
     expect(out[0]).toMatch(/^✅ Anotado el 27\/09\/2026 con 2 fotos en la obligación 3/);
 
-    // Low-confidence note → the contractor picks the obligation from the list.
+    // Low-confidence note → Pascal suggests its best guess; the contractor changes it from the list.
     await h.say('nota: hice el informe semanal');
     out = show(await h.press(`c:${DEMO_IDS.salud}`));
+    expect(out[0]).toMatch(
+      /Creo que va en la obligación \d+: .*¿Está bien\? \[✅ Está bien\] \[Cambiar obligación\]$/,
+    );
+    const noteId = h.store.data.notes.at(-1)!.id;
+    out = show(await h.press(`chg:${noteId}`));
     expect(out[0]).toMatch(/¿A cuál obligación corresponde\? \{1\. Coordinar/);
     expect(show(await h.press('o:specific-1'))).toEqual(['✅ Listo, quedó en la obligación 1.']);
+
+    // Or accepts the suggestion.
+    await h.say('nota: hice el informe semanal');
+    await h.press(`c:${DEMO_IDS.salud}`);
+    expect(show(await h.press(`nok:${h.store.data.notes.at(-1)!.id}`))).toEqual(['👍 Perfecto.']);
 
     // Checklist for both contracts.
     out = show(await h.say('¿Qué me falta?'));
