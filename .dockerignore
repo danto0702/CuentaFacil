@@ -1,0 +1,13 @@
+**/node_modules
+**/.next
+**/.turbo
+**/out
+**/out-*
+**/*.tsbuildinfo
+.git
+.env
+.env.*
+*.env
+fixtures/private
+apps/simulator/.sim
+web
