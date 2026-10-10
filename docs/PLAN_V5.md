@@ -80,7 +80,7 @@ Una **cuenta** cubre uno o más periodos consecutivos del mismo contrato (`accou
 
 | Concepto | Valor | Cuándo |
 |----------|-------|--------|
-| Configuración de contrato | $10.000 | Al confirmar la configuración, antes de activar el contrato |
+| Configuración de contrato | $10.000 | Después de mostrar el resumen de la configuración, antes de activar el contrato. Cubre prórrogas y adiciones |
 | Informe | $50.000 | Por contrato y por cuenta (una cuenta unida de varios meses paga uno), antes de entregar archivos |
 | Correcciones y gestión personalizada | $0 | Siempre |
 
@@ -139,7 +139,7 @@ Una **cuenta** cubre uno o más periodos consecutivos del mismo contrato (`accou
 
 ## 10. Preguntas abiertas
 
-1. **Configuración de $10.000**: ¿se paga antes de que la IA lea los documentos o después de mostrar el resumen? (Propuesta: después del resumen, antes de activar). ¿Cubre prórrogas y adiciones del mismo contrato? (Propuesta: sí; un contrato nuevo paga de nuevo.)
+1. ~~Configuración de $10.000~~ **Resuelta (2026-10-10):** se cobra después de mostrar el resumen y antes de activar el contrato; cubre prórrogas y adiciones del mismo contrato. Un contrato nuevo paga de nuevo.
 2. **Códigos en efectivo**: ¿el código debe quedar atado al documento del contratista (solo él puede usarlo) o puede usarlo cualquiera que lo tenga? ¿Vencimiento? (Propuesta: atado al documento y al servicio; vence en 30 días.)
 3. **Base de contratos**: ¿la entrega la ESE (con autorización para este uso) o la descargas de una fuente pública? ¿Cada cuánto se actualiza? Esto define cómo la cubre la política de datos.
 4. **Informe anterior solo en PDF**: ¿basta con copiar estilo y redacción a la plantilla de la entidad, o en ese caso pasamos a gestión personalizada?

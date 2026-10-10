@@ -103,7 +103,7 @@
 - **Consecuencias:** el contexto de plantilla pasa de `period` a `account` con `periods[]`; los formatos HRNO se ajustan para repetir la tabla de seguridad social.
 
 ## ADR-024 — Cobro por configuración y por informe
-- **Decisión:** $10.000 por configurar un contrato y $50.000 por informe (por contrato y por cuenta), cobrados antes de activar el contrato y antes de entregar archivos. Precios en `system_settings`. Reemplaza el modelo de suscripción de la Fase 3.
+- **Decisión:** $10.000 por configurar un contrato y $50.000 por informe (por contrato y por cuenta), cobrados antes de activar el contrato y antes de entregar archivos. Precios en `system_settings`. Reemplaza el modelo de suscripción de la Fase 3. La configuración se cobra después de mostrar el resumen y cubre prórrogas y adiciones del mismo contrato (respuesta del dueño, 2026-10-10).
 
 ## ADR-025 — Códigos de pago en efectivo
 - **Decisión:** el panel genera códigos de un solo uso con valor, tipo de servicio, nombre y documento de quien paga; el contratista lo escribe en el chat y el sistema lo valida contra lo pendiente. Se registran en `payments` (método `cash_code`) con el usuario del panel que lo generó.
