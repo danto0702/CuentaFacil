@@ -2,6 +2,7 @@ import { createHmac } from 'node:crypto';
 import type { Inbound, Outgoing } from '@cuentasbot/conversation';
 import { describe, expect, it } from 'vitest';
 import { InboundPipeline, type InboxItem, type PipelineDb } from '../src/runtime/pipeline.js';
+import { WhatsAppClient } from '../src/whatsapp/client.js';
 import { parseWebhook, type RawMessage, type StatusUpdate } from '../src/whatsapp/parse.js';
 import { messagePayload } from '../src/whatsapp/payload.js';
 import { verifySignature } from '../src/whatsapp/signature.js';
@@ -247,5 +248,29 @@ describe('InboundPipeline', () => {
     await pipeline.processInbox(1);
     expect(seen).toHaveLength(0);
     expect(db.out[0]?.out.type).toBe('text');
+  });
+});
+
+describe('WhatsAppClient.ensureSubscribed', () => {
+  function client(existing: unknown[]) {
+    const calls: string[] = [];
+    const fake = (async (url: string, init?: RequestInit) => {
+      calls.push(`${init?.method ?? 'GET'} ${url.replace('https://graph.facebook.com/v23.0/', '')}`);
+      const body = init?.method === 'POST' ? { success: true } : { data: existing };
+      return new Response(JSON.stringify(body), { status: 200 });
+    }) as typeof fetch;
+    return {
+      calls,
+      wa: new WhatsAppClient({ accessToken: 't', phoneNumberId: '1', graphVersion: 'v23.0', fetch: fake }),
+    };
+  }
+
+  it('subscribes the business account only when no app is subscribed', async () => {
+    const empty = client([]);
+    expect(await empty.wa.ensureSubscribed('99')).toBe(true);
+    expect(empty.calls).toEqual(['GET 99/subscribed_apps', 'POST 99/subscribed_apps']);
+    const done = client([{ whatsapp_business_api_data: { id: 'app' } }]);
+    expect(await done.wa.ensureSubscribed('99')).toBe(false);
+    expect(done.calls).toEqual(['GET 99/subscribed_apps']);
   });
 });

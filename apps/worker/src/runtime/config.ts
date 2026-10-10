@@ -7,6 +7,7 @@ const schema = z.object({
   WA_APP_SECRET: z.string().min(8),
   WA_PHONE_NUMBER_ID: z.string().regex(/^\d+$/),
   WA_GRAPH_API_VERSION: z.string().default('v23.0'),
+  WA_BUSINESS_ACCOUNT_ID: z.string().regex(/^\d+$/).optional(),
   ANTHROPIC_API_KEY: z.string().min(20),
   AI_MODEL_FAST: z.string().default('claude-haiku-5-5'),
   AI_MODEL_SMART: z.string().default('claude-sonnet-5-5'),

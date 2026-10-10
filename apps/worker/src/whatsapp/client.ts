@@ -9,6 +9,16 @@ export interface WhatsAppConfig {
   fetch?: typeof fetch;
 }
 
+export interface PhoneNumberInfo {
+  display_phone_number?: string;
+  verified_name?: string;
+  quality_rating?: string;
+  code_verification_status?: string;
+  platform_type?: string;
+  status?: string;
+  name_status?: string;
+}
+
 export class WhatsAppError extends Error {
   constructor(
     message: string,
@@ -92,6 +102,27 @@ export class WhatsAppClient {
     const res = await this.http(meta.url, { headers: { Authorization: `Bearer ${this.cfg.accessToken}` } });
     if (!res.ok) throw new WhatsAppError(`media download failed: HTTP ${res.status}`, res.status);
     return { data: Buffer.from(await res.arrayBuffer()), mime: meta.mime_type };
+  }
+
+  /** Status of the sending number, for the startup diagnostic. */
+  phoneNumberInfo(): Promise<PhoneNumberInfo> {
+    return this.call<PhoneNumberInfo>(
+      `${this.cfg.phoneNumberId}?fields=display_phone_number,verified_name,quality_rating,code_verification_status,platform_type,status,name_status`,
+      { method: 'GET' },
+    );
+  }
+
+  /**
+   * Makes sure the business account sends its webhooks to this app. Without this subscription Meta
+   * verifies the callback URL but never delivers messages. Returns true when it had to subscribe.
+   */
+  async ensureSubscribed(businessAccountId: string): Promise<boolean> {
+    const apps = await this.call<{ data: unknown[] }>(`${businessAccountId}/subscribed_apps`, {
+      method: 'GET',
+    });
+    if (apps.data?.length) return false;
+    await this.postJson(`${businessAccountId}/subscribed_apps`, {});
+    return true;
   }
 
   async markRead(wamid: string): Promise<void> {

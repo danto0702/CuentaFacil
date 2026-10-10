@@ -72,6 +72,22 @@ const pipeline = new InboundPipeline({
   log,
 });
 
+/** Logs the sending number's status and subscribes the business account to the app if needed. */
+async function whatsappDiagnostic(): Promise<void> {
+  try {
+    log.info('whatsapp.number', { ...(await messenger.phoneNumberInfo()) });
+  } catch (e) {
+    log.error('whatsapp.number_failed', { error: (e as Error).message });
+  }
+  if (!cfg.WA_BUSINESS_ACCOUNT_ID) return;
+  try {
+    const subscribed = await messenger.ensureSubscribed(cfg.WA_BUSINESS_ACCOUNT_ID);
+    log.info('whatsapp.subscription', { action: subscribed ? 'subscribed' : 'already_subscribed' });
+  } catch (e) {
+    log.error('whatsapp.subscription_failed', { error: (e as Error).message });
+  }
+}
+
 const inbound = new Queue<{ inbox_id: number; provider: string }>(sb, 'inbound');
 const VISIBILITY_SECONDS = 180;
 let stopping = false;
@@ -91,6 +107,7 @@ async function failed(msgId: number, payload: unknown, error: unknown, attempts:
 
 async function loop(): Promise<void> {
   log.info('worker.started', { queue: inbound.name });
+  void whatsappDiagnostic();
   while (!stopping) {
     let batch: Awaited<ReturnType<typeof inbound.read>> = [];
     try {
