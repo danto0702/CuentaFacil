@@ -523,6 +523,9 @@ export class Orchestrator {
       });
       const pending = [...((turn.state.context.pendingEvidence as string[]) ?? []), id];
       turn.state.context = { ...turn.state.context, pendingEvidence: pending };
+      // Photo with a caption: the caption is the activity, so the note is saved right away.
+      const caption = msg.text?.trim();
+      if (caption) return this.startNote(turn, caption);
       // Albums arrive as several messages: ask only once.
       if (pending.length === 1)
         turn.out.push(text('📷 Recibí tu foto. ¿Qué actividad muestra? Cuéntamelo en un mensaje.'));

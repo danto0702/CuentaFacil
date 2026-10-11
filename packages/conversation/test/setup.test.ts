@@ -309,5 +309,10 @@ describe('notes after the contract ended', () => {
 
     out = show(await h.say('Capacité al personal en la ruta de misión médica el 15/08/2026'));
     expect(out[0]).toMatch(/^✅ Anotado el 15\/08\/2026/);
+
+    // A photo with a caption: the caption is the note and the photo its evidence.
+    out = show(await h.photo('Capacité al personal en la ruta de misión médica el 20/08/2026'));
+    expect(out[0]).toMatch(/^✅ Anotado el 20\/08\/2026 con 1 foto en la obligación 2/);
+    expect(h.store.data.notes.at(-1)!.evidenceIds).toHaveLength(1);
   });
 });

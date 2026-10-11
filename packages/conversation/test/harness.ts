@@ -36,7 +36,12 @@ export function harness(opts: { today?: string; generator?: Generator; phone?: s
     clock,
     say: (text: string) => send({ kind: 'text', text }),
     press: (replyId: string) => send({ kind: 'reply', replyId }),
-    photo: () => send({ kind: 'image', media: { data: Buffer.from('jpeg'), mime: 'image/jpeg' } }),
+    photo: (caption?: string) =>
+      send({
+        kind: 'image',
+        media: { data: Buffer.from('jpeg'), mime: 'image/jpeg' },
+        ...(caption ? { text: caption } : {}),
+      }),
     audio: (spoken: string) =>
       send({ kind: 'audio', media: { data: Buffer.from(spoken), mime: 'audio/ogg' } }),
     document: (filename: string) =>
