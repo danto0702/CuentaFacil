@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import type { Charge } from '@cuentasbot/conversation';
 import { describe, expect, it } from 'vitest';
-import { checkoutUrl, verifyEvent } from '../src/payments/wompi.js';
+import { checkoutUrl, diagnoseKeys, verifyEvent } from '../src/payments/wompi.js';
 
 const charge: Charge = {
   id: 'c1',
@@ -54,5 +54,29 @@ describe('Wompi', () => {
     expect(verifyEvent('test_events_s', body({ ...tx, amount_in_cents: 100 }))).toBeNull();
     expect(verifyEvent('other_secret', body(tx))).toBeNull();
     expect(verifyEvent('test_events_s', 'not json')).toBeNull();
+  });
+
+  it('detects swapped or mixed keys without showing them', () => {
+    expect(
+      diagnoseKeys({
+        publicKey: 'pub_test_a',
+        integritySecret: 'test_integrity_b',
+        eventsSecret: 'test_events_c',
+      }).ok,
+    ).toBe(true);
+    const swapped = diagnoseKeys({
+      publicKey: 'pub_test_a',
+      integritySecret: 'test_events_c',
+      eventsSecret: 'test_integrity_b',
+    });
+    expect(swapped.ok).toBe(false);
+    expect(swapped.problems[0]).toMatch(/WOMPI_INTEGRITY_SECRET parece ser test_events/);
+    const mixed = diagnoseKeys({
+      publicKey: 'pub_prod_a',
+      integritySecret: 'test_integrity_b',
+      eventsSecret: 'test_events_c',
+    });
+    expect(mixed.problems).toContain('las llaves no son del mismo ambiente (pruebas / producción)');
+    expect(JSON.stringify(mixed)).not.toContain('_b');
   });
 });

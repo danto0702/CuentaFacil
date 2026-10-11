@@ -73,3 +73,37 @@ export function verifyEvent(eventsSecret: string, body: string): WompiTransactio
     amountInCents: Number(t.amount_in_cents ?? 0),
   };
 }
+
+/**
+ * Checks that the three Wompi keys belong together without revealing them: only their kind and
+ * environment (pub_test / test_integrity / test_events, or prod_…).
+ */
+export function diagnoseKeys(k: { publicKey?: string; integritySecret?: string; eventsSecret?: string }): {
+  ok: boolean;
+  publicKey: string;
+  integritySecret: string;
+  eventsSecret: string;
+  problems: string[];
+} {
+  const kind = (v: string | undefined, re: RegExp) =>
+    v ? (re.exec(v)?.[0] ?? 'formato desconocido') : 'falta';
+  const pub = kind(k.publicKey, /^pub_(test|prod)/);
+  const integ = kind(k.integritySecret, /^(test|prod)_(integrity|events)/);
+  const events = kind(k.eventsSecret, /^(test|prod)_(integrity|events)/);
+  const env = (s: string) => (/test/.test(s) ? 'test' : /prod/.test(s) ? 'prod' : '?');
+  const problems: string[] = [];
+  if (!/^pub_/.test(pub)) problems.push('WOMPI_PUBLIC_KEY no es una llave pública (pub_test_… o pub_prod_…)');
+  if (!/_integrity$/.test(integ))
+    problems.push(`WOMPI_INTEGRITY_SECRET parece ser ${integ}, debe ser …_integrity_…`);
+  if (!/_events$/.test(events))
+    problems.push(`WOMPI_EVENTS_SECRET parece ser ${events}, debe ser …_events_…`);
+  if (new Set([env(pub), env(integ), env(events)]).size > 1)
+    problems.push('las llaves no son del mismo ambiente (pruebas / producción)');
+  return {
+    ok: problems.length === 0,
+    publicKey: pub,
+    integritySecret: integ,
+    eventsSecret: events,
+    problems,
+  };
+}

@@ -14,7 +14,7 @@ import { Llm } from './ai/llm.js';
 import { OpenAISTT } from './ai/openai-stt.js';
 import { FieldCipher } from './crypto.js';
 import { AccountGenerator } from './generator.js';
-import { checkoutUrl, verifyEvent } from './payments/wompi.js';
+import { checkoutUrl, diagnoseKeys, verifyEvent } from './payments/wompi.js';
 import { loadConfig } from './runtime/config.js';
 import { jsonLogger as log } from './runtime/log.js';
 import { InboundPipeline, type Messenger } from './runtime/pipeline.js';
@@ -220,6 +220,14 @@ async function processWompi(inboxId: number): Promise<void> {
 
 async function loop(): Promise<void> {
   log.info('worker.started', { queue: inbound.name });
+  if (cfg.WOMPI_PUBLIC_KEY || cfg.WOMPI_INTEGRITY_SECRET || cfg.WOMPI_EVENTS_SECRET) {
+    const d = diagnoseKeys({
+      publicKey: cfg.WOMPI_PUBLIC_KEY,
+      integritySecret: cfg.WOMPI_INTEGRITY_SECRET,
+      eventsSecret: cfg.WOMPI_EVENTS_SECRET,
+    });
+    (d.ok ? log.info : log.error)('wompi.keys', { ...d, problems: d.problems.join('; ') });
+  }
   void whatsappDiagnostic();
   let nextRegistryCheck = 0;
   let nextAllyCheck = 0;

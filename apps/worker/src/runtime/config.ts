@@ -18,9 +18,10 @@ const schema = z.object({
   ENCRYPTION_KEY: z.string().optional(),
   BLIND_INDEX_KEY: z.string().optional(),
   // Wompi (ADR-034). Without the public key and integrity secret only cash codes and free reports work.
-  WOMPI_PUBLIC_KEY: z.string().min(10).optional(),
-  WOMPI_INTEGRITY_SECRET: z.string().min(10).optional(),
-  WOMPI_EVENTS_SECRET: z.string().min(10).optional(),
+  // Trimmed: a space or line break pasted with a secret makes Wompi reject the signature.
+  WOMPI_PUBLIC_KEY: z.string().trim().min(10).optional(),
+  WOMPI_INTEGRITY_SECRET: z.string().trim().min(10).optional(),
+  WOMPI_EVENTS_SECRET: z.string().trim().min(10).optional(),
   WORKER_POLL_MS: z.coerce.number().int().positive().default(1000),
   WORKER_MAX_ATTEMPTS: z.coerce.number().int().positive().default(5),
 });
