@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { DEMO_IDS } from '../src/demo.js';
+import { DEMO_IDS, DEMO_PHONES } from '../src/demo.js';
 import { FakeAI, sampleExtraction } from '../src/fakes.js';
 import { harness, show } from './harness.js';
 
@@ -247,5 +247,32 @@ describe('Programa de Aliados', () => {
 
     // Someone who is not an Aliado learns how the program works.
     expect(show(await b.say('aliado'))[0]).toMatch(/Programa de Aliados\* es para la primera persona/);
+  });
+});
+
+describe('missing profile data of contractors configured earlier', () => {
+  it('asks the place of issue after handling the message and confirms it with a button', async () => {
+    const h = harness({ today: '2026-09-28' });
+    const maria = h.store.data.users.find((u) => u.phone === DEMO_PHONES.maria)!;
+    maria.docIssuedIn = '';
+
+    // The question waits until the current exchange ends (here, choosing the contract of the note).
+    let out = show(await h.say('Hoy capacité al personal en la ruta de misión médica'));
+    expect(out.join('\n')).not.toMatch(/expedida tu cédula/);
+    out = show(await h.press(`c:${DEMO_IDS.salud}`));
+    expect(out.at(-1)).toMatch(/expedida tu cédula/);
+    // A daily note instead of the answer is handled as usual, and the question comes back after it.
+    out = show(await h.say('Hoy capacité de nuevo al personal en la ruta de misión médica'));
+    expect(out[0]).toMatch(/¿A cuál contrato corresponde\?/);
+    out = show(await h.press(`c:${DEMO_IDS.salud}`));
+    expect(out[0]).toMatch(/Anotado/);
+    expect(out.at(-1)).toMatch(/expedida tu cédula/);
+    out = show(await h.say('Ábrego, Norte de Santander'));
+    expect(out[0]).toBe('¿Tu cédula fue expedida en *Ábrego, Norte de Santander*? [✅ Sí] [Corregir]');
+    out = show(await h.press('doc:yes'));
+    expect(out[0]).toBe('✅ Listo, guardé que tu cédula fue expedida en *Ábrego, Norte de Santander*.');
+    expect((await h.store.getUser(maria.id)).docIssuedIn).toBe('Ábrego, Norte de Santander');
+    out = show(await h.say('hola'));
+    expect(out.join('\n')).not.toMatch(/expedida tu cédula/);
   });
 });

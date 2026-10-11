@@ -138,10 +138,71 @@ export class Orchestrator {
       for (const level of ally.newLevels) turn.out.push(levelUpText(level));
       await store.markAllyLevelsNotified(user.id);
     }
-    await this.dispatch(turn, msg);
+    if (turn.state.flow === 'profile_doc_issued_in' && (await this.onDocIssuedIn(turn, msg))) {
+      // answered
+    } else {
+      await this.dispatch(turn, msg);
+      await this.askMissingProfile(turn);
+    }
     turn.state.updatedAt = this.deps.clock.now().toISOString();
     await store.saveConversation(turn.state);
     return turn.out;
+  }
+
+  /**
+   * Contractors configured before a profile question existed (e.g. place of issue of the ID) are asked
+   * once, after their message is handled, so the documents never go out with that field empty.
+   */
+  private async askMissingProfile(turn: Turn): Promise<void> {
+    if (turn.state.flow !== 'idle' || turn.user.docIssuedIn.trim()) return;
+    if ((await this.deps.store.listContracts(turn.user.id)).length === 0) return;
+    this.setFlow(turn, 'profile_doc_issued_in', 'ask');
+    turn.out.push(
+      text(
+        '🪪 Me falta un dato para tus documentos: ¿en qué municipio fue *expedida tu cédula*? Escríbelo así: Ábrego, Norte de Santander',
+      ),
+    );
+  }
+
+  /**
+   * Answer to the place-of-issue question, confirmed with a button so a daily note is never taken for
+   * a municipality. Returns false when the message is something else, which is then handled normally.
+   */
+  private async onDocIssuedIn(turn: Turn, msg: Inbound): Promise<boolean> {
+    const candidate = turn.state.context.candidate as string | undefined;
+    if (msg.kind === 'reply' && msg.replyId === 'doc:yes' && candidate) {
+      const user = { ...turn.user, docIssuedIn: candidate };
+      await this.deps.store.saveUserProfile(user);
+      turn.user = user;
+      this.reset(turn);
+      turn.out.push(text(`✅ Listo, guardé que tu cédula fue expedida en *${candidate}*.`));
+      return true;
+    }
+    if (msg.kind === 'reply' && msg.replyId === 'doc:no') {
+      this.setFlow(turn, 'profile_doc_issued_in', 'ask');
+      turn.out.push(text('Escríbeme de nuevo el municipio, así: Ábrego, Norte de Santander'));
+      return true;
+    }
+    const place = msg.kind === 'text' ? msg.text?.trim().replace(/\s+/g, ' ') : undefined;
+    if (
+      !place ||
+      place.length < 3 ||
+      place.length > 60 ||
+      /\d/.test(place) ||
+      matchCommand(place) ||
+      findAllyCode(place)
+    ) {
+      this.reset(turn);
+      return false;
+    }
+    this.setFlow(turn, 'profile_doc_issued_in', 'confirm', { candidate: place });
+    turn.out.push(
+      buttons(`¿Tu cédula fue expedida en *${place}*?`, [
+        { id: 'doc:yes', title: '✅ Sí' },
+        { id: 'doc:no', title: 'Corregir' },
+      ]),
+    );
+    return true;
   }
 
   private idle(userId: string): ConversationState {
