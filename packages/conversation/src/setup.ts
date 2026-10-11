@@ -16,6 +16,8 @@ import { clip } from './text.js';
 /** Conversation flow name for contract setup (plan v5 §2.1). */
 export const SETUP_FLOW = 'setup';
 export const POLICY_VERSION = '1.1';
+/** Terms of service in force; users who accepted an older version are asked again (section 15). */
+export const TERMS_VERSION = '1.1';
 
 export interface SetupTurn {
   user: User;
@@ -153,11 +155,11 @@ export class SetupFlow {
       ),
       {
         type: 'cta_url',
-        text: 'Para continuar necesito que aceptes nuestra política de tratamiento de datos personales (Ley 1581 de 2012).',
+        text: `Para continuar necesito que aceptes nuestra política de tratamiento de datos personales (Ley 1581 de 2012) y los términos del servicio: ${BRAND.terms}`,
         button: 'Ver política',
         url: BRAND.privacyPolicy,
       },
-      buttons('¿Aceptas la política de tratamiento de datos?', [
+      buttons('¿Aceptas la política de tratamiento de datos y los términos del servicio?', [
         { id: allyCode ? `consent:yes:${allyCode}` : 'consent:yes', title: 'Acepto' },
         { id: 'consent:no', title: 'No acepto' },
       ]),

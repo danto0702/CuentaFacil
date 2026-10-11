@@ -307,6 +307,30 @@ describe('other flows', () => {
     expect(h.store.data.notes.length).toBe(notes + 1);
   });
 
+  it('asks to accept new terms once and then handles the message the user had sent', async () => {
+    const h = harness();
+    h.store.data.consents = (h.store.data.consents ?? []).map((c) => ({ ...c, policyVersion: '1.0' }));
+    let out = show(await h.say('¿Qué me falta?'));
+    expect(out[0]).toMatch(/^📜 Actualizamos los términos del servicio de CuentaFacil \(versión 1\.1\)/);
+    expect(out[1]).toBe(
+      '¿Aceptas los términos del servicio? Apenas aceptes, sigo con tu mensaje. [Acepto] [No acepto]',
+    );
+    out = show(await h.press('terms:yes'));
+    expect(out[0]).toBe('✅ ¡Gracias! Quedó registrada tu aceptación de los términos.');
+    expect(out[1]).toContain('📄 *0001 Salud Pública*');
+    // Accepted: not asked again.
+    out = show(await h.say('menú'));
+    expect(out[0]).toMatch(/^Hola María/);
+    expect(await h.store.acceptedVersion(h.store.data.users[0]!.id, 'terms')).toBe('1.1');
+  });
+
+  it('keeps asking while the new terms are not accepted', async () => {
+    const h = harness();
+    h.store.data.consents = [];
+    expect(show(await h.press('terms:no'))[0]).toMatch(/^Entendido\. Sin aceptar los términos/);
+    expect(show(await h.say('hola'))[0]).toMatch(/^📜 Para seguir necesito que aceptes los términos/);
+  });
+
   it('changes the cut mode only for undelivered periods, after confirmation', async () => {
     const h = harness();
     await h.say('cambiar corte');

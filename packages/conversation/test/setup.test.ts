@@ -12,7 +12,9 @@ describe('registration and contract setup by documents', () => {
     let out = show(await h.say('Hola'));
     expect(out[0]).toMatch(/^👋 ¡Hola! Soy Pascal/);
     expect(out[1]).toContain('<Ver política → https://pascalia.lat/politica-de-datos/>');
-    expect(out[2]).toBe('¿Aceptas la política de tratamiento de datos? [Acepto] [No acepto]');
+    expect(out[2]).toBe(
+      '¿Aceptas la política de tratamiento de datos y los términos del servicio? [Acepto] [No acepto]',
+    );
 
     out = show(await h.press('consent:no'));
     expect(out[0]).toMatch(/No guardé ningún dato tuyo/);
@@ -26,6 +28,8 @@ describe('registration and contract setup by documents', () => {
     const user = await h.store.getUserByPhone(NEW_PHONE);
     expect(user).not.toBeNull();
     expect(h.store.data.consents?.[0]).toMatchObject({ policyVersion: '1.1', accepted: true });
+    // The same 'Acepto' covers the terms of service in force.
+    expect(h.store.data.consents?.[1]).toMatchObject({ kind: 'terms', policyVersion: '1.1', accepted: true });
 
     // A photo instead of the PDF → asks again.
     expect(show(await h.photo())[0]).toMatch(/Necesito el contrato en \*PDF\*/);
@@ -225,7 +229,9 @@ describe('Programa de Aliados', () => {
     const b = harness({ phone: friend, today: '2026-10-10' });
     b.store.data.allies = a.store.data.allies;
     let out = show(await b.say('Hola Pascal, vengo de parte de ALI-0001'));
-    expect(out[2]).toBe('¿Aceptas la política de tratamiento de datos? [Acepto] [No acepto]');
+    expect(out[2]).toBe(
+      '¿Aceptas la política de tratamiento de datos y los términos del servicio? [Acepto] [No acepto]',
+    );
     out = show(await b.press('consent:yes:ALI-0001'));
     expect(out[0]).toBe(
       '✅ Quedaste registrado como referido de ALI-0001. ¡Gracias por llegar por recomendación!',

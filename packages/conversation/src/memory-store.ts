@@ -32,7 +32,14 @@ export interface MemoryData {
   supports: SupportFile[];
   socialSecurity: SocialSecurity[];
   conversations: ConversationState[];
-  consents?: { userId: string; phone: string; policyVersion: string; accepted: boolean; wamid: string }[];
+  consents?: {
+    userId: string;
+    phone: string;
+    kind?: 'privacy_policy' | 'terms';
+    policyVersion: string;
+    accepted: boolean;
+    wamid: string;
+  }[];
   /** Entity contract registry, keyed by entity, contract code (no leading zeros) and document digits. */
   institutionRequests?: {
     userId: string;
@@ -207,11 +214,18 @@ export class MemoryStore implements Store {
   async recordConsent(c: {
     userId: string;
     phone: string;
+    kind?: 'privacy_policy' | 'terms';
     policyVersion: string;
     accepted: boolean;
     wamid: string;
   }) {
     this.data.consents = [...(this.data.consents ?? []), clone(c)];
+  }
+  async acceptedVersion(userId: string, kind: 'privacy_policy' | 'terms') {
+    const mine = (this.data.consents ?? []).filter(
+      (c) => c.userId === userId && c.accepted && (c.kind ?? 'privacy_policy') === kind,
+    );
+    return mine.at(-1)?.policyVersion ?? null;
   }
   async saveUserProfile(user: User) {
     this.data.users = this.data.users.map((u) => (u.id === user.id ? clone(user) : u));

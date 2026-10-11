@@ -27,7 +27,7 @@ import type {
 import { noteSupports, pilaMonthFor } from './domain.js';
 import { type Command, forcedNote, matchCommand, matchMonthRequest } from './intents.js';
 import type { Deps, Inbound, ListRow, Outgoing, ShortIntent } from './ports.js';
-import { POLICY_VERSION, SETUP_FLOW, SetupFlow } from './setup.js';
+import { POLICY_VERSION, SETUP_FLOW, SetupFlow, TERMS_VERSION } from './setup.js';
 import { type ActivityWhen, clip, MONTHS, parseActivityDate, parseActivityWhen } from './text.js';
 
 const MAX_BUTTONS = 3;
@@ -121,6 +121,15 @@ export class Orchestrator {
           accepted: true,
           wamid: msg.id,
         });
+        // The registration message covers the data policy and the terms of service.
+        await store.recordConsent({
+          userId: created.id,
+          phone: msg.from,
+          kind: 'terms',
+          policyVersion: TERMS_VERSION,
+          accepted: true,
+          wamid: msg.id,
+        });
         const turn: Turn = { user: created, state: this.idle(created.id), out: [] };
         const allyCode = msg.replyId.startsWith('consent:yes:')
           ? msg.replyId.slice('consent:yes:'.length)
@@ -142,7 +151,9 @@ export class Orchestrator {
       for (const level of ally.newLevels) turn.out.push(levelUpText(level));
       await store.markAllyLevelsNotified(user.id);
     }
-    if (turn.state.flow === 'profile_doc_issued_in' && (await this.onDocIssuedIn(turn, msg))) {
+    if (await this.termsGate(turn, msg)) {
+      // asked to accept the terms in force (or declined)
+    } else if (turn.state.flow === 'profile_doc_issued_in' && (await this.onDocIssuedIn(turn, msg))) {
       // answered
     } else {
       await this.dispatch(turn, msg);
@@ -1287,6 +1298,61 @@ export class Orchestrator {
         '✅ Guardé tu firma. Desde ahora va en tu informe de actividades y en tu línea del informe de supervisión; la del supervisor siempre queda en blanco. Para ver un informe ya entregado con la firma, escribe *rehacer* y el mes.',
       ),
     );
+  }
+
+  /**
+   * Terms of service in force (section 15: substantial changes need a new acceptance). A user who
+   * accepted an older version is asked once; a text they sent meanwhile is handled after accepting.
+   * Returns true when this turn was used for the terms.
+   */
+  private async termsGate(turn: Turn, msg: Inbound): Promise<boolean> {
+    const accepted = await this.deps.store.acceptedVersion(turn.user.id, 'terms');
+    if (accepted === TERMS_VERSION) return false;
+    const ctx = turn.state.context as { termsPending?: string };
+    if (msg.replyId === 'terms:yes') {
+      await this.deps.store.recordConsent({
+        userId: turn.user.id,
+        phone: turn.user.phone,
+        kind: 'terms',
+        policyVersion: TERMS_VERSION,
+        accepted: true,
+        wamid: msg.id,
+      });
+      const pending = ctx.termsPending;
+      delete ctx.termsPending;
+      turn.out.push(text('✅ ¡Gracias! Quedó registrada tu aceptación de los términos.'));
+      if (pending) await this.dispatch(turn, { ...msg, kind: 'text', text: pending, replyId: undefined });
+      else this.menu(turn, false);
+      return true;
+    }
+    if (msg.replyId === 'terms:no') {
+      delete ctx.termsPending;
+      turn.out.push(
+        text(
+          `Entendido. Sin aceptar los términos no puedo seguir preparando tus cuentas. Tus datos se conservan según la política de datos; si quieres que los borre, escribe *borrar mis datos*. Cuando quieras continuar, escríbeme y te muestro los términos de nuevo.`,
+        ),
+      );
+      return true;
+    }
+    if (msg.kind === 'text' && msg.text) ctx.termsPending = msg.text;
+    turn.out.push(
+      {
+        type: 'cta_url',
+        text: accepted
+          ? `📜 Actualizamos los términos del servicio de ${BRAND.service} (versión ${TERMS_VERSION}): se agregó el Programa de Aliados. Revísalos antes de continuar.`
+          : `📜 Para seguir necesito que aceptes los términos del servicio de ${BRAND.service} (versión ${TERMS_VERSION}).`,
+        button: 'Ver términos',
+        url: BRAND.terms,
+      },
+      buttons(
+        `¿Aceptas los términos del servicio?${msg.kind === 'text' && msg.text ? ' Apenas aceptes, sigo con tu mensaje.' : ''}`,
+        [
+          { id: 'terms:yes', title: 'Acepto' },
+          { id: 'terms:no', title: 'No acepto' },
+        ],
+      ),
+    );
+    return true;
   }
 
   /** Asks before starting a report over: only reports not yet delivered can be reset. */

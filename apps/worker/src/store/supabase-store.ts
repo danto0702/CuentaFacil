@@ -324,9 +324,25 @@ export class SupabaseStore implements Store {
     return this.toUser(r);
   }
 
+  async acceptedVersion(userId: string, kind: 'privacy_policy' | 'terms'): Promise<string | null> {
+    const rows = must(
+      await this.sb
+        .from('consents')
+        .select('created_at, policy_versions!inner(kind, version)')
+        .eq('user_id', userId)
+        .eq('accepted', true)
+        .eq('policy_versions.kind', kind)
+        .order('created_at', { ascending: false })
+        .limit(1),
+      'acceptedVersion',
+    ) as Row[];
+    return rows[0] ? str((rows[0].policy_versions as Row).version) : null;
+  }
+
   async recordConsent(c: {
     userId: string;
     phone: string;
+    kind?: 'privacy_policy' | 'terms';
     policyVersion: string;
     accepted: boolean;
     wamid: string;
@@ -335,7 +351,7 @@ export class SupabaseStore implements Store {
       await this.sb
         .from('policy_versions')
         .select('id')
-        .eq('kind', 'privacy_policy')
+        .eq('kind', c.kind ?? 'privacy_policy')
         .eq('version', c.policyVersion)
         .single(),
       'recordConsent.policy',

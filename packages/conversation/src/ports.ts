@@ -173,10 +173,14 @@ export interface Store {
   recordConsent(input: {
     userId: string;
     phone: string;
+    /** Default: privacy_policy. */
+    kind?: 'privacy_policy' | 'terms';
     policyVersion: string;
     accepted: boolean;
     wamid: string;
   }): Promise<void>;
+  /** Latest version of the policy or terms the user accepted; null if never. */
+  acceptedVersion(userId: string, kind: 'privacy_policy' | 'terms'): Promise<string | null>;
   /** Saves identity and bank data taken from the contract (encrypted at rest). */
   saveUserProfile(user: User): Promise<void>;
   /** Matches the contracting entity by NIT (digits) or name; null if the entity is not configured. */

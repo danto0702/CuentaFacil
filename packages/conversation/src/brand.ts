@@ -6,6 +6,7 @@ export const BRAND = {
   website: 'https://pascalia.lat/',
   productPage: 'https://pascalia.lat/cuentafacil/',
   privacyPolicy: 'https://pascalia.lat/politica-de-datos/',
+  terms: 'https://pascalia.lat/terminos/',
   /** Pascal's WhatsApp number, for wa.me links (digits only). */
   whatsapp: '573123885012',
 } as const;
