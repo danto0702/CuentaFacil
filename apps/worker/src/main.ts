@@ -107,6 +107,18 @@ async function notifyFailure(inboxId: number): Promise<void> {
 
 const inbound = new Queue<{ inbox_id: number; provider: string }>(sb, 'inbound');
 const VISIBILITY_SECONDS = 180;
+/** Programa de Aliados: the previous month is evaluated (idempotently) every hour. */
+const ALLY_CHECK_MS = 60 * 60_000;
+
+async function evaluateAllies(): Promise<void> {
+  const today = clock.today(); // Bogotá
+  const [y, m] = today.split('-').map(Number) as [number, number];
+  const prev = m === 1 ? `${y - 1}-12-01` : `${y}-${String(m - 1).padStart(2, '0')}-01`;
+  const { data, error } = await sb.rpc('evaluate_allies', { p_month: prev });
+  if (error) throw new Error(error.message);
+  if (data) log.info('allies.levels_granted', { month: prev, granted: data });
+}
+
 /** How often the worker looks for new entity contract registry uploads. */
 const REGISTRY_CHECK_MS = 60_000;
 let stopping = false;
@@ -130,7 +142,12 @@ async function loop(): Promise<void> {
   log.info('worker.started', { queue: inbound.name });
   void whatsappDiagnostic();
   let nextRegistryCheck = 0;
+  let nextAllyCheck = 0;
   while (!stopping) {
+    if (Date.now() >= nextAllyCheck) {
+      nextAllyCheck = Date.now() + ALLY_CHECK_MS;
+      await evaluateAllies().catch((e) => log.error('allies.evaluate_failed', { error: String(e) }));
+    }
     if (cipher && Date.now() >= nextRegistryCheck) {
       nextRegistryCheck = Date.now() + REGISTRY_CHECK_MS;
       await queueRegistryUploads(sb, parseRegistryWorkbook, log)

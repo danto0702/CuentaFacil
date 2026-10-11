@@ -216,6 +216,19 @@ export interface ContractExtraction {
   warnings: string[];
 }
 
+/** Programa de Aliados (ADR-032): the first contractor of a new institution and their referrals. */
+export interface AllyStatus {
+  code: string;
+  level: number;
+  premium: boolean;
+  referrals: number;
+  freeReports: number;
+  /** Levels reached that the Aliado has not been told about yet. */
+  newLevels: number[];
+}
+
+export type ReferralResult = 'ok' | 'invalid' | 'own' | 'already' | 'late';
+
 /** A row of the entity contract registry (public SECOP II data, plan v5 §7). */
 export interface RegistryEntry {
   startDate: IsoDate | null;

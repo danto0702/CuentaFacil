@@ -1,5 +1,6 @@
 import type { IsoDate } from '@cuentasbot/shared';
 import type {
+  AllyStatus,
   Contract,
   ContractExtraction,
   ConversationState,
@@ -12,6 +13,7 @@ import type {
   Obligation,
   Period,
   PriorPaymentRecord,
+  ReferralResult,
   RegistryEntry,
   SocialSecurity,
   SupportFile,
@@ -100,7 +102,13 @@ export interface Store {
     institutionName: string;
     modelSupportId: string;
     contractSupportId: string;
-  }): Promise<{ firstForInstitution: boolean }>;
+  }): Promise<{ firstForInstitution: boolean; requestId: string }>;
+  /** Makes the contractor an Aliado with a fresh referral code (idempotent per user). */
+  createAlly(userId: string, institutionRequestId: string | null): Promise<{ code: string }>;
+  allyStatus(userId: string): Promise<AllyStatus | null>;
+  markAllyLevelsNotified(userId: string): Promise<void>;
+  /** Links a contractor to the Aliado who referred them (only once, within 30 days of registering). */
+  applyReferral(userId: string, code: string): Promise<ReferralResult>;
   /** Name of the institution the contractor asked us to configure and is still pending, if any. */
   pendingInstitutionRequest(userId: string): Promise<string | null>;
   listSupportTypes(entityId: string): Promise<SupportType[]>;

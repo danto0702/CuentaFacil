@@ -40,6 +40,7 @@ export default async function PanelLayout({ children }: { children: ReactNode })
         <Link href="/">Inicio</Link>
         <Link href="/entidades">Entidades</Link>
         <Link href="/solicitudes">Solicitudes de instituciones</Link>
+        <Link href="/aliados">Aliados</Link>
         <Link href="/contratistas">Contratistas</Link>
         <Link href="/cuentas">Cuentas</Link>
         <p className="muted" style={{ color: '#9fb4ca', marginTop: 24 }}>

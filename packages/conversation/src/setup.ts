@@ -7,6 +7,7 @@ import {
   resolvePeriodAmount,
   toIso,
 } from '@cuentasbot/shared';
+import { allyWelcome } from './ally.js';
 import { BRAND, SIGNATURE } from './brand.js';
 import type { ContractExtraction, ConversationState, Entity, Period, RegistryEntry, User } from './domain.js';
 import type { Deps, Inbound, Outgoing } from './ports.js';
@@ -142,7 +143,8 @@ export class SetupFlow {
   constructor(private readonly deps: Deps) {}
 
   /** First contact from an unregistered number: nothing is stored until the person accepts. */
-  welcome(): Outgoing[] {
+  /** `allyCode`: referral code in the first message (wa.me link of an Aliado), kept in the consent button. */
+  welcome(allyCode: string | null = null): Outgoing[] {
     return [
       text(
         `👋 ¡Hola! Soy ${SIGNATURE}.\n\nTe acompaño a preparar tus cuentas de cobro de contratos de prestación de servicios con entidades públicas:\n📝 Me cuentas lo que haces cada día (texto, audio o fotos).\n📎 Te recuerdo la planilla, los antecedentes y las afiliaciones.\n📄 Al cierre te entrego tu informe de actividades y el borrador del informe de supervisión, listos para firmar.`,
@@ -154,7 +156,7 @@ export class SetupFlow {
         url: BRAND.privacyPolicy,
       },
       buttons('¿Aceptas la política de tratamiento de datos?', [
-        { id: 'consent:yes', title: 'Acepto' },
+        { id: allyCode ? `consent:yes:${allyCode}` : 'consent:yes', title: 'Acepto' },
         { id: 'consent:no', title: 'No acepto' },
       ]),
     ];
@@ -285,7 +287,7 @@ export class SetupFlow {
       return;
     }
     const ctx = this.ctx(turn);
-    const { firstForInstitution } = await this.deps.store.createInstitutionRequest({
+    const { firstForInstitution, requestId } = await this.deps.store.createInstitutionRequest({
       userId: turn.user.id,
       institutionName: ctx.otherName!,
       modelSupportId: ctx.otherModelId!,
@@ -303,6 +305,10 @@ export class SetupFlow {
         }`,
       ),
     );
+    if (firstForInstitution) {
+      const { code } = await this.deps.store.createAlly(turn.user.id, requestId);
+      turn.out.push(...allyWelcome(code, ctx.otherName!));
+    }
   }
 
   async handle(turn: SetupTurn, msg: Inbound): Promise<void> {

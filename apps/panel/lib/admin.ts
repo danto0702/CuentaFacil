@@ -184,3 +184,56 @@ export async function listInstitutionRequests(): Promise<InstitutionRequestRow[]
     }),
   );
 }
+
+export interface AllyRow {
+  id: string;
+  code: string;
+  contractor: string;
+  phone: string;
+  institution: string;
+  level: number;
+  referrals: number;
+  freeReports: number;
+  premium: boolean;
+  bonusStatus: string;
+  bonusReference: string | null;
+  lastLevelAt: string | null;
+}
+
+export async function listAllies(): Promise<AllyRow[]> {
+  const sb = await supabaseServer();
+  const { data, error } = await sb
+    .from('allies')
+    .select(
+      'id, code, level, premium_at, bonus_status, bonus_reference, users!allies_user_id_fkey(full_name, phone_e164, free_reports), institution_requests(institution_name), entities(short_name), ally_levels(level, granted_at)',
+    )
+    .order('level', { ascending: false });
+  if (error) throw error;
+  type One<T> = T | T[] | null;
+  const one = <T>(v: One<T>): T | null => (Array.isArray(v) ? (v[0] ?? null) : v);
+  const ids = (data ?? []).map((a) => a.id);
+  const { data: refs } = ids.length
+    ? await sb.from('users').select('referred_by_ally').in('referred_by_ally', ids)
+    : { data: [] as { referred_by_ally: string }[] };
+  return (data ?? []).map((a) => {
+    const u = one(a.users as One<{ full_name: string | null; phone_e164: string; free_reports: number }>);
+    const levels = (a.ally_levels ?? []) as { level: number; granted_at: string }[];
+    return {
+      id: a.id,
+      code: a.code,
+      contractor: u?.full_name || 'Sin nombre aún',
+      phone: maskPhone(u?.phone_e164 ?? ''),
+      institution:
+        one(a.entities as One<{ short_name: string }>)?.short_name ??
+        one(a.institution_requests as One<{ institution_name: string }>)?.institution_name ??
+        '—',
+      level: a.level,
+      referrals: (refs ?? []).filter((r) => r.referred_by_ally === a.id).length,
+      freeReports: u?.free_reports ?? 0,
+      premium: Boolean(a.premium_at),
+      bonusStatus: a.bonus_status,
+      bonusReference: a.bonus_reference,
+      lastLevelAt: levels.sort((x, y) => y.level - x.level)[0]?.granted_at ?? null,
+    };
+  });
+}

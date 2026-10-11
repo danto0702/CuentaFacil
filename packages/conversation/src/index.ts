@@ -1,3 +1,4 @@
+export * from './ally.js';
 export * from './brand.js';
 export * from './demo.js';
 export * from './domain.js';

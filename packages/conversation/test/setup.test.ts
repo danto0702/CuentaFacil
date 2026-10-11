@@ -183,6 +183,13 @@ describe('institution not configured yet ("Otra")', () => {
     out = show(await h.document('contrato.pdf'));
     expect(out[0]).toMatch(/configurar esa institución/);
     expect(out[0]).toMatch(/tu primera cuenta de cobro es gratis/);
+    expect(out[1]).toMatch(
+      /eres el \*Aliado\* de CuentaFacil en \*E\.S\.E\. Hospital Emiro Quintero Cañizares\*/,
+    );
+    expect(out[1]).toContain('Tu código es *ALI-0001*');
+    expect(out[2]).toContain(
+      'https://wa.me/573123885012?text=Hola%20Pascal%2C%20vengo%20de%20parte%20de%20ALI-0001',
+    );
     const user = (await h.store.getUserByPhone(NEW_PHONE))!;
     expect(h.store.data.freeReports?.[user.id]).toBe(1);
 
@@ -198,5 +205,47 @@ describe('institution not configured yet ("Otra")', () => {
     await h2.document('modelo.docx');
     out = show(await h2.document('contrato.pdf'));
     expect(out[0]).not.toMatch(/gratis/);
+  });
+});
+
+describe('Programa de Aliados', () => {
+  it('registers a referral from the shared link, shows the Aliado status and announces new levels', async () => {
+    // Aliado of a new institution.
+    const a = harness({ phone: NEW_PHONE, today: '2026-10-10' });
+    await a.press('consent:yes');
+    await a.press('ent:other');
+    await a.say('Hospital Nuevo de Prueba');
+    await a.document('modelo.pdf');
+    await a.document('contrato.pdf');
+    const allyId = (await a.store.getUserByPhone(NEW_PHONE))!.id;
+
+    // A colleague opens the shared link: the code travels in the first message and the consent button.
+    const friend = '+573005556677';
+    const b = harness({ phone: friend, today: '2026-10-10' });
+    b.store.data.allies = a.store.data.allies;
+    let out = show(await b.say('Hola Pascal, vengo de parte de ALI-0001'));
+    expect(out[2]).toBe('¿Aceptas la política de tratamiento de datos? [Acepto] [No acepto]');
+    out = show(await b.press('consent:yes:ALI-0001'));
+    expect(out[0]).toBe(
+      '✅ Quedaste registrado como referido de ALI-0001. ¡Gracias por llegar por recomendación!',
+    );
+    expect(out[1]).toMatch(/configuremos tu contrato/);
+    const friendId = (await b.store.getUserByPhone(friend))!.id;
+    expect(b.store.data.referredBy?.[friendId]).toBe('ALI-0001');
+    expect(show(await b.say('ALI-0001'))[0]).toMatch(/Ya estás registrado como referido/);
+
+    // The Aliado sees their status; the program reports a new level on their next message.
+    out = show(await a.say('mi código'));
+    expect(out[0]).toMatch(/Tu código: \*ALI-0001\*\n• Nivel: \*0 de 10\*/);
+    expect(show(await a.say('ALI-0001'))[0]).toMatch(/tu propio código/);
+    a.store.data.allies![0]!.level = 1;
+    a.store.data.allies![0]!.newLevels = [1];
+    out = show(await a.say('hola'));
+    expect(out[0]).toMatch(/Subiste al \*nivel 1\*.*gratis/);
+    expect(a.store.data.allies![0]!.newLevels).toEqual([]);
+    expect(allyId).toBeTruthy();
+
+    // Someone who is not an Aliado learns how the program works.
+    expect(show(await b.say('aliado'))[0]).toMatch(/Programa de Aliados\* es para la primera persona/);
   });
 });

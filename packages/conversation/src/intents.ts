@@ -14,6 +14,7 @@ export type Command =
   | 'my_data'
   | 'about'
   | 'add_contract'
+  | 'ally'
   | 'cancel';
 
 const COMMANDS: [Command, string[]][] = [
@@ -47,6 +48,7 @@ const COMMANDS: [Command, string[]][] = [
     ],
   ],
   ['add_contract', ['agregar contrato', 'nuevo contrato', 'configurar contrato', 'registrar contrato']],
+  ['ally', ['aliado', 'mi codigo', 'codigo de aliado', 'mis referidos', 'referidos', 'programa de aliados']],
   ['cancel', ['cancelar', 'salir']],
 ];
 

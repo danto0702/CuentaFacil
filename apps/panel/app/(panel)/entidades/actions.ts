@@ -150,3 +150,17 @@ export async function setRequestStatus(form: FormData): Promise<void> {
   fail('No pude actualizar la solicitud', error);
   revalidatePath('/solicitudes');
 }
+
+/** Records the bank transfer of the Aliado Premium bonus. */
+export async function markBonusPaid(form: FormData): Promise<void> {
+  const reference = s(form, 'reference');
+  if (!reference) throw new Error('Escribe la referencia de la transferencia.');
+  const client = await sb();
+  const { error } = await client
+    .from('allies')
+    .update({ bonus_status: 'paid', bonus_paid_at: new Date().toISOString(), bonus_reference: reference })
+    .eq('id', s(form, 'id'))
+    .eq('bonus_status', 'pending');
+  fail('No pude registrar el pago', error);
+  revalidatePath('/aliados');
+}

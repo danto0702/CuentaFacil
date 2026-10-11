@@ -43,6 +43,8 @@ export interface MemoryData {
     firstForInstitution: boolean;
   }[];
   freeReports?: Record<string, number>;
+  allies?: { userId: string; code: string; level: number; newLevels: number[] }[];
+  referredBy?: Record<string, string>;
   registry?: (RegistryEntry & { entityId: string; contractCode: string; docNumber: string })[];
 }
 
@@ -222,7 +224,38 @@ export class MemoryStore implements Store {
         [input.userId]: (this.data.freeReports?.[input.userId] ?? 0) + 1,
       };
     }
-    return { firstForInstitution };
+    return { firstForInstitution, requestId: `req-${this.data.institutionRequests.length}` };
+  }
+  async createAlly(userId: string, _institutionRequestId: string | null) {
+    const existing = (this.data.allies ?? []).find((a) => a.userId === userId);
+    if (existing) return { code: existing.code };
+    const code = `ALI-${String((this.data.allies ?? []).length + 1).padStart(4, '0')}`;
+    this.data.allies = [...(this.data.allies ?? []), { userId, code, level: 0, newLevels: [] }];
+    return { code };
+  }
+  async allyStatus(userId: string) {
+    const a = (this.data.allies ?? []).find((x) => x.userId === userId);
+    if (!a) return null;
+    return {
+      code: a.code,
+      level: a.level,
+      premium: a.level >= 10,
+      referrals: Object.values(this.data.referredBy ?? {}).filter((c) => c === a.code).length,
+      freeReports: this.data.freeReports?.[userId] ?? 0,
+      newLevels: [...a.newLevels],
+    };
+  }
+  async markAllyLevelsNotified(userId: string) {
+    const a = (this.data.allies ?? []).find((x) => x.userId === userId);
+    if (a) a.newLevels = [];
+  }
+  async applyReferral(userId: string, code: string) {
+    const a = (this.data.allies ?? []).find((x) => x.code === code.toUpperCase());
+    if (!a) return 'invalid' as const;
+    if (a.userId === userId) return 'own' as const;
+    if (this.data.referredBy?.[userId]) return 'already' as const;
+    this.data.referredBy = { ...this.data.referredBy, [userId]: a.code };
+    return 'ok' as const;
   }
   async pendingInstitutionRequest(userId: string) {
     return (

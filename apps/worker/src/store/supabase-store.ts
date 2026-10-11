@@ -1,5 +1,6 @@
-import { createHash } from 'node:crypto';
+import { createHash, randomBytes } from 'node:crypto';
 import type {
+  AllyStatus,
   Contract,
   ConversationState,
   Draft,
@@ -11,6 +12,7 @@ import type {
   Obligation,
   Period,
   PriorPaymentRecord,
+  ReferralResult,
   RegistryEntry,
   SocialSecurity,
   Store,
@@ -62,6 +64,13 @@ export function entitySettingsFromDb(s: Row): EntitySettings {
       supervisor: supervisor?.name ? { name: str(supervisor.name), title: str(supervisor.title) } : null,
     },
   };
+}
+
+// No 0/O/1/I to avoid confusion when people type the code.
+const CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+function newAllyCode(): string {
+  const bytes = randomBytes(4);
+  return `ALI-${[...bytes].map((b) => CODE_ALPHABET[b % CODE_ALPHABET.length]).join('')}`;
 }
 
 function entityFromRow(r: Row): Entity {
@@ -137,7 +146,7 @@ export class SupabaseStore implements Store {
     institutionName: string;
     modelSupportId: string;
     contractSupportId: string;
-  }): Promise<{ firstForInstitution: boolean }> {
+  }): Promise<{ firstForInstitution: boolean; requestId: string }> {
     const key = institutionKey(input.institutionName);
     const entities = must(await this.sb.from('entities').select('name'), 'createInstitutionRequest') as Row[];
     const { count } = await this.sb
@@ -145,17 +154,21 @@ export class SupabaseStore implements Store {
       .select('id', { count: 'exact', head: true })
       .eq('institution_key', key);
     const firstForInstitution = !count && !entities.some((e) => institutionKey(str(e.name)) === key);
-    must(
-      await this.sb.from('institution_requests').insert({
-        user_id: input.userId,
-        institution_name: input.institutionName,
-        institution_key: key,
-        model_support_id: input.modelSupportId,
-        contract_support_id: input.contractSupportId,
-        first_for_institution: firstForInstitution,
-      }),
+    const req = must(
+      await this.sb
+        .from('institution_requests')
+        .insert({
+          user_id: input.userId,
+          institution_name: input.institutionName,
+          institution_key: key,
+          model_support_id: input.modelSupportId,
+          contract_support_id: input.contractSupportId,
+          first_for_institution: firstForInstitution,
+        })
+        .select('id')
+        .single(),
       'createInstitutionRequest',
-    );
+    ) as Row;
     if (firstForInstitution) {
       const u = must(
         await this.sb.from('users').select('free_reports').eq('id', input.userId).single(),
@@ -169,7 +182,98 @@ export class SupabaseStore implements Store {
         'createInstitutionRequest',
       );
     }
-    return { firstForInstitution };
+    return { firstForInstitution, requestId: str(req.id) };
+  }
+
+  // -------------------------------------------------------------------------
+  // Programa de Aliados (ADR-032)
+  // -------------------------------------------------------------------------
+  async createAlly(userId: string, institutionRequestId: string | null): Promise<{ code: string }> {
+    const existing = must(
+      await this.sb.from('allies').select('code').eq('user_id', userId).maybeSingle(),
+      'createAlly',
+    ) as Row | null;
+    if (existing) return { code: str(existing.code) };
+    for (let attempt = 0; attempt < 5; attempt++) {
+      const code = newAllyCode();
+      const { error } = await this.sb
+        .from('allies')
+        .insert({ user_id: userId, institution_request_id: institutionRequestId, code });
+      if (!error) return { code };
+      if (error.code !== '23505') throw new Error(`createAlly: ${error.message}`);
+    }
+    throw new Error('createAlly: could not generate a unique code');
+  }
+
+  async allyStatus(userId: string): Promise<AllyStatus | null> {
+    const a = must(
+      await this.sb
+        .from('allies')
+        .select(
+          'id, code, level, premium_at, users!allies_user_id_fkey(free_reports), ally_levels(level, notified_at)',
+        )
+        .eq('user_id', userId)
+        .maybeSingle(),
+      'allyStatus',
+    ) as Row | null;
+    if (!a) return null;
+    const { count } = await this.sb
+      .from('users')
+      .select('id', { count: 'exact', head: true })
+      .eq('referred_by_ally', str(a.id));
+    const u = (Array.isArray(a.users) ? a.users[0] : a.users) as Row | null;
+    const levels = (a.ally_levels ?? []) as Row[];
+    return {
+      code: str(a.code),
+      level: num(a.level),
+      premium: Boolean(a.premium_at),
+      referrals: count ?? 0,
+      freeReports: num(u?.free_reports),
+      newLevels: levels
+        .filter((l) => !l.notified_at)
+        .map((l) => num(l.level))
+        .sort((x, y) => x - y),
+    };
+  }
+
+  async markAllyLevelsNotified(userId: string): Promise<void> {
+    const a = must(
+      await this.sb.from('allies').select('id').eq('user_id', userId).maybeSingle(),
+      'markAllyLevelsNotified',
+    ) as Row | null;
+    if (!a) return;
+    must(
+      await this.sb
+        .from('ally_levels')
+        .update({ notified_at: new Date().toISOString() })
+        .eq('ally_id', str(a.id))
+        .is('notified_at', null),
+      'markAllyLevelsNotified',
+    );
+  }
+
+  async applyReferral(userId: string, code: string): Promise<ReferralResult> {
+    const ally = must(
+      await this.sb.from('allies').select('id, user_id').eq('code', code.toUpperCase()).maybeSingle(),
+      'applyReferral',
+    ) as Row | null;
+    if (!ally) return 'invalid';
+    if (str(ally.user_id) === userId) return 'own';
+    const u = must(
+      await this.sb.from('users').select('referred_by_ally, created_at').eq('id', userId).single(),
+      'applyReferral',
+    ) as Row;
+    if (u.referred_by_ally) return 'already';
+    if (Date.now() - new Date(str(u.created_at)).getTime() > 30 * 86_400_000) return 'late';
+    must(
+      await this.sb
+        .from('users')
+        .update({ referred_by_ally: str(ally.id), referred_at: new Date().toISOString() })
+        .eq('id', userId)
+        .is('referred_by_ally', null),
+      'applyReferral',
+    );
+    return 'ok';
   }
 
   async pendingInstitutionRequest(userId: string): Promise<string | null> {

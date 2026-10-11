@@ -9,6 +9,7 @@ import {
   recutPeriods,
   resolvePeriodAmount,
 } from '@cuentasbot/shared';
+import { allyStatusText, findAllyCode, levelUpText, NOT_ALLY_TEXT, referralText } from './ally.js';
 import { BRAND, SIGNATURE } from './brand.js';
 import type {
   Contract,
@@ -104,7 +105,10 @@ export class Orchestrator {
     if (!user) {
       // Unregistered numbers: nothing is stored until the person accepts the data policy.
       if (msg.kind === 'reply' && msg.replyId === 'consent:no') return this.setup.declined();
-      if (msg.kind === 'reply' && msg.replyId === 'consent:yes') {
+      if (
+        msg.kind === 'reply' &&
+        (msg.replyId === 'consent:yes' || msg.replyId?.startsWith('consent:yes:'))
+      ) {
         const created = await store.createUser(msg.from);
         await store.recordConsent({
           userId: created.id,
@@ -114,16 +118,26 @@ export class Orchestrator {
           wamid: msg.id,
         });
         const turn: Turn = { user: created, state: this.idle(created.id), out: [] };
+        const allyCode = msg.replyId.startsWith('consent:yes:')
+          ? msg.replyId.slice('consent:yes:'.length)
+          : null;
+        if (allyCode) turn.out.push(referralText(await store.applyReferral(created.id, allyCode), allyCode));
         await this.setup.start(turn);
         turn.state.updatedAt = this.deps.clock.now().toISOString();
         await store.saveConversation(turn.state);
         return turn.out;
       }
       if (msg.kind === 'text' && msg.text && matchCommand(msg.text) === 'about') return this.about();
-      return this.setup.welcome();
+      return this.setup.welcome(msg.kind === 'text' && msg.text ? findAllyCode(msg.text) : null);
     }
     const state = (await store.getConversation(user.id)) ?? this.idle(user.id);
     const turn: Turn = { user, state, out: [] };
+    // Levels reached since the last message: tell the Aliado first (no template needed in the 24 h window).
+    const ally = await store.allyStatus(user.id);
+    if (ally?.newLevels.length) {
+      for (const level of ally.newLevels) turn.out.push(levelUpText(level));
+      await store.markAllyLevelsNotified(user.id);
+    }
     await this.dispatch(turn, msg);
     turn.state.updatedAt = this.deps.clock.now().toISOString();
     await store.saveConversation(turn.state);
@@ -155,6 +169,12 @@ export class Orchestrator {
       return this.dispatch(turn, { ...msg, kind: 'text', text: transcript });
     }
 
+    const allyCode = msg.kind === 'text' && msg.text ? findAllyCode(msg.text) : null;
+    if (allyCode) {
+      turn.out.push(referralText(await this.deps.store.applyReferral(turn.user.id, allyCode), allyCode));
+      return;
+    }
+
     if (turn.state.flow === SETUP_FLOW) {
       const cmd = msg.kind === 'text' && msg.text ? matchCommand(msg.text) : null;
       if (cmd === 'cancel') {
@@ -164,7 +184,7 @@ export class Orchestrator {
         );
         return;
       }
-      if (cmd !== 'about' && cmd !== 'support') return this.setup.handle(turn, msg);
+      if (cmd !== 'about' && cmd !== 'support' && cmd !== 'ally') return this.setup.handle(turn, msg);
     }
 
     if (msg.kind === 'text' && msg.text) {
@@ -269,6 +289,11 @@ export class Orchestrator {
       case 'about':
         turn.out.push(...this.about());
         return;
+      case 'ally': {
+        const status = await this.deps.store.allyStatus(turn.user.id);
+        turn.out.push(...(status ? allyStatusText(status) : [NOT_ALLY_TEXT]));
+        return;
+      }
       case 'add_contract':
         await this.setup.start(turn, 'another');
         return;
