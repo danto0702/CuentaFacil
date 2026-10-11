@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { impersonal } from '../src/fakes.js';
 import { matchCommand } from '../src/intents.js';
-import { parseActivityDate } from '../src/text.js';
+import { parseActivityDate, parseActivityWhen } from '../src/text.js';
 
 describe('parseActivityDate (today = Monday 2026-09-28)', () => {
   const today = '2026-09-28';
@@ -35,5 +35,31 @@ describe('impersonal', () => {
   it('turns first person into impersonal past', () => {
     expect(impersonal('capacité a 30 personas')).toBe('Se capacitó a 30 personas.');
     expect(impersonal('Hoy realicé visita a la vereda')).toBe('Se realizó visita a la vereda.');
+  });
+});
+
+describe('parseActivityWhen (today = 2026-10-11)', () => {
+  const today = '2026-10-11';
+  it('reads whole months and leaves notes without a date as null', () => {
+    expect(parseActivityWhen('seguimiento a las UPGD en el mes de Julio', today)).toEqual({
+      kind: 'month',
+      from: '2026-07-01',
+      to: '2026-07-31',
+    });
+    expect(parseActivityWhen('reunión en octubre', today)).toEqual({
+      kind: 'month',
+      from: '2026-10-01',
+      to: '2026-10-11',
+    });
+    expect(parseActivityWhen('informe de diciembre', today)).toEqual({
+      kind: 'month',
+      from: '2025-12-01',
+      to: '2025-12-31',
+    });
+    expect(parseActivityWhen('el 15 de julio revisé bases', today)).toEqual({
+      kind: 'day',
+      date: '2026-07-15',
+    });
+    expect(parseActivityWhen('capacité al personal', today)).toBeNull();
   });
 });

@@ -5,6 +5,7 @@ import {
   formatRangeLong,
   formatReportNumber,
   type IsoDate,
+  monthNameEs,
   type PeriodMode,
   recutPeriods,
   resolvePeriodAmount,
@@ -24,7 +25,7 @@ import type {
 import { type Command, forcedNote, matchCommand } from './intents.js';
 import type { Deps, Inbound, ListRow, Outgoing } from './ports.js';
 import { POLICY_VERSION, SETUP_FLOW, SetupFlow } from './setup.js';
-import { clip, parseActivityDate } from './text.js';
+import { type ActivityWhen, clip, parseActivityDate, parseActivityWhen } from './text.js';
 
 const MAX_BUTTONS = 3;
 const MAX_ROWS = 10;
@@ -289,6 +290,8 @@ export class Orchestrator {
     switch (turn.state.flow) {
       case 'note_contract':
         return this.onNoteContract(turn, msg);
+      case 'note_when':
+        return this.onNoteWhen(turn, msg);
       case 'note_obligation':
         return this.onNoteObligation(turn, msg);
       case 'draft_pick_contract':
@@ -428,7 +431,7 @@ export class Orchestrator {
       const ps = await this.deps.store.listPeriods(c.id);
       if (ps.some((p) => p.status !== 'delivered')) withPending.push(c);
     }
-    return withPending;
+    return withPending.length ? withPending : all;
   }
 
   private async withContract(
@@ -439,7 +442,9 @@ export class Orchestrator {
   ): Promise<void> {
     const cs = await this.activeContracts(turn);
     if (cs.length === 0) {
-      turn.out.push(text('No encuentro contratos vigentes. Escribe *mis contratos* para revisarlos.'));
+      turn.out.push(
+        text('Aún no tienes contratos configurados. Escribe *agregar contrato* para configurar uno.'),
+      );
       return;
     }
     if (cs.length === 1 || allowAll) return run(cs);
@@ -536,30 +541,80 @@ export class Orchestrator {
     return this.menu(turn, false);
   }
 
-  private async startNote(turn: Turn, noteText: string): Promise<void> {
-    const date = parseActivityDate(noteText, this.deps.clock.today());
+  private async startNote(turn: Turn, noteText: string, whenOverride?: ActivityWhen): Promise<void> {
+    const today = this.deps.clock.today();
     const evidenceIds = (turn.state.context.pendingEvidence as string[]) ?? [];
-    const cs = await this.activeContracts(turn, date);
+    const when = whenOverride ?? parseActivityWhen(noteText, today);
+    const all = await this.deps.store.listContracts(turn.user.id);
+    const overlaps = (c: Contract, from: IsoDate, to: IsoDate) =>
+      compareIso(c.startDate, to) <= 0 && compareIso(from, c.endDate) <= 0;
+    let cs: Contract[];
+    let date: IsoDate;
+    let label: string | undefined;
+    if (!when) {
+      // No date in the note: today if a contract is in force, otherwise ask when it happened.
+      cs = all.filter((c) => overlaps(c, today, today));
+      date = today;
+    } else if (when.kind === 'day') {
+      cs = all.filter((c) => overlaps(c, when.date, when.date));
+      date = when.date;
+    } else {
+      cs = all.filter((c) => overlaps(c, when.from, when.to));
+      const firstStart = cs.map((c) => c.startDate).sort(compareIso)[0];
+      date = firstStart && compareIso(firstStart, when.from) > 0 ? firstStart : when.from;
+      label = `en ${monthNameEs(when.from).toLowerCase()} de ${when.from.slice(0, 4)}`;
+    }
     if (cs.length === 0) {
+      this.setFlow(turn, 'note_when', 'ask', { noteText, evidenceIds });
+      const range = all.map(
+        (c) => `${c.shortLabel}: ${formatDdMmYyyy(c.startDate)} al ${formatDdMmYyyy(c.endDate)}`,
+      );
       turn.out.push(
         text(
-          `No tienes contratos vigentes el ${formatDdMmYyyy(date)}. Revisa la fecha o escribe *mis contratos*.`,
+          `📅 ¿En qué fecha o en qué mes hiciste esta actividad? Escríbelo así: *15/07/2026* o *julio*.${
+            when && range.length
+              ? `\nTu contrato va ${range.length > 1 ? 'así' : 'del'} ${range.join('; ')}.`
+              : ''
+          }`,
         ),
       );
       return;
     }
     if (cs.length === 1) {
       this.setFlow(turn, 'idle', 'start');
-      return this.saveNote(turn, [cs[0]!], noteText, date, evidenceIds);
+      return this.saveNote(turn, [cs[0]!], noteText, date, evidenceIds, label);
     }
-    this.setFlow(turn, 'note_contract', 'pick', { noteText, date, evidenceIds });
+    this.setFlow(turn, 'note_contract', 'pick', { noteText, date, evidenceIds, ...(label ? { label } : {}) });
     const items = cs.map((c) => ({ id: `c:${c.id}`, title: c.shortLabel }));
     if (cs.length === 2) items.push({ id: 'c:*', title: 'Ambos' });
     turn.out.push(choose('¿A cuál contrato corresponde?', items));
   }
 
+  /** Answer to "¿en qué fecha o mes?" for a note that had none (or one outside the contract). */
+  private async onNoteWhen(turn: Turn, msg: Inbound): Promise<void> {
+    const ctx = turn.state.context as { noteText: string; evidenceIds: string[] };
+    const when =
+      msg.kind === 'text' && msg.text ? parseActivityWhen(msg.text, this.deps.clock.today()) : null;
+    if (!when) {
+      if (msg.kind === 'text' && msg.text && msg.text.trim().split(/\s+/).length > 4) {
+        // A new note instead of a date.
+        this.reset(turn);
+        return this.startNote(turn, msg.text);
+      }
+      turn.out.push(text('Escríbeme la fecha (por ejemplo *15/07/2026*) o el mes (por ejemplo *julio*).'));
+      return;
+    }
+    turn.state.context = { pendingEvidence: ctx.evidenceIds };
+    return this.startNote(turn, ctx.noteText, when);
+  }
+
   private async onNoteContract(turn: Turn, msg: Inbound): Promise<void> {
-    const ctx = turn.state.context as { noteText: string; date: IsoDate; evidenceIds: string[] };
+    const ctx = turn.state.context as {
+      noteText: string;
+      date: IsoDate;
+      evidenceIds: string[];
+      label?: string;
+    };
     const cs = await this.activeContracts(turn, ctx.date);
     let chosen: Contract[] = [];
     if (msg.replyId === 'c:*') chosen = cs;
@@ -583,7 +638,7 @@ export class Orchestrator {
       return;
     }
     this.setFlow(turn, 'idle', 'start');
-    await this.saveNote(turn, chosen, ctx.noteText, ctx.date, ctx.evidenceIds);
+    await this.saveNote(turn, chosen, ctx.noteText, ctx.date, ctx.evidenceIds, ctx.label);
   }
 
   private async saveNote(
@@ -592,6 +647,7 @@ export class Orchestrator {
     noteText: string,
     date: IsoDate,
     evidenceIds: string[],
+    label?: string,
   ): Promise<void> {
     for (const c of contracts) {
       const result = await this.deps.ai.classifyNote(noteText, c.obligations);
@@ -619,8 +675,8 @@ export class Orchestrator {
         turn.out.push(
           buttons(
             sure
-              ? `✅ Anotado el ${formatDdMmYyyy(date)}${photos}${where} en la obligación ${o.number}: «${clip(o.text, 80)}»`
-              : `📝 Anotado el ${formatDdMmYyyy(date)}${photos}${where}. Creo que va en la obligación ${o.number}: «${clip(o.text, 80)}». ¿Está bien?`,
+              ? `✅ Anotado ${label ?? `el ${formatDdMmYyyy(date)}`}${photos}${where} en la obligación ${o.number}: «${clip(o.text, 80)}»`
+              : `📝 Anotado ${label ?? `el ${formatDdMmYyyy(date)}`}${photos}${where}. Creo que va en la obligación ${o.number}: «${clip(o.text, 80)}». ¿Está bien?`,
             [
               { id: `nok:${note.id}`, title: '✅ Está bien' },
               { id: `chg:${note.id}`, title: 'Cambiar obligación' },
@@ -631,7 +687,7 @@ export class Orchestrator {
         await this.askObligation(
           turn,
           note.id,
-          `📝 Anotado el ${formatDdMmYyyy(date)}${photos}${where}. ¿A cuál obligación corresponde?`,
+          `📝 Anotado ${label ?? `el ${formatDdMmYyyy(date)}`}${photos}${where}. ¿A cuál obligación corresponde?`,
         );
         if (contracts.length > 1) break; // ask one at a time; the other copy stays unassigned for the review step
       }

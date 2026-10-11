@@ -276,3 +276,38 @@ describe('missing profile data of contractors configured earlier', () => {
     expect(out.join('\n')).not.toMatch(/expedida tu cédula/);
   });
 });
+
+describe('notes after the contract ended', () => {
+  it('uses the month written in the note and asks when it happened instead of saying there is no contract', async () => {
+    const ended = { ...sampleExtraction(), endDate: '2026-09-30' as const };
+    const h = harness({ phone: NEW_PHONE, today: '2026-10-11', ai: new FakeAI(ended) });
+    await h.press('consent:yes');
+    await h.press(`ent:${DEMO_IDS.hrno}`);
+    await h.document('contrato.pdf');
+    await h.document('clausulado.pdf');
+    await h.press('setup:ok');
+    await h.say('06/07/2026');
+    await h.press('mode:month_end');
+    await h.press('cert:no');
+    await h.press('prior:none');
+    await h.press('sig:skip');
+
+    let out = show(
+      await h.say(
+        'Se realizó seguimiento a la vigilancia en salud pública de las UPGD de Ábrego y El Carmen en el mes de Julio',
+      ),
+    );
+    expect(out[0]).toMatch(/^✅ Anotado en julio de 2026 en la obligación 1/);
+    const note = h.store.data.notes.at(-1)!;
+    expect(note.date).toBe('2026-07-06');
+
+    out = show(await h.say('Capacité al personal en la ruta de misión médica'));
+    expect(out[0]).toMatch(/^📅 ¿En qué fecha o en qué mes hiciste esta actividad\?/);
+    out = show(await h.say('agosto'));
+    expect(out[0]).toMatch(/^✅ Anotado en agosto de 2026 en la obligación 2/);
+    expect(h.store.data.notes.at(-1)!.date).toBe('2026-08-01');
+
+    out = show(await h.say('Capacité al personal en la ruta de misión médica el 15/08/2026'));
+    expect(out[0]).toMatch(/^✅ Anotado el 15\/08\/2026/);
+  });
+});
