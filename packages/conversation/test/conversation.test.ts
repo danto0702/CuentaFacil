@@ -27,12 +27,23 @@ describe('recorded conversation: a month of notes to delivery', () => {
     await h.say('nota: hice el informe semanal');
     out = show(await h.press(`c:${DEMO_IDS.salud}`));
     expect(out[0]).toMatch(
-      /Creo que va en la obligación \d+: .*¿Está bien\? \[✅ Está bien\] \[Cambiar obligación\]$/,
+      /Creo que va en la obligación \d+: .*¿Está bien\? \[✅ Está bien\] \[Cambiar obligación\] \[➕ Otra obligación\]$/,
     );
     const noteId = h.store.data.notes.at(-1)!.id;
     out = show(await h.press(`chg:${noteId}`));
     expect(out[0]).toMatch(/¿A cuál obligación corresponde\? \{1\. Coordinar/);
-    expect(show(await h.press('o:specific-1'))).toEqual(['✅ Listo, quedó en la obligación 1.']);
+    expect(show(await h.press('o:specific-1'))).toEqual([
+      '✅ Listo, quedó en la obligación 1. ¿Esta actividad sirve también para otra? [➕ Otra obligación]',
+    ]);
+    // The same activity can support several obligations.
+    out = show(await h.press(`add:${noteId}`));
+    expect(out[0]).toMatch(/^¿En qué otra obligación va esta actividad\?/);
+    expect(out[0]).not.toContain('1. Coordinar');
+    expect(show(await h.press('o:specific-3'))).toEqual([
+      '✅ También quedó en la obligación 3. [➕ Otra obligación]',
+    ]);
+    const multi = await h.store.getNote(noteId);
+    expect([multi.obligationKey, ...(multi.alsoKeys ?? [])]).toEqual(['specific-1', 'specific-3']);
 
     // Or accepts the suggestion.
     await h.say('nota: hice el informe semanal');

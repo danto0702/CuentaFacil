@@ -719,6 +719,7 @@ export class SupabaseStore implements Store {
       activity_date: note.date,
       text: note.text,
       confirmed_obligation_id: obligationId,
+      extra_obligation_ids: (note.alsoKeys ?? []).flatMap((k) => byKey.get(k) ?? []),
       confidence: note.confidence ?? null,
       created_at: note.createdAt,
     };
@@ -757,6 +758,7 @@ export class SupabaseStore implements Store {
       this.sb.from('evidences').select('id').eq('note_id', str(r.id)).order('sort_order'),
     ]);
     const key = r.confirmed_obligation_id ? byId.get(str(r.confirmed_obligation_id)) : undefined;
+    const also = ((r.extra_obligation_ids ?? []) as string[]).flatMap((id) => byId.get(id) ?? []);
     return {
       id: str(r.id),
       userId: str(r.user_id),
@@ -764,6 +766,7 @@ export class SupabaseStore implements Store {
       date: str(r.activity_date),
       text: str(r.text ?? r.transcript),
       ...(key ? { obligationKey: key } : {}),
+      ...(also.length ? { alsoKeys: also } : {}),
       ...(r.confidence != null ? { confidence: num(r.confidence) } : {}),
       evidenceIds: (must(ev, 'note evidences') as Row[]).map((e) => str(e.id)),
       createdAt: str(r.created_at),

@@ -100,9 +100,16 @@ export interface Note {
   date: IsoDate;
   text: string;
   obligationKey?: string;
+  /** Other obligations the same activity also supports (the contractor can mark several). */
+  alsoKeys?: string[];
   confidence?: number;
   evidenceIds: string[];
   createdAt: string;
+}
+
+/** True when the note counts for the obligation (main or additional). */
+export function noteSupports(note: Note, key: string): boolean {
+  return note.obligationKey === key || (note.alsoKeys ?? []).includes(key);
 }
 
 export interface Evidence {

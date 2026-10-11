@@ -9,6 +9,7 @@ import type {
   SupportFile,
   SupportType,
 } from '@cuentasbot/conversation';
+import { noteSupports } from '@cuentasbot/conversation';
 import {
   buildTemplateContext,
   buildZips,
@@ -81,7 +82,7 @@ export class AccountGenerator implements Generator {
     for (const o of contract.obligations) {
       const d = drafts.find((x) => x.obligationKey === o.key);
       const evIds = notes
-        .filter((n) => n.obligationKey === o.key)
+        .filter((n) => noteSupports(n, o.key))
         .sort((a, b) => (a.date < b.date ? -1 : 1))
         .flatMap((n) => n.evidenceIds)
         .slice(0, maxEv);

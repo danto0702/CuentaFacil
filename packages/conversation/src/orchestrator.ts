@@ -22,6 +22,7 @@ import type {
   SupportType,
   User,
 } from './domain.js';
+import { noteSupports } from './domain.js';
 import { type Command, forcedNote, matchCommand } from './intents.js';
 import type { Deps, Inbound, ListRow, Outgoing } from './ports.js';
 import { POLICY_VERSION, SETUP_FLOW, SetupFlow } from './setup.js';
@@ -294,6 +295,8 @@ export class Orchestrator {
         return this.onNoteWhen(turn, msg);
       case 'note_obligation':
         return this.onNoteObligation(turn, msg);
+      case 'note_extra_obligation':
+        return this.onExtraObligation(turn, msg);
       case 'draft_pick_contract':
         return this.onPickContract(turn, msg, (c) => this.startDraft(turn, c));
       case 'generate_pick_contract':
@@ -535,6 +538,8 @@ export class Orchestrator {
     if (msg.kind === 'text' && msg.text) return this.startNote(turn, msg.text);
     if (msg.kind === 'reply' && msg.replyId?.startsWith('chg:'))
       return this.askObligation(turn, msg.replyId.slice(4));
+    if (msg.kind === 'reply' && msg.replyId?.startsWith('add:'))
+      return this.askExtraObligation(turn, msg.replyId.slice(4));
     if (msg.kind === 'reply' && msg.replyId?.startsWith('nok:')) {
       const note = await this.deps.store.getNote(msg.replyId.slice(4));
       await this.deps.store.updateNote({ ...note, confidence: 1 });
@@ -683,6 +688,7 @@ export class Orchestrator {
             [
               { id: `nok:${note.id}`, title: '✅ Está bien' },
               { id: `chg:${note.id}`, title: 'Cambiar obligación' },
+              { id: `add:${note.id}`, title: '➕ Otra obligación' },
             ],
           ),
         );
@@ -709,6 +715,51 @@ export class Orchestrator {
     turn.out.push(choose(body, c.obligations.map(obligationRow), page, 'omore'));
   }
 
+  /** WhatsApp lists allow one choice: further obligations are added one at a time. */
+  private async askExtraObligation(turn: Turn, noteId: string, page = 0): Promise<void> {
+    const note = await this.deps.store.getNote(noteId);
+    const c = await this.deps.store.getContract(note.contractId);
+    const free = c.obligations.filter((o) => !noteSupports(note, o.key));
+    if (!free.length) {
+      turn.out.push(text('Esta actividad ya está en todas las obligaciones.'));
+      return;
+    }
+    this.setFlow(turn, 'note_extra_obligation', 'pick', { noteId });
+    turn.out.push(
+      choose('¿En qué otra obligación va esta actividad?', free.map(obligationRow), page, 'xmore'),
+    );
+  }
+
+  private async onExtraObligation(turn: Turn, msg: Inbound): Promise<void> {
+    const { noteId } = turn.state.context as { noteId: string };
+    if (msg.replyId?.startsWith('xmore:'))
+      return this.askExtraObligation(turn, noteId, Number(msg.replyId.slice(6)));
+    const note = await this.deps.store.getNote(noteId);
+    const c = await this.deps.store.getContract(note.contractId);
+    let o: Obligation | undefined;
+    if (msg.replyId?.startsWith('o:')) o = c.obligations.find((x) => x.key === msg.replyId!.slice(2));
+    else if (msg.text && /^\s*\d{1,2}\s*$/.test(msg.text))
+      o = c.obligations.find((x) => x.number === Number(msg.text));
+    if (!o) {
+      this.reset(turn);
+      if (msg.kind === 'text' && msg.text) return this.startNote(turn, msg.text);
+      return;
+    }
+    if (!noteSupports(note, o.key)) {
+      await this.deps.store.updateNote(
+        note.obligationKey
+          ? { ...note, alsoKeys: [...(note.alsoKeys ?? []), o.key] }
+          : { ...note, obligationKey: o.key, confidence: 1 },
+      );
+    }
+    this.reset(turn);
+    turn.out.push(
+      buttons(`✅ También quedó en la obligación ${o.number}.`, [
+        { id: `add:${note.id}`, title: '➕ Otra obligación' },
+      ]),
+    );
+  }
+
   private async onNoteObligation(turn: Turn, msg: Inbound): Promise<void> {
     const { noteId } = turn.state.context as { noteId: string };
     if (msg.replyId?.startsWith('omore:'))
@@ -726,9 +777,18 @@ export class Orchestrator {
       }
       return this.askObligation(turn, noteId, 'Elige la obligación de la lista:');
     }
-    await this.deps.store.updateNote({ ...note, obligationKey: o.key, confidence: 1 });
+    await this.deps.store.updateNote({
+      ...note,
+      obligationKey: o.key,
+      alsoKeys: (note.alsoKeys ?? []).filter((k) => k !== o.key),
+      confidence: 1,
+    });
     this.reset(turn);
-    turn.out.push(text(`✅ Listo, quedó en la obligación ${o.number}.`));
+    turn.out.push(
+      buttons(`✅ Listo, quedó en la obligación ${o.number}. ¿Esta actividad sirve también para otra?`, [
+        { id: `add:${note.id}`, title: '➕ Otra obligación' },
+      ]),
+    );
   }
 
   // -------------------------------------------------------------------------
@@ -848,7 +908,7 @@ export class Orchestrator {
         continue;
       }
       const notes = await this.deps.store.listNotes(c.id, p.from, p.to);
-      const count = (k: string) => notes.filter((n) => n.obligationKey === k).length;
+      const count = (k: string) => notes.filter((n) => noteSupports(n, k)).length;
       const obl = c.obligations
         .filter((o) => o.kind === 'specific')
         .map(
@@ -890,7 +950,7 @@ export class Orchestrator {
     turn.out.push(text('✍️ Estoy redactando tu informe con lo que me contaste…'));
     for (const o of c.obligations) {
       const prev = existing.find((d) => d.obligationKey === o.key);
-      const mine = notes.filter((n) => n.obligationKey === o.key);
+      const mine = notes.filter((n) => noteSupports(n, o.key));
       if (
         prev &&
         (prev.status === 'approved' || prev.status === 'not_applicable') &&
