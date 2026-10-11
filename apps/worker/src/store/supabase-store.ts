@@ -60,6 +60,11 @@ export function entitySettingsFromDb(s: Row): EntitySettings {
       uploadFolder: str(pkg.upload_folder, 'DOCUMENTOS A CARGAR'),
       zipName: str(pkg.zip_name, 'cuenta.zip'),
     },
+    emptyObligations: s.empty_obligations === 'text' ? 'text' : 'omit',
+    emptyObligationText: str(
+      s.empty_obligation_text,
+      'No se presentaron actividades asociadas a esta obligación en el presente periodo.',
+    ),
     contractDefaults: {
       supervisor: supervisor?.name ? { name: str(supervisor.name), title: str(supervisor.title) } : null,
     },

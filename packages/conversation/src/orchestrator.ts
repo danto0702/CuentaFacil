@@ -30,8 +30,6 @@ import { type ActivityWhen, clip, parseActivityDate, parseActivityWhen } from '.
 
 const MAX_BUTTONS = 3;
 const MAX_ROWS = 10;
-const NOT_APPLICABLE_TEXT =
-  'No se presentaron actividades asociadas a esta obligación en el presente periodo.';
 
 type Ctx = Record<string, unknown>;
 
@@ -1048,6 +1046,7 @@ export class Orchestrator {
 
   private async askMissing(turn: Turn, c: Contract, p: Period, missing: string[]): Promise<void> {
     const o = c.obligations.find((x) => x.key === missing[0])!;
+    const omit = (await this.deps.store.getEntity(c.entityId)).settings.emptyObligations === 'omit';
     this.setFlow(turn, 'draft_missing', 'ask', { contractId: c.id, periodNumber: p.number, missing });
     turn.out.push(
       buttons(
@@ -1055,7 +1054,7 @@ export class Orchestrator {
         [
           { id: 'mis:write', title: 'Escribir/Audio' },
           { id: 'mis:default', title: 'Texto por defecto' },
-          { id: 'mis:na', title: 'No aplicó' },
+          { id: 'mis:na', title: omit ? 'Omitir' : 'No aplicó' },
         ],
       ),
     );
@@ -1083,7 +1082,10 @@ export class Orchestrator {
         this.draft(c, p, o, [entity.settings.defaultActivityText], 'default', []),
       );
     } else if (msg.replyId === 'mis:na') {
-      await this.deps.store.saveDraft(this.draft(c, p, o, [NOT_APPLICABLE_TEXT], 'not_applicable', []));
+      const omit = entity.settings.emptyObligations === 'omit';
+      await this.deps.store.saveDraft(
+        this.draft(c, p, o, omit ? [] : [entity.settings.emptyObligationText], 'not_applicable', []),
+      );
     } else if (msg.replyId === 'mis:write') {
       this.setFlow(turn, 'draft_missing_text', 'write', { ...ctx });
       turn.out.push(
@@ -1137,12 +1139,22 @@ export class Orchestrator {
 
   private async showReview(turn: Turn, c: Contract, p: Period, onlyKey?: string): Promise<void> {
     const drafts = await this.deps.store.listDrafts(c.id, p.number);
+    const omit = (await this.deps.store.getEntity(c.entityId)).settings.emptyObligations === 'omit';
     const blocks: string[] = [];
+    const omitted: number[] = [];
     for (const o of c.obligations) {
       if (onlyKey && o.key !== onlyKey) continue;
       const d = drafts.find((x) => x.obligationKey === o.key);
+      if (omit && d?.status === 'not_applicable') {
+        omitted.push(o.number);
+        continue;
+      }
       blocks.push(`*${o.number}.* ${clip(o.text, 140)}\n→ ${(d?.paragraphs ?? []).join('\n→ ')}`);
     }
+    if (omitted.length)
+      blocks.push(
+        `⏭️ Sin actividades este periodo (no van en el informe de actividades): ${omitted.length === 1 ? 'obligación' : 'obligaciones'} ${omitted.join(', ')}.`,
+      );
     const header = onlyKey
       ? '✏️ Así quedó:'
       : `📄 *Borrador – Informe ${formatReportNumber(p.number, c.paymentsCount, c.reportNumberFormat)}* (${formatRangeLong(p.from, p.to)})`;

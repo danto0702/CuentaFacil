@@ -59,6 +59,10 @@ export async function updateEntity(form: FormData): Promise<void> {
   const next = {
     ...settings,
     default_activity_text: s(form, 'defaultActivityText') || 'Actividad cumplida.',
+    empty_obligations: s(form, 'emptyObligations') === 'text' ? 'text' : 'omit',
+    empty_obligation_text:
+      s(form, 'emptyObligationText') ||
+      'No se presentaron actividades asociadas a esta obligación en el presente periodo.',
     certificate_max_age_days: Number(s(form, 'certificateMaxAgeDays') || 30),
     meeting: { place: s(form, 'meetingPlace'), start: s(form, 'meetingStart'), end: s(form, 'meetingEnd') },
     contract_defaults: {

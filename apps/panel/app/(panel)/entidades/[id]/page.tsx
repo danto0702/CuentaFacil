@@ -114,6 +114,23 @@ export default async function EntityPage({ params }: { params: Promise<{ id: str
               <input name="defaultActivityText" defaultValue={get(st, 'default_activity_text')} />
             </label>
             <label>
+              Obligaciones sin actividades en el periodo
+              <select name="emptyObligations" defaultValue={get(st, 'empty_obligations') || 'omit'}>
+                <option value="omit">Se omiten del informe de actividades</option>
+                <option value="text">Se escribe un texto</option>
+              </select>
+            </label>
+            <label>
+              Texto cuando no hay actividades (si se escribe texto)
+              <input
+                name="emptyObligationText"
+                defaultValue={
+                  get(st, 'empty_obligation_text') ||
+                  'No se presentaron actividades asociadas a esta obligación en el presente periodo.'
+                }
+              />
+            </label>
+            <label>
               Lugar de reunión (informe de supervisión)
               <input name="meetingPlace" defaultValue={get(st, 'meeting', 'place')} />
             </label>

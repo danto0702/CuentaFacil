@@ -60,6 +60,8 @@ const HRNO: Entity = {
       uploadFolder: 'DOCUMENTOS A CARGAR',
       zipName: 'aprobacindelossoportespresentadosalsupervisordelcon.zip',
     },
+    emptyObligations: 'omit',
+    emptyObligationText: 'No se presentaron actividades asociadas a esta obligación en el presente periodo.',
     contractDefaults: { supervisor: { name: 'CARLOS EDUARDO BONILLA DIAZ', title: 'Subgerente' } },
   },
 };

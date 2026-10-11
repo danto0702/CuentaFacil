@@ -18,6 +18,8 @@ export const DEFAULT_ENTITY_SETTINGS = {
     upload_folder: 'DOCUMENTOS A CARGAR',
     zip_name: 'cuenta.zip',
   },
+  empty_obligations: 'omit',
+  empty_obligation_text: 'No se presentaron actividades asociadas a esta obligación en el presente periodo.',
   contract_defaults: { supervisor: null },
 };
 

@@ -63,15 +63,18 @@ describe('recorded conversation: a month of notes to delivery', () => {
     await h.say('ver borrador');
     out = show(await h.press(`c:${DEMO_IDS.salud}`));
     expect(out[0]).toBe('✍️ Estoy redactando tu informe con lo que me contaste…');
-    expect(out[1]).toMatch(
-      /^Para la obligación 2 .* \[Escribir\/Audio\] \[Texto por defecto\] \[No aplicó\]$/,
-    );
+    expect(out[1]).toMatch(/^Para la obligación 2 .* \[Escribir\/Audio\] \[Texto por defecto\] \[Omitir\]$/);
     out = show(await h.press('mis:na'));
     expect(out[0]).toContain('📄 *Borrador – Informe 03 DE 03*');
     expect(out[0]).toContain('→ Se capacitó a 30 personas en misión médica en El Carmen.');
     expect(out[0]).toContain('→ Se asistió a la reunión de entidades territoriales');
     expect(out[0]).toContain('*5.* Reserva y confidencialidad');
     expect(out[0]).toContain('→ Actividad cumplida.');
+    // HRNO omits obligations without activities: one line instead of a «no se presentaron…» text.
+    expect(out[0]).not.toContain('*2.* Reorganizar');
+    expect(out[0]).toContain(
+      '⏭️ Sin actividades este periodo (no van en el informe de actividades): obligación 2.',
+    );
 
     // Edit one obligation, then approve.
     await h.press('rev:edit');

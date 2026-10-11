@@ -18,6 +18,12 @@ export interface EntitySettings {
   ibcBlocking: boolean;
   generateWithMissing: boolean;
   package: { periodFolder: string; uploadFolder: string; zipName: string };
+  /**
+   * Obligations without activities in the period: 'omit' leaves them out of the activity report (and
+   * the review shows them as a single line); 'text' writes `emptyObligationText`.
+   */
+  emptyObligations: 'omit' | 'text';
+  emptyObligationText: string;
   /** Values that are the same for every contractor of the entity; they win over what the AI reads. */
   contractDefaults: { supervisor: { name: string; title: string } | null };
 }

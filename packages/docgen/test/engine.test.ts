@@ -136,3 +136,15 @@ describe('catalog', () => {
     expect(missing).toEqual([]);
   });
 });
+
+describe('obligations without activities', () => {
+  it('leaves omitted obligations out of the activity report lists but keeps them for supervision', async () => {
+    const input = await syntheticAccount({ period: 'full' });
+    input.contract.obligations[1] = { ...input.contract.obligations[1]!, activities: [], omit: true };
+    const ctx = await buildTemplateContext(input);
+    const omitted = input.contract.obligations[1]!.number.toString();
+    expect(ctx.specific_obligations.map((o) => o.number)).not.toContain(omitted);
+    expect(ctx.obligations.map((o) => o.number)).toContain(omitted);
+    expect(ctx.obligations.find((o) => o.number === omitted)!.activities).toEqual([]);
+  });
+});

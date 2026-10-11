@@ -26,8 +26,13 @@ export interface ObligationInput {
   number: number;
   text: string;
   kind: 'specific' | 'general';
-  /** Approved activity paragraphs; empty → entity default text. */
+  /** Approved activity paragraphs; empty → entity default text (unless `omit`). */
   activities: string[];
+  /**
+   * No activities this period and the entity omits such obligations: left out of the activity
+   * report (specific/general lists); still listed in the supervision report (`obligations`).
+   */
+  omit?: boolean;
   evidences: ImageInput[];
   rating?: 'deficient' | 'improve' | 'satisfactory' | 'outstanding' | 'na';
   observations?: string;
@@ -171,7 +176,7 @@ export async function buildTemplateContext(input: CuentaInput): Promise<Template
     a.kind === b.kind ? a.number - b.number : a.kind === 'specific' ? -1 : 1,
   );
   for (const o of sorted) {
-    const activities = o.activities.length ? o.activities : [entity.defaultActivityText];
+    const activities = o.omit ? [] : o.activities.length ? o.activities : [entity.defaultActivityText];
     const evidences = await Promise.all(o.evidences.map((e) => toImage(e, widthCm, 10)));
     obligations.push({
       number: String(o.number),
@@ -183,6 +188,7 @@ export async function buildTemplateContext(input: CuentaInput): Promise<Template
       approval: 'CUMPLE',
       ...ratingFlags(o.rating),
       observations: o.observations ?? '',
+      omitted: Boolean(o.omit),
     });
   }
 
@@ -300,9 +306,9 @@ export async function buildTemplateContext(input: CuentaInput): Promise<Template
     prior_payments: input.priorPayments.map((pp) => ({ voucher: pp.voucher, value: formatCOP(pp.amount) })),
 
     obligations,
-    specific_obligations: obligations.filter((o) => o.kind === 'specific'),
-    general_obligations: obligations.filter((o) => o.kind === 'general'),
-    evidence_obligations: obligations.filter((o) => o.has_evidence),
+    specific_obligations: obligations.filter((o) => o.kind === 'specific' && !o.omitted),
+    general_obligations: obligations.filter((o) => o.kind === 'general' && !o.omitted),
+    evidence_obligations: obligations.filter((o) => o.has_evidence && !o.omitted),
     contractor_duties: contract.contractorDuties.map((d, i) => ({
       number: String(i + 1),
       text: d.text,

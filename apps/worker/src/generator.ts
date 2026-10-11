@@ -94,6 +94,9 @@ export class AccountGenerator implements Generator {
         text: o.text,
         activities: d?.paragraphs ?? [],
         evidences,
+        ...(d?.status === 'not_applicable' && entity.settings.emptyObligations === 'omit'
+          ? { omit: true }
+          : {}),
       });
     }
 

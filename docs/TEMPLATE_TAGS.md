@@ -143,6 +143,7 @@
 | `obligations[].x_outstanding` | texto | "X" o vacío. Calificación SOBRESALIENTE. |
 | `obligations[].x_na` | texto | "X" o vacío. Calificación NO APLICA. |
 | `obligations[].observations` | texto | Observaciones del supervisor. |
+| `obligations[].omitted` | sí/no | Sin actividades este periodo y la entidad las omite del informe de actividades. |
 | `specific_obligations[]` | lista | Solo obligaciones específicas. |
 | `specific_obligations[]` | objeto |  |
 | `specific_obligations[].number` | texto | Número de la obligación ("1", "14"). |
@@ -163,6 +164,7 @@
 | `specific_obligations[].x_outstanding` | texto | "X" o vacío. Calificación SOBRESALIENTE. |
 | `specific_obligations[].x_na` | texto | "X" o vacío. Calificación NO APLICA. |
 | `specific_obligations[].observations` | texto | Observaciones del supervisor. |
+| `specific_obligations[].omitted` | sí/no | Sin actividades este periodo y la entidad las omite del informe de actividades. |
 | `general_obligations[]` | lista | Solo obligaciones generales. |
 | `general_obligations[]` | objeto |  |
 | `general_obligations[].number` | texto | Número de la obligación ("1", "14"). |
@@ -183,6 +185,7 @@
 | `general_obligations[].x_outstanding` | texto | "X" o vacío. Calificación SOBRESALIENTE. |
 | `general_obligations[].x_na` | texto | "X" o vacío. Calificación NO APLICA. |
 | `general_obligations[].observations` | texto | Observaciones del supervisor. |
+| `general_obligations[].omitted` | sí/no | Sin actividades este periodo y la entidad las omite del informe de actividades. |
 | `evidence_obligations[]` | lista | Obligaciones que tienen evidencias (para el anexo). |
 | `evidence_obligations[]` | objeto |  |
 | `evidence_obligations[].number` | texto | Número de la obligación ("1", "14"). |
@@ -203,6 +206,7 @@
 | `evidence_obligations[].x_outstanding` | texto | "X" o vacío. Calificación SOBRESALIENTE. |
 | `evidence_obligations[].x_na` | texto | "X" o vacío. Calificación NO APLICA. |
 | `evidence_obligations[].observations` | texto | Observaciones del supervisor. |
+| `evidence_obligations[].omitted` | sí/no | Sin actividades este periodo y la entidad las omite del informe de actividades. |
 | `contractor_duties[]` | lista | Obligaciones generales del contratista según la cláusula del contrato (tabla 1.2 del informe de supervisión). |
 | `contractor_duties[]` | objeto |  |
 | `contractor_duties[].number` | texto | Número de la obligación ("1", "14"). |

@@ -42,6 +42,7 @@ export const ObligationSchema = z.object({
   x_outstanding: x('Calificación SOBRESALIENTE.'),
   x_na: x('Calificación NO APLICA.'),
   observations: s('Observaciones del supervisor.'),
+  omitted: b('Sin actividades este periodo y la entidad las omite del informe de actividades.'),
 });
 
 export const DutySchema = ObligationSchema.pick({

@@ -36,9 +36,10 @@ insert into entities (id, name, short_name, nit, municipality, department, setti
   }'::jsonb
 ) on conflict (id) do nothing;
 
--- Same supervisor for every HRNO contractor (owner, 2026-10-10). Wins over what the AI reads.
+-- Same supervisor for every HRNO contractor (owner, 2026-10-10), wins over what the AI reads; obligations
+-- without activities are left out of the activity report (owner, 2026-10-11).
 update entities
-set settings = settings || '{"contract_defaults": {"supervisor": {"name": "CARLOS EDUARDO BONILLA DIAZ", "title": "Subgerente"}}}'::jsonb
+set settings = settings || '{"contract_defaults": {"supervisor": {"name": "CARLOS EDUARDO BONILLA DIAZ", "title": "Subgerente"}}, "empty_obligations": "omit"}'::jsonb
 where id = '00000000-0000-4000-8000-000000000001';
 
 insert into entity_variables (entity_id, key, label, type, scope, source, default_value) values
