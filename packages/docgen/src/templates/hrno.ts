@@ -152,40 +152,77 @@ function obligationsTable(): string {
   );
 }
 
+// Certification and evidence annex go inside a bordered box, as in the entity's model.
 function sworn(): string {
+  const k = { ...F, bold: true, keepNext: true } as const;
   return [
-    p('CERTIFICACIÓN JURAMENTADA', {
-      ...F,
-      bold: true,
-      align: 'center',
-      spacingBefore: 240,
-      spacingAfter: 120,
-      keepNext: true,
-    }),
-    p(
-      'Como Contratista de la ESE HOSPITAL REGIONAL NOROCCIDENTAL y para dar cumplimiento a lo estipulado en el Artículo 4 del Decreto 2271 de junio 18 de 2009, certifico bajo la gravedad de juramento que los documentos soporte del pago de mis aportes obligatorios al Sistema General de Seguridad Social corresponden a los ingresos provenientes del Contrato No. {{contract_number}} del {{period_range_long}}.',
-      { ...F, align: 'both', spacingAfter: 480, keepNext: true },
+    p('', { ...F, spacingAfter: 0 }),
+    table(
+      [W],
+      [
+        row(
+          [
+            cell(
+              [
+                p('CERTIFICACIÓN JURAMENTADA', {
+                  ...k,
+                  align: 'center',
+                  spacingBefore: 240,
+                  spacingAfter: 240,
+                }),
+                p(
+                  'Como Contratista de la ESE HOSPITAL REGIONAL NOROCCIDENTAL y para dar cumplimiento a lo estipulado en el Artículo 4 del Decreto 2271 de junio 18 de 2009, certifico bajo la gravedad de juramento que los documentos soporte del pago de mis aportes obligatorios al Sistema General de Seguridad Social corresponden a los ingresos provenientes del Contrato No. {{contract_number}} del {{period_range_long}}.',
+                  { ...k, align: 'both', spacingAfter: 360 },
+                ),
+                p('NOMBRE Y FIRMA', { ...k, spacingAfter: 480 }),
+                p('_____________________________________', { ...k, align: 'center', spacingAfter: 0 }),
+                p('{{contractor_name}}', { ...k, align: 'center', spacingAfter: 0 }),
+                p('C.C No. {{contractor_cedula}} de {{contractor_city}}', {
+                  ...F,
+                  bold: true,
+                  align: 'center',
+                  spacingAfter: 240,
+                }),
+              ],
+              { width: W, vAlign: 'top' },
+            ),
+          ],
+          { cantSplit: true },
+        ),
+      ],
     ),
-    p('NOMBRE Y FIRMA', { ...F, bold: true, keepNext: true, spacingAfter: 480 }),
-    p('_____________________________________', { ...F, spacingAfter: 0, keepNext: true }),
-    p('{{contractor_name}}', { ...F, bold: true, spacingAfter: 0, keepNext: true }),
-    p('C.C No. {{contractor_cedula}} de {{contractor_city}}', F),
   ].join('');
 }
 
 function evidenceAnnex(): string {
   return [
     cmd('IF evidence_obligations.length > 0', F),
-    p('ANEXOS – EVIDENCIAS', { ...F, bold: true, align: 'center', pageBreakBefore: true, spacingAfter: 240 }),
-    cmd('FOR o IN evidence_obligations', F),
-    p('Actividad {{$o.number}}.', { ...F, bold: true, spacingBefore: 120, keepNext: true }),
-    // Inline images in one paragraph wrap two per line at 7.5 cm on an "oficio" page.
-    p(['{{FOR e IN $o.evidences}}', '{{IMAGE $e.image}}', '  ', '{{END-FOR e}}'], {
-      ...F,
-      align: 'center',
-      spacingAfter: 120,
-    }),
-    cmd('END-FOR o', F),
+    p('', { ...F, size: 2, pageBreakBefore: true, spacingAfter: 0 }),
+    table(
+      [W],
+      [
+        row([cell(p('ANEXOS – EVIDENCIAS', { ...F, bold: true, align: 'center' }), { width: W })], {
+          cantSplit: true,
+        }),
+        // One cell for all the activities, so the box has no lines between them; it may span pages.
+        row([
+          cell(
+            [
+              cmd('FOR o IN evidence_obligations', F),
+              p('ACTIVIDAD {{$o.number}}', { ...F, bold: true, spacingBefore: 120, keepNext: true }),
+              // Inline images in one paragraph wrap two per line at 7.5 cm on an "oficio" page.
+              p(['{{FOR e IN $o.evidences}}', '{{IMAGE $e.image}}', '  ', '{{END-FOR e}}'], {
+                ...F,
+                align: 'center',
+                spacingAfter: 120,
+              }),
+              cmd('END-FOR o', F),
+            ],
+            { width: W, vAlign: 'top' },
+          ),
+        ]),
+      ],
+    ),
     cmd('END-IF', F),
   ].join('');
 }
@@ -303,23 +340,30 @@ export function hrnoSupervisionFooter(): string {
 }
 
 function sTitle(text: string, width: number, span: number): string {
-  return row([cell(p(text, { ...SUPB, align: 'center' }), { width, span, fill: GREY })]);
+  return row([cell(p(text, SUPB), { width, span, fill: GREY })]);
 }
 
 function generalInfoTable(): string {
   const a = 4000;
   const b = (W - a) / 2;
-  const l = (t: string) => cell(p(t, SUPB), { width: a });
+  const l = (t: string, vMerge?: 'restart' | 'continue') =>
+    cell(p(t, { ...SUPB, align: 'center' }), { width: a, ...(vMerge ? { vMerge } : {}) });
   const v = (t: string, span = 1) =>
-    cell(p(t, { ...SUP, align: 'center' }), { width: span === 2 ? W - a : b, span });
+    cell(p(t, { ...SUPB, align: 'center' }), { width: span === 2 ? W - a : b, span });
+  const plain = (t: string) => cell(p(t, SUP), { width: W - a, span: 2 });
   return table(
     [a, b, b],
     [
       sTitle('INFORMACIÓN GENERAL DEL CONTRATO', W, 3),
       row([
         l('PERÍODO A QUE CORRESPONDE EL INFORME'),
-        v('DESDE: {{period_start_date}}'),
-        v('HASTA: {{period_end_date}}'),
+        cell(
+          [
+            p('DESDE: {{period_start_date}}', { ...SUPB, spacingAfter: 0 }),
+            p('HASTA: {{period_end_date}}', { ...SUPB, spacingAfter: 0 }),
+          ],
+          { width: W - a, span: 2 },
+        ),
       ]),
       // Filled in by the supervisor.
       row([l('FECHA DE INFORME DE SUPERVISIÓN'), v('', 2)]),
@@ -328,14 +372,16 @@ function generalInfoTable(): string {
         v('SI  {{x_deficient_performance_yes}}'),
         v('NO  {{x_deficient_performance_no}}'),
       ]),
-      row([l('PORCENTAJE DE EJECUCIÓN DE LA CUENTA QUE SE CERTIFICA'), v('FÍSICA'), v('PRESUPUESTAL')]),
-      row([l(''), v('{{physical_execution}}'), v('{{budget_execution}}')]),
-      row([l('VALOR DEL CONTRATO'), v('{{contract_value}}', 2)]),
-      row([l('PLAZO'), v('{{contract_term}}', 2)]),
-      row([l('PRÓRROGA y/o ADICIÓN'), v('{{extension_text}}', 2)]),
       row([
-        cell(p([label('OBJETO: '), '{{contract_object}}'], { ...SUP, align: 'both' }), { width: W, span: 3 }),
+        l('PORCENTAJE DE EJECUCIÓN DE LA CUENTA QUE SE CERTIFICA', 'restart'),
+        v('FÍSICA'),
+        v('PRESUPUESTAL'),
       ]),
+      row([l('', 'continue'), v('{{physical_execution}}'), v('{{budget_execution}}')]),
+      row([l('VALOR DEL CONTRATO'), plain('{{contract_value}}')]),
+      row([l('PLAZO'), plain('{{contract_term}}')]),
+      row([l('PRÓRROGA y/o ADICIÓN'), plain('{{extension_text}}')]),
+      row([cell(p('OBJETO: {{contract_object}}', { ...SUPB, align: 'both' }), { width: W, span: 3 })]),
     ],
   );
 }
@@ -351,20 +397,21 @@ function attendeesTable(): string {
     [...c4],
     [
       sTitle('ASISTENTES A LA REUNIÓN', W, 4),
-      row([l('Supervisor:'), v('{{supervisor_name_title}}')]),
+      row([l('Supervisor:'), v({ text: '{{supervisor_name_title}}', opts: { bold: true } })]),
       row([
         l('Por parte del contratista:'),
-        v(
-          '{{contractor_name}}, identificado con cédula de ciudadanía número {{contractor_cedula}} de {{contractor_city}}',
-        ),
+        v([
+          { text: '{{contractor_name}}', opts: { bold: true } },
+          ', identificado con cédula de ciudadanía número {{contractor_cedula}} de {{contractor_city}}',
+        ]),
       ]),
       row([l('Otros asistentes:'), v('{{other_attendees}}')]),
-      row([l('Lugar donde se realiza la reunión'), v('{{meeting_place}}')]),
+      row([l('Lugar donde se realiza la reunión'), v({ text: '{{meeting_place}}', opts: { bold: true } })]),
       row([
         l('Hora de inicio (a.m./p.m.)'),
-        cell(p('{{meeting_start}}', { ...SUP, align: 'center' }), { width: c4[1] }),
+        cell(p('{{meeting_start}}', { ...SUPB, align: 'center' }), { width: c4[1] }),
         cell(p('Hora de finalización (a.m./p.m.)', SUPB), { width: c4[2] }),
-        cell(p('{{meeting_end}}', { ...SUP, align: 'center' }), { width: c4[3] }),
+        cell(p('{{meeting_end}}', { ...SUPB, align: 'center' }), { width: c4[3] }),
       ]),
     ],
   );
@@ -379,7 +426,11 @@ function objectiveTable(): string {
       row([
         cell(
           p(
-            'Recibo informe de actividades realizadas por parte del contratista durante el periodo del {{period_range_long}}, en cumplimiento a lo establecido en el contrato No. {{contract_number}}-{{contract_year}}.',
+            [
+              'Recibo informe de actividades realizadas por parte del contratista durante el periodo del {{period_range_long}}, en cumplimiento a lo establecido en el contrato ',
+              { text: 'No. {{contract_number}}-{{contract_year}}', opts: { bold: true } },
+              '.',
+            ],
             { ...SUP, align: 'both' },
           ),
           { width: W, span: 2 },
@@ -391,7 +442,7 @@ function objectiveTable(): string {
         2,
       ),
       row([
-        cell(p('Actividad / Compromiso', SUPB), { width: a }),
+        cell(p('Actividad / Compromiso', { ...SUPB, align: 'center' }), { width: a }),
         cell(
           p(
             'Certificar que el informe de actividades {{report_number}} de {{report_total}} del presente contrato y demás documentos cumplen con los lineamientos exigidos para el respectivo pago por parte de Gestión Financiera de la ESE Hospital Regional Noroccidental.',
@@ -421,15 +472,19 @@ function dutiesTable(): string {
     cell(p(tag, { ...SUP, bold: true, align: 'center' }), { width: cols[i]! });
   return table(cols, [
     row(
+      // As in the model: no fill; number and rating columns written vertically.
       heads.map((h, i) =>
-        cell(p(h, { ...tiny, bold: true, align: 'center' }), { width: cols[i]!, fill: GREY }),
+        cell(p(h, { ...tiny, bold: true, align: 'center' }), {
+          width: cols[i]!,
+          vertical: i !== 1 && i !== 7,
+        }),
       ),
-      { header: true },
+      { header: true, cantSplit: true, minHeight: 1500 },
     ),
     cmdRow('FOR d IN contractor_duties', W, 8),
     row(
       [
-        cell(p('{{$d.number}}', { ...SUP, align: 'center' }), { width: cols[0]! }),
+        cell(p('{{$d.number}}', { ...SUPB, align: 'center' }), { width: cols[0]!, vAlign: 'top' }),
         cell(p('{{$d.text}}', { ...SUP, align: 'left' }), { width: cols[1]! }),
         flag('{{$d.x_deficient}}', 2),
         flag('{{$d.x_improve}}', 3),
@@ -457,9 +512,13 @@ function dutiesTable(): string {
 }
 
 function socialSecurityVertical(): string {
-  const a = W / 2;
+  // Centered on the page, narrower than the text, everything in bold (as in the model).
+  const a = 2600;
   const r = (l: string, v: string) =>
-    row([cell(p(l, SUPB), { width: a }), cell(p(v, { ...SUP, align: 'center' }), { width: a })]);
+    row([
+      cell(p(l, { ...SUPB, align: 'center', spacingAfter: 0 }), { width: a }),
+      cell(p(v, { ...SUPB, align: 'center', spacingAfter: 0 }), { width: a }),
+    ]);
   return table(
     [a, a],
     [
@@ -486,14 +545,14 @@ function activitiesApprovalTable(): string {
   return table(cols, [
     row(
       ['ACTIVIDAD RELACIONADA', 'OBLIGACIÓN ESPECIAL ASOCIADA', 'APROBACIÓN'].map((h, i) =>
-        cell(p(h, { ...SUPB, align: 'center' }), { width: cols[i]!, fill: GREY }),
+        cell(p(h, { ...SUPB, align: 'center' }), { width: cols[i]! }),
       ),
       { header: true },
     ),
     // Only the obligations with activities this period; APROBACIÓN is left for the supervisor.
     cmdRow('FOR o IN supervision_activities', W, 3),
     row([
-      cell(p('Actividad {{$o.number}}', SUP), { width: cols[0]! }),
+      cell(p('Actividad {{$o.number}}', { ...SUPB, align: 'center' }), { width: cols[0]!, vAlign: 'top' }),
       cell(p('{{$o.text}}', { ...SUP, align: 'both' }), { width: cols[1]! }),
       cell(p('', { ...SUP, bold: true, align: 'center' }), { width: cols[2]! }),
     ]),
@@ -512,19 +571,14 @@ function balanceTable(): string {
     ['Valor total ejecutado', '{{balance_executed}}'],
     ['Valor no ejecutado', '{{balance_not_executed}}'],
   ];
-  const payments = (field: 'voucher' | 'value') => [
-    cmd('IF prior_payments.length === 0', SUP),
-    p('-', { ...SUP, align: 'center' }),
-    cmd('END-IF', SUP),
-    cmd('FOR pp IN prior_payments', SUP),
-    p(`{{$pp.${field}}}`, { ...SUP, align: 'center' }),
-    cmd('END-FOR pp', SUP),
-  ];
+  // Prior payments go one per row next to the concepts, with their own row lines (as in the model).
+  // A contract with more payments than rows lists the rest in the last row.
+  const payment = (field: 'voucher' | 'value', i: number) => `{{balance_payments[${i}].${field}}}`;
   return table(cols, [
     sTitle('BALANCE FINANCIERO DEL CONTRATO', W, 5),
-    row([cell(p('Balance General del Contrato', SUPB), { width: W, span: 5 })]),
+    row([cell(p('Balance General del Contrato', { ...SUPB, align: 'center' }), { width: W, span: 5 })]),
     row([
-      cell(p('Concepto', SUPB), { width: cols[0]! }),
+      cell(p('Concepto', { ...SUPB, align: 'center' }), { width: cols[0]! }),
       cell(p('Valor', { ...SUPB, align: 'center' }), { width: cols[1]! }),
       cell(p('', SUP), { width: cols[2]!, borders: false }),
       cell(p('Concepto (Anticipo, actas, pagos)', { ...SUPB, align: 'center' }), { width: cols[3]! }),
@@ -532,15 +586,11 @@ function balanceTable(): string {
     ]),
     ...lines.map(([l, v], i) =>
       row([
-        cell(p(l, SUP), { width: cols[0]! }),
-        cell(p(v, { ...SUP, align: 'right' }), { width: cols[1]! }),
+        cell(p(l, SUPB), { width: cols[0]! }),
+        cell(p(v, { ...SUPB, align: 'right' }), { width: cols[1]! }),
         cell(p('', SUP), { width: cols[2]!, borders: false }),
-        i === 0
-          ? cell(payments('voucher'), { width: cols[3]!, vMerge: 'restart', vAlign: 'top' })
-          : cell(p('', SUP), { width: cols[3]!, vMerge: 'continue' }),
-        i === 0
-          ? cell(payments('value'), { width: cols[4]!, vMerge: 'restart', vAlign: 'top' })
-          : cell(p('', SUP), { width: cols[4]!, vMerge: 'continue' }),
+        cell(p(payment('voucher', i), { ...SUPB, align: 'center' }), { width: cols[3]! }),
+        cell(p(payment('value', i), { ...SUPB, align: 'center' }), { width: cols[4]! }),
       ]),
     ),
   ]);
@@ -554,12 +604,9 @@ const KEEPB = { ...KEEP, bold: true } as const;
 function commitmentsTable(): string {
   const cols = [4000, (W - 4000) / 2, (W - 4000) / 2];
   return table(cols, [
-    row(
-      [cell(p('Compromisos adquiridos', { ...KEEPB, align: 'center' }), { width: W, span: 3, fill: GREY })],
-      {
-        cantSplit: true,
-      },
-    ),
+    row([cell(p('Compromisos adquiridos', KEEPB), { width: W, span: 3 })], {
+      cantSplit: true,
+    }),
     row(
       ['Compromiso', 'Fecha de entrega', 'Responsable'].map((h, i) =>
         cell(p(h, { ...KEEPB, align: 'center' }), { width: cols[i]! }),
@@ -661,9 +708,11 @@ export function hrnoSupervisionBody(): string {
     para(
       'Así mismo, se verificó y constató que el contratista presentó las planillas que acreditan el pago de aportes de salud, pensión y riesgos laborales de acuerdo con las normas vigentes y con las demás obligaciones fiscales del orden regional y nacional.',
     ),
-    para(
-      'Que esta supervisión certifica que procede al pago generado por valor de {{payment_value_words}}, correspondiente al pago del presente contrato.',
-    ),
+    para([
+      'Que esta supervisión certifica que procede al pago generado por valor de ',
+      { text: '{{payment_value_words}}', opts: { bold: true } },
+      ', correspondiente al pago del presente contrato.',
+    ]),
     commitmentsTable(),
     para(
       // Day and month are written by the supervisor when signing.

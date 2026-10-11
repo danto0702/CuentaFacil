@@ -123,6 +123,10 @@
 | `prior_payments[]` | objeto |  |
 | `prior_payments[].voucher` | texto | Comprobante del pago anterior ("ND 001092"). |
 | `prior_payments[].value` | texto | Valor del pago anterior ("$ 4.000.000"). |
+| `balance_payments[]` | lista | Pagos anteriores por fila del balance (7 filas; la última reúne los demás). |
+| `balance_payments[]` | objeto |  |
+| `balance_payments[].voucher` | texto | Comprobante del pago anterior ("ND 001092"). |
+| `balance_payments[].value` | texto | Valor del pago anterior ("$ 4.000.000"). |
 | `obligations[]` | lista | Todas las obligaciones: primero específicas y luego generales. |
 | `obligations[]` | objeto |  |
 | `obligations[].number` | texto | Número de la obligación ("1", "14"). |

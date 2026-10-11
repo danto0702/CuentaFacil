@@ -125,11 +125,11 @@ Valor
 Valor inicial del contrato
 $ 12.000.000
 ND 000001
-ND 000002
-$ 4.000.000
 $ 4.000.000
 Valor adiciones
 $ 0
+ND 000002
+$ 4.000.000
 Valor total del contrato
 $ 12.000.000
 Valor pagado

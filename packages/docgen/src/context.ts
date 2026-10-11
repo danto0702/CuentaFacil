@@ -304,6 +304,9 @@ export async function buildTemplateContext(input: CuentaInput): Promise<Template
     balance_executed: formatCOP(balance.executed),
     balance_not_executed: formatCOP(balance.notExecuted),
     prior_payments: input.priorPayments.map((pp) => ({ voucher: pp.voucher, value: formatCOP(pp.amount) })),
+    balance_payments: balanceRows(
+      input.priorPayments.map((pp) => ({ voucher: pp.voucher, value: formatCOP(pp.amount) })),
+    ),
 
     obligations,
     specific_obligations: obligations.filter((o) => o.kind === 'specific' && !o.omitted),
@@ -322,3 +325,12 @@ export async function buildTemplateContext(input: CuentaInput): Promise<Template
 }
 
 export { RATING_KEYS };
+
+/** Rows of the balance table: one payment per row; when there are more payments than rows, the last row lists the rest. */
+export const BALANCE_ROWS = 7;
+function balanceRows(pays: { voucher: string; value: string }[]): { voucher: string; value: string }[] {
+  return Array.from({ length: BALANCE_ROWS }, (_, i) => {
+    const part = i < BALANCE_ROWS - 1 ? pays.slice(i, i + 1) : pays.slice(i);
+    return { voucher: part.map((x) => x.voucher).join(', '), value: part.map((x) => x.value).join(', ') };
+  });
+}

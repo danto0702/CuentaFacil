@@ -69,6 +69,8 @@ export interface CellOpts {
   vAlign?: 'top' | 'center' | 'bottom';
   borders?: boolean;
   vMerge?: 'restart' | 'continue';
+  /** Vertical text, read bottom to top (narrow rating columns). */
+  vertical?: boolean;
 }
 
 export function cell(content: string | string[], opts: CellOpts): string {
@@ -81,13 +83,18 @@ export function cell(content: string | string[], opts: CellOpts): string {
     );
   }
   if (opts.fill) tcPr.push(`<w:shd w:val="clear" w:color="auto" w:fill="${opts.fill}"/>`);
+  if (opts.vertical) tcPr.push('<w:textDirection w:val="btLr"/>');
   tcPr.push(`<w:vAlign w:val="${opts.vAlign ?? 'center'}"/>`);
   const body = Array.isArray(content) ? content.join('') : content;
   return `<w:tc><w:tcPr>${tcPr.join('')}</w:tcPr>${body || p('')}</w:tc>`;
 }
 
-export function row(cells: string[], opts: { header?: boolean; cantSplit?: boolean } = {}): string {
+export function row(
+  cells: string[],
+  opts: { header?: boolean; cantSplit?: boolean /** Minimum height in twips. */; minHeight?: number } = {},
+): string {
   const trPr: string[] = [];
+  if (opts.minHeight) trPr.push(`<w:trHeight w:val="${opts.minHeight}" w:hRule="atLeast"/>`);
   if (opts.header) trPr.push('<w:tblHeader/>');
   if (opts.cantSplit) trPr.push('<w:cantSplit/>');
   return `<w:tr>${trPr.length ? `<w:trPr>${trPr.join('')}</w:trPr>` : ''}${cells.join('')}</w:tr>`;

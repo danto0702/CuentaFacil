@@ -124,8 +124,6 @@ Concepto (Anticipo, actas, pagos)
 Valor
 Valor inicial del contrato
 $ 12.000.000
--
--
 Valor adiciones
 $ 0
 Valor total del contrato

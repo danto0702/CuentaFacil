@@ -185,6 +185,9 @@ export const TemplateContextSchema = z.object({
   balance_executed: s('Valor total ejecutado.'),
   balance_not_executed: s('Valor no ejecutado.'),
   prior_payments: z.array(PriorPaymentSchema).describe('Pagos anteriores con su comprobante.'),
+  balance_payments: z
+    .array(PriorPaymentSchema)
+    .describe('Pagos anteriores por fila del balance (7 filas; la última reúne los demás).'),
 
   // Obligaciones
   obligations: z
