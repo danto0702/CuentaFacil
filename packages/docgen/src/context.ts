@@ -16,6 +16,7 @@ import {
 } from '@cuentasbot/shared';
 import sharp from 'sharp';
 import type { ObligationCtx, TemplateContext } from './catalog.js';
+import { cleanSignature } from './signature.js';
 
 export interface ImageInput {
   data: Buffer;
@@ -316,7 +317,16 @@ export async function buildTemplateContext(input: CuentaInput): Promise<Template
     evidence_obligations: obligations.filter((o) => o.has_evidence && !o.omitted),
     has_contractor_signature: !!input.contractorSignature,
     contractor_signature: input.contractorSignature
-      ? (await toImage(input.contractorSignature, 5, 1.8)).image
+      ? (
+          await toImage(
+            // Phone photo → only the ink on a transparent background, cropped to the strokes.
+            {
+              data: (await cleanSignature(input.contractorSignature.data)) ?? input.contractorSignature.data,
+            },
+            5,
+            1.8,
+          )
+        ).image
       : null,
     supervision_activities: obligations.filter((o) => o.kind === 'specific' && !o.omitted),
     contractor_duties: contract.contractorDuties.map((d, i) => ({
