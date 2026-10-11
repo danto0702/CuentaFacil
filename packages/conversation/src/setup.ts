@@ -300,7 +300,7 @@ export class SetupFlow {
       text(
         `✅ ¡Listo! Recibí el modelo y tu contrato de *${ctx.otherName}*.\n\nNuestro equipo va a configurar esa institución y te escribimos por aquí cuando esté lista (normalmente en 1 o 2 días hábiles).${
           firstForInstitution
-            ? '\n\n🎁 Como eres la primera persona de esta institución en usar el servicio, *tu primera cuenta de cobro es gratis*.'
+            ? '\n\n🎁 Como eres la primera persona de esta institución en usar el servicio, *tu primera cuenta de cobro es gratis* (válida por 12 meses).'
             : ''
         }`,
       ),

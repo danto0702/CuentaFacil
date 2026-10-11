@@ -169,19 +169,13 @@ export class SupabaseStore implements Store {
         .single(),
       'createInstitutionRequest',
     ) as Row;
-    if (firstForInstitution) {
-      const u = must(
-        await this.sb.from('users').select('free_reports').eq('id', input.userId).single(),
-        'createInstitutionRequest',
-      ) as Row;
+    if (firstForInstitution)
       must(
         await this.sb
-          .from('users')
-          .update({ free_reports: num(u.free_reports) + 1 })
-          .eq('id', input.userId),
+          .from('free_report_grants')
+          .insert({ user_id: input.userId, reason: 'institution_first', source_id: str(req.id) }),
         'createInstitutionRequest',
       );
-    }
     return { firstForInstitution, requestId: str(req.id) };
   }
 
@@ -209,9 +203,7 @@ export class SupabaseStore implements Store {
     const a = must(
       await this.sb
         .from('allies')
-        .select(
-          'id, code, level, premium_at, users!allies_user_id_fkey(free_reports), ally_levels(level, notified_at)',
-        )
+        .select('id, code, level, premium_at, ally_levels(level, notified_at)')
         .eq('user_id', userId)
         .maybeSingle(),
       'allyStatus',
@@ -221,14 +213,19 @@ export class SupabaseStore implements Store {
       .from('users')
       .select('id', { count: 'exact', head: true })
       .eq('referred_by_ally', str(a.id));
-    const u = (Array.isArray(a.users) ? a.users[0] : a.users) as Row | null;
+    const { count: free } = await this.sb
+      .from('free_report_grants')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', userId)
+      .is('used_at', null)
+      .gt('expires_at', new Date().toISOString());
     const levels = (a.ally_levels ?? []) as Row[];
     return {
       code: str(a.code),
       level: num(a.level),
       premium: Boolean(a.premium_at),
       referrals: count ?? 0,
-      freeReports: num(u?.free_reports),
+      freeReports: free ?? 0,
       newLevels: levels
         .filter((l) => !l.notified_at)
         .map((l) => num(l.level))

@@ -18,7 +18,7 @@ export function shareLink(code: string): string {
   return `https://wa.me/${BRAND.whatsapp}?text=${encodeURIComponent(`Hola Pascal, vengo de parte de ${code}`)}`;
 }
 
-const rules = `• Cada mes subes un nivel cuando tus referidos pagan *10 × el siguiente nivel* cuentas ese mes (10 para el nivel 1, 20 para el 2… hasta 100). Cuenta una cuenta por persona al mes.\n• Cada nivel te da *una cuenta gratis*.\n• En el nivel ${ALLY_MAX_LEVEL} eres *Aliado Premium*: además de tus ${ALLY_MAX_LEVEL} cuentas gratis recibes *${ALLY_PREMIUM_BONUS}* por transferencia.`;
+const rules = `• Cada mes subes un nivel cuando tus referidos pagan *10 × el siguiente nivel* cuentas ese mes (10 para el nivel 1, 20 para el 2… hasta 100). Cuenta una cuenta por persona al mes.\n• Cada nivel te da *una cuenta gratis* (vence a los 12 meses).\n• En el nivel ${ALLY_MAX_LEVEL} eres *Aliado Premium*: además de tus ${ALLY_MAX_LEVEL} cuentas gratis recibes *${ALLY_PREMIUM_BONUS}* por transferencia.`;
 
 /** Sent when the contractor becomes the Aliado of a new institution. */
 export function allyWelcome(code: string, institution: string): Outgoing[] {

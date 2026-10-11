@@ -39,7 +39,10 @@ select pg_temp.assert(evaluate_allies('2026-09-01') = 0, 'same month again: no s
 reset role;
 select pg_temp.assert((select level from allies where code = 'ALI-TST1') = 1, 'ally is level 1');
 select pg_temp.assert(
-  (select free_reports from users where id = '00000000-0000-4000-8000-000000000101') = 1, 'one free report granted');
+  (select count(*) from free_report_grants
+   where user_id = '00000000-0000-4000-8000-000000000101' and reason = 'ally_level'
+     and expires_at > now() + interval '11 months') = 1,
+  'one free report granted, valid for 12 months');
 
 set role authenticated;
 do $$ begin

@@ -205,7 +205,7 @@ export async function listAllies(): Promise<AllyRow[]> {
   const { data, error } = await sb
     .from('allies')
     .select(
-      'id, code, level, premium_at, bonus_status, bonus_reference, users!allies_user_id_fkey(full_name, phone_e164, free_reports), institution_requests(institution_name), entities(short_name), ally_levels(level, granted_at)',
+      'id, code, level, premium_at, bonus_status, bonus_reference, user_id, users!allies_user_id_fkey(full_name, phone_e164), institution_requests(institution_name), entities(short_name), ally_levels(level, granted_at)',
     )
     .order('level', { ascending: false });
   if (error) throw error;
@@ -215,8 +215,17 @@ export async function listAllies(): Promise<AllyRow[]> {
   const { data: refs } = ids.length
     ? await sb.from('users').select('referred_by_ally').in('referred_by_ally', ids)
     : { data: [] as { referred_by_ally: string }[] };
+  const userIds = (data ?? []).map((a) => a.user_id);
+  const { data: grants } = userIds.length
+    ? await sb
+        .from('free_report_grants')
+        .select('user_id')
+        .in('user_id', userIds)
+        .is('used_at', null)
+        .gt('expires_at', new Date().toISOString())
+    : { data: [] as { user_id: string }[] };
   return (data ?? []).map((a) => {
-    const u = one(a.users as One<{ full_name: string | null; phone_e164: string; free_reports: number }>);
+    const u = one(a.users as One<{ full_name: string | null; phone_e164: string }>);
     const levels = (a.ally_levels ?? []) as { level: number; granted_at: string }[];
     return {
       id: a.id,
@@ -229,7 +238,7 @@ export async function listAllies(): Promise<AllyRow[]> {
         '—',
       level: a.level,
       referrals: (refs ?? []).filter((r) => r.referred_by_ally === a.id).length,
-      freeReports: u?.free_reports ?? 0,
+      freeReports: (grants ?? []).filter((g) => g.user_id === a.user_id).length,
       premium: Boolean(a.premium_at),
       bonusStatus: a.bonus_status,
       bonusReference: a.bonus_reference,

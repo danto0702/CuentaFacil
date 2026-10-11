@@ -1,6 +1,6 @@
 -- Contractors whose institution is not configured yet ("Otra" in WhatsApp) leave a request with a model
 -- cuenta de cobro and their contract; the owner creates the entity from the panel. The first contractor
--- of a new institution gets their first report free (users.free_reports, consumed by billing).
+-- of a new institution gets their first report free (free_report_grants, consumed by billing; expire after 12 months).
 
 create table institution_requests (
   id                     uuid primary key default gen_random_uuid(),
