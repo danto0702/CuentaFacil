@@ -89,6 +89,20 @@ export interface Store {
   getUserByPhone(phone: string): Promise<User | null>;
   getUser(id: string): Promise<User>;
   getEntity(id: string): Promise<Entity>;
+  /** Entities configured and open to contractors, for the choice at registration. */
+  listEntities(): Promise<Entity[]>;
+  /**
+   * Request to configure an institution that is not in the system yet ("Otra"). The first request for
+   * an institution grants the contractor one free report.
+   */
+  createInstitutionRequest(input: {
+    userId: string;
+    institutionName: string;
+    modelSupportId: string;
+    contractSupportId: string;
+  }): Promise<{ firstForInstitution: boolean }>;
+  /** Name of the institution the contractor asked us to configure and is still pending, if any. */
+  pendingInstitutionRequest(userId: string): Promise<string | null>;
   listSupportTypes(entityId: string): Promise<SupportType[]>;
   listContracts(userId: string): Promise<Contract[]>;
   getContract(id: string): Promise<Contract>;

@@ -1,3 +1,5 @@
+import Link from 'next/link';
+import { adminAvailable, listInstitutionRequests } from '@/lib/admin';
 import { dataSource } from '@/lib/data';
 
 const STATUS: Record<string, string> = {
@@ -18,6 +20,9 @@ export default async function Dashboard() {
     ds.listContractors(),
     ds.listEntities(),
   ]);
+  const newRequests = adminAvailable()
+    ? (await listInstitutionRequests()).filter((r) => r.status === 'pending').length
+    : 0;
   const byStatus = Object.entries(
     accounts.reduce<Record<string, number>>((acc, a) => {
       acc[a.status] = (acc[a.status] ?? 0) + 1;
@@ -35,6 +40,12 @@ export default async function Dashboard() {
         <div className="card">
           <div className="stat">{entities.length}</div>
           <div className="muted">Entidades</div>
+        </div>
+        <div className="card">
+          <div className="stat">{newRequests}</div>
+          <div className="muted">
+            <Link href="/solicitudes">Solicitudes de instituciones nuevas</Link>
+          </div>
         </div>
         <div className="card">
           <div className="stat">{accounts.length}</div>

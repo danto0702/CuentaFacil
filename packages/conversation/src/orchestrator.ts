@@ -114,7 +114,7 @@ export class Orchestrator {
           wamid: msg.id,
         });
         const turn: Turn = { user: created, state: this.idle(created.id), out: [] };
-        this.setup.start(turn);
+        await this.setup.start(turn);
         turn.state.updatedAt = this.deps.clock.now().toISOString();
         await store.saveConversation(turn.state);
         return turn.out;
@@ -174,6 +174,12 @@ export class Orchestrator {
         return this.startNote(turn, forced);
       }
       const cmd = matchCommand(msg.text);
+      // No contract yet: greetings and the menu go to the setup (or the pending-institution notice).
+      if (
+        (cmd === 'menu' || cmd === 'help') &&
+        (await this.deps.store.listContracts(turn.user.id)).length === 0
+      )
+        return this.onIdle(turn, msg);
       if (cmd) return this.command(turn, cmd);
     }
 
@@ -264,7 +270,7 @@ export class Orchestrator {
         turn.out.push(...this.about());
         return;
       case 'add_contract':
-        this.setup.start(turn, 'another');
+        await this.setup.start(turn, 'another');
         return;
       case 'my_data':
         turn.out.push(
@@ -404,7 +410,16 @@ export class Orchestrator {
   // -------------------------------------------------------------------------
   private async onIdle(turn: Turn, msg: Inbound): Promise<void> {
     if ((await this.deps.store.listContracts(turn.user.id)).length === 0) {
-      this.setup.start(turn, 'first');
+      const pending = await this.deps.store.pendingInstitutionRequest(turn.user.id);
+      if (pending && !(msg.kind === 'text' && msg.text && matchCommand(msg.text) === 'add_contract')) {
+        turn.out.push(
+          text(
+            `⏳ Estamos configurando *${pending}*; te escribimos por aquí cuando esté lista.\nSi tienes un contrato con otra institución, escribe *agregar contrato*.`,
+          ),
+        );
+        return;
+      }
+      await this.setup.start(turn, 'first');
       return;
     }
     if (msg.kind === 'image' && msg.media) {

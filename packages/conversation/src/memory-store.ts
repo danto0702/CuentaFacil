@@ -17,7 +17,7 @@ import type {
   User,
 } from './domain.js';
 import type { Store } from './ports.js';
-import { contractFromSetup } from './setup.js';
+import { contractFromSetup, institutionKey } from './setup.js';
 
 export interface MemoryData {
   users: User[];
@@ -34,6 +34,15 @@ export interface MemoryData {
   conversations: ConversationState[];
   consents?: { userId: string; phone: string; policyVersion: string; accepted: boolean; wamid: string }[];
   /** Entity contract registry, keyed by entity, contract code (no leading zeros) and document digits. */
+  institutionRequests?: {
+    userId: string;
+    institutionName: string;
+    institutionKey: string;
+    modelSupportId: string;
+    contractSupportId: string;
+    firstForInstitution: boolean;
+  }[];
+  freeReports?: Record<string, number>;
   registry?: (RegistryEntry & { entityId: string; contractCode: string; docNumber: string })[];
 }
 
@@ -188,6 +197,37 @@ export class MemoryStore implements Store {
       (x) => (nit && digits(x.nit) === digits(nit)) || n.includes(x.name.toLocaleUpperCase('es-CO')),
     );
     return e ? clone(e) : null;
+  }
+  async listEntities() {
+    return clone(this.data.entities);
+  }
+  async createInstitutionRequest(input: {
+    userId: string;
+    institutionName: string;
+    modelSupportId: string;
+    contractSupportId: string;
+  }) {
+    const key = institutionKey(input.institutionName);
+    const known =
+      this.data.entities.some((e) => institutionKey(e.name) === key) ||
+      (this.data.institutionRequests ?? []).some((r) => r.institutionKey === key);
+    const firstForInstitution = !known;
+    this.data.institutionRequests = [
+      ...(this.data.institutionRequests ?? []),
+      { ...input, institutionKey: key, firstForInstitution },
+    ];
+    if (firstForInstitution) {
+      this.data.freeReports = {
+        ...this.data.freeReports,
+        [input.userId]: (this.data.freeReports?.[input.userId] ?? 0) + 1,
+      };
+    }
+    return { firstForInstitution };
+  }
+  async pendingInstitutionRequest(userId: string) {
+    return (
+      (this.data.institutionRequests ?? []).findLast((r) => r.userId === userId)?.institutionName ?? null
+    );
   }
   async findRegistryEntry(entityId: string, contractCode: string, docNumber: string) {
     const doc = docNumber.replace(/\D/g, '');

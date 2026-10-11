@@ -38,7 +38,8 @@ export default async function PanelLayout({ children }: { children: ReactNode })
       <nav className="nav">
         <h1>CuentaFacil</h1>
         <Link href="/">Inicio</Link>
-        <Link href="/entidades">Entidades y formatos</Link>
+        <Link href="/entidades">Entidades</Link>
+        <Link href="/solicitudes">Solicitudes de instituciones</Link>
         <Link href="/contratistas">Contratistas</Link>
         <Link href="/cuentas">Cuentas</Link>
         <p className="muted" style={{ color: '#9fb4ca', marginTop: 24 }}>

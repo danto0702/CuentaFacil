@@ -18,6 +18,7 @@ import type {
   SupportType,
   User,
 } from '@cuentasbot/conversation';
+import { institutionKey } from '@cuentasbot/conversation';
 import type { IsoDate, ScheduledPayment } from '@cuentasbot/shared';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { type FieldCipher, last4 } from '../crypto.js';
@@ -60,6 +61,17 @@ export function entitySettingsFromDb(s: Row): EntitySettings {
     contractDefaults: {
       supervisor: supervisor?.name ? { name: str(supervisor.name), title: str(supervisor.title) } : null,
     },
+  };
+}
+
+function entityFromRow(r: Row): Entity {
+  return {
+    id: str(r.id),
+    name: str(r.name),
+    shortName: str(r.short_name),
+    nit: str(r.nit),
+    city: str(r.municipality),
+    settings: entitySettingsFromDb((r.settings ?? {}) as Row),
   };
 }
 
@@ -109,14 +121,69 @@ export class SupabaseStore implements Store {
 
   async getEntity(id: string): Promise<Entity> {
     const r = must(await this.sb.from('entities').select('*').eq('id', id).single(), 'getEntity') as Row;
-    return {
-      id: str(r.id),
-      name: str(r.name),
-      shortName: str(r.short_name),
-      nit: str(r.nit),
-      city: str(r.municipality),
-      settings: entitySettingsFromDb((r.settings ?? {}) as Row),
-    };
+    return entityFromRow(r);
+  }
+
+  async listEntities(): Promise<Entity[]> {
+    const rows = must(
+      await this.sb.from('entities').select('*').eq('status', 'active').order('name'),
+      'listEntities',
+    ) as Row[];
+    return rows.map(entityFromRow);
+  }
+
+  async createInstitutionRequest(input: {
+    userId: string;
+    institutionName: string;
+    modelSupportId: string;
+    contractSupportId: string;
+  }): Promise<{ firstForInstitution: boolean }> {
+    const key = institutionKey(input.institutionName);
+    const entities = must(await this.sb.from('entities').select('name'), 'createInstitutionRequest') as Row[];
+    const { count } = await this.sb
+      .from('institution_requests')
+      .select('id', { count: 'exact', head: true })
+      .eq('institution_key', key);
+    const firstForInstitution = !count && !entities.some((e) => institutionKey(str(e.name)) === key);
+    must(
+      await this.sb.from('institution_requests').insert({
+        user_id: input.userId,
+        institution_name: input.institutionName,
+        institution_key: key,
+        model_support_id: input.modelSupportId,
+        contract_support_id: input.contractSupportId,
+        first_for_institution: firstForInstitution,
+      }),
+      'createInstitutionRequest',
+    );
+    if (firstForInstitution) {
+      const u = must(
+        await this.sb.from('users').select('free_reports').eq('id', input.userId).single(),
+        'createInstitutionRequest',
+      ) as Row;
+      must(
+        await this.sb
+          .from('users')
+          .update({ free_reports: num(u.free_reports) + 1 })
+          .eq('id', input.userId),
+        'createInstitutionRequest',
+      );
+    }
+    return { firstForInstitution };
+  }
+
+  async pendingInstitutionRequest(userId: string): Promise<string | null> {
+    const rows = must(
+      await this.sb
+        .from('institution_requests')
+        .select('institution_name')
+        .eq('user_id', userId)
+        .in('status', ['pending', 'in_progress'])
+        .order('created_at', { ascending: false })
+        .limit(1),
+      'pendingInstitutionRequest',
+    ) as Row[];
+    return rows[0] ? str(rows[0].institution_name) : null;
   }
 
   async listSupportTypes(entityId: string): Promise<SupportType[]> {

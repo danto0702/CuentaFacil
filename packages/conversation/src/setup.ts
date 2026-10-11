@@ -37,6 +37,41 @@ interface SetupCtx {
   docIssuedIn?: string;
   /** Version of applyEntityRules already applied to `extraction`. */
   rules?: number;
+  otherName?: string;
+  otherModelId?: string;
+}
+
+/**
+ * Normalized institution name to recognize the same institution written differently:
+ * "E.S.E. Hospital San José de Ocaña" → "HOSPITAL SAN JOSE OCANA".
+ */
+export function institutionKey(name: string): string {
+  return name
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toUpperCase()
+    .replace(/[^A-Z0-9 ]/g, ' ')
+    .split(/\s+/)
+    .filter(
+      (w) =>
+        w &&
+        ![
+          'E',
+          'S',
+          'ESE',
+          'EMPRESA',
+          'SOCIAL',
+          'DEL',
+          'ESTADO',
+          'DE',
+          'LA',
+          'EL',
+          'LOS',
+          'LAS',
+          'Y',
+        ].includes(w),
+    )
+    .join(' ');
 }
 
 /** Bump when applyEntityRules changes, so in-flight setups are re-checked on confirmation. */
@@ -141,23 +176,145 @@ export class SetupFlow {
     turn.state.context = { ...turn.state.context, ...patch };
   }
 
-  start(turn: SetupTurn, intro: 'consent' | 'first' | 'another' = 'consent'): void {
+  async start(turn: SetupTurn, intro: 'consent' | 'first' | 'another' = 'consent'): Promise<void> {
     turn.state.context = {};
-    this.go(turn, 'contract_doc');
     const opening = {
       consent: '✅ ¡Gracias! Ahora configuremos tu contrato.',
       first: '📄 Para empezar necesito configurar tu contrato.',
       another: '📄 Configuremos otro contrato.',
     }[intro];
+    turn.out.push(text(opening));
+    await this.askEntity(turn);
+  }
+
+  /** Institution of the contract: the configured ones, or "Otra" to request a new one. */
+  private async askEntity(turn: SetupTurn): Promise<void> {
+    this.go(turn, 'entity');
+    const entities = (await this.deps.store.listEntities()).slice(0, 9);
+    turn.out.push({
+      type: 'list',
+      text: '🏥 ¿Con qué institución es tu contrato?',
+      button: 'Elegir institución',
+      rows: [
+        ...entities.map((e) => ({
+          id: `ent:${e.id}`,
+          title: clip(e.shortName, 24),
+          description: clip(e.name, 72),
+        })),
+        { id: 'ent:other', title: 'Otra institución', description: 'Envíanos un modelo y la configuramos' },
+      ],
+    });
+  }
+
+  private async onEntity(turn: SetupTurn, msg: Inbound): Promise<void> {
+    if (msg.replyId === 'ent:other') {
+      this.go(turn, 'other_name');
+      turn.out.push(
+        text('✍️ Escríbeme el *nombre completo* de la institución con la que tienes el contrato.'),
+      );
+      return;
+    }
+    const id = msg.replyId?.startsWith('ent:') ? msg.replyId.slice(4) : null;
+    const entity = id ? (await this.deps.store.listEntities()).find((e) => e.id === id) : undefined;
+    if (!entity) return this.askEntity(turn);
+    this.go(turn, 'contract_doc', { entityId: entity.id });
     turn.out.push(
       text(
-        `${opening}\n\nEnvíame el *PDF del contrato* que descargas de SECOP II (el que dice *CO1.PCCNTR…*). Usa 📎 → Documento.`,
+        `Perfecto, *${entity.name}*.\n\nEnvíame el *PDF del contrato* que descargas de SECOP II (el que dice *CO1.PCCNTR…*). Usa 📎 → Documento.`,
+      ),
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // "Otra": request to configure a new institution
+  // ---------------------------------------------------------------------------
+  private async onOtherName(turn: SetupTurn, msg: Inbound): Promise<void> {
+    const name = msg.text?.trim().replace(/\s+/g, ' ');
+    if (!name || name.length < 4 || name.length > 150) {
+      turn.out.push(
+        text('Escríbeme el nombre de la institución, por ejemplo: ESE Hospital Emiro Quintero Cañizares.'),
+      );
+      return;
+    }
+    this.go(turn, 'other_model', { otherName: name });
+    turn.out.push(
+      text(
+        `Gracias. Para configurar *${name}* necesito dos documentos:\n\n1️⃣ Un *modelo de cuenta de cobro* o informe de esa institución (PDF o Word), por ejemplo uno que ya hayas presentado.\n\nEnvíamelo primero (📎 → Documento).`,
+      ),
+    );
+  }
+
+  private async saveAnyDocument(turn: SetupTurn, msg: Inbound, code: string): Promise<string | null> {
+    if (msg.kind !== 'document' || !msg.media) return null;
+    if (!isPdf(msg.media.mime) && !WORD_MIMES.has(msg.media.mime)) return null;
+    const id = this.deps.newId();
+    await this.deps.store.addSupport({
+      id,
+      userId: turn.user.id,
+      code,
+      data: msg.media.data,
+      mime: msg.media.mime,
+      filename: msg.media.filename ?? code,
+      receivedAt: this.deps.clock.now().toISOString(),
+    });
+    return id;
+  }
+
+  private async onOtherModel(turn: SetupTurn, msg: Inbound): Promise<void> {
+    const id = await this.saveAnyDocument(turn, msg, 'MODELO_CUENTA');
+    if (!id) {
+      turn.out.push(
+        text(
+          'Necesito el modelo de cuenta de cobro en *PDF o Word*. Envíalo como documento (📎 → Documento).',
+        ),
+      );
+      return;
+    }
+    this.go(turn, 'other_contract', { otherModelId: id });
+    turn.out.push(
+      text(
+        '✅ Recibí el modelo.\n\n2️⃣ Ahora envíame tu *contrato* en PDF (el de SECOP II o el que firmaste).',
+      ),
+    );
+  }
+
+  private async onOtherContract(turn: SetupTurn, msg: Inbound): Promise<void> {
+    const id = await this.saveAnyDocument(turn, msg, 'CONTRATO_MUESTRA');
+    if (!id) {
+      turn.out.push(text('Necesito el contrato en *PDF*. Envíalo como documento (📎 → Documento).'));
+      return;
+    }
+    const ctx = this.ctx(turn);
+    const { firstForInstitution } = await this.deps.store.createInstitutionRequest({
+      userId: turn.user.id,
+      institutionName: ctx.otherName!,
+      modelSupportId: ctx.otherModelId!,
+      contractSupportId: id,
+    });
+    turn.state.flow = 'idle';
+    turn.state.step = 'start';
+    turn.state.context = {};
+    turn.out.push(
+      text(
+        `✅ ¡Listo! Recibí el modelo y tu contrato de *${ctx.otherName}*.\n\nNuestro equipo va a configurar esa institución y te escribimos por aquí cuando esté lista (normalmente en 1 o 2 días hábiles).${
+          firstForInstitution
+            ? '\n\n🎁 Como eres la primera persona de esta institución en usar el servicio, *tu primera cuenta de cobro es gratis*.'
+            : ''
+        }`,
       ),
     );
   }
 
   async handle(turn: SetupTurn, msg: Inbound): Promise<void> {
     switch (turn.state.step) {
+      case 'entity':
+        return this.onEntity(turn, msg);
+      case 'other_name':
+        return this.onOtherName(turn, msg);
+      case 'other_model':
+        return this.onOtherModel(turn, msg);
+      case 'other_contract':
+        return this.onOtherContract(turn, msg);
       case 'contract_doc':
         return this.onContractDoc(turn, msg);
       case 'clauses_doc':
@@ -241,7 +398,9 @@ export class SetupFlow {
       )
       .catch(() => undefined);
     const extraction = await this.deps.ai.extractContract(docs);
-    const entity = await this.deps.store.findEntity(extraction.entity.nit, extraction.entity.name);
+    const entity = ctx.entityId
+      ? await this.deps.store.getEntity(ctx.entityId)
+      : await this.deps.store.findEntity(extraction.entity.nit, extraction.entity.name);
     if (!entity) {
       turn.state.flow = 'idle';
       turn.state.step = 'start';
@@ -352,9 +511,12 @@ export class SetupFlow {
       );
       return;
     }
-    if (!e.startDate) return this.askStartDate(turn);
+    if (!e.startDate) {
+      this.askStartDate(turn);
+      return;
+    }
     this.go(turn, 'mode', { startDate: e.startDate });
-    return this.afterDates(turn);
+    this.afterDates(turn);
   }
 
   private async onDocIssuedIn(turn: SetupTurn, msg: Inbound): Promise<void> {

@@ -152,6 +152,35 @@ form.inline {
   background: #fff3d6;
   color: var(--warn);
 }
+form.stack {
+  display: grid;
+  gap: 10px;
+}
+form.stack label,
+.cols label {
+  display: grid;
+  gap: 4px;
+  font-size: 14px;
+  color: var(--muted);
+}
+form.stack label.check {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+form.stack input:not([type="checkbox"]),
+form.stack select {
+  width: 100%;
+  color: var(--text);
+}
+form.stack button {
+  justify-self: start;
+}
+.cols {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 10px 16px;
+}
 .login {
   max-width: 360px;
   margin: 12vh auto;

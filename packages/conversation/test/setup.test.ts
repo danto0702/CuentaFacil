@@ -19,6 +19,9 @@ describe('registration and contract setup by documents', () => {
     expect(await h.store.getUserByPhone(NEW_PHONE)).toBeNull();
 
     out = show(await h.press('consent:yes'));
+    expect(out[0]).toBe('✅ ¡Gracias! Ahora configuremos tu contrato.');
+    expect(out[1]).toMatch(/^🏥 ¿Con qué institución es tu contrato\? \{HRNO \| .* \| Otra institución\}$/);
+    out = show(await h.press(`ent:${DEMO_IDS.hrno}`));
     expect(out[0]).toMatch(/Envíame el \*PDF del contrato\*/);
     const user = await h.store.getUserByPhone(NEW_PHONE);
     expect(user).not.toBeNull();
@@ -75,6 +78,7 @@ describe('registration and contract setup by documents', () => {
   it('marks already-billed periods as delivered and stores the signature', async () => {
     const h = harness({ phone: NEW_PHONE, today: '2026-10-10' });
     await h.press('consent:yes');
+    await h.press(`ent:${DEMO_IDS.hrno}`);
     await h.document('contrato.pdf');
     await h.document('clausulado.pdf');
     await h.press('setup:ok');
@@ -136,6 +140,7 @@ describe('entity rules over the AI reading', () => {
       },
     ];
     await h.press('consent:yes');
+    await h.press(`ent:${DEMO_IDS.hrno}`);
     await h.document('contrato.pdf');
     let out = show(await h.document('clausulado.pdf'));
     expect(out[0]).toContain('• Inicio (acta de inicio): 01/10/2026 (base de contratos de la entidad)');
@@ -161,5 +166,37 @@ describe('entity rules over the AI reading', () => {
     expect(contract!.startDate).toBe('2026-10-01');
     expect(contract!.supervisor).toEqual({ name: 'CARLOS EDUARDO BONILLA DIAZ', title: 'Subgerente' });
     expect(contract!.obligations.map((o) => o.kind)).toEqual(['specific', 'specific', 'specific']);
+  });
+});
+
+describe('institution not configured yet ("Otra")', () => {
+  it('collects a model report and the contract, and grants a free first report to the first contractor', async () => {
+    const h = harness({ phone: NEW_PHONE, today: '2026-10-10' });
+    await h.press('consent:yes');
+    let out = show(await h.press('ent:other'));
+    expect(out[0]).toMatch(/nombre completo/);
+    out = show(await h.say('E.S.E. Hospital Emiro Quintero Cañizares'));
+    expect(out[0]).toMatch(/modelo de cuenta de cobro/);
+    expect(show(await h.photo())[0]).toMatch(/PDF o Word/);
+    out = show(await h.document('cuenta-modelo.pdf'));
+    expect(out[0]).toMatch(/Ahora envíame tu \*contrato\*/);
+    out = show(await h.document('contrato.pdf'));
+    expect(out[0]).toMatch(/configurar esa institución/);
+    expect(out[0]).toMatch(/tu primera cuenta de cobro es gratis/);
+    const user = (await h.store.getUserByPhone(NEW_PHONE))!;
+    expect(h.store.data.freeReports?.[user.id]).toBe(1);
+
+    // While the institution is being configured, Pascal says so instead of restarting setup.
+    expect(show(await h.say('hola'))[0]).toMatch(/Estamos configurando \*E\.S\.E\. Hospital Emiro/);
+
+    // A second contractor of the same institution (written differently) does not get it free.
+    const h2 = harness({ phone: '+573001112233', today: '2026-10-10' });
+    h2.store.data.institutionRequests = h.store.data.institutionRequests;
+    await h2.press('consent:yes');
+    await h2.press('ent:other');
+    await h2.say('Hospital Emiro Quintero Cañizares');
+    await h2.document('modelo.docx');
+    out = show(await h2.document('contrato.pdf'));
+    expect(out[0]).not.toMatch(/gratis/);
   });
 });
