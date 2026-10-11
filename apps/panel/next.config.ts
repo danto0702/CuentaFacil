@@ -5,6 +5,9 @@ const config: NextConfig = {
   transpilePackages: ['@cuentasbot/conversation', '@cuentasbot/docgen', '@cuentasbot/shared'],
   // Native / sandboxed libraries stay on the Node runtime, outside the bundle.
   serverExternalPackages: ['sharp', 'docx-templates', 'jszip', 'pdf-lib'],
+  // Entity formats with logos and the monthly registry Excel are uploaded through Server Actions and
+  // easily exceed the 1 MB default.
+  experimental: { serverActions: { bodySizeLimit: '25mb' } },
   webpack: (cfg) => {
     cfg.resolve.extensionAlias = { '.js': ['.ts', '.tsx', '.js'] };
     return cfg;
