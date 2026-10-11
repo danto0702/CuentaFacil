@@ -82,9 +82,10 @@ const ACTION =
 const REPORT =
   '(informe|informes|la cuenta|las cuentas|cuenta de cobro|cuentas de cobro|documentos|reporte|reportes)';
 const REDO =
-  '(rehacer|rehaz|rehazme|rehaga|repetir|repite|repiteme|volver a generar|vuelve a generar|volver a hacer|vuelve a hacer|volver a enviar|vuelve a enviar|reenvia|reenviame)';
+  // Stems, so every form counts: rehacer, rehace, rehaz, rehaga, rehízo, regenera, repite, reenvía…
+  '(reha\\w*|rehiz\\w*|regener\\w*|repit\\w*|repet\\w*|reenvi\\w*|(volver|vuelve|vuelva|vuelvas) a (generar|hacer|enviar|sacar|mandar))';
 const RESET =
-  '(reiniciar|reinicia|reiniciemos|resetear|resetea|reset|empezar de nuevo|comenzar de nuevo|borrar todo|borra todo)';
+  '(reinici\\w*|resete\\w*|reset|(empezar|empecemos|empieza|comenzar|comencemos) de (nuevo|cero)|borra(r)? todo)';
 const CONTINUE =
   '(iniciemos|iniciar|inicia|empecemos|empezar|empieza|comencemos|comenzar|realizar|realicemos|hagamos|sigamos|seguimos|seguir|sigue|continuemos|continuar|continua|trabajemos|trabajar|trabajando|volvamos|vamos|ver|veamos|muestrame|abre|abrir|retomemos|retomar)';
 const PATTERNS: [Command, RegExp][] = [

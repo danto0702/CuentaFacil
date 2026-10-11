@@ -291,6 +291,22 @@ describe('other flows', () => {
     expect(out[0]).toMatch(/^✍️ Ya tengo tu firma\. Si me envías otra, la reemplazo\./);
   });
 
+  it('never saves a short request as an activity', async () => {
+    const h = harness();
+    const notes = h.store.data.notes.length;
+    let out = show(await h.say('Rehace agosto'));
+    expect(out.join(' ')).not.toMatch(/Anotado/);
+    out = show(await h.say('rehízolo'));
+    expect(out.join(' ')).not.toMatch(/Anotado/);
+    out = show(await h.say('ok'));
+    expect(out[0]).toMatch(/^No estoy seguro de qué quieres hacer con «ok»\. ¿Lo anoto como una actividad\?/);
+    expect(h.store.data.notes.length).toBe(notes);
+    // A real activity, even a short one, is still recorded.
+    await h.say('Reunión con el alcalde');
+    await h.press(`c:${DEMO_IDS.salud}`);
+    expect(h.store.data.notes.length).toBe(notes + 1);
+  });
+
   it('changes the cut mode only for undelivered periods, after confirmation', async () => {
     const h = harness();
     await h.say('cambiar corte');

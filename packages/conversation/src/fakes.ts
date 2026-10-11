@@ -7,7 +7,7 @@ import type {
   SocialSecurity,
   SupportSegment,
 } from './domain.js';
-import type { AI, ClassifyResult, Clock, DraftResult, STT } from './ports.js';
+import type { AI, ClassifyResult, Clock, DraftResult, ShortIntent, STT } from './ports.js';
 import { normalize } from './text.js';
 
 const STOPWORDS = new Set(
@@ -143,6 +143,29 @@ export class FakeAI implements AI {
   async correctExtraction(e: ContractExtraction, instruction: string): Promise<ContractExtraction> {
     const m = /mensual\D+([\d.]+)/i.exec(instruction);
     return m ? { ...e, monthlyValue: Number(m[1]!.replace(/\./g, '')) } : structuredClone(e);
+  }
+
+  async interpretShort(text: string): Promise<ShortIntent> {
+    const t = text.toLowerCase();
+    const months = [
+      'enero',
+      'febrero',
+      'marzo',
+      'abril',
+      'mayo',
+      'junio',
+      'julio',
+      'agosto',
+      'septiembre',
+      'octubre',
+      'noviembre',
+      'diciembre',
+    ];
+    const m = months.findIndex((x) => t.includes(x));
+    const month = m >= 0 ? m + 1 : null;
+    if (/rehac|rehag|rehiz/.test(t)) return { intent: 'redo', month };
+    if (/^(ok|listo|gracias|dale)\b/.test(t)) return { intent: 'unclear', month: null };
+    return { intent: 'activity', month };
   }
 
   async classifyNote(text: string, obligations: Obligation[]): Promise<ClassifyResult> {

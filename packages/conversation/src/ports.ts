@@ -73,7 +73,27 @@ export interface ClassifyResult {
 
 export type DraftResult = { status: 'ok'; paragraphs: string[] } | { status: 'needs_input'; reason: string };
 
+/** What a short free-text message asks for (checked before saving it as an activity). */
+export interface ShortIntent {
+  intent:
+    | 'activity'
+    | 'redo'
+    | 'reset'
+    | 'open_report'
+    | 'draft'
+    | 'generate'
+    | 'status'
+    | 'menu'
+    | 'undo_note'
+    | 'signature'
+    | 'unclear';
+  /** 1..12 when the message names a month. */
+  month: number | null;
+}
+
 export interface AI {
+  /** Short messages only: is it a work activity or a request to the assistant? */
+  interpretShort(text: string): Promise<ShortIntent>;
   classifyNote(text: string, obligations: Obligation[]): Promise<ClassifyResult>;
   /** Must only use facts present in the notes; returns needs_input when there is nothing to say. */
   draftObligation(obligation: Obligation, notes: Note[]): Promise<DraftResult>;

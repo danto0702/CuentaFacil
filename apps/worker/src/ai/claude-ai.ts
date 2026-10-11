@@ -6,6 +6,7 @@ import type {
   DraftResult,
   Note,
   Obligation,
+  ShortIntent,
   SocialSecurity,
   SupportSegment,
 } from '@cuentasbot/conversation';
@@ -26,6 +27,35 @@ const WRITING_RULES = `Writing rules for the "Actividades realizadas por el cont
 - 1 to 3 sentences per paragraph; no first person, no evaluative adjectives ("excelente", "exitosa"), no emojis.
 - Keep proper nouns and acronyms as written in the notes (UPGD, PIC, SIVIGILA, PAI, EBS).
 - Do not restate the obligation as if it were the activity.`;
+
+const shortIntentSchema = z.object({
+  intent: z.enum([
+    'activity',
+    'redo',
+    'reset',
+    'open_report',
+    'draft',
+    'generate',
+    'status',
+    'menu',
+    'undo_note',
+    'signature',
+    'unclear',
+  ]),
+  month: z.number().int().min(1).max(12).nullable(),
+});
+
+const SHORT_INTENT_RULES = `A Colombian public-sector contractor writes to Pascal, a WhatsApp assistant that records their work activities and prepares their monthly reports (cuentas de cobro). Decide what this short message is:
+- activity: something they did at work (to be recorded), e.g. "reunión con el alcalde", "visité 3 IPS".
+- redo: regenerate a report already delivered, e.g. "rehace agosto", "vuelve a sacar el de julio", "otra vez el informe de julio".
+- reset: start a report over / delete its notes, e.g. "reinicia agosto", "borra todo lo de agosto".
+- open_report: work on / continue the report of a month, e.g. "vamos con agosto", "sigamos con la cuenta de septiembre".
+- draft: write the report now, e.g. "haz el informe", "ya está todo".
+- generate: produce the final documents, e.g. "genera los documentos".
+- status: what is missing, e.g. "qué me falta".
+- menu: greetings or asking for options. undo_note: delete the last note. signature: upload or change their signature.
+- unclear: acknowledgements ("ok", "gracias", "listo") or anything else that is not clearly a work activity.
+month: 1-12 if a month is named, else null. Spanish may have typos or missing accents.`;
 
 const classifySchema = z.object({
   obligation_number: z
@@ -283,6 +313,19 @@ export class ClaudeAI implements AI {
       schema: extractionSchema,
     });
     return normalizeExtraction(r);
+  }
+
+  async interpretShort(text: string): Promise<ShortIntent> {
+    const r = await this.llm.structured({
+      purpose: 'interpret_short',
+      model: this.models.fast,
+      effort: 'low',
+      maxTokens: 500,
+      system: SHORT_INTENT_RULES,
+      content: [{ type: 'text', text: `Message: ${text}` }],
+      schema: shortIntentSchema,
+    });
+    return { intent: r.intent, month: r.month };
   }
 
   async classifyNote(text: string, obligations: Obligation[]): Promise<ClassifyResult> {

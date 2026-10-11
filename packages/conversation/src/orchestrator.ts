@@ -26,12 +26,14 @@ import type {
 } from './domain.js';
 import { noteSupports, pilaMonthFor } from './domain.js';
 import { type Command, forcedNote, matchCommand, matchMonthRequest } from './intents.js';
-import type { Deps, Inbound, ListRow, Outgoing } from './ports.js';
+import type { Deps, Inbound, ListRow, Outgoing, ShortIntent } from './ports.js';
 import { POLICY_VERSION, SETUP_FLOW, SetupFlow } from './setup.js';
 import { type ActivityWhen, clip, MONTHS, parseActivityDate, parseActivityWhen } from './text.js';
 
 const MAX_BUTTONS = 3;
 const MAX_ROWS = 10;
+/** Free text up to this many words is checked with the AI before being saved as an activity. */
+const SHORT_TEXT_WORDS = 5;
 
 type Ctx = Record<string, unknown>;
 
@@ -350,6 +352,13 @@ export class Orchestrator {
           text('Envíame la firma como *foto* (imagen), no como documento. Para salir escribe *menú*.'),
         );
         return;
+      case 'short_unclear': {
+        const t = (turn.state.context as { noteText: string }).noteText;
+        this.reset(turn);
+        if (msg.replyId === 'short:note') return this.startNote(turn, t);
+        if (msg.kind === 'text' && msg.text) return this.freeText(turn, msg.text);
+        return this.menu(turn, false);
+      }
       case 'reset_pick_contract':
         return this.onPickContract(turn, msg, async (c) => {
           const p = await this.currentPeriod(c);
@@ -619,7 +628,7 @@ export class Orchestrator {
       return;
     }
     if (msg.kind === 'document' && msg.media) return this.receiveSupport(turn, msg);
-    if (msg.kind === 'text' && msg.text) return this.startNote(turn, msg.text);
+    if (msg.kind === 'text' && msg.text) return this.freeText(turn, msg.text);
     if (msg.kind === 'reply' && msg.replyId?.startsWith('chg:'))
       return this.askObligation(turn, msg.replyId.slice(4));
     if (msg.kind === 'reply' && msg.replyId?.startsWith('del:')) {
@@ -637,6 +646,42 @@ export class Orchestrator {
       return;
     }
     return this.menu(turn, false);
+  }
+
+  /**
+   * Free text that matched no command. Real activities are usually described in several words; a short
+   * message ("Rehace agosto", "ok", "vamos con julio") is checked with the AI before saving it as an
+   * activity, so requests are never recorded as work done.
+   */
+  private async freeText(turn: Turn, text: string): Promise<void> {
+    const words = text.trim().split(/\s+/).length;
+    if (words > SHORT_TEXT_WORDS) return this.startNote(turn, text);
+    const r = await this.deps.ai
+      .interpretShort(text)
+      .catch((): ShortIntent => ({ intent: 'activity', month: null }));
+    if (r.intent === 'activity') return this.startNote(turn, text);
+    if (r.month && ['redo', 'reset', 'open_report', 'draft', 'generate'].includes(r.intent))
+      return this.startMonthReport(turn, r.month, r.intent === 'redo', r.intent === 'reset');
+    const cmd: Partial<Record<ShortIntent['intent'], Command>> = {
+      redo: 'resend',
+      reset: 'reset',
+      open_report: 'status',
+      draft: 'draft',
+      generate: 'generate',
+      status: 'status',
+      menu: 'menu',
+      undo_note: 'undo_note',
+      signature: 'signature',
+    };
+    const c = cmd[r.intent];
+    if (c) return this.command(turn, c);
+    this.setFlow(turn, 'short_unclear', 'ask', { noteText: text });
+    turn.out.push(
+      buttons(`No estoy seguro de qué quieres hacer con «${clip(text, 60)}». ¿Lo anoto como una actividad?`, [
+        { id: 'short:note', title: 'Sí, anotarla' },
+        { id: 'menu:menu', title: 'No, ver menú' },
+      ]),
+    );
   }
 
   private async startNote(turn: Turn, noteText: string, whenOverride?: ActivityWhen): Promise<void> {
@@ -697,7 +742,7 @@ export class Orchestrator {
       if (msg.kind === 'text' && msg.text && msg.text.trim().split(/\s+/).length > 4) {
         // A new note instead of a date.
         this.reset(turn);
-        return this.startNote(turn, msg.text);
+        return this.freeText(turn, msg.text);
       }
       turn.out.push(text('Escríbeme la fecha (por ejemplo *15/07/2026*) o el mes (por ejemplo *julio*).'));
       return;
@@ -723,7 +768,7 @@ export class Orchestrator {
       else if (msg.kind === 'text' && msg.text) {
         // A new note while we were asking: drop the question and start over with the new text.
         this.setFlow(turn, 'idle', 'start', { pendingEvidence: ctx.evidenceIds });
-        return this.startNote(turn, msg.text);
+        return this.freeText(turn, msg.text);
       }
     }
     if (!chosen.length) {
@@ -832,7 +877,7 @@ export class Orchestrator {
       o = c.obligations.find((x) => x.number === Number(msg.text));
     if (!o) {
       this.reset(turn);
-      if (msg.kind === 'text' && msg.text) return this.startNote(turn, msg.text);
+      if (msg.kind === 'text' && msg.text) return this.freeText(turn, msg.text);
       return;
     }
     if (!noteSupports(note, o.key)) {
@@ -863,7 +908,7 @@ export class Orchestrator {
     if (!o) {
       if (msg.kind === 'text' && msg.text) {
         this.reset(turn);
-        return this.startNote(turn, msg.text);
+        return this.freeText(turn, msg.text);
       }
       return this.askObligation(turn, noteId, 'Elige la obligación de la lista:');
     }

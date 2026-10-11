@@ -86,6 +86,12 @@ describe('matchMonthRequest', () => {
     expect(matchMonthRequest('vuelve a generar la cuenta de septiembre')).toEqual({ month: 9, redo: true });
   });
 
+  it('understands any form of the verbs', () => {
+    expect(matchMonthRequest('Rehace Agosto')).toEqual({ month: 8, redo: true });
+    expect(matchMonthRequest('rehágame el de julio')).toEqual({ month: 7, redo: true });
+    expect(matchMonthRequest('reinicia agosto')).toEqual({ month: 8, redo: false, reset: true });
+  });
+
   it('reads starting and resetting a month', () => {
     expect(matchMonthRequest('Iniciemos a realizar la cuenta de agosto')).toEqual({ month: 8, redo: false });
     expect(matchMonthRequest('reiniciar agosto')).toEqual({ month: 8, redo: false, reset: true });
