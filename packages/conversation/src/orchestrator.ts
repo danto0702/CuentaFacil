@@ -33,6 +33,9 @@ import { type ActivityWhen, clip, MONTHS, parseActivityDate, parseActivityWhen }
 
 const MAX_BUTTONS = 3;
 const MAX_ROWS = 10;
+/** A photo without caption offers the activities registered in the last days. */
+const PHOTO_RECENT_DAYS = 7;
+const PHOTO_RECENT_NOTES = 8;
 const CONTRACT_ACTIVE =
   '🎉 ¡Tu contrato quedó activo! Desde ya cuéntame lo que haces cada día: texto, audio o fotos. Escribe *menú* para ver todas las opciones.';
 /** Free text up to this many words is checked with the AI before being saved as an activity. */
@@ -303,6 +306,19 @@ export class Orchestrator {
     if (msg.kind === 'image' && msg.media && turn.state.flow === 'signature_upload') {
       return this.saveSignature(turn, msg);
     }
+    if (msg.kind === 'image' && msg.media && turn.state.flow === 'photo_pick') {
+      // More photos of the same album while we ask which activity they belong to.
+      const id = this.deps.newId();
+      await this.deps.store.addEvidence({
+        id,
+        userId: turn.user.id,
+        data: msg.media.data,
+        mime: msg.media.mime,
+      });
+      const ctx = turn.state.context as { pendingEvidence?: string[] };
+      ctx.pendingEvidence = [...(ctx.pendingEvidence ?? []), id];
+      return;
+    }
     if (msg.kind === 'image' && msg.media && turn.state.flow !== 'idle') {
       if (turn.state.flow === 'note_contract') {
         const id = this.deps.newId();
@@ -358,6 +374,8 @@ export class Orchestrator {
       case 'pay_wait':
       case 'pay_code':
         return this.onPayment(turn, msg);
+      case 'photo_pick':
+        return this.onPhotoPick(turn, msg);
       case 'amount_confirm':
       case 'amount_cert':
         return this.onAmountChoice(turn, msg);
@@ -652,8 +670,7 @@ export class Orchestrator {
       const caption = msg.text?.trim();
       if (caption) return this.startNote(turn, caption);
       // Albums arrive as several messages: ask only once.
-      if (pending.length === 1)
-        turn.out.push(text('📷 Recibí tu foto. ¿Qué actividad muestra? Cuéntamelo en un mensaje.'));
+      if (pending.length === 1) await this.askPhotoActivity(turn, pending);
       return;
     }
     if (msg.kind === 'document' && msg.media) return this.receiveSupport(turn, msg);
@@ -675,6 +692,124 @@ export class Orchestrator {
       return;
     }
     return this.menu(turn, false);
+  }
+
+  // -------------------------------------------------------------------------
+  // Photos without a caption: attach them to an activity already registered, to an obligation by its
+  // number, or describe a new activity.
+  // -------------------------------------------------------------------------
+  private async recentNotes(turn: Turn): Promise<Note[]> {
+    const today = this.deps.clock.today();
+    const notes: Note[] = [];
+    for (const c of await this.activeContracts(turn))
+      notes.push(...(await this.deps.store.listNotes(c.id, addDays(today, -PHOTO_RECENT_DAYS), today)));
+    return notes.sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, PHOTO_RECENT_NOTES);
+  }
+
+  private async askPhotoActivity(turn: Turn, pending: string[]): Promise<void> {
+    const notes = await this.recentNotes(turn);
+    if (!notes.length) {
+      turn.out.push(
+        text(
+          '📷 Recibí tu foto. ¿Qué actividad muestra? Cuéntamelo en un mensaje, o escribe el *número de la obligación* a la que corresponde.',
+        ),
+      );
+      this.setFlow(turn, 'photo_pick', 'ask', { pendingEvidence: pending });
+      return;
+    }
+    const contracts = await this.deps.store.listContracts(turn.user.id);
+    const oblNumber = (n: Note) => {
+      const c = contracts.find((x) => x.id === n.contractId);
+      return c?.obligations.find((o) => o.key === n.obligationKey)?.number;
+    };
+    this.setFlow(turn, 'photo_pick', 'ask', { pendingEvidence: pending });
+    turn.out.push(
+      list(
+        '📷 Recibí tu foto. ¿De qué actividad es? Elige una de las que ya registraste, escribe el *número de la obligación* o cuéntame la actividad en un mensaje.',
+        'Elegir actividad',
+        [
+          ...notes.map((n) => ({
+            id: `ph:${n.id}`,
+            title: clip(n.text, 24),
+            description: clip(
+              `${formatDdMmYyyy(n.date)}${oblNumber(n) ? ` · obligación ${oblNumber(n)}` : ''} · ${n.text}`,
+              72,
+            ),
+          })),
+          { id: 'ph:new', title: 'Es otra actividad', description: 'La describo en un mensaje' },
+        ],
+      ),
+    );
+  }
+
+  private async onPhotoPick(turn: Turn, msg: Inbound): Promise<void> {
+    const pending = ((turn.state.context as { pendingEvidence?: string[] }).pendingEvidence ?? []).slice();
+    const photos = (n: number) => (n === 1 ? 'la foto' : `las ${n} fotos`);
+    // An activity already registered.
+    if (msg.replyId?.startsWith('ph:') && msg.replyId !== 'ph:new') {
+      const note = await this.deps.store.getNote(msg.replyId.slice(3));
+      await this.deps.store.updateNote({ ...note, evidenceIds: [...note.evidenceIds, ...pending] });
+      this.setFlow(turn, 'idle', 'start', {}); // the photos are placed
+      turn.out.push(text(`✅ Agregué ${photos(pending.length)} a «${clip(note.text, 80)}».`));
+      return;
+    }
+    if (msg.replyId === 'ph:new') {
+      this.setFlow(turn, 'idle', 'start', { pendingEvidence: pending });
+      turn.out.push(text('Cuéntame en un mensaje qué actividad muestra.'));
+      return;
+    }
+    const t = (msg.text ?? '').trim();
+    // The obligation number: the latest activity of that obligation in the open report gets the photos;
+    // if it has none yet, a photo record is created for it.
+    const num = /^(?:obligaci[oó]n\s*)?(\d{1,3})$/i.exec(t);
+    if (num) {
+      const n = Number(num[1]);
+      const cs = await this.activeContracts(turn);
+      const c = cs.find((x) => x.obligations.some((o) => o.number === n));
+      const o = c?.obligations.find((x) => x.number === n);
+      if (!c || !o) {
+        turn.out.push(
+          text(
+            `No encuentro la obligación ${n} en tus contratos. Escribe otro número o cuéntame la actividad.`,
+          ),
+        );
+        return;
+      }
+      const p = await this.currentPeriod(c);
+      const notes = p
+        ? (await this.deps.store.listNotes(c.id, p.from, p.to)).filter((x) => noteSupports(x, o.key))
+        : [];
+      const latest = notes.sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0];
+      this.setFlow(turn, 'idle', 'start', {}); // the photos are placed
+      if (latest) {
+        await this.deps.store.updateNote({ ...latest, evidenceIds: [...latest.evidenceIds, ...pending] });
+        turn.out.push(
+          text(`✅ Agregué ${photos(pending.length)} a la obligación ${n}, en «${clip(latest.text, 80)}».`),
+        );
+        return;
+      }
+      await this.deps.store.addNote({
+        id: this.deps.newId(),
+        userId: turn.user.id,
+        contractId: c.id,
+        date: this.deps.clock.today(),
+        text: `Registro fotográfico de la obligación ${n}.`,
+        obligationKey: o.key,
+        confidence: 1,
+        evidenceIds: pending,
+        createdAt: this.deps.clock.now().toISOString(),
+      });
+      turn.out.push(
+        text(
+          `✅ Guardé ${photos(pending.length)} en la obligación ${n}: «${clip(o.text, 80)}». Si quieres, cuéntame qué actividad fue para que quede en el informe.`,
+        ),
+      );
+      return;
+    }
+    // Anything else describes the activity: a new note with the photos.
+    this.setFlow(turn, 'idle', 'start', { pendingEvidence: pending });
+    if (msg.kind === 'text' && t) return this.freeText(turn, t);
+    return this.dispatch(turn, msg);
   }
 
   /**

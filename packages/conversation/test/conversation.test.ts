@@ -16,9 +16,9 @@ describe('recorded conversation: a month of notes to delivery', () => {
     expect(out[0]).toMatch(/^✅ Anotado el 28\/09\/2026 en la obligación 4: «Capacitación y seguimiento/);
 
     // Album: two photos, one question, then the caption becomes the note (dated "ayer").
-    expect(show(await h.photo())).toEqual([
-      '📷 Recibí tu foto. ¿Qué actividad muestra? Cuéntamelo en un mensaje.',
-    ]);
+    const photoOut = show(await h.photo());
+    expect(photoOut[0]).toMatch(/^📷 Recibí tu foto\. ¿De qué actividad es\?/);
+    expect(photoOut[0]).toContain('Es otra actividad');
     expect(await h.photo()).toEqual([]);
     await h.say('Ayer asistí a la reunión de entidades territoriales en el COVE de Ábrego');
     out = show(await h.press(`c:${DEMO_IDS.salud}`));
@@ -329,6 +329,40 @@ describe('other flows', () => {
     h.store.data.consents = [];
     expect(show(await h.press('terms:no'))[0]).toMatch(/^Entendido\. Sin aceptar los términos/);
     expect(show(await h.say('hola'))[0]).toMatch(/^📜 Para seguir necesito que aceptes los términos/);
+  });
+
+  it('attaches a photo to an activity already registered, or to an obligation by its number', async () => {
+    const h = harness();
+    await h.say('Hoy capacité a 30 personas en misión médica en El Carmen');
+    await h.press(`c:${DEMO_IDS.salud}`);
+    const note = h.store.data.notes.at(-1)!;
+    // Photo after the text: pick the activity from the list (album of 2 photos).
+    let out = show(await h.photo());
+    expect(out[0]).toContain('Hoy capacité a 30');
+    expect(out[0]).toContain('Es otra actividad');
+    expect(await h.photo()).toEqual([]);
+    out = show(await h.press(`ph:${note.id}`));
+    expect(out[0]).toBe(
+      '✅ Agregué las 2 fotos a «Hoy capacité a 30 personas en misión médica en El Carmen».',
+    );
+    expect((await h.store.getNote(note.id)).evidenceIds).toHaveLength(2);
+    const notes = h.store.data.notes.length;
+
+    // Or the obligation number.
+    await h.photo();
+    out = show(await h.say('4'));
+    expect(out[0]).toMatch(/^✅ Agregué la foto a la obligación 4, en «Hoy capacité/);
+    expect((await h.store.getNote(note.id)).evidenceIds).toHaveLength(3);
+    expect(h.store.data.notes.length).toBe(notes);
+
+    // An obligation without activities yet gets a photo record.
+    await h.photo();
+    out = show(await h.say('obligación 2'));
+    expect(out[0]).toMatch(/^✅ Guardé la foto en la obligación 2: /);
+    expect(h.store.data.notes.at(-1)).toMatchObject({
+      obligationKey: 'specific-2',
+      evidenceIds: [expect.any(String)],
+    });
   });
 
   it('changes the cut mode only for undelivered periods, after confirmation', async () => {
