@@ -365,7 +365,8 @@ export class MemoryStore implements Store {
     if (c.usedAt) return { ok: false, reason: 'used' };
     if (c.expiresAt < new Date().toISOString()) return { ok: false, reason: 'expired' };
     const charge = await this.getCharge(chargeId);
-    if (charge.amount !== c.amount) return { ok: false, reason: 'wrong_amount' };
+    if (charge.amount !== c.amount || charge.product !== c.product)
+      return { ok: false, reason: 'wrong_amount' };
     c.usedAt = new Date().toISOString();
     return { ok: true };
   }

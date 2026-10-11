@@ -14,7 +14,6 @@ import {
 import { allyStatusText, findAllyCode, levelUpText, NOT_ALLY_TEXT, referralText } from './ally.js';
 import { BRAND, SIGNATURE } from './brand.js';
 import type {
-  BillingSettings,
   Charge,
   Contract,
   ConversationState,
@@ -34,6 +33,8 @@ import { type ActivityWhen, clip, MONTHS, parseActivityDate, parseActivityWhen }
 
 const MAX_BUTTONS = 3;
 const MAX_ROWS = 10;
+const CONTRACT_ACTIVE =
+  '🎉 ¡Tu contrato quedó activo! Desde ya cuéntame lo que haces cada día: texto, audio o fotos. Escribe *menú* para ver todas las opciones.';
 /** Free text up to this many words is checked with the AI before being saved as an activity. */
 const SHORT_TEXT_WORDS = 5;
 
@@ -253,6 +254,13 @@ export class Orchestrator {
       return;
     }
 
+    // Contracts whose configuration is not paid yet are not active (terms, section 5).
+    if (!turn.state.flow.startsWith('pay_') && turn.state.flow !== SETUP_FLOW) {
+      const cmd = msg.kind === 'text' && msg.text ? matchCommand(msg.text) : null;
+      const open = cmd && ['support', 'about', 'help', 'add_contract', 'my_data', 'ally'].includes(cmd);
+      if (!open && msg.replyId !== 'menu:support' && (await this.setupGate(turn, false))) return;
+    }
+
     if (turn.state.flow === SETUP_FLOW) {
       const cmd = msg.kind === 'text' && msg.text ? matchCommand(msg.text) : null;
       if (cmd === 'cancel') {
@@ -262,7 +270,12 @@ export class Orchestrator {
         );
         return;
       }
-      if (cmd !== 'about' && cmd !== 'support' && cmd !== 'ally') return this.setup.handle(turn, msg);
+      if (cmd !== 'about' && cmd !== 'support' && cmd !== 'ally') {
+        await this.setup.handle(turn, msg);
+        // A contract configured in live mode starts with its configuration charge pending.
+        if (turn.state.flow !== SETUP_FLOW) await this.setupGate(turn, true);
+        return;
+      }
     }
 
     if (msg.kind === 'text' && msg.text) {
@@ -534,7 +547,7 @@ export class Orchestrator {
 
   private async activeContracts(turn: Turn, date?: IsoDate): Promise<Contract[]> {
     const d = date ?? this.deps.clock.today();
-    const all = await this.deps.store.listContracts(turn.user.id);
+    const all = await this.unpaidFilter(await this.deps.store.listContracts(turn.user.id));
     const active = all.filter((c) => compareIso(c.startDate, d) <= 0 && compareIso(d, c.endDate) <= 0);
     if (active.length || date) return active;
     // Nothing in force today: fall back to contracts with a pending period.
@@ -1804,8 +1817,6 @@ export class Orchestrator {
     const { store } = this.deps;
     const billing = await store.getBillingSettings();
     if (billing.mode === 'pilot') return 'pilot';
-    const setup = await store.findCharge(c.id, 'setup', null);
-    const setupDue = !setup || setup.status === 'pending';
     const existing = await store.findCharge(c.id, 'report', p.number);
     if (existing && existing.status !== 'pending' && existing.status !== 'cancelled')
       return existing.status === 'free' ? 'free' : existing.status === 'pilot' ? 'pilot' : 'paid';
@@ -1814,35 +1825,33 @@ export class Orchestrator {
       product: 'report',
       contractId: c.id,
       periodNumber: p.number,
-      coversSetup: setupDue,
-      amount: billing.prices.report + (setupDue ? billing.prices.setup : 0),
+      coversSetup: false,
+      amount: billing.prices.report,
     });
-    // A free report of the Aliado covers the report; the configuration, if due, is still paid.
-    if (!setupDue && (await store.useFreeGrant(turn.user.id, charge.id))) {
+    if (await store.useFreeGrant(turn.user.id, charge.id)) {
       await store.settleCharge(charge.id, 'free', 'free_grant');
       turn.out.push(text('🎁 Usé una de tus cuentas gratis para este informe.'));
       return 'free';
     }
-    return this.askPayment(turn, c, p, charge, billing);
+    return this.askPayment(turn, c, p, charge);
   }
 
-  private async askPayment(
-    turn: Turn,
-    c: Contract,
-    p: Period,
-    charge: Charge,
-    billing: BillingSettings,
-  ): Promise<null> {
-    this.setFlow(turn, 'pay_wait', 'wait', { chargeId: charge.id, contractId: c.id, periodNumber: p.number });
-    const detail = charge.coversSetup
-      ? ` (informe ${formatCOP(billing.prices.report)} + configuración del contrato ${formatCOP(billing.prices.setup)})`
-      : '';
-    const intro = `💳 Tu ${this.reportLabel(c, p)} está listo. Para entregártelo el valor es *${formatCOP(charge.amount)}*${detail}.`;
+  /** Payment request for a report (p) or for the contract's configuration (p = null). */
+  private async askPayment(turn: Turn, c: Contract, p: Period | null, charge: Charge): Promise<null> {
+    this.setFlow(turn, 'pay_wait', 'wait', {
+      chargeId: charge.id,
+      contractId: c.id,
+      periodNumber: p?.number ?? null,
+    });
+    const intro = p
+      ? `💳 Tu ${this.reportLabel(c, p)} está listo. Para entregártelo el valor es *${formatCOP(charge.amount)}*.`
+      : `💳 Para activar tu contrato *${c.fullNumber}* el valor de la configuración es *${formatCOP(charge.amount)}*. Cuando se confirme el pago empezamos a registrar tus actividades.`;
+    const after = p ? 'te envío los documentos' : 'te aviso';
     const url = this.deps.payments?.checkoutUrl(charge, turn.user.phone);
     if (url) {
       turn.out.push({
         type: 'cta_url',
-        text: `${intro}\n\nPaga en línea (tarjeta, PSE, Nequi o Bancolombia) y te envío los documentos apenas se confirme.`,
+        text: `${intro}\n\nPaga en línea (tarjeta, PSE, Nequi o Bancolombia) y ${after} apenas se confirme.`,
         button: 'Pagar en línea',
         url,
       });
@@ -1896,7 +1905,37 @@ export class Orchestrator {
     await this.deps.store.settleCharge(charge.id, 'paid', 'cash_code');
     this.reset(turn);
     turn.out.push(text(`✅ Código aceptado: ${formatCOP(charge.amount)}.`));
+    if (charge.product === 'setup') {
+      turn.out.push(text(CONTRACT_ACTIVE));
+      return;
+    }
     return this.startGenerate(turn, await this.deps.store.getContract(ctx.contractId));
+  }
+
+  /** Contracts whose configuration charge is pending are left out until it is paid. */
+  private async unpaidFilter(cs: Contract[]): Promise<Contract[]> {
+    const out: Contract[] = [];
+    for (const c of cs)
+      if ((await this.deps.store.findCharge(c.id, 'setup', null))?.status !== 'pending') out.push(c);
+    return out;
+  }
+
+  /**
+   * When every contract of the user waits for its configuration payment, asks for it (and returns true).
+   * `justConfigured`: right after the setup, ask for the newest contract even if others are active.
+   */
+  private async setupGate(turn: Turn, justConfigured: boolean): Promise<boolean> {
+    const all = await this.deps.store.listContracts(turn.user.id);
+    if (!all.length) return false;
+    const pending: { c: Contract; charge: Charge }[] = [];
+    for (const c of all) {
+      const charge = await this.deps.store.findCharge(c.id, 'setup', null);
+      if (charge?.status === 'pending') pending.push({ c, charge });
+    }
+    if (!pending.length || (!justConfigured && pending.length < all.length)) return false;
+    const { c, charge } = pending.at(-1)!;
+    await this.askPayment(turn, c, null, charge);
+    return true;
   }
 
   /** Online payment confirmed (Wompi): thank the contractor and deliver the report. */
@@ -1910,6 +1949,7 @@ export class Orchestrator {
     turn.out.push(text(`✅ Recibí tu pago de ${formatCOP(charge.amount)}. ¡Gracias!`));
     if (charge.product === 'report')
       await this.startGenerate(turn, await store.getContract(charge.contractId));
+    else turn.out.push(text(CONTRACT_ACTIVE));
     turn.state.updatedAt = this.deps.clock.now().toISOString();
     await store.saveConversation(turn.state);
     return { to: user.phone, out: turn.out };

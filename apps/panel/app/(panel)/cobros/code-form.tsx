@@ -26,7 +26,7 @@ export function CashCodeForm({
       </select>
       <select name="product" defaultValue="report">
         <option value="report">Informe ({cop(prices.report)})</option>
-        <option value="both">Primer informe + configuración ({cop(prices.report + prices.setup)})</option>
+        <option value="setup">Configuración de un contrato ({cop(prices.setup)})</option>
       </select>
       <button type="submit" disabled={pending}>
         {pending ? 'Generando…' : 'Generar código'}

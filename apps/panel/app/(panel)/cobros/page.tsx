@@ -36,7 +36,7 @@ export default async function BillingPage() {
         <p className="muted">
           En <strong>piloto</strong> no se cobra nada. En <strong>cobro</strong>, antes de entregar cada
           informe Pascal usa una cuenta gratis del Aliado, un código en efectivo o el enlace de pago de Wompi;
-          el primer informe de cada contrato incluye la configuración.
+          Cada contrato nuevo se activa cuando se paga su configuración.
         </p>
         <form action={setBillingMode} className="inline">
           <label>

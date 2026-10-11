@@ -367,7 +367,8 @@ export class SupabaseStore implements Store {
     if (c.used_at) return { ok: false, reason: 'used' };
     if (str(c.expires_at) < new Date().toISOString()) return { ok: false, reason: 'expired' };
     const charge = await this.getCharge(chargeId);
-    if (num(c.amount) !== charge.amount) return { ok: false, reason: 'wrong_amount' };
+    if (num(c.amount) !== charge.amount || c.product !== charge.product)
+      return { ok: false, reason: 'wrong_amount' };
     const used = must(
       await this.sb
         .from('cash_codes')

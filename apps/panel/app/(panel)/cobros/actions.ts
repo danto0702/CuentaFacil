@@ -29,12 +29,10 @@ export interface CashCodeState {
 /** Cash payment received: a code tied to the contractor, for one service, valid 30 days. */
 export async function createCashCode(_prev: CashCodeState, form: FormData): Promise<CashCodeState> {
   const userId = s(form, 'userId');
-  // The configuration is always paid with the first report, so a code covers a report (and the
-  // configuration when it is the contract's first one).
-  const both = s(form, 'product') === 'both';
+  const product = s(form, 'product') === 'setup' ? 'setup' : 'report';
   if (!userId) return { error: 'Elige el contratista.' };
   const { prices } = await billingSettings();
-  const amount = both ? prices.setup + prices.report : prices.report;
+  const amount = product === 'setup' ? prices.setup : prices.report;
   const sb = await supabaseServer();
   const { data: auth } = await sb.auth.getUser();
   for (let attempt = 0; attempt < 5; attempt++) {
@@ -42,7 +40,7 @@ export async function createCashCode(_prev: CashCodeState, form: FormData): Prom
     const { error } = await sb.from('cash_codes').insert({
       code,
       user_id: userId,
-      product: 'report',
+      product,
       amount,
       created_by: auth.user?.id ?? null,
     });

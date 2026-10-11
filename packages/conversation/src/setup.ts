@@ -799,15 +799,27 @@ export class SetupFlow {
     turn.state.context = {};
     const next = periods.find((p) => p.status !== 'delivered');
     const billing = await store.getBillingSettings();
-    const price =
-      billing.mode === 'pilot'
-        ? 'Durante el piloto la configuración no tiene costo.'
-        : `💳 La configuración de este contrato vale ${formatCOP(billing.prices.setup)}; la pagas junto con tu primer informe, antes de recibir los documentos.`;
+    // Live mode: the contract is active once its configuration is paid (terms, section 5); the
+    // orchestrator asks for the payment right after this message.
+    if (billing.mode === 'live')
+      await store.openCharge({
+        userId: user.id,
+        product: 'setup',
+        contractId: contract.id,
+        periodNumber: null,
+        coversSetup: false,
+        amount: billing.prices.setup,
+      });
+    const price = 'Durante el piloto la configuración no tiene costo.\n\n';
     turn.out.push(
       text(
         `🎉 ¡Listo! Tu contrato *${contract.fullNumber}* quedó configurado: ${periods.length} cuentas (${
           contract.periodMode === 'month_end' ? 'corte a fin de mes' : 'corte fecha a fecha'
-        }).${next ? `\nTu próxima cuenta va del ${formatDdMmYyyy(next.from)} al ${formatDdMmYyyy(next.to)}.` : ''}\n\n${price}\n\nDesde ya cuéntame lo que haces cada día: texto, audio o fotos. Yo lo anoto en la obligación que corresponde. Escribe *menú* para ver todas las opciones.`,
+        }).${next ? `\nTu próxima cuenta va del ${formatDdMmYyyy(next.from)} al ${formatDdMmYyyy(next.to)}.` : ''}${
+          billing.mode === 'pilot'
+            ? `\n\n${price}Desde ya cuéntame lo que haces cada día: texto, audio o fotos. Yo lo anoto en la obligación que corresponde. Escribe *menú* para ver todas las opciones.`
+            : ''
+        }`,
       ),
     );
   }

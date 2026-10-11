@@ -105,6 +105,29 @@ describe('registration and contract setup by documents', () => {
     ]);
   });
 
+  it('in live billing, asks for the configuration payment before activating the contract', async () => {
+    const h = harness({ phone: NEW_PHONE, today: '2026-10-10' });
+    h.store.data.billing = { mode: 'live', prices: { setup: 15_000, report: 50_000 } };
+    await h.press('consent:yes');
+    await h.press(`ent:${DEMO_IDS.hrno}`);
+    await h.document('contrato.pdf');
+    await h.document('clausulado.pdf');
+    await h.press('setup:ok');
+    await h.say('01/10/2026');
+    await h.press('mode:month_end');
+    await h.press('cert:no');
+    await h.press('prior:none');
+    const out = show(await h.press('sig:skip'));
+    expect(out.at(-2)).toMatch(/^🎉 ¡Listo! Tu contrato .* quedó configurado/);
+    expect(out.at(-2)).not.toContain('Desde ya cuéntame');
+    expect(out.at(-1)).toMatch(
+      /^💳 Para activar tu contrato .* el valor de la configuración es \*\$ 15\.000\*/,
+    );
+    const user = (await h.store.getUserByPhone(NEW_PHONE))!;
+    const [contract] = await h.store.listContracts(user.id);
+    expect((await h.store.findCharge(contract!.id, 'setup', null))?.status).toBe('pending');
+  });
+
   it('pauses setup with "cancelar" and resumes with "agregar contrato"', async () => {
     const h = harness({ phone: NEW_PHONE, today: '2026-10-10' });
     await h.press('consent:yes');
