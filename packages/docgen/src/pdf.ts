@@ -57,3 +57,18 @@ export async function mergeToPdf(
 export async function pdfPageCount(pdf: Buffer): Promise<number> {
   return (await PDFDocument.load(pdf, { ignoreEncryption: true })).getPageCount();
 }
+
+/** Copies pages `from`..`to` (1-based, inclusive) into a new PDF: splits a combined upload. */
+export async function extractPages(data: Buffer, from: number, to: number): Promise<Buffer> {
+  const src = await PDFDocument.load(data, { ignoreEncryption: true });
+  const last = src.getPageCount();
+  const a = Math.max(1, Math.min(from, last));
+  const b = Math.max(a, Math.min(to, last));
+  const out = await PDFDocument.create();
+  const pages = await out.copyPages(
+    src,
+    Array.from({ length: b - a + 1 }, (_, i) => a - 1 + i),
+  );
+  for (const p of pages) out.addPage(p);
+  return Buffer.from(await out.save());
+}

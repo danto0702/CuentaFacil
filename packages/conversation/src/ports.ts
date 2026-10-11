@@ -17,6 +17,7 @@ import type {
   RegistryEntry,
   SocialSecurity,
   SupportFile,
+  SupportSegment,
   SupportType,
   User,
 } from './domain.js';
@@ -81,6 +82,8 @@ export interface AI {
   extractContract(docs: DocumentInput[]): Promise<ContractExtraction>;
   /** Applies the contractor's correction ("el valor mensual es 4.000.000") to an extraction. */
   correctExtraction(extraction: ContractExtraction, instruction: string): Promise<ContractExtraction>;
+  /** Identifies the supports inside a PDF (one or several, with their pages) against the checklist. */
+  classifySupports(doc: DocumentInput, types: { code: string; label: string }[]): Promise<SupportSegment[]>;
 }
 
 export interface STT {
@@ -184,4 +187,6 @@ export interface Deps {
   confidenceThreshold: number;
   /** Sends a message right away, before the turn ends (e.g. "estoy leyendo tus documentos…"). */
   progress?: (to: string, out: Outgoing) => Promise<void>;
+  /** Splits a PDF (pages from..to, 1-based). Without it, each support keeps the whole file. */
+  extractPages?: (data: Buffer, from: number, to: number) => Promise<Buffer>;
 }

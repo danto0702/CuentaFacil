@@ -1,5 +1,5 @@
 import type { IsoDate } from '@cuentasbot/shared';
-import type { ContractExtraction, DocumentInput, Note, Obligation } from './domain.js';
+import type { ContractExtraction, DocumentInput, Note, Obligation, SupportSegment } from './domain.js';
 import type { AI, ClassifyResult, Clock, DraftResult, STT } from './ports.js';
 import { normalize } from './text.js';
 
@@ -84,6 +84,27 @@ export function sampleExtraction(): ContractExtraction {
 
 export class FakeAI implements AI {
   constructor(private readonly extraction: ContractExtraction = sampleExtraction()) {}
+
+  /** Recognizes supports by file name, for tests (the real AI reads the PDF). */
+  async classifySupports(
+    doc: DocumentInput,
+    _types: { code: string; label: string }[],
+  ): Promise<SupportSegment[]> {
+    const name = doc.label.toUpperCase();
+    const seg = (code: string | null, page: number, note: string | null = null): SupportSegment => ({
+      code,
+      fromPage: page,
+      toPage: page,
+      issuedOn: '2026-09-20',
+      note,
+    });
+    if (name.includes('AFILIACION')) return [seg('EPS', 1), seg('ARL', 2), seg('AFP', 3)];
+    if (name.includes('ANTECEDENTE'))
+      return [seg('POLICIA', 1), seg('RNMC', 2), seg('PROCURADURIA', 3), seg('CONTRALORIA', 4)];
+    if (name.includes('SEGURIDAD') || name.includes('PILA'))
+      return [{ ...seg('PILA', 1, 'periodo septiembre 2026'), toPage: 2 }];
+    return [seg(null, 1)];
+  }
 
   async extractContract(_docs: DocumentInput[]): Promise<ContractExtraction> {
     return structuredClone(this.extraction);

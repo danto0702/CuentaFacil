@@ -331,3 +331,32 @@ describe('undo the last note', () => {
     expect(h.store.data.notes).toHaveLength(before - 1);
   });
 });
+
+describe('supports sent as combined PDFs', () => {
+  it('identifies and splits each certificate without asking document by document', async () => {
+    const h = harness({ today: '2026-09-28' });
+    const userId = h.store.data.users.find((u) => u.phone === DEMO_PHONES.maria)!.id;
+    const before = h.store.data.supports.filter((s) => s.userId === userId).length;
+
+    let out = show(await h.document('AFILIACIONES.pdf'));
+    expect(out[0]).toBe(
+      '📎 *AFILIACIONES.pdf*\n✅ Afiliación EPS (pág. 1)\n✅ Afiliación ARL (pág. 2)\n✅ Afiliación pensión (pág. 3)',
+    );
+    out = show(await h.document('SEGURIDAD SOCIAL SEPTIEMBRE.pdf'));
+    expect(out[0]).toBe(
+      '📎 *SEGURIDAD SOCIAL SEPTIEMBRE.pdf*\n✅ Planilla PILA (págs. 1-2) · periodo septiembre 2026',
+    );
+    out = show(await h.document('ANTECEDENTES (1) (1).pdf'));
+    expect(out[0]!.split('\n')).toHaveLength(5);
+
+    const codes = h.store.data.supports
+      .filter((s) => s.userId === userId)
+      .slice(before)
+      .map((s) => s.code);
+    expect(codes).toEqual(['EPS', 'ARL', 'AFP', 'PILA', 'POLICIA', 'RNMC', 'PROCURADURIA', 'CONTRALORIA']);
+
+    // Something it cannot recognize still asks.
+    out = show(await h.document('otro.pdf'));
+    expect(out[0]).toMatch(/no reconocí qué es/);
+  });
+});

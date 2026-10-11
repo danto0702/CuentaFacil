@@ -5,6 +5,7 @@
 import { randomUUID } from 'node:crypto';
 import Anthropic from '@anthropic-ai/sdk';
 import { BogotaClock, Orchestrator } from '@cuentasbot/conversation';
+import { extractPages } from '@cuentasbot/docgen';
 import { createClient } from '@supabase/supabase-js';
 import OpenAI from 'openai';
 import { ClaudeAI } from './ai/claude-ai.js';
@@ -63,6 +64,7 @@ const orchestrator = new Orchestrator({
   newId: randomUUID,
   confidenceThreshold: cfg.AI_CONFIDENCE_THRESHOLD,
   // Interim "working on it" messages go out only on the first attempt, so retries don't repeat them.
+  extractPages,
   progress: async (to, out) => {
     if (currentAttempt <= 1) await messenger.send(to, out);
   },

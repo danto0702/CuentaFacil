@@ -1,4 +1,5 @@
 import {
+  addDays,
   compareIso,
   formatCOP,
   formatDdMmYyyy,
@@ -19,6 +20,7 @@ import type {
   Note,
   Obligation,
   Period,
+  SupportSegment,
   SupportType,
   User,
 } from './domain.js';
@@ -814,10 +816,69 @@ export class Orchestrator {
   // -------------------------------------------------------------------------
   private async receiveSupport(turn: Turn, msg: Inbound): Promise<void> {
     const cs = await this.activeContracts(turn);
-    const entityIds = [...new Set(cs.map((c) => c.entityId))];
     const types = new Map<string, SupportType>();
-    for (const e of entityIds)
+    let maxAge = 30;
+    for (const e of [...new Set(cs.map((c) => c.entityId))]) {
+      maxAge = (await this.deps.store.getEntity(e)).settings.certificateMaxAgeDays;
       for (const t of await this.deps.store.listSupportTypes(e)) types.set(t.code, t);
+    }
+    const media = msg.media!;
+    const filename = media.filename ?? 'documento.pdf';
+    const isPdf = media.mime.split(';')[0]?.trim() === 'application/pdf';
+
+    // Read the PDF and find every support inside (a single file often bundles several certificates).
+    let segments: SupportSegment[] = [];
+    if (isPdf) {
+      await this.deps
+        .progress?.(turn.user.phone, text(`🔎 Estoy revisando *${filename}*…`))
+        .catch(() => undefined);
+      segments = await this.deps.ai.classifySupports(
+        { label: filename, data: media.data, mime: media.mime },
+        [...types.values()].map((t) => ({ code: t.code, label: t.label })),
+      );
+    }
+    const known = segments.filter((g) => g.code && types.has(g.code));
+    if (!known.length) return this.askSupportType(turn, msg, types);
+
+    const today = this.deps.clock.today();
+    const lines: string[] = [];
+    for (const g of known) {
+      const t = types.get(g.code!)!;
+      const data =
+        this.deps.extractPages && (g.fromPage > 1 || segments.length > 1)
+          ? await this.deps.extractPages(media.data, g.fromPage, g.toPage)
+          : media.data;
+      await this.deps.store.addSupport({
+        id: this.deps.newId(),
+        userId: turn.user.id,
+        code: t.code,
+        data,
+        mime: 'application/pdf',
+        filename: `${t.code}.pdf`,
+        issuedOn: g.issuedOn ?? today,
+        receivedAt: this.deps.clock.now().toISOString(),
+      });
+      const pages = g.fromPage === g.toPage ? `pág. ${g.fromPage}` : `págs. ${g.fromPage}-${g.toPage}`;
+      const limit = t.maxAgeDays ?? (t.bundle ? maxAge : undefined);
+      const old = g.issuedOn && limit && addDays(g.issuedOn, limit) < today;
+      lines.push(
+        `${old ? '⚠️' : '✅'} ${t.label} (${pages})${g.note ? ` · ${g.note}` : ''}${
+          old
+            ? ` · expedido el ${formatDdMmYyyy(g.issuedOn!)}, tiene más de ${limit} días: descárgalo de nuevo`
+            : ''
+        }`,
+      );
+    }
+    const unknown = segments.filter((g) => !g.code || !types.has(g.code));
+    if (unknown.length)
+      lines.push(
+        `❓ No reconocí ${unknown.map((g) => (g.fromPage === g.toPage ? `la pág. ${g.fromPage}` : `las págs. ${g.fromPage}-${g.toPage}`)).join(', ')}.`,
+      );
+    turn.out.push(text(`📎 *${filename}*\n${lines.join('\n')}`));
+  }
+
+  /** Fallback when the document is not recognized (or is not a PDF): the contractor picks the type. */
+  private async askSupportType(turn: Turn, msg: Inbound, types: Map<string, SupportType>): Promise<void> {
     const id = this.deps.newId();
     await this.deps.store.addSupport({
       id,
@@ -833,7 +894,7 @@ export class Orchestrator {
       .filter((t) => t.frequency === 'every_period')
       .map((t) => ({ id: `s:${t.code}`, title: t.label }));
     rows.push({ id: 's:EVIDENCIA', title: 'Evidencia de actividad' });
-    turn.out.push(text('📎 Recibí tu documento.'));
+    turn.out.push(text(`📎 Recibí *${msg.media!.filename ?? 'tu documento'}*, pero no reconocí qué es.`));
     turn.out.push(choose('¿Qué documento es?', rows, 0, 'smore'));
   }
 

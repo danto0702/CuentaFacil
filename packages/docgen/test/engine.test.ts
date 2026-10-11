@@ -148,3 +148,15 @@ describe('obligations without activities', () => {
     expect(ctx.obligations.find((o) => o.number === omitted)!.activities).toEqual([]);
   });
 });
+
+describe('extractPages', () => {
+  it('splits a combined PDF by page range', async () => {
+    const { PDFDocument: Doc } = await import('pdf-lib');
+    const d = await Doc.create();
+    for (let i = 0; i < 4; i++) d.addPage();
+    const data = Buffer.from(await d.save());
+    const { extractPages, pdfPageCount: count } = await import('../src/pdf.js');
+    expect(await count(await extractPages(data, 2, 3))).toBe(2);
+    expect(await count(await extractPages(data, 4, 9))).toBe(1);
+  });
+});

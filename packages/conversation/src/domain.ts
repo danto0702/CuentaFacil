@@ -145,6 +145,18 @@ export interface SupportFile {
   receivedAt: string;
 }
 
+/** One document found inside an uploaded PDF (a PDF can bundle several certificates). */
+export interface SupportSegment {
+  /** Support type code from the entity checklist; null when the pages are not a known support. */
+  code: string | null;
+  fromPage: number;
+  toPage: number;
+  /** Issue / query date printed on the document. */
+  issuedOn: IsoDate | null;
+  /** Short note for the contractor (e.g. "sin antecedentes", "periodo septiembre 2026"). */
+  note: string | null;
+}
+
 export interface SocialSecurity {
   userId: string;
   /** First day of the contribution month. */

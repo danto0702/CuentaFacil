@@ -6,7 +6,9 @@ import type {
   DraftResult,
   Note,
   Obligation,
+  SupportSegment,
 } from '@cuentasbot/conversation';
+import type { IsoDate } from '@cuentasbot/shared';
 import { z } from 'zod';
 import type { Llm } from './llm.js';
 
@@ -99,11 +101,73 @@ const obligationList = (obligations: Obligation[]) =>
   obligations.map((o) => `${o.kind === 'general' ? 'G' : 'E'}${o.number}. ${o.text}`).join('\n');
 
 /** AI port backed by Claude: Haiku classifies notes; Sonnet drafts and rewrites report text. */
+const SUPPORT_RULES = `You read PDFs that Colombian public-sector contractors send as supports for their monthly payment request (cuenta de cobro). One PDF may contain one document or several bundled together (e.g. the 4 background checks, or the 3 affiliation certificates, or a social-security payment sheet of 2 pages).
+For each document in the PDF, return its checklist code and the page range it spans (1-based, inclusive). Usual codes:
+- PILA: planilla integrada de liquidación de aportes / comprobante de pago de seguridad social (one or more pages).
+- POLICIA: certificado de antecedentes judiciales (Policía Nacional).
+- RNMC: Registro Nacional de Medidas Correctivas (Policía).
+- PROCURADURIA: certificado de antecedentes disciplinarios (Procuraduría).
+- CONTRALORIA: certificado de antecedentes fiscales / responsabilidad fiscal (Contraloría).
+- EPS: certificado de afiliación a salud (EPS). ARL: afiliación a riesgos laborales. AFP: afiliación a pensión (fondo de pensiones, Colpensiones).
+Use only codes from the given checklist; use null for pages that are none of them (cover pages, blank pages, unrelated documents).
+issued_on: the issue/query/payment date printed on the document (YYYY-MM-DD), or null.
+note: a very short Spanish note useful to the contractor, e.g. "no registra antecedentes", "periodo septiembre 2026", "estado activo"; flag anything worrying, e.g. "REGISTRA ANTECEDENTES" or "afiliación retirada". null if nothing to add.
+Never invent: if unsure of a code, use null.`;
+
+const supportsSchema = z.object({
+  segments: z.array(
+    z.object({
+      code: z.string().nullable(),
+      from_page: z.number().int(),
+      to_page: z.number().int(),
+      issued_on: z.string().nullable(),
+      note: z.string().nullable(),
+    }),
+  ),
+});
+
 export class ClaudeAI implements AI {
   constructor(
     private readonly llm: Llm,
     private readonly models: ModelChoice,
   ) {}
+
+  async classifySupports(
+    doc: DocumentInput,
+    types: { code: string; label: string }[],
+  ): Promise<SupportSegment[]> {
+    const r = await this.llm.structured({
+      purpose: 'classify_supports',
+      model: this.models.smart,
+      effort: 'low',
+      maxTokens: 4000,
+      system: SUPPORT_RULES,
+      content: [
+        {
+          type: 'document' as const,
+          title: doc.label,
+          source: {
+            type: 'base64' as const,
+            media_type: 'application/pdf' as const,
+            data: doc.data.toString('base64'),
+          },
+        },
+        {
+          type: 'text',
+          text: `Checklist codes:\n${types.map((t) => `${t.code}: ${t.label}`).join('\n')}\n\nFile name: ${doc.label}\nList every document in this PDF with its pages.`,
+        },
+      ],
+      schema: supportsSchema,
+    });
+    const codes = new Set(types.map((t) => t.code));
+    return r.segments.map((g) => ({
+      code: g.code && codes.has(g.code) ? g.code : null,
+      fromPage: Math.max(1, g.from_page),
+      toPage: Math.max(g.from_page, g.to_page),
+      issuedOn: g.issued_on && /^\d{4}-\d{2}-\d{2}$/.test(g.issued_on) ? (g.issued_on as IsoDate) : null,
+      note: g.note?.trim() || null,
+    }));
+  }
 
   async extractContract(docs: DocumentInput[]): Promise<ContractExtraction> {
     const r = await this.llm.structured({
