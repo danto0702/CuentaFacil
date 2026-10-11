@@ -34,6 +34,7 @@ export function harness(opts: { today?: string; generator?: Generator; phone?: s
   return {
     store,
     clock,
+    orchestrator,
     say: (text: string) => send({ kind: 'text', text }),
     press: (replyId: string) => send({ kind: 'reply', replyId }),
     photo: (caption?: string) =>

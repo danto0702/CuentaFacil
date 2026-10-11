@@ -17,6 +17,10 @@ const schema = z.object({
   STT_MODEL: z.string().default('gpt-4o-transcribe'),
   ENCRYPTION_KEY: z.string().optional(),
   BLIND_INDEX_KEY: z.string().optional(),
+  // Wompi (ADR-034). Without the public key and integrity secret only cash codes and free reports work.
+  WOMPI_PUBLIC_KEY: z.string().min(10).optional(),
+  WOMPI_INTEGRITY_SECRET: z.string().min(10).optional(),
+  WOMPI_EVENTS_SECRET: z.string().min(10).optional(),
   WORKER_POLL_MS: z.coerce.number().int().positive().default(1000),
   WORKER_MAX_ATTEMPTS: z.coerce.number().int().positive().default(5),
 });

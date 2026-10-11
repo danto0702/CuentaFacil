@@ -14,6 +14,8 @@ import {
 import { allyStatusText, findAllyCode, levelUpText, NOT_ALLY_TEXT, referralText } from './ally.js';
 import { BRAND, SIGNATURE } from './brand.js';
 import type {
+  BillingSettings,
+  Charge,
   Contract,
   ConversationState,
   Draft,
@@ -340,6 +342,9 @@ export class Orchestrator {
         return this.onExtraObligation(turn, msg);
       case 'draft_pick_contract':
         return this.onPickContract(turn, msg, (c) => this.startDraft(turn, c));
+      case 'pay_wait':
+      case 'pay_code':
+        return this.onPayment(turn, msg);
       case 'amount_confirm':
       case 'amount_cert':
         return this.onAmountChoice(turn, msg);
@@ -1711,6 +1716,13 @@ export class Orchestrator {
       );
       return;
     }
+    // Configuration and report are paid before delivery (ADR-034); in the pilot nothing is charged.
+    let charge: 'paid' | 'free' | 'pilot' = 'pilot';
+    if (!resend) {
+      const paid = await this.ensurePaid(turn, c, p);
+      if (!paid) return;
+      charge = paid;
+    }
     turn.out.push(text('⏳ Estoy generando tus documentos, dame un momento…'));
     if (!resend) await this.savePeriodStatus(c, p, 'generating');
     const files = await this.deps.generator.generate(c.id, p.number);
@@ -1719,7 +1731,10 @@ export class Orchestrator {
         turn.out.push({ type: 'document', filename: f.filename, mime: f.mime, data: f.data });
       }
     }
-    if (!resend) await this.savePeriodStatus(c, p, 'delivered');
+    if (!resend) {
+      await this.savePeriodStatus(c, p, 'delivered');
+      await this.deps.store.markPeriodCharge(c.id, p.number, charge);
+    }
     turn.out.push(
       text(
         '🎉 ¡Listo! Lo que falta fuera de WhatsApp:\n1. Revisa y firma el informe de actividades.\n2. Entrega el borrador del informe de supervisión a tu supervisor para su firma.\n3. Carga los documentos en SECOP II (el ZIP ya tiene la carpeta *DOCUMENTOS A CARGAR*).',
@@ -1779,6 +1794,125 @@ export class Orchestrator {
         ],
       ),
     );
+  }
+
+  // -------------------------------------------------------------------------
+  // Payment before delivery (ADR-034): free report of the Aliado, cash code or Wompi link.
+  // -------------------------------------------------------------------------
+  /** Returns how the report is covered, or null after asking the contractor to pay. */
+  private async ensurePaid(turn: Turn, c: Contract, p: Period): Promise<'paid' | 'free' | 'pilot' | null> {
+    const { store } = this.deps;
+    const billing = await store.getBillingSettings();
+    if (billing.mode === 'pilot') return 'pilot';
+    const setup = await store.findCharge(c.id, 'setup', null);
+    const setupDue = !setup || setup.status === 'pending';
+    const existing = await store.findCharge(c.id, 'report', p.number);
+    if (existing && existing.status !== 'pending' && existing.status !== 'cancelled')
+      return existing.status === 'free' ? 'free' : existing.status === 'pilot' ? 'pilot' : 'paid';
+    const charge = await store.openCharge({
+      userId: turn.user.id,
+      product: 'report',
+      contractId: c.id,
+      periodNumber: p.number,
+      coversSetup: setupDue,
+      amount: billing.prices.report + (setupDue ? billing.prices.setup : 0),
+    });
+    // A free report of the Aliado covers the report; the configuration, if due, is still paid.
+    if (!setupDue && (await store.useFreeGrant(turn.user.id, charge.id))) {
+      await store.settleCharge(charge.id, 'free', 'free_grant');
+      turn.out.push(text('🎁 Usé una de tus cuentas gratis para este informe.'));
+      return 'free';
+    }
+    return this.askPayment(turn, c, p, charge, billing);
+  }
+
+  private async askPayment(
+    turn: Turn,
+    c: Contract,
+    p: Period,
+    charge: Charge,
+    billing: BillingSettings,
+  ): Promise<null> {
+    this.setFlow(turn, 'pay_wait', 'wait', { chargeId: charge.id, contractId: c.id, periodNumber: p.number });
+    const detail = charge.coversSetup
+      ? ` (informe ${formatCOP(billing.prices.report)} + configuración del contrato ${formatCOP(billing.prices.setup)})`
+      : '';
+    const intro = `💳 Tu ${this.reportLabel(c, p)} está listo. Para entregártelo el valor es *${formatCOP(charge.amount)}*${detail}.`;
+    const url = this.deps.payments?.checkoutUrl(charge, turn.user.phone);
+    if (url) {
+      turn.out.push({
+        type: 'cta_url',
+        text: `${intro}\n\nPaga en línea (tarjeta, PSE, Nequi o Bancolombia) y te envío los documentos apenas se confirme.`,
+        button: 'Pagar en línea',
+        url,
+      });
+      turn.out.push(
+        buttons('¿Pagaste en efectivo y tienes un código?', [{ id: 'pay:code', title: 'Tengo un código' }]),
+      );
+    } else {
+      turn.out.push(
+        buttons(`${intro}\n\nSi pagaste en efectivo, escríbeme tu código de pago.`, [
+          { id: 'pay:code', title: 'Tengo un código' },
+        ]),
+      );
+    }
+    return null;
+  }
+
+  private async onPayment(turn: Turn, msg: Inbound): Promise<void> {
+    const ctx = turn.state.context as { chargeId: string; contractId: string; periodNumber: number };
+    if (msg.replyId === 'pay:code') {
+      this.setFlow(turn, 'pay_code', 'write', { ...ctx });
+      turn.out.push(text('Escríbeme tu código de pago, por ejemplo *K7M4-Q2P9*.'));
+      return;
+    }
+    const raw = (msg.text ?? '').trim();
+    const looksLikeCode = /^[A-Za-z0-9]{4}-?[A-Za-z0-9]{4}$/.test(raw);
+    if (!raw || (turn.state.flow === 'pay_wait' && !looksLikeCode)) {
+      // Anything else: leave the payment pending and handle the message normally.
+      this.reset(turn);
+      return this.dispatch(turn, msg);
+    }
+    const charge = await this.deps.store.getCharge(ctx.chargeId);
+    if (charge.status !== 'pending') {
+      this.reset(turn);
+      turn.out.push(text('✅ Este informe ya está pagado. Escribe *generar* para recibir tus documentos.'));
+      return;
+    }
+    const r = await this.deps.store.redeemCashCode(turn.user.id, raw, charge.id);
+    if (!r.ok) {
+      const why = {
+        not_found: 'No encuentro ese código. Revísalo y escríbelo de nuevo.',
+        other_user:
+          'Ese código pertenece a otra persona; cada código solo funciona en la conversación de quien pagó.',
+        used: 'Ese código ya se usó.',
+        expired:
+          'Ese código venció (duran 30 días). Escribe *soporte* y te generamos uno nuevo por el mismo valor.',
+        wrong_amount: `Ese código no corresponde a este valor (${formatCOP(charge.amount)}). Escribe *soporte* si crees que es un error.`,
+      }[r.reason];
+      turn.out.push(text(`❌ ${why}`));
+      return;
+    }
+    await this.deps.store.settleCharge(charge.id, 'paid', 'cash_code');
+    this.reset(turn);
+    turn.out.push(text(`✅ Código aceptado: ${formatCOP(charge.amount)}.`));
+    return this.startGenerate(turn, await this.deps.store.getContract(ctx.contractId));
+  }
+
+  /** Online payment confirmed (Wompi): thank the contractor and deliver the report. */
+  async chargePaid(chargeId: string): Promise<{ to: string; out: Outgoing[] }> {
+    const { store } = this.deps;
+    const charge = await store.getCharge(chargeId);
+    const user = await store.getUser(charge.userId);
+    const state = (await store.getConversation(user.id)) ?? this.idle(user.id);
+    const turn: Turn = { user, state, out: [] };
+    if (turn.state.flow === 'pay_wait' || turn.state.flow === 'pay_code') this.reset(turn);
+    turn.out.push(text(`✅ Recibí tu pago de ${formatCOP(charge.amount)}. ¡Gracias!`));
+    if (charge.product === 'report')
+      await this.startGenerate(turn, await store.getContract(charge.contractId));
+    turn.state.updatedAt = this.deps.clock.now().toISOString();
+    await store.saveConversation(turn.state);
+    return { to: user.phone, out: turn.out };
   }
 
   // -------------------------------------------------------------------------

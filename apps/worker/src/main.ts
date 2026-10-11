@@ -4,8 +4,9 @@
  */
 import { randomUUID } from 'node:crypto';
 import Anthropic from '@anthropic-ai/sdk';
-import { BogotaClock, Orchestrator } from '@cuentasbot/conversation';
+import { BogotaClock, BRAND, Orchestrator } from '@cuentasbot/conversation';
 import { extractPages } from '@cuentasbot/docgen';
+import { formatCOP } from '@cuentasbot/shared';
 import { createClient } from '@supabase/supabase-js';
 import OpenAI from 'openai';
 import { ClaudeAI } from './ai/claude-ai.js';
@@ -13,6 +14,7 @@ import { Llm } from './ai/llm.js';
 import { OpenAISTT } from './ai/openai-stt.js';
 import { FieldCipher } from './crypto.js';
 import { AccountGenerator } from './generator.js';
+import { checkoutUrl, verifyEvent } from './payments/wompi.js';
 import { loadConfig } from './runtime/config.js';
 import { jsonLogger as log } from './runtime/log.js';
 import { InboundPipeline, type Messenger } from './runtime/pipeline.js';
@@ -55,6 +57,16 @@ const messenger = new WhatsAppClient({
   graphVersion: cfg.WA_GRAPH_API_VERSION,
 });
 
+const wompi =
+  cfg.WOMPI_PUBLIC_KEY && cfg.WOMPI_INTEGRITY_SECRET
+    ? {
+        publicKey: cfg.WOMPI_PUBLIC_KEY,
+        integritySecret: cfg.WOMPI_INTEGRITY_SECRET,
+        // After paying, back to the WhatsApp chat.
+        redirectUrl: `https://wa.me/${BRAND.whatsapp}`,
+      }
+    : null;
+
 const orchestrator = new Orchestrator({
   store,
   ai: new ClaudeAI(llm, { fast: cfg.AI_MODEL_FAST, smart: cfg.AI_MODEL_SMART, setup: cfg.AI_MODEL_SETUP }),
@@ -65,6 +77,7 @@ const orchestrator = new Orchestrator({
   confidenceThreshold: cfg.AI_CONFIDENCE_THRESHOLD,
   // Interim "working on it" messages go out only on the first attempt, so retries don't repeat them.
   extractPages,
+  ...(wompi ? { payments: { checkoutUrl: (charge) => checkoutUrl(wompi, charge) } } : {}),
   progress: async (to, out) => {
     if (currentAttempt <= 1) await messenger.send(to, out);
   },
@@ -160,6 +173,51 @@ async function failed(msgId: number, payload: unknown, error: unknown, attempts:
   }
 }
 
+const pipelineDb = new SupabasePipelineDb(sb);
+
+/** Wompi event: verify it, settle the charge and deliver the report (ADR-034). */
+async function processWompi(inboxId: number): Promise<void> {
+  const item = await pipelineDb.getInbox(inboxId);
+  if (!item || item.status !== 'pending') return;
+  const tx = cfg.WOMPI_EVENTS_SECRET ? verifyEvent(cfg.WOMPI_EVENTS_SECRET, item.body) : null;
+  if (!tx) {
+    log.error('wompi.bad_event', { inboxId });
+    await pipelineDb.markInbox(inboxId, 'rejected', 'invalid or unverified event');
+    return;
+  }
+  const charge = await store.chargeByReference(tx.reference);
+  if (!charge) {
+    await pipelineDb.markInbox(inboxId, 'rejected', `unknown reference ${tx.reference}`);
+    return;
+  }
+  const user = await store.getUser(charge.userId);
+  if (tx.status === 'APPROVED') {
+    if (tx.amountInCents !== charge.amount * 100) {
+      log.error('wompi.amount_mismatch', { inboxId, reference: tx.reference });
+      await pipelineDb.markInbox(inboxId, 'failed', 'amount mismatch');
+      return;
+    }
+    if (charge.status === 'pending') {
+      await store.settleCharge(charge.id, 'paid', 'wompi', tx.id);
+      const { to, out } = await orchestrator.chargePaid(charge.id);
+      for (const o of out) {
+        try {
+          await pipelineDb.logOutbound(to, await outbound.send(to, o), o);
+        } catch (e) {
+          log.error('wompi.send_failed', { inboxId, error: String(e) });
+        }
+      }
+    }
+  } else if (tx.status === 'DECLINED' || tx.status === 'ERROR' || tx.status === 'VOIDED') {
+    const o = {
+      type: 'text' as const,
+      text: `❌ Tu pago de ${formatCOP(charge.amount)} no fue aprobado. Puedes intentarlo de nuevo con el mismo enlace o escribir *soporte*.`,
+    };
+    await pipelineDb.logOutbound(user.phone, await outbound.send(user.phone, o), o).catch(() => undefined);
+  }
+  await pipelineDb.markInbox(inboxId, 'processed');
+}
+
 async function loop(): Promise<void> {
   log.info('worker.started', { queue: inbound.name });
   void whatsappDiagnostic();
@@ -190,6 +248,7 @@ async function loop(): Promise<void> {
       try {
         currentAttempt = m.readCount;
         if (m.message.provider === 'whatsapp') await pipeline.processInbox(m.message.inbox_id);
+        else if (m.message.provider === 'wompi') await processWompi(m.message.inbox_id);
         await inbound.delete(m.msgId);
       } catch (e) {
         log.error('inbound.failed', { msgId: m.msgId, attempt: m.readCount, error: String(e) });

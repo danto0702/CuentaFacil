@@ -1,6 +1,10 @@
 import { createHash, randomBytes } from 'node:crypto';
 import type {
   AllyStatus,
+  BillingSettings,
+  CashCodeResult,
+  Charge,
+  ChargeMethod,
   Contract,
   ConversationState,
   Draft,
@@ -187,6 +191,206 @@ export class SupabaseStore implements Store {
   // -------------------------------------------------------------------------
   // Programa de Aliados (ADR-032)
   // -------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
+  // Billing (ADR-034)
+  // -------------------------------------------------------------------------
+  async getBillingSettings(): Promise<BillingSettings> {
+    const row = must(
+      await this.sb.from('system_settings').select('value').eq('key', 'billing').maybeSingle(),
+      'getBillingSettings',
+    ) as Row | null;
+    const v = (row?.value ?? {}) as { mode?: string; prices?: { setup?: number; report?: number } };
+    return {
+      mode: v.mode === 'live' ? 'live' : 'pilot',
+      prices: { setup: num(v.prices?.setup ?? 15_000), report: num(v.prices?.report ?? 50_000) },
+    };
+  }
+
+  private toCharge(r: Row): Charge {
+    const period = r.periods as Row | null;
+    return {
+      id: str(r.id),
+      userId: str(r.user_id),
+      product: r.product === 'setup' ? 'setup' : 'report',
+      contractId: str(r.contract_id),
+      periodNumber: period ? num(period.report_number) : null,
+      coversSetup: Boolean(r.covers_setup),
+      amount: num(r.amount),
+      status: r.status as Charge['status'],
+      method: (r.method ?? null) as ChargeMethod | null,
+      reference: str(r.reference),
+    };
+  }
+
+  private static readonly CHARGE_COLS = '*, periods(report_number)';
+
+  async findCharge(contractId: string, product: 'setup' | 'report', periodNumber: number | null) {
+    let q = this.sb
+      .from('charges')
+      .select(SupabaseStore.CHARGE_COLS)
+      .eq('contract_id', contractId)
+      .eq('product', product)
+      .neq('status', 'cancelled');
+    q =
+      periodNumber === null
+        ? q.is('period_id', null)
+        : q.eq('period_id', await this.periodId(contractId, periodNumber));
+    const r = must(await q.maybeSingle(), 'findCharge') as Row | null;
+    return r ? this.toCharge(r) : null;
+  }
+
+  async getCharge(id: string): Promise<Charge> {
+    return this.toCharge(
+      must(
+        await this.sb.from('charges').select(SupabaseStore.CHARGE_COLS).eq('id', id).single(),
+        'getCharge',
+      ) as Row,
+    );
+  }
+
+  /** Charge looked up by the reference sent to Wompi. */
+  async chargeByReference(reference: string): Promise<Charge | null> {
+    const r = must(
+      await this.sb
+        .from('charges')
+        .select(SupabaseStore.CHARGE_COLS)
+        .eq('reference', reference)
+        .maybeSingle(),
+      'chargeByReference',
+    ) as Row | null;
+    return r ? this.toCharge(r) : null;
+  }
+
+  async openCharge(input: Omit<Charge, 'id' | 'status' | 'method' | 'reference'>): Promise<Charge> {
+    const existing = await this.findCharge(input.contractId, input.product, input.periodNumber);
+    if (existing && existing.status !== 'pending') return existing;
+    if (existing) {
+      must(
+        await this.sb
+          .from('charges')
+          .update({ amount: input.amount, covers_setup: input.coversSetup })
+          .eq('id', existing.id),
+        'openCharge.update',
+      );
+      return { ...existing, amount: input.amount, coversSetup: input.coversSetup };
+    }
+    const row = must(
+      await this.sb
+        .from('charges')
+        .insert({
+          user_id: input.userId,
+          product: input.product,
+          contract_id: input.contractId,
+          period_id:
+            input.periodNumber === null ? null : await this.periodId(input.contractId, input.periodNumber),
+          covers_setup: input.coversSetup,
+          amount: input.amount,
+          reference: `CF-${randomBytes(6).toString('hex').toUpperCase()}`,
+        })
+        .select(SupabaseStore.CHARGE_COLS)
+        .single(),
+      'openCharge.insert',
+    ) as Row;
+    return this.toCharge(row);
+  }
+
+  async settleCharge(
+    id: string,
+    status: 'paid' | 'free' | 'pilot',
+    method: ChargeMethod,
+    providerTx?: string,
+  ): Promise<void> {
+    const c = await this.getCharge(id);
+    must(
+      await this.sb
+        .from('charges')
+        .update({
+          status,
+          method,
+          settled_at: new Date().toISOString(),
+          ...(providerTx ? { provider_tx: providerTx } : {}),
+        })
+        .eq('id', id)
+        .eq('status', 'pending'),
+      'settleCharge',
+    );
+    if (c.coversSetup) {
+      const setup = await this.openCharge({
+        userId: c.userId,
+        product: 'setup',
+        contractId: c.contractId,
+        periodNumber: null,
+        coversSetup: false,
+        amount: 0,
+      });
+      if (setup.status === 'pending') await this.settleCharge(setup.id, status, method);
+    }
+  }
+
+  async useFreeGrant(userId: string, chargeId: string): Promise<boolean> {
+    const grant = must(
+      await this.sb
+        .from('free_report_grants')
+        .select('id')
+        .eq('user_id', userId)
+        .is('used_at', null)
+        .gt('expires_at', new Date().toISOString())
+        .order('expires_at')
+        .limit(1)
+        .maybeSingle(),
+      'useFreeGrant',
+    ) as Row | null;
+    if (!grant) return false;
+    const charge = await this.getCharge(chargeId);
+    const periodId =
+      charge.periodNumber === null ? null : await this.periodId(charge.contractId, charge.periodNumber);
+    const used = must(
+      await this.sb
+        .from('free_report_grants')
+        .update({ used_at: new Date().toISOString(), used_charge_id: chargeId, used_period_id: periodId })
+        .eq('id', str(grant.id))
+        .is('used_at', null)
+        .select('id'),
+      'useFreeGrant.update',
+    ) as Row[];
+    return used.length === 1;
+  }
+
+  async redeemCashCode(userId: string, code: string, chargeId: string): Promise<CashCodeResult> {
+    const wanted = code.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    const c = must(
+      await this.sb.from('cash_codes').select('*').eq('code', wanted).maybeSingle(),
+      'redeemCashCode',
+    ) as Row | null;
+    if (!c) return { ok: false, reason: 'not_found' };
+    if (str(c.user_id) !== userId) return { ok: false, reason: 'other_user' };
+    if (c.used_at) return { ok: false, reason: 'used' };
+    if (str(c.expires_at) < new Date().toISOString()) return { ok: false, reason: 'expired' };
+    const charge = await this.getCharge(chargeId);
+    if (num(c.amount) !== charge.amount) return { ok: false, reason: 'wrong_amount' };
+    const used = must(
+      await this.sb
+        .from('cash_codes')
+        .update({ used_at: new Date().toISOString(), used_charge_id: chargeId })
+        .eq('id', str(c.id))
+        .is('used_at', null)
+        .select('id'),
+      'redeemCashCode.use',
+    ) as Row[];
+    return used.length === 1 ? { ok: true } : { ok: false, reason: 'used' };
+  }
+
+  async markPeriodCharge(contractId: string, periodNumber: number, charge: 'paid' | 'free' | 'pilot') {
+    must(
+      await this.sb
+        .from('periods')
+        .update({ charge })
+        .eq('contract_id', contractId)
+        .eq('report_number', periodNumber),
+      'markPeriodCharge',
+    );
+  }
+
   async createAlly(userId: string, institutionRequestId: string | null): Promise<{ code: string }> {
     const existing = must(
       await this.sb.from('allies').select('code').eq('user_id', userId).maybeSingle(),

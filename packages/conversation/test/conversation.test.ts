@@ -392,3 +392,98 @@ describe('other flows', () => {
     expect(out[0]).toContain('corte fecha a fecha');
   });
 });
+
+describe('billing (ADR-034)', () => {
+  /** EBS report approved and with its supports: the next step is generating. */
+  async function readyToGenerate() {
+    const h = harness();
+    await h.say('Asistí a la reunión del comité en Ábrego');
+    await h.press(`c:${DEMO_IDS.ebs}`);
+    await h.say('ver borrador');
+    let out = show(await h.press(`c:${DEMO_IDS.ebs}`));
+    while (out.some((x) => x.startsWith('Para la obligación'))) out = show(await h.press('mis:default'));
+    await h.press('rev:approve');
+    await h.document('certificado.pdf');
+    await h.press('s:CERT_EJECUCION_EBS');
+    return h;
+  }
+  const charges = (h: Awaited<ReturnType<typeof readyToGenerate>>) => h.store.data.periodCharges ?? {};
+
+  it('charges nothing in the pilot and marks the report as pilot', async () => {
+    const h = await readyToGenerate();
+    await h.say('generar');
+    const out = show(await h.press(`c:${DEMO_IDS.ebs}`));
+    expect(out[0]).toBe('⏳ Estoy generando tus documentos, dame un momento…');
+    expect(Object.values(charges(h))).toEqual(['pilot']);
+  });
+
+  it('asks for the report plus the configuration, and delivers with a valid cash code', async () => {
+    const h = await readyToGenerate();
+    h.store.data.billing = { mode: 'live', prices: { setup: 15_000, report: 50_000 } };
+    const userId = h.store.data.users[0]!.id;
+    h.store.data.cashCodes = [
+      { code: 'K7M4Q2P9', userId, product: 'report', amount: 65_000, expiresAt: '2099-01-01T00:00:00Z' },
+      {
+        code: 'ZZZZ1111',
+        userId: 'other',
+        product: 'report',
+        amount: 65_000,
+        expiresAt: '2099-01-01T00:00:00Z',
+      },
+    ];
+    await h.say('generar');
+    let out = show(await h.press(`c:${DEMO_IDS.ebs}`));
+    expect(out[0]).toMatch(
+      /^💳 Tu informe .* está listo\. Para entregártelo el valor es \*\$ 65\.000\* \(informe \$ 50\.000 \+ configuración del contrato \$ 15\.000\)\./,
+    );
+    expect(out[0]).toContain('[Tengo un código]');
+    out = show(await h.press('pay:code'));
+    expect(out[0]).toMatch(/^Escríbeme tu código de pago/);
+    expect(show(await h.say('ZZZZ-1111'))[0]).toMatch(/^❌ Ese código pertenece a otra persona/);
+    expect(show(await h.say('AAAA-0000'))[0]).toMatch(/^❌ No encuentro ese código/);
+    out = show(await h.say('k7m4-q2p9'));
+    expect(out[0]).toBe('✅ Código aceptado: $ 65.000.');
+    expect(out[1]).toBe('⏳ Estoy generando tus documentos, dame un momento…');
+    expect(Object.values(charges(h))).toEqual(['paid']);
+    // The configuration was covered by the same payment: the next report only charges the report.
+    const setup = await h.store.findCharge(DEMO_IDS.ebs, 'setup', null);
+    expect(setup?.status).toBe('paid');
+  });
+
+  it('uses a free report of the Aliado once the configuration is paid', async () => {
+    const h = await readyToGenerate();
+    h.store.data.billing = { mode: 'live', prices: { setup: 15_000, report: 50_000 } };
+    const userId = h.store.data.users[0]!.id;
+    h.store.data.freeReports = { [userId]: 1 };
+    const setup = await h.store.openCharge({
+      userId,
+      product: 'setup',
+      contractId: DEMO_IDS.ebs,
+      periodNumber: null,
+      coversSetup: false,
+      amount: 15_000,
+    });
+    await h.store.settleCharge(setup.id, 'paid', 'wompi');
+    await h.say('generar');
+    const out = show(await h.press(`c:${DEMO_IDS.ebs}`));
+    expect(out[0]).toBe('🎁 Usé una de tus cuentas gratis para este informe.');
+    expect(out[1]).toBe('⏳ Estoy generando tus documentos, dame un momento…');
+    expect(Object.values(charges(h))).toEqual(['free']);
+    expect(h.store.data.freeReports?.[userId]).toBe(0);
+  });
+
+  it('delivers the report when the online payment is confirmed', async () => {
+    const h = await readyToGenerate();
+    h.store.data.billing = { mode: 'live', prices: { setup: 15_000, report: 50_000 } };
+    await h.say('generar');
+    await h.press(`c:${DEMO_IDS.ebs}`);
+    const p = (await h.store.listPeriods(DEMO_IDS.ebs)).find((x) => x.status === 'approved')!;
+    const charge = (await h.store.findCharge(DEMO_IDS.ebs, 'report', p.number))!;
+    await h.store.settleCharge(charge.id, 'paid', 'wompi', 'tx-1');
+    const { to, out } = await h.orchestrator.chargePaid(charge.id);
+    expect(to).toBe(h.store.data.users[0]!.phone);
+    const shown = show(out);
+    expect(shown[0]).toBe('✅ Recibí tu pago de $ 65.000. ¡Gracias!');
+    expect(shown[1]).toBe('⏳ Estoy generando tus documentos, dame un momento…');
+  });
+});

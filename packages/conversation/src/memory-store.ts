@@ -1,6 +1,10 @@
 import { randomUUID } from 'node:crypto';
 import { compareIso, type IsoDate } from '@cuentasbot/shared';
 import type {
+  BillingSettings,
+  CashCodeResult,
+  Charge,
+  ChargeMethod,
   Contract,
   ConversationState,
   Draft,
@@ -50,6 +54,17 @@ export interface MemoryData {
     firstForInstitution: boolean;
   }[];
   freeReports?: Record<string, number>;
+  billing?: BillingSettings;
+  charges?: (Charge & { providerTx?: string })[];
+  cashCodes?: {
+    code: string;
+    userId: string;
+    product: 'setup' | 'report';
+    amount: number;
+    expiresAt: string;
+    usedAt?: string;
+  }[];
+  periodCharges?: Record<string, 'paid' | 'free' | 'pilot'>;
   allies?: { userId: string; code: string; level: number; newLevels: number[] }[];
   referredBy?: Record<string, string>;
   registry?: (RegistryEntry & { entityId: string; contractCode: string; docNumber: string })[];
@@ -283,6 +298,81 @@ export class MemoryStore implements Store {
       newLevels: [...a.newLevels],
     };
   }
+  async getBillingSettings(): Promise<BillingSettings> {
+    return clone(this.data.billing ?? { mode: 'pilot', prices: { setup: 15_000, report: 50_000 } });
+  }
+  async findCharge(contractId: string, product: 'setup' | 'report', periodNumber: number | null) {
+    const c = (this.data.charges ?? []).find(
+      (x) =>
+        x.contractId === contractId &&
+        x.product === product &&
+        x.periodNumber === periodNumber &&
+        x.status !== 'cancelled',
+    );
+    return c ? clone(c) : null;
+  }
+  async getCharge(id: string) {
+    return clone(this.find(this.data.charges ?? [], (c) => c.id === id, `charge ${id}`));
+  }
+  async openCharge(input: Omit<Charge, 'id' | 'status' | 'method' | 'reference'>) {
+    const existing = await this.findCharge(input.contractId, input.product, input.periodNumber);
+    if (existing && existing.status !== 'pending') return existing;
+    const charge: Charge = existing
+      ? { ...existing, amount: input.amount, coversSetup: input.coversSetup }
+      : {
+          ...input,
+          id: randomUUID(),
+          status: 'pending',
+          method: null,
+          reference: `CF-${randomUUID().slice(0, 8)}`,
+        };
+    this.data.charges = [...(this.data.charges ?? []).filter((c) => c.id !== charge.id), charge];
+    return clone(charge);
+  }
+  async settleCharge(
+    id: string,
+    status: 'paid' | 'free' | 'pilot',
+    method: ChargeMethod,
+    providerTx?: string,
+  ) {
+    const c = await this.getCharge(id);
+    this.data.charges = (this.data.charges ?? []).map((x) =>
+      x.id === id ? { ...x, status, method, ...(providerTx ? { providerTx } : {}) } : x,
+    );
+    if (c.coversSetup) {
+      const setup = await this.openCharge({
+        userId: c.userId,
+        product: 'setup',
+        contractId: c.contractId,
+        periodNumber: null,
+        coversSetup: false,
+        amount: 0,
+      });
+      if (setup.status === 'pending') await this.settleCharge(setup.id, status, method);
+    }
+  }
+  async useFreeGrant(userId: string, _chargeId: string) {
+    const n = this.data.freeReports?.[userId] ?? 0;
+    if (n <= 0) return false;
+    this.data.freeReports = { ...this.data.freeReports, [userId]: n - 1 };
+    return true;
+  }
+  async redeemCashCode(userId: string, code: string, chargeId: string): Promise<CashCodeResult> {
+    const wanted = code.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    const c = (this.data.cashCodes ?? []).find((x) => x.code.replace(/[^A-Z0-9]/g, '') === wanted);
+    if (!c) return { ok: false, reason: 'not_found' };
+    if (c.userId !== userId) return { ok: false, reason: 'other_user' };
+    if (c.usedAt) return { ok: false, reason: 'used' };
+    if (c.expiresAt < new Date().toISOString()) return { ok: false, reason: 'expired' };
+    const charge = await this.getCharge(chargeId);
+    if (charge.amount !== c.amount) return { ok: false, reason: 'wrong_amount' };
+    c.usedAt = new Date().toISOString();
+    return { ok: true };
+  }
+  async markPeriodCharge(contractId: string, periodNumber: number, charge: 'paid' | 'free' | 'pilot') {
+    this.data.periodCharges = { ...this.data.periodCharges, [`${contractId}:${periodNumber}`]: charge };
+  }
+
   async markAllyLevelsNotified(userId: string) {
     const a = (this.data.allies ?? []).find((x) => x.userId === userId);
     if (a) a.newLevels = [];

@@ -1,6 +1,10 @@
 import type { IsoDate } from '@cuentasbot/shared';
 import type {
   AllyStatus,
+  BillingSettings,
+  CashCodeResult,
+  Charge,
+  ChargeMethod,
   Contract,
   ContractExtraction,
   ConversationState,
@@ -168,6 +172,35 @@ export interface Store {
   /** Stores the data read from a PILA (confirmed), linked to its support file. */
   saveSocialSecurity(ss: SocialSecurity, supportId: string): Promise<void>;
 
+  // Billing (ADR-034)
+  getBillingSettings(): Promise<BillingSettings>;
+  /** The live (not cancelled) charge for a product, contract and period; null if none. */
+  findCharge(
+    contractId: string,
+    product: 'setup' | 'report',
+    periodNumber: number | null,
+  ): Promise<Charge | null>;
+  getCharge(id: string): Promise<Charge>;
+  /** Creates a pending charge (unique reference) or updates the amount of the pending one. */
+  openCharge(input: Omit<Charge, 'id' | 'status' | 'method' | 'reference'>): Promise<Charge>;
+  /** Marks a charge settled (paid, free or pilot); also settles the setup charge it covers. */
+  settleCharge(
+    id: string,
+    status: 'paid' | 'free' | 'pilot',
+    method: ChargeMethod,
+    providerTx?: string,
+  ): Promise<void>;
+  /** Uses one unexpired free report of the user for this charge; false if none. */
+  useFreeGrant(userId: string, chargeId: string): Promise<boolean>;
+  /** Validates and uses a cash code for this charge (same user, same amount, unused, unexpired). */
+  redeemCashCode(userId: string, code: string, chargeId: string): Promise<CashCodeResult>;
+  /** How the delivered report was charged (counts for the Programa de Aliados only when 'paid'). */
+  markPeriodCharge(
+    contractId: string,
+    periodNumber: number,
+    charge: 'paid' | 'free' | 'pilot',
+  ): Promise<void>;
+
   /** New contractor after consent (status onboarding). */
   createUser(phone: string): Promise<User>;
   recordConsent(input: {
@@ -217,6 +250,8 @@ export interface Deps {
   confidenceThreshold: number;
   /** Sends a message right away, before the turn ends (e.g. "estoy leyendo tus documentos…"). */
   progress?: (to: string, out: Outgoing) => Promise<void>;
+  /** Online payment links (Wompi). Without it only cash codes and free reports are offered. */
+  payments?: { checkoutUrl(charge: Charge, phone: string): string };
   /** Splits a PDF (pages from..to, 1-based). Without it, each support keeps the whole file. */
   extractPages?: (data: Buffer, from: number, to: number) => Promise<Buffer>;
 }

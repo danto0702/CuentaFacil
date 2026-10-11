@@ -294,3 +294,33 @@ export interface NewContract {
   requiresCertification: boolean;
   shortLabel: string;
 }
+
+// ---------------------------------------------------------------------------
+// Billing (ADR-034)
+// ---------------------------------------------------------------------------
+export interface BillingSettings {
+  /** 'pilot': nothing is charged. 'live': configuration and reports are paid before delivery. */
+  mode: 'pilot' | 'live';
+  prices: { setup: number; report: number };
+}
+
+export type ChargeStatus = 'pending' | 'paid' | 'free' | 'pilot' | 'cancelled';
+export type ChargeMethod = 'wompi' | 'cash_code' | 'free_grant' | 'pilot';
+
+export interface Charge {
+  id: string;
+  userId: string;
+  product: 'setup' | 'report';
+  contractId: string;
+  periodNumber: number | null;
+  coversSetup: boolean;
+  amount: number;
+  status: ChargeStatus;
+  method: ChargeMethod | null;
+  /** Reference sent to the payment provider. */
+  reference: string;
+}
+
+export type CashCodeResult =
+  | { ok: true }
+  | { ok: false; reason: 'not_found' | 'other_user' | 'used' | 'expired' | 'wrong_amount' };

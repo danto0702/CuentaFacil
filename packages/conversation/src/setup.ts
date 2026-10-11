@@ -798,11 +798,16 @@ export class SetupFlow {
     turn.state.step = 'start';
     turn.state.context = {};
     const next = periods.find((p) => p.status !== 'delivered');
+    const billing = await store.getBillingSettings();
+    const price =
+      billing.mode === 'pilot'
+        ? 'Durante el piloto la configuración no tiene costo.'
+        : `💳 La configuración de este contrato vale ${formatCOP(billing.prices.setup)}; la pagas junto con tu primer informe, antes de recibir los documentos.`;
     turn.out.push(
       text(
         `🎉 ¡Listo! Tu contrato *${contract.fullNumber}* quedó configurado: ${periods.length} cuentas (${
           contract.periodMode === 'month_end' ? 'corte a fin de mes' : 'corte fecha a fecha'
-        }).${next ? `\nTu próxima cuenta va del ${formatDdMmYyyy(next.from)} al ${formatDdMmYyyy(next.to)}.` : ''}\n\nDurante el piloto la configuración no tiene costo.\n\nDesde ya cuéntame lo que haces cada día: texto, audio o fotos. Yo lo anoto en la obligación que corresponde. Escribe *menú* para ver todas las opciones.`,
+        }).${next ? `\nTu próxima cuenta va del ${formatDdMmYyyy(next.from)} al ${formatDdMmYyyy(next.to)}.` : ''}\n\n${price}\n\nDesde ya cuéntame lo que haces cada día: texto, audio o fotos. Yo lo anoto en la obligación que corresponde. Escribe *menú* para ver todas las opciones.`,
       ),
     );
   }
