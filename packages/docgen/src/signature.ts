@@ -22,10 +22,7 @@ export async function cleanSignature(photo: Buffer): Promise<Buffer | null> {
   const { width: w, height: h } = info;
   // Small enough to follow shadows and folds, large enough not to follow the strokes themselves.
   const blurSigma = Math.max(4, Math.round(Math.max(w, h) / 60));
-  const bg = await sharp(gray, { raw: { width: w, height: h, channels: 1 } })
-    .blur(blurSigma)
-    .raw()
-    .toBuffer();
+  const bg = await localBackground(gray, w, h, blurSigma);
 
   // Paper brightness (90th percentile): strokes must be clearly darker than the paper in absolute terms,
   // which leaves out the table around the sheet, fold shadows and paper edges.
@@ -86,6 +83,20 @@ export async function cleanSignature(photo: Buffer): Promise<Buffer | null> {
   // A signature is wider than tall: a clearly vertical result was photographed sideways.
   const img = sharp(out, { raw: { width: cw, height: ch, channels: 3 } });
   return (ch > cw * 1.3 ? img.rotate(270) : img).png().toBuffer();
+}
+
+/** The paper around each pixel: a heavy blur of the grey image, one byte per pixel. */
+export async function localBackground(gray: Buffer, w: number, h: number, sigma: number): Promise<Buffer> {
+  // sharp returns 3 channels after processing a 1-channel raw image unless told otherwise; reading
+  // that as one byte per pixel striped and cut the signature.
+  const bg = await sharp(gray, { raw: { width: w, height: h, channels: 1 } })
+    .blur(sigma)
+    .toColourspace('b-w')
+    .extractChannel(0)
+    .raw()
+    .toBuffer();
+  if (bg.length !== w * h) throw new Error('cleanSignature: background has the wrong size');
+  return bg;
 }
 
 interface Box {

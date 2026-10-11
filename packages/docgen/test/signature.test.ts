@@ -1,6 +1,6 @@
 import sharp from 'sharp';
 import { describe, expect, it } from 'vitest';
-import { cleanSignature } from '../src/signature.js';
+import { cleanSignature, localBackground } from '../src/signature.js';
 
 /** A phone-like photo: sheet on a table, shadow gradient, a fold line and a dark signature stroke. */
 async function photo(): Promise<Buffer> {
@@ -52,6 +52,30 @@ describe('cleanSignature', () => {
     const fromPng = await sharp((await cleanSignature(png))!).metadata();
     expect(Math.abs(fromPng.width! - fromJpeg.width!)).toBeLessThan(20);
     expect(Math.abs(fromPng.height! - fromJpeg.height!)).toBeLessThan(20);
+  });
+
+  it('keeps strokes solid, without stripes or gaps', async () => {
+    // A straight horizontal stroke on paper: in the result its middle row must be dark end to end.
+    const svg = `<svg width="1000" height="700" xmlns="http://www.w3.org/2000/svg">
+      <defs><linearGradient id="v" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#f6f4f0"/><stop offset="1" stop-color="#9a968f"/></linearGradient></defs>
+      <rect width="1000" height="700" fill="url(#v)"/>
+      <line x1="200" y1="350" x2="800" y2="350" stroke="#2a2a3a" stroke-width="8"/></svg>`;
+    const out = await cleanSignature(await sharp(Buffer.from(svg)).jpeg().toBuffer());
+    const { data, info } = await sharp(out!).greyscale().raw().toBuffer({ resolveWithObject: true });
+    expect(info.width).toBeGreaterThan(550);
+    let best = 0;
+    for (let y = 0; y < info.height; y++) {
+      let dark = 0;
+      for (let x = 0; x < info.width; x++) if (data[y * info.width + x]! < 128) dark++;
+      best = Math.max(best, dark);
+    }
+    expect(best / info.width).toBeGreaterThan(0.9);
+  });
+
+  it('computes the background with one value per pixel', async () => {
+    const gray = Buffer.alloc(120 * 80, 200);
+    expect((await localBackground(gray, 120, 80, 6)).length).toBe(120 * 80);
   });
 
   it('returns null when there is no ink', async () => {
