@@ -254,6 +254,28 @@ describe('other flows', () => {
     expect(p?.amountSource).toBe('certificate');
   });
 
+  it('starts a report over after confirmation, keeping the supports', async () => {
+    const h = harness();
+    await h.say('Hoy capacité a 30 personas en misión médica en El Carmen');
+    await h.press(`c:${DEMO_IDS.salud}`);
+    const p = (await h.store.listPeriods(DEMO_IDS.salud)).find(
+      (x) => x.from <= '2026-09-28' && '2026-09-28' <= x.to,
+    )!;
+    const before = (await h.store.listNotes(DEMO_IDS.salud, p.from, p.to)).length;
+    const supports = h.store.data.supports.length;
+    expect(before).toBeGreaterThan(0);
+    await h.say('reiniciar');
+    let out = show(await h.press(`c:${DEMO_IDS.salud}`));
+    expect(out[0]).toMatch(/^🗑️ ¿Reinicio el informe .*\[Sí, reiniciar\] \[Cancelar\]$/s);
+    out = show(await h.press(`rst:${DEMO_IDS.salud}:${p.number}`));
+    expect(out[0]).toMatch(
+      new RegExp(`^✅ Listo, reinicié el informe .*: borré ${before} notas? y el borrador`),
+    );
+    expect(await h.store.listNotes(DEMO_IDS.salud, p.from, p.to)).toEqual([]);
+    expect(await h.store.listDrafts(DEMO_IDS.salud, p.number)).toEqual([]);
+    expect(h.store.data.supports.length).toBe(supports);
+  });
+
   it('changes the cut mode only for undelivered periods, after confirmation', async () => {
     const h = harness();
     await h.say('cambiar corte');

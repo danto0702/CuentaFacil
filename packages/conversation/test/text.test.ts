@@ -86,6 +86,12 @@ describe('matchMonthRequest', () => {
     expect(matchMonthRequest('vuelve a generar la cuenta de septiembre')).toEqual({ month: 9, redo: true });
   });
 
+  it('reads starting and resetting a month', () => {
+    expect(matchMonthRequest('Iniciemos a realizar la cuenta de agosto')).toEqual({ month: 8, redo: false });
+    expect(matchMonthRequest('reiniciar agosto')).toEqual({ month: 8, redo: false, reset: true });
+    expect(matchMonthRequest('resetear la cuenta de agosto')).toEqual({ month: 8, redo: false, reset: true });
+  });
+
   it('leaves activities alone', () => {
     expect(matchMonthRequest('Entregué el informe de julio a la secretaría de salud')).toBeNull();
     expect(matchMonthRequest('En julio capacité a 30 personas')).toBeNull();

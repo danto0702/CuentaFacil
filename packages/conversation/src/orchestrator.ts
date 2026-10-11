@@ -259,7 +259,7 @@ export class Orchestrator {
       const monthReq = matchMonthRequest(msg.text);
       if (monthReq && (await this.activeContracts(turn)).length) {
         this.reset(turn);
-        return this.startMonthReport(turn, monthReq.month, monthReq.redo);
+        return this.startMonthReport(turn, monthReq.month, monthReq.redo, monthReq.reset);
       }
       const cmd = matchCommand(msg.text);
       // No contract yet: greetings and the menu go to the setup (or the pending-institution notice).
@@ -294,6 +294,13 @@ export class Orchestrator {
       const [contractId, n] = msg.replyId.slice(5).split(':');
       const c = (await this.activeContracts(turn)).find((x) => x.id === contractId);
       if (c) return this.startGenerate(turn, c, true, Number(n));
+    }
+    if (msg.kind === 'reply' && msg.replyId?.startsWith('rst:')) {
+      this.reset(turn);
+      const [contractId, n] = msg.replyId.slice(4).split(':');
+      const c = (await this.activeContracts(turn)).find((x) => x.id === contractId);
+      const p = c && (await this.deps.store.listPeriods(c.id)).find((x) => x.number === Number(n));
+      if (c && p) return this.resetReport(turn, c, p);
     }
     if (msg.kind === 'reply' && msg.replyId?.startsWith('dft:')) {
       this.reset(turn);
@@ -335,6 +342,12 @@ export class Orchestrator {
         return this.onPickContract(turn, msg, (c) => this.startGenerate(turn, c));
       case 'status_pick_contract':
         return this.onPickContract(turn, msg, (c) => this.startStatus(turn, [c]));
+      case 'reset_pick_contract':
+        return this.onPickContract(turn, msg, async (c) => {
+          const p = await this.currentPeriod(c);
+          if (!p) turn.out.push(text(`No tienes cuentas pendientes en ${c.shortLabel}.`));
+          else await this.askReset(turn, c, p);
+        });
       case 'cut_pick_contract':
         return this.onPickContract(turn, msg, (c) => this.startCut(turn, c));
       case 'draft_missing':
@@ -377,6 +390,12 @@ export class Orchestrator {
         );
       case 'cut_mode':
         return this.withContract(turn, 'cut_pick_contract', (cs) => this.startCut(turn, cs[0]!));
+      case 'reset':
+        return this.withContract(turn, 'reset_pick_contract', async (cs) => {
+          const p = await this.currentPeriod(cs[0]!);
+          if (!p) turn.out.push(text(`No tienes cuentas pendientes en ${cs[0]!.shortLabel}.`));
+          else await this.askReset(turn, cs[0]!, p);
+        });
       case 'support':
         turn.out.push(
           text('🙋 Listo, le aviso a una persona del equipo de soporte. Te escribiremos por aquí.'),
@@ -425,7 +444,7 @@ export class Orchestrator {
     if (help) {
       turn.out.push(
         text(
-          `Soy ${SIGNATURE}. Así me usas:\n1️⃣ Durante el mes, cuéntame lo que haces: texto, audio o fotos. Yo lo anoto en la obligación que corresponde.\n2️⃣ Envíame los soportes (planilla, antecedentes, afiliaciones) cuando los tengas.\n3️⃣ Al cierre escribe *genera el informe* (o *ver borrador*): redacto el informe y tú lo apruebas.\n4️⃣ Escribe *generar* y te envío los documentos listos para firmar.\n↩️ Si una nota quedó mal, escribe *borra la última nota*.`,
+          `Soy ${SIGNATURE}. Así me usas:\n1️⃣ Durante el mes, cuéntame lo que haces: texto, audio o fotos. Yo lo anoto en la obligación que corresponde.\n2️⃣ Envíame los soportes (planilla, antecedentes, afiliaciones) cuando los tengas.\n3️⃣ Al cierre escribe *genera el informe* (o *ver borrador*): redacto el informe y tú lo apruebas.\n4️⃣ Escribe *generar* y te envío los documentos listos para firmar.\n↩️ Si una nota quedó mal, escribe *borra la última nota*; para empezar un informe de cero, *reiniciar*.`,
         ),
       );
     }
@@ -1130,7 +1149,7 @@ export class Orchestrator {
    * "Informe de julio", "rehacer julio": works on the report of that month, whatever Pascal was asking.
    * A delivered report is regenerated only when the contractor asked to redo it (or taps the button).
    */
-  private async startMonthReport(turn: Turn, month: number, redo: boolean): Promise<void> {
+  private async startMonthReport(turn: Turn, month: number, redo: boolean, reset = false): Promise<void> {
     const today = this.deps.clock.today();
     const found: { c: Contract; p: Period }[] = [];
     for (const c of await this.activeContracts(turn)) {
@@ -1164,12 +1183,46 @@ export class Orchestrator {
       return;
     }
     const { c, p } = found[0]!;
+    if (reset) return this.askReset(turn, c, p);
     if (p.status !== 'delivered') return this.startDraft(turn, c, p);
     if (redo) return this.startGenerate(turn, c, true, p.number);
     turn.out.push(
       buttons(
         `El informe ${formatReportNumber(p.number, c.paymentsCount, c.reportNumberFormat)} (${formatRangeLong(p.from, p.to)}) ya te lo entregué. ¿Quieres que lo rehaga con los formatos y datos actualizados?`,
         [{ id: `redo:${c.id}:${p.number}`, title: `Rehacer ${name}` }],
+      ),
+    );
+  }
+
+  /** Asks before starting a report over: only reports not yet delivered can be reset. */
+  private async askReset(turn: Turn, c: Contract, p: Period): Promise<void> {
+    if (p.status === 'delivered') {
+      turn.out.push(
+        text(
+          `El ${this.reportLabel(c, p)} ya fue entregado, así que no lo reinicio. Si quieres volver a recibirlo con los datos actualizados, escribe *rehacer ${monthNameEs(p.from).toLowerCase()}*.`,
+        ),
+      );
+      return;
+    }
+    const notes = await this.deps.store.listNotes(c.id, p.from, p.to);
+    turn.out.push(
+      buttons(
+        `🗑️ ¿Reinicio el ${this.reportLabel(c, p)}? Borro sus ${notes.length} nota${notes.length === 1 ? '' : 's'} y el borrador, y empezamos de cero. Tus soportes (planilla, certificados, firma) se conservan.`,
+        [
+          { id: `rst:${c.id}:${p.number}`, title: 'Sí, reiniciar' },
+          { id: 'menu:cancel', title: 'Cancelar' },
+        ],
+      ),
+    );
+  }
+
+  private async resetReport(turn: Turn, c: Contract, p: Period): Promise<void> {
+    if (p.status === 'delivered') return this.askReset(turn, c, p);
+    const n = await this.deps.store.resetPeriod(c.id, p.number, p.from, p.to);
+    await this.savePeriodStatus(c, p, 'collecting');
+    turn.out.push(
+      text(
+        `✅ Listo, reinicié el ${this.reportLabel(c, p)}: borré ${n} nota${n === 1 ? '' : 's'} y el borrador. Cuéntame lo que hiciste con notas de voz, textos o fotos, y cuando termines escribe *genera el informe*.`,
       ),
     );
   }

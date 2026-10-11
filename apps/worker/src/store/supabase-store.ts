@@ -813,6 +813,37 @@ export class SupabaseStore implements Store {
     must(await this.sb.from('activity_notes').delete().eq('id', id), 'deleteNote');
   }
 
+  async resetPeriod(contractId: string, periodNumber: number, from: IsoDate, to: IsoDate): Promise<number> {
+    const notes = must(
+      await this.sb
+        .from('activity_notes')
+        .select('id')
+        .eq('contract_id', contractId)
+        .gte('activity_date', from)
+        .lte('activity_date', to),
+      'resetPeriod.notes',
+    ) as Row[];
+    const ids = notes.map((r) => str(r.id));
+    if (ids.length) {
+      must(
+        await this.sb.from('evidences').update({ note_id: null, obligation_id: null }).in('note_id', ids),
+        'resetPeriod.evidences',
+      );
+      must(await this.sb.from('activity_notes').delete().in('id', ids), 'resetPeriod.delete');
+    }
+    const period = must(
+      await this.sb
+        .from('periods')
+        .select('id')
+        .eq('contract_id', contractId)
+        .eq('report_number', periodNumber)
+        .single(),
+      'resetPeriod.period',
+    ) as Row;
+    must(await this.sb.from('drafts').delete().eq('period_id', str(period.id)), 'resetPeriod.drafts');
+    return ids.length;
+  }
+
   async getNote(id: string): Promise<Note> {
     return this.toNote(
       must(await this.sb.from('activity_notes').select('*').eq('id', id).single(), 'getNote') as Row,

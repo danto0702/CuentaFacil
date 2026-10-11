@@ -124,6 +124,15 @@ export class MemoryStore implements Store {
   async deleteNote(id: string) {
     this.data.notes = this.data.notes.filter((n) => n.id !== id);
   }
+  async resetPeriod(contractId: string, periodNumber: number, from: IsoDate, to: IsoDate) {
+    const inPeriod = (n: Note) => n.contractId === contractId && n.date >= from && n.date <= to;
+    const count = this.data.notes.filter(inPeriod).length;
+    this.data.notes = this.data.notes.filter((n) => !inPeriod(n));
+    this.data.drafts = this.data.drafts.filter(
+      (d) => !(d.contractId === contractId && d.periodNumber === periodNumber),
+    );
+    return count;
+  }
   async getNote(id: string) {
     return this.find(this.data.notes, (n) => n.id === id, `note ${id}`);
   }

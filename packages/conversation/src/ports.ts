@@ -133,6 +133,8 @@ export interface Store {
   lastNote(userId: string): Promise<Note | null>;
   /** Deletes a note; its photos stay stored but unlinked. */
   deleteNote(id: string): Promise<void>;
+  /** Starts a report over: deletes its notes (photos are kept, unlinked) and its draft. */
+  resetPeriod(contractId: string, periodNumber: number, from: IsoDate, to: IsoDate): Promise<number>;
 
   addEvidence(e: Evidence): Promise<void>;
   getEvidence(id: string): Promise<Evidence>;
