@@ -214,6 +214,46 @@ describe('other flows', () => {
     expect(out2[0]).toBe('⏳ Estoy generando tus documentos, dame un momento…');
   });
 
+  it('asks the contractor to confirm the value when the reports do not add up to the contract', async () => {
+    const h = harness();
+    await h.say('Asistí a la reunión del comité en Ábrego');
+    await h.press(`c:${DEMO_IDS.ebs}`);
+    await h.say('ver borrador');
+    let out = show(await h.press(`c:${DEMO_IDS.ebs}`));
+    while (out.some((x) => x.startsWith('Para la obligación'))) out = show(await h.press('mis:default'));
+    await h.press('rev:approve');
+    await h.document('certificado.pdf');
+    await h.press('s:CERT_EJECUCION_EBS');
+    const ps = await h.store.listPeriods(DEMO_IDS.ebs);
+    await h.store.savePeriods(
+      DEMO_IDS.ebs,
+      ps.map((p, i) => (i === 0 ? { ...p, amount: p.amount - 1000 } : p)),
+    );
+
+    await h.say('generar');
+    out = show(await h.press(`c:${DEMO_IDS.ebs}`));
+    expect(out[0]).toMatch(
+      /^💰 Las cuentas de tu contrato suman .* ¿Cobro ese valor\? \[Sí, cobrar ese\] \[Otro valor\]$/s,
+    );
+    out = show(await h.press('amt:other'));
+    expect(out[0]).toMatch(/^Escríbeme el valor a cobrar/);
+    out = show(await h.say('$ 1.500.000'));
+    expect(out[0]).toMatch(/^✅ Listo, el informe .* queda por \*\$ 1\.500\.000\*\.$/);
+    expect(out[1]).toBe('⏳ Estoy generando tus documentos, dame un momento…');
+  });
+
+  it('suggests the value of a compliance certificate and lets the contractor decide', async () => {
+    const h = harness();
+    h.store.data.contracts = h.store.data.contracts.filter((c) => c.id === DEMO_IDS.salud);
+    const out = show(await h.document('CERTIFICADO_CUMPLIMIENTO.pdf'));
+    expect(out.at(-1)).toMatch(
+      /^📄 Tu certificado de cumplimiento dice que se pagan \*\$ 3\.500\.000\*.*¿Cuál cobro\? \[Cobrar \$ 3\.500\.000\] \[Dejar .*\] \[Otro valor\]$/s,
+    );
+    expect(show(await h.press('cert:use'))[0]).toMatch(/queda por \*\$ 3\.500\.000\*/);
+    const p = (await h.store.listPeriods(DEMO_IDS.salud)).find((x) => x.amount === 3_500_000);
+    expect(p?.amountSource).toBe('certificate');
+  });
+
   it('changes the cut mode only for undelivered periods, after confirmation', async () => {
     const h = harness();
     await h.say('cambiar corte');

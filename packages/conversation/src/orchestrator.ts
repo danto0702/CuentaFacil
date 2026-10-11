@@ -8,8 +8,8 @@ import {
   type IsoDate,
   monthNameEs,
   type PeriodMode,
+  planPeriodAmounts,
   recutPeriods,
-  resolvePeriodAmount,
 } from '@cuentasbot/shared';
 import { allyStatusText, findAllyCode, levelUpText, NOT_ALLY_TEXT, referralText } from './ally.js';
 import { BRAND, SIGNATURE } from './brand.js';
@@ -317,6 +317,11 @@ export class Orchestrator {
         return this.onExtraObligation(turn, msg);
       case 'draft_pick_contract':
         return this.onPickContract(turn, msg, (c) => this.startDraft(turn, c));
+      case 'amount_confirm':
+      case 'amount_cert':
+        return this.onAmountChoice(turn, msg);
+      case 'amount_write':
+        return this.onAmountWrite(turn, msg);
       case 'generate_no_pila': {
         const ctx = turn.state.context as { contractId: string; periodNumber: number; resend: boolean };
         if (msg.replyId !== 'nopila:go') break;
@@ -914,6 +919,8 @@ export class Orchestrator {
         `❓ No reconocí ${unknown.map((g) => (g.fromPage === g.toPage ? `la pág. ${g.fromPage}` : `las págs. ${g.fromPage}-${g.toPage}`)).join(', ')}.`,
       );
     turn.out.push(text(`📎 *${filename}*\n${lines.join('\n')}`));
+    const cert = known.find((g) => g.code === 'CERT_CUMPLIMIENTO' && g.amount);
+    if (cert && cs.length === 1) await this.suggestCertificateAmount(turn, cs[0]!, cert.amount!);
   }
 
   /** Fallback when the document is not recognized (or is not a PDF): the contractor picks the type. */
@@ -1471,6 +1478,9 @@ export class Orchestrator {
         return;
       }
     }
+    // The values of the contract's reports do not add up to its total: the contractor confirms this one.
+    if (!resend && !(await this.amountSettled(c, p))) return this.askAmount(turn, c, p);
+
     // Without the PILA of the right month the social security tables go out empty: ask for it first.
     const pilaMonth = pilaMonthFor((await this.deps.store.getEntity(c.entityId)).settings, p.to);
     const noPilaOk =
@@ -1557,6 +1567,126 @@ export class Orchestrator {
     );
   }
 
+  // -------------------------------------------------------------------------
+  // Value to bill (ADR-033): equal payments by default; the contractor decides when it does not add up
+  // or when a compliance certificate states another value.
+  // -------------------------------------------------------------------------
+  private async amountSettled(c: Contract, p: Period): Promise<boolean> {
+    if (p.amountSource === 'contractor' || p.amountSource === 'certificate') return true;
+    const ps = await this.deps.store.listPeriods(c.id);
+    return ps.reduce((a, x) => a + x.amount, 0) === c.totalValue;
+  }
+
+  private reportLabel(c: Contract, p: Period): string {
+    return `informe ${formatReportNumber(p.number, c.paymentsCount, c.reportNumberFormat)} (${formatRangeLong(p.from, p.to)})`;
+  }
+
+  private async askAmount(turn: Turn, c: Contract, p: Period): Promise<void> {
+    const sum = (await this.deps.store.listPeriods(c.id)).reduce((a, x) => a + x.amount, 0);
+    this.setFlow(turn, 'amount_confirm', 'ask', {
+      contractId: c.id,
+      periodNumber: p.number,
+      thenGenerate: true,
+    });
+    turn.out.push(
+      buttons(
+        `💰 Las cuentas de tu contrato suman ${formatCOP(sum)} y el contrato vale ${formatCOP(c.totalValue)}, así que necesito que me confirmes el valor.\n\nPara el ${this.reportLabel(c, p)} tengo *${formatCOP(p.amount)}*. ¿Cobro ese valor?`,
+        [
+          { id: 'amt:ok', title: 'Sí, cobrar ese' },
+          { id: 'amt:other', title: 'Otro valor' },
+        ],
+      ),
+    );
+  }
+
+  private async suggestCertificateAmount(turn: Turn, c: Contract, amount: number): Promise<void> {
+    const ps = (await this.deps.store.listPeriods(c.id)).sort((a, b) => a.number - b.number);
+    const p = ps.find((x) => x.status === 'approved') ?? (await this.currentPeriod(c));
+    if (!p) return;
+    if (amount === p.amount) {
+      await this.savePeriodAmount(c, p.number, amount, 'certificate');
+      return;
+    }
+    this.setFlow(turn, 'amount_cert', 'ask', { contractId: c.id, periodNumber: p.number, amount });
+    turn.out.push(
+      buttons(
+        `📄 Tu certificado de cumplimiento dice que se pagan *${formatCOP(amount)}*, y yo tenía *${formatCOP(p.amount)}* para el ${this.reportLabel(c, p)}. ¿Cuál cobro?`,
+        [
+          { id: 'cert:use', title: clip(`Cobrar ${formatCOP(amount)}`, 20) },
+          { id: 'cert:keep', title: clip(`Dejar ${formatCOP(p.amount)}`, 20) },
+          { id: 'amt:other', title: 'Otro valor' },
+        ],
+      ),
+    );
+  }
+
+  private async onAmountChoice(turn: Turn, msg: Inbound): Promise<void> {
+    const ctx = turn.state.context as {
+      contractId: string;
+      periodNumber: number;
+      amount?: number;
+      thenGenerate?: boolean;
+    };
+    const c = await this.deps.store.getContract(ctx.contractId);
+    const p = (await this.deps.store.listPeriods(c.id)).find((x) => x.number === ctx.periodNumber)!;
+    if (msg.replyId === 'amt:other') {
+      this.setFlow(turn, 'amount_write', 'write', { ...ctx });
+      turn.out.push(
+        text(`Escríbeme el valor a cobrar en el ${this.reportLabel(c, p)}. Por ejemplo: *4.000.000*.`),
+      );
+      return;
+    }
+    if (msg.replyId === 'cert:use' && ctx.amount)
+      await this.savePeriodAmount(c, p.number, ctx.amount, 'certificate');
+    else if (msg.replyId === 'amt:ok' || msg.replyId === 'cert:keep')
+      await this.savePeriodAmount(c, p.number, p.amount, 'contractor');
+    else {
+      turn.out.push(text('Toca una de las opciones o escribe *menú* para salir.'));
+      return;
+    }
+    return this.afterAmount(turn, c, ctx.periodNumber, ctx.thenGenerate);
+  }
+
+  private async onAmountWrite(turn: Turn, msg: Inbound): Promise<void> {
+    const ctx = turn.state.context as { contractId: string; periodNumber: number; thenGenerate?: boolean };
+    const c = await this.deps.store.getContract(ctx.contractId);
+    const ps = await this.deps.store.listPeriods(c.id);
+    const digits = (msg.text ?? '').replace(/[^\d]/g, '');
+    const value = digits ? Number(digits) : Number.NaN;
+    const others = ps.filter((x) => x.number !== ctx.periodNumber && x.status === 'delivered');
+    const max = c.totalValue - others.reduce((a, x) => a + x.amount, 0);
+    if (!Number.isFinite(value) || value <= 0 || value > max) {
+      turn.out.push(
+        text(
+          `Escríbeme solo el valor en pesos, sin centavos (máximo ${formatCOP(max)}). Por ejemplo: *4.000.000*.`,
+        ),
+      );
+      return;
+    }
+    await this.savePeriodAmount(c, ctx.periodNumber, value, 'contractor');
+    return this.afterAmount(turn, c, ctx.periodNumber, ctx.thenGenerate);
+  }
+
+  private async afterAmount(turn: Turn, c: Contract, n: number, thenGenerate?: boolean): Promise<void> {
+    const p = (await this.deps.store.listPeriods(c.id)).find((x) => x.number === n)!;
+    this.reset(turn);
+    turn.out.push(text(`✅ Listo, el ${this.reportLabel(c, p)} queda por *${formatCOP(p.amount)}*.`));
+    if (thenGenerate) return this.startGenerate(turn, c);
+  }
+
+  private async savePeriodAmount(
+    c: Contract,
+    n: number,
+    amount: number,
+    source: Period['amountSource'],
+  ): Promise<void> {
+    const ps = await this.deps.store.listPeriods(c.id);
+    await this.deps.store.savePeriods(
+      c.id,
+      ps.map((x) => (x.number === n ? { ...x, amount, amountSource: source } : x)),
+    );
+  }
+
   private async recut(c: Contract, mode: PeriodMode): Promise<{ kept: Period[]; rebuilt: Period[] }> {
     const existing = await this.deps.store.listPeriods(c.id);
     const { kept, rebuilt } = recutPeriods(
@@ -1571,13 +1701,16 @@ export class Orchestrator {
       mode,
     );
     const keptPeriods = existing.filter((p) => kept.some((k) => k.number === p.number));
-    const newPeriods: Period[] = rebuilt.map((r) => {
-      const schedule = c.schedule?.find((s) => s.paymentNumber === r.number);
-      const resolved = resolvePeriodAmount({
-        monthlyValue: c.monthlyValue,
-        period: r,
-        ...(schedule ? { schedule } : {}),
-      });
+    // Only what is left of the contract is split among the new periods.
+    const plan = planPeriodAmounts({
+      periods: rebuilt,
+      totalValue: c.totalValue - keptPeriods.reduce((a, p) => a + p.amount, 0),
+      monthlyValue: c.monthlyValue,
+      paymentsCount: Math.max(c.paymentsCount - keptPeriods.length, 0),
+      ...(c.schedule ? { schedule: c.schedule } : {}),
+    });
+    const newPeriods: Period[] = rebuilt.map((r, i) => {
+      const resolved = plan.amounts[i]!;
       const prev = existing.find((p) => p.number === r.number);
       return {
         contractId: c.id,

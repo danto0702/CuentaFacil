@@ -129,6 +129,7 @@ export class FakeAI implements AI {
     if (name.includes('AFILIACION')) return [seg('EPS', 1), seg('ARL', 2), seg('AFP', 3)];
     if (name.includes('ANTECEDENTE'))
       return [seg('POLICIA', 1), seg('RNMC', 2), seg('PROCURADURIA', 3), seg('CONTRALORIA', 4)];
+    if (name.includes('CUMPLIMIENTO')) return [{ ...seg('CERT_CUMPLIMIENTO', 1), amount: 3_500_000 }];
     if (name.includes('SEGURIDAD') || name.includes('PILA'))
       return [{ ...seg('PILA', 1, 'periodo septiembre 2026'), toPage: 2 }];
     return [seg(null, 1)];

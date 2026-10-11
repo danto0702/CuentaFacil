@@ -112,6 +112,7 @@ For each document in the PDF, return its checklist code and the page range it sp
 - EPS: certificado de afiliación a salud (EPS). ARL: afiliación a riesgos laborales. AFP: afiliación a pensión (fondo de pensiones, Colpensiones).
 Use only codes from the given checklist; use null for pages that are none of them (cover pages, blank pages, unrelated documents).
 issued_on: the issue/query/payment date printed on the document (YYYY-MM-DD), or null.
+amount: only for a compliance certificate (certificado / certificación de cumplimiento issued by the supervisor), the value it certifies to pay for this period, as an integer in pesos; null otherwise or if not printed.
 note: a very short Spanish note useful to the contractor, e.g. "no registra antecedentes", "periodo septiembre 2026", "estado activo"; flag anything worrying, e.g. "REGISTRA ANTECEDENTES" or "afiliación retirada". null if nothing to add.
 Never invent: if unsure of a code, use null.`;
 
@@ -148,6 +149,7 @@ const supportsSchema = z.object({
       to_page: z.number().int(),
       issued_on: z.string().nullable(),
       note: z.string().nullable(),
+      amount: z.number().int().nullable(),
     }),
   ),
 });
@@ -237,6 +239,7 @@ export class ClaudeAI implements AI {
       toPage: Math.max(g.from_page, g.to_page),
       issuedOn: g.issued_on && /^\d{4}-\d{2}-\d{2}$/.test(g.issued_on) ? (g.issued_on as IsoDate) : null,
       note: g.note?.trim() || null,
+      amount: g.amount && g.amount > 0 ? g.amount : null,
     }));
   }
 

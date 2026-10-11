@@ -3,6 +3,7 @@ import {
   checkScheduleTotal,
   computedSchedule,
   exceedsContractValue,
+  planPeriodAmounts,
   proratedAmount,
   resolvePeriodAmount,
   type ScheduledPayment,
@@ -83,5 +84,74 @@ describe('payments', () => {
   it('detects billing over the contract value', () => {
     expect(exceedsContractValue(8_000_000, 4_000_000, 12_000_000)).toBe(false);
     expect(exceedsContractValue(8_000_000, 4_000_001, 12_000_000)).toBe(true);
+  });
+});
+
+describe('planPeriodAmounts', () => {
+  const r = (number: number, commercialDays: number) => ({
+    number,
+    commercialDays,
+    full: commercialDays >= 30,
+  });
+
+  it('splits into equal payments when the periods match the payments (HRNO: 3 × 4.000.000 from the 6th)', () => {
+    const plan = planPeriodAmounts({
+      periods: [r(1, 25), r(2, 30), r(3, 30)],
+      totalValue: 12_000_000,
+      monthlyValue: 4_000_000,
+      paymentsCount: 3,
+    });
+    expect(plan.amounts.map((a) => a.amount)).toEqual([4_000_000, 4_000_000, 4_000_000]);
+    expect(plan.balanced).toBe(true);
+  });
+
+  it('puts the rounding difference in the last payment', () => {
+    const plan = planPeriodAmounts({
+      periods: [r(1, 30), r(2, 30), r(3, 30)],
+      totalValue: 10_000_000,
+      monthlyValue: 3_333_333,
+      paymentsCount: 3,
+    });
+    expect(plan.amounts.map((a) => a.amount)).toEqual([3_333_333, 3_333_333, 3_333_334]);
+  });
+
+  it('prorates when the periods do not match the payments; balanced if it still adds up', () => {
+    const plan = planPeriodAmounts({
+      periods: [r(1, 25), r(2, 30), r(3, 30), r(4, 5)],
+      totalValue: 12_000_000,
+      monthlyValue: 4_000_000,
+      paymentsCount: 3,
+    });
+    expect(plan.amounts.map((a) => a.amount)).toEqual([3_333_333, 4_000_000, 4_000_000, 666_667]);
+    expect(plan.balanced).toBe(true);
+  });
+
+  it('flags a plan that does not add up to the contract value', () => {
+    const plan = planPeriodAmounts({
+      periods: [r(1, 25), r(2, 30), r(3, 30)],
+      totalValue: 12_000_000,
+      monthlyValue: 4_000_000,
+      paymentsCount: 4,
+    });
+    expect(plan.amounts.map((a) => a.amount)).toEqual([3_333_333, 4_000_000, 4_000_000]);
+    expect(plan.balanced).toBe(false);
+  });
+
+  it('uses the clause schedule when it covers every period', () => {
+    const plan = planPeriodAmounts({
+      periods: [r(1, 25), r(2, 30)],
+      totalValue: 7_000_000,
+      monthlyValue: 4_000_000,
+      paymentsCount: 2,
+      schedule: [
+        { paymentNumber: 1, amount: 3_000_000, items: [] },
+        { paymentNumber: 2, amount: 4_000_000, items: [] },
+      ],
+    });
+    expect(plan.amounts.map((a) => [a.amount, a.source])).toEqual([
+      [3_000_000, 'schedule'],
+      [4_000_000, 'schedule'],
+    ]);
+    expect(plan.balanced).toBe(true);
   });
 });

@@ -4,7 +4,7 @@ import {
   formatDdMmYyyy,
   type IsoDate,
   type PeriodMode,
-  resolvePeriodAmount,
+  planPeriodAmounts,
   toIso,
 } from '@cuentasbot/shared';
 import { allyWelcome } from './ally.js';
@@ -765,17 +765,20 @@ export class SetupFlow {
     });
 
     const prior = ctx.priorCount ?? 0;
-    const periods: Period[] = buildPeriods({
+    const ranges = buildPeriods({
       contractStart: startDate,
       contractEnd: endDate,
       mode: contract.periodMode,
-    }).map((r) => {
-      const schedule = contract.schedule?.find((s) => s.paymentNumber === r.number);
-      const res = resolvePeriodAmount({
-        monthlyValue: contract.monthlyValue,
-        period: r,
-        ...(schedule ? { schedule } : {}),
-      });
+    });
+    const plan = planPeriodAmounts({
+      periods: ranges,
+      totalValue: contract.totalValue,
+      monthlyValue: contract.monthlyValue,
+      paymentsCount: contract.paymentsCount,
+      ...(contract.schedule ? { schedule: contract.schedule } : {}),
+    });
+    const periods: Period[] = ranges.map((r, i) => {
+      const res = plan.amounts[i]!;
       return {
         contractId: contract.id,
         number: r.number,

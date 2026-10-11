@@ -170,6 +170,8 @@ export interface SupportSegment {
   issuedOn: IsoDate | null;
   /** Short note for the contractor (e.g. "sin antecedentes", "periodo septiembre 2026"). */
   note: string | null;
+  /** Compliance certificate only: the value it certifies for payment, in pesos. */
+  amount?: number | null;
 }
 
 export interface SocialSecurity {
