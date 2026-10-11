@@ -773,6 +773,27 @@ export class SupabaseStore implements Store {
     };
   }
 
+  async lastNote(userId: string): Promise<Note | null> {
+    const rows = must(
+      await this.sb
+        .from('activity_notes')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(1),
+      'lastNote',
+    ) as Row[];
+    return rows[0] ? this.toNote(rows[0]) : null;
+  }
+
+  async deleteNote(id: string): Promise<void> {
+    must(
+      await this.sb.from('evidences').update({ note_id: null, obligation_id: null }).eq('note_id', id),
+      'deleteNote',
+    );
+    must(await this.sb.from('activity_notes').delete().eq('id', id), 'deleteNote');
+  }
+
   async getNote(id: string): Promise<Note> {
     return this.toNote(
       must(await this.sb.from('activity_notes').select('*').eq('id', id).single(), 'getNote') as Row,

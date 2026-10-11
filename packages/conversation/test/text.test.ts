@@ -63,3 +63,17 @@ describe('parseActivityWhen (today = 2026-10-11)', () => {
     expect(parseActivityWhen('capacité al personal', today)).toBeNull();
   });
 });
+
+describe('requests in other words', () => {
+  it('recognizes short requests and leaves activity notes alone', () => {
+    expect(matchCommand('Genera el informe')).toBe('draft');
+    expect(matchCommand('hazme la cuenta de cobro de julio')).toBe('draft');
+    expect(matchCommand('ya puedes hacer los informes?')).toBe('draft');
+    expect(matchCommand('borra la última nota')).toBe('undo_note');
+    expect(matchCommand('como voy')).toBe('status');
+    expect(
+      matchCommand('Se elaboró el informe de vigilancia epidemiológica de las UPGD de Ábrego y El Carmen'),
+    ).toBeNull();
+    expect(matchCommand('Elaboré el informe del COVE')).toBeNull();
+  });
+});

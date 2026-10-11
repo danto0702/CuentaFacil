@@ -124,6 +124,10 @@ export interface Store {
   updateNote(note: Note): Promise<void>;
   getNote(id: string): Promise<Note>;
   listNotes(contractId: string, from: IsoDate, to: IsoDate): Promise<Note[]>;
+  /** The contractor's most recent note, to undo it. */
+  lastNote(userId: string): Promise<Note | null>;
+  /** Deletes a note; its photos stay stored but unlinked. */
+  deleteNote(id: string): Promise<void>;
 
   addEvidence(e: Evidence): Promise<void>;
   getEvidence(id: string): Promise<Evidence>;

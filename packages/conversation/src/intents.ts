@@ -15,6 +15,7 @@ export type Command =
   | 'about'
   | 'add_contract'
   | 'ally'
+  | 'undo_note'
   | 'cancel';
 
 const COMMANDS: [Command, string[]][] = [
@@ -49,13 +50,35 @@ const COMMANDS: [Command, string[]][] = [
   ],
   ['add_contract', ['agregar contrato', 'nuevo contrato', 'configurar contrato', 'registrar contrato']],
   ['ally', ['aliado', 'mi codigo', 'codigo de aliado', 'mis referidos', 'referidos', 'programa de aliados']],
+  [
+    'undo_note',
+    ['borrar nota', 'borrar ultima nota', 'eliminar nota', 'eliminar ultima nota', 'deshacer', 'borrar eso'],
+  ],
   ['cancel', ['cancelar', 'salir']],
 ];
 
-/** Exact (normalized) match against known commands and synonyms. Free text returns null. */
+// Requests said in other words ("genera el informe", "hazme la cuenta de cobro", "borra esa nota").
+// Only short messages are checked, so a long activity note that mentions a report stays a note.
+const ACTION =
+  '(genera|generar|generame|genere|haz|hazme|hacer|haga|crea|crear|creame|elabora|elaborar|elaborame|prepara|preparar|preparame|saca|sacar|sacame|arma|armar|armame|redacta|redactar|redactame|cierra|cerrar|cierrame|necesito|quiero|listo para|ya puedes hacer|puedes hacer|ya genera|ya haz)';
+const REPORT =
+  '(informe|informes|la cuenta|las cuentas|cuenta de cobro|cuentas de cobro|documentos|reporte|reportes)';
+const PATTERNS: [Command, RegExp][] = [
+  [
+    'undo_note',
+    /\b(borra|borrar|borrala|elimina|eliminar|eliminala|quita|quitar|quitala)\b.*\b(nota|actividad|registro|eso|esa|ultima)\b/,
+  ],
+  ['draft', new RegExp(`\\b${ACTION}\\b.*\\b${REPORT}\\b`)],
+  ['status', /\b(que me falta|que falta|como voy|como va mi cuenta|estado de mi cuenta)\b/],
+];
+const MAX_WORDS_FOR_PATTERNS = 8;
+
+/** Known commands: exact synonyms, or a short request in other words. Free text returns null. */
 export function matchCommand(text: string): Command | null {
   const t = normalize(text);
   for (const [cmd, words] of COMMANDS) if (words.includes(t)) return cmd;
+  if (t.split(' ').length > MAX_WORDS_FOR_PATTERNS) return null;
+  for (const [cmd, re] of PATTERNS) if (re.test(t)) return cmd;
   return null;
 }
 

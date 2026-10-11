@@ -316,3 +316,18 @@ describe('notes after the contract ended', () => {
     expect(h.store.data.notes.at(-1)!.evidenceIds).toHaveLength(1);
   });
 });
+
+describe('undo the last note', () => {
+  it('asks for confirmation and deletes it', async () => {
+    const h = harness({ today: '2026-09-28' });
+    await h.say('Hoy capacité al personal en la ruta de misión médica');
+    await h.press(`c:${DEMO_IDS.salud}`);
+    const before = h.store.data.notes.length;
+    const last = h.store.data.notes.at(-1)!;
+    let out = show(await h.say('borra esa nota'));
+    expect(out[0]).toMatch(/^🗑️ ¿Borro tu última nota \(28\/09\/2026\)\?\n«Hoy capacité/);
+    out = show(await h.press(`del:${last.id}`));
+    expect(out[0]).toBe('🗑️ Borré la nota.');
+    expect(h.store.data.notes).toHaveLength(before - 1);
+  });
+});

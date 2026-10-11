@@ -117,6 +117,13 @@ export class MemoryStore implements Store {
   async updateNote(note: Note) {
     this.data.notes = this.data.notes.map((n) => (n.id === note.id ? clone(note) : n));
   }
+  async lastNote(userId: string) {
+    const mine = this.data.notes.filter((n) => n.userId === userId);
+    return mine.length ? clone(mine[mine.length - 1]!) : null;
+  }
+  async deleteNote(id: string) {
+    this.data.notes = this.data.notes.filter((n) => n.id !== id);
+  }
   async getNote(id: string) {
     return this.find(this.data.notes, (n) => n.id === id, `note ${id}`);
   }

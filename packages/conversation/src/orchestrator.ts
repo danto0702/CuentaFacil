@@ -356,6 +356,20 @@ export class Orchestrator {
       case 'about':
         turn.out.push(...this.about());
         return;
+      case 'undo_note': {
+        const note = await this.deps.store.lastNote(turn.user.id);
+        if (!note) {
+          turn.out.push(text('No tienes notas para borrar.'));
+          return;
+        }
+        turn.out.push(
+          buttons(`🗑️ ¿Borro tu última nota (${formatDdMmYyyy(note.date)})?\n«${clip(note.text, 300)}»`, [
+            { id: `del:${note.id}`, title: 'Sí, borrarla' },
+            { id: 'del:no', title: 'No' },
+          ]),
+        );
+        return;
+      }
       case 'ally': {
         const status = await this.deps.store.allyStatus(turn.user.id);
         turn.out.push(...(status ? allyStatusText(status) : [NOT_ALLY_TEXT]));
@@ -379,7 +393,7 @@ export class Orchestrator {
     if (help) {
       turn.out.push(
         text(
-          `Soy ${SIGNATURE}. Así me usas:\n1️⃣ Durante el mes, cuéntame lo que haces: texto, audio o fotos. Yo lo anoto en la obligación que corresponde.\n2️⃣ Envíame los soportes (planilla, antecedentes, afiliaciones) cuando los tengas.\n3️⃣ Al cierre escribe *ver borrador*: redacto el informe y tú lo apruebas.\n4️⃣ Escribe *generar* y te envío los documentos listos para firmar.`,
+          `Soy ${SIGNATURE}. Así me usas:\n1️⃣ Durante el mes, cuéntame lo que haces: texto, audio o fotos. Yo lo anoto en la obligación que corresponde.\n2️⃣ Envíame los soportes (planilla, antecedentes, afiliaciones) cuando los tengas.\n3️⃣ Al cierre escribe *genera el informe* (o *ver borrador*): redacto el informe y tú lo apruebas.\n4️⃣ Escribe *generar* y te envío los documentos listos para firmar.\n↩️ Si una nota quedó mal, escribe *borra la última nota*.`,
         ),
       );
     }
@@ -538,6 +552,12 @@ export class Orchestrator {
     if (msg.kind === 'text' && msg.text) return this.startNote(turn, msg.text);
     if (msg.kind === 'reply' && msg.replyId?.startsWith('chg:'))
       return this.askObligation(turn, msg.replyId.slice(4));
+    if (msg.kind === 'reply' && msg.replyId?.startsWith('del:')) {
+      const id = msg.replyId.slice(4);
+      if (id !== 'no') await this.deps.store.deleteNote(id);
+      turn.out.push(text(id === 'no' ? 'Listo, no borré nada.' : '🗑️ Borré la nota.'));
+      return;
+    }
     if (msg.kind === 'reply' && msg.replyId?.startsWith('add:'))
       return this.askExtraObligation(turn, msg.replyId.slice(4));
     if (msg.kind === 'reply' && msg.replyId?.startsWith('nok:')) {
