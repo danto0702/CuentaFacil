@@ -24,7 +24,7 @@ import type {
   SupportType,
   User,
 } from './domain.js';
-import { noteSupports } from './domain.js';
+import { noteSupports, pilaMonthFor } from './domain.js';
 import { type Command, forcedNote, matchCommand, matchMonthRequest } from './intents.js';
 import type { Deps, Inbound, ListRow, Outgoing } from './ports.js';
 import { POLICY_VERSION, SETUP_FLOW, SetupFlow } from './setup.js';
@@ -317,6 +317,15 @@ export class Orchestrator {
         return this.onExtraObligation(turn, msg);
       case 'draft_pick_contract':
         return this.onPickContract(turn, msg, (c) => this.startDraft(turn, c));
+      case 'generate_no_pila': {
+        const ctx = turn.state.context as { contractId: string; periodNumber: number; resend: boolean };
+        if (msg.replyId !== 'nopila:go') break;
+        const c = await this.deps.store.getContract(ctx.contractId);
+        turn.state.context = { noPila: `${c.id}:${ctx.periodNumber}` };
+        await this.startGenerate(turn, c, ctx.resend, ctx.periodNumber);
+        this.reset(turn);
+        return;
+      }
       case 'generate_pick_contract':
         return this.onPickContract(turn, msg, (c) => this.startGenerate(turn, c));
       case 'status_pick_contract':
@@ -1461,6 +1470,22 @@ export class Orchestrator {
         );
         return;
       }
+    }
+    // Without the PILA of the right month the social security tables go out empty: ask for it first.
+    const pilaMonth = pilaMonthFor((await this.deps.store.getEntity(c.entityId)).settings, p.to);
+    const noPilaOk =
+      turn.state.context && (turn.state.context as { noPila?: string }).noPila === `${c.id}:${p.number}`;
+    if (!noPilaOk && !(await this.deps.store.getSocialSecurity(turn.user.id, pilaMonth))) {
+      const month = `${monthNameEs(pilaMonth).toLowerCase()} de ${pilaMonth.slice(0, 4)}`;
+      const again = resend ? `*rehacer ${monthNameEs(p.from).toLowerCase()}*` : '*generar*';
+      this.setFlow(turn, 'generate_no_pila', 'ask', { contractId: c.id, periodNumber: p.number, resend });
+      turn.out.push(
+        buttons(
+          `🧾 Para llenar la tabla de seguridad social necesito la planilla PILA de *${month}* y no la tengo. Envíamela en PDF (o una foto) y luego escribe ${again}.`,
+          [{ id: 'nopila:go', title: 'Generar sin planilla' }],
+        ),
+      );
+      return;
     }
     turn.out.push(text('⏳ Estoy generando tus documentos, dame un momento…'));
     if (!resend) await this.savePeriodStatus(c, p, 'generating');

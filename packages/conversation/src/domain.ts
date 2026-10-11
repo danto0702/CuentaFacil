@@ -1,4 +1,10 @@
-import type { IsoDate, PeriodMode, ReportNumberFormat, ScheduledPayment } from '@cuentasbot/shared';
+import {
+  addMonthsClamped,
+  type IsoDate,
+  type PeriodMode,
+  type ReportNumberFormat,
+  type ScheduledPayment,
+} from '@cuentasbot/shared';
 
 export interface Entity {
   id: string;
@@ -114,6 +120,15 @@ export interface Note {
 }
 
 /** True when the note counts for the obligation (main or additional). */
+/** Month of contributions (first day) whose PILA backs a report ending on `periodTo`. */
+export function pilaMonthFor(
+  settings: Pick<EntitySettings, 'pilaContributionMonth'>,
+  periodTo: IsoDate,
+): IsoDate {
+  const monthStart = `${periodTo.slice(0, 8)}01`;
+  return settings.pilaContributionMonth === 'previous' ? addMonthsClamped(monthStart, -1) : monthStart;
+}
+
 export function noteSupports(note: Note, key: string): boolean {
   return note.obligationKey === key || (note.alsoKeys ?? []).includes(key);
 }

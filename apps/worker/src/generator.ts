@@ -9,7 +9,7 @@ import type {
   SupportFile,
   SupportType,
 } from '@cuentasbot/conversation';
-import { noteSupports } from '@cuentasbot/conversation';
+import { noteSupports, pilaMonthFor } from '@cuentasbot/conversation';
 import {
   buildTemplateContext,
   buildZips,
@@ -20,7 +20,7 @@ import {
   type ObligationInput,
   renderDocx,
 } from '@cuentasbot/docgen';
-import { addMonthsClamped, type IsoDate, monthNameEs, parseIso } from '@cuentasbot/shared';
+import { type IsoDate, monthNameEs, parseIso } from '@cuentasbot/shared';
 
 export type TemplateKind = 'activity_report' | 'supervision_report';
 
@@ -100,10 +100,7 @@ export class AccountGenerator implements Generator {
       });
     }
 
-    const monthStart = `${period.to.slice(0, 8)}01`;
-    const contributionMonth =
-      entity.settings.pilaContributionMonth === 'previous' ? addMonthsClamped(monthStart, -1) : monthStart;
-    const ss = await store.getSocialSecurity(user.id, contributionMonth);
+    const ss = await store.getSocialSecurity(user.id, pilaMonthFor(entity.settings, period.to));
     const supports = await store.listSupports(user.id);
     const types = await store.listSupportTypes(entity.id);
     const prior = (await store.listPriorPayments(contractId)).filter((p) => p.periodNumber < periodNumber);

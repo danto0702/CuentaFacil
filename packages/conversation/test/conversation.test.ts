@@ -172,6 +172,23 @@ describe('other flows', () => {
     expect(out[0]).toBe('⏳ Estoy generando tus documentos, dame un momento…');
   });
 
+  it('asks for the PILA of the month before generating, or generates without it on request', async () => {
+    const h = harness();
+    h.store.data.socialSecurity = [];
+    const ps = await h.store.listPeriods(DEMO_IDS.ebs);
+    await h.store.savePeriods(
+      DEMO_IDS.ebs,
+      ps.map((p) => (p.number === 1 ? { ...p, status: 'delivered' } : p)),
+    );
+    let out = show(await h.press(`redo:${DEMO_IDS.ebs}:1`));
+    expect(out[0]).toMatch(
+      /^🧾 Para llenar la tabla de seguridad social necesito la planilla PILA de \*\w+ de 2026\*/,
+    );
+    expect(out[0]).toContain('[Generar sin planilla]');
+    out = show(await h.press('nopila:go'));
+    expect(out[0]).toBe('⏳ Estoy generando tus documentos, dame un momento…');
+  });
+
   it('blocks generation when a required support is missing, with links', async () => {
     const h = harness();
     // One EBS note, then the rest of the drafts quickly with default texts.
