@@ -17,6 +17,7 @@ export type Command =
   | 'ally'
   | 'undo_note'
   | 'reset'
+  | 'signature'
   | 'cancel';
 
 const COMMANDS: [Command, string[]][] = [
@@ -58,6 +59,18 @@ const COMMANDS: [Command, string[]][] = [
   [
     'reset',
     ['reiniciar', 'reiniciar cuenta', 'reiniciar informe', 'resetear', 'resetear cuenta', 'empezar de nuevo'],
+  ],
+  [
+    'signature',
+    [
+      'firma',
+      'mi firma',
+      'cargar firma',
+      'cargar mi firma',
+      'subir firma',
+      'cambiar firma',
+      'actualizar firma',
+    ],
   ],
   ['cancel', ['cancelar', 'salir']],
 ];

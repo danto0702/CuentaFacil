@@ -276,6 +276,21 @@ describe('other flows', () => {
     expect(h.store.data.supports.length).toBe(supports);
   });
 
+  it('saves the signature from the menu and offers to replace it later', async () => {
+    const h = harness();
+    let out = show(await h.press('menu:signature'));
+    expect(out[0]).toMatch(/^✍️ Así tus informes van firmados\./);
+    out = show(await h.document('firma.pdf'));
+    out = show(await h.say('hola'));
+    await h.say('firma');
+    out = show(await h.photo());
+    expect(out[0]).toMatch(/^✅ Guardé tu firma\./);
+    expect(h.store.data.supports.filter((s) => s.code === 'FIRMA')).toHaveLength(1);
+    expect(h.store.data.notes.some((n) => n.evidenceIds.length > 0 && n.text === '')).toBe(false);
+    out = show(await h.say('firma'));
+    expect(out[0]).toMatch(/^✍️ Ya tengo tu firma\. Si me envías otra, la reemplazo\./);
+  });
+
   it('changes the cut mode only for undelivered periods, after confirmation', async () => {
     const h = harness();
     await h.say('cambiar corte');

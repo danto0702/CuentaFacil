@@ -272,6 +272,9 @@ export class Orchestrator {
     }
 
     // Photos can arrive at any moment (albums, late attachments).
+    if (msg.kind === 'image' && msg.media && turn.state.flow === 'signature_upload') {
+      return this.saveSignature(turn, msg);
+    }
     if (msg.kind === 'image' && msg.media && turn.state.flow !== 'idle') {
       if (turn.state.flow === 'note_contract') {
         const id = this.deps.newId();
@@ -342,6 +345,11 @@ export class Orchestrator {
         return this.onPickContract(turn, msg, (c) => this.startGenerate(turn, c));
       case 'status_pick_contract':
         return this.onPickContract(turn, msg, (c) => this.startStatus(turn, [c]));
+      case 'signature_upload':
+        turn.out.push(
+          text('Envíame la firma como *foto* (imagen), no como documento. Para salir escribe *menú*.'),
+        );
+        return;
       case 'reset_pick_contract':
         return this.onPickContract(turn, msg, async (c) => {
           const p = await this.currentPeriod(c);
@@ -429,6 +437,8 @@ export class Orchestrator {
       case 'add_contract':
         await this.setup.start(turn, 'another');
         return;
+      case 'signature':
+        return this.askSignature(turn);
       case 'my_data':
         turn.out.push(
           text(
@@ -444,8 +454,13 @@ export class Orchestrator {
     if (help) {
       turn.out.push(
         text(
-          `Soy ${SIGNATURE}. Así me usas:\n1️⃣ Durante el mes, cuéntame lo que haces: texto, audio o fotos. Yo lo anoto en la obligación que corresponde.\n2️⃣ Envíame los soportes (planilla, antecedentes, afiliaciones) cuando los tengas.\n3️⃣ Al cierre escribe *genera el informe* (o *ver borrador*): redacto el informe y tú lo apruebas.\n4️⃣ Escribe *generar* y te envío los documentos listos para firmar.\n↩️ Si una nota quedó mal, escribe *borra la última nota*; para empezar un informe de cero, *reiniciar*.`,
+          `Soy ${SIGNATURE}. Así me usas:\n1️⃣ Durante el mes, cuéntame lo que haces: texto, audio o fotos. Yo lo anoto en la obligación que corresponde.\n2️⃣ Envíame los soportes (planilla, antecedentes, afiliaciones) cuando los tengas.\n3️⃣ Al cierre escribe *genera el informe* (o *ver borrador*): redacto el informe y tú lo apruebas.\n4️⃣ Escribe *generar* y te envío los documentos listos para firmar.\n↩️ Si una nota quedó mal, escribe *borra la última nota*; para empezar un informe de cero, *reiniciar*.\n✍️ Para cargar o cambiar tu firma, escribe *firma*.`,
         ),
+      );
+      turn.out.push(
+        buttons('🙋 ¿Necesitas hablar con una persona del equipo?', [
+          { id: 'menu:support', title: 'Hablar con soporte' },
+        ]),
       );
     }
     turn.out.push(
@@ -464,8 +479,12 @@ export class Orchestrator {
           { id: 'menu:add_contract', title: 'Agregar contrato', description: 'Configurar un contrato nuevo' },
           { id: 'menu:cut_mode', title: 'Cambiar corte', description: 'Fin de mes o fecha a fecha' },
           { id: 'menu:my_data', title: 'Mis datos' },
-          { id: 'menu:help', title: 'Ayuda' },
-          { id: 'menu:support', title: 'Hablar con soporte' },
+          {
+            id: 'menu:signature',
+            title: 'Cargar mi firma',
+            description: 'Para que tus informes vayan firmados',
+          },
+          { id: 'menu:help', title: 'Ayuda y soporte', description: 'Cómo usarme o hablar con una persona' },
           {
             id: 'menu:about',
             title: `Conocer ${BRAND.company}`,
@@ -1190,6 +1209,37 @@ export class Orchestrator {
       buttons(
         `El informe ${formatReportNumber(p.number, c.paymentsCount, c.reportNumberFormat)} (${formatRangeLong(p.from, p.to)}) ya te lo entregué. ¿Quieres que lo rehaga con los formatos y datos actualizados?`,
         [{ id: `redo:${c.id}:${p.number}`, title: `Rehacer ${name}` }],
+      ),
+    );
+  }
+
+  // -------------------------------------------------------------------------
+  // Signature (optional): used only in the contractor's own documents
+  // -------------------------------------------------------------------------
+  private async askSignature(turn: Turn): Promise<void> {
+    const has = (await this.deps.store.listSupports(turn.user.id)).some((s) => s.code === 'FIRMA');
+    this.setFlow(turn, 'signature_upload', 'wait');
+    turn.out.push(
+      text(
+        `✍️ ${has ? 'Ya tengo tu firma. Si me envías otra, la reemplazo.' : 'Así tus informes van firmados.'}\n\nEnvíame una *foto de tu firma* hecha con tinta oscura sobre una hoja blanca, bien iluminada y sin sombras. La pondré solo en tus propios informes. Para salir escribe *menú*.`,
+      ),
+    );
+  }
+
+  private async saveSignature(turn: Turn, msg: Inbound): Promise<void> {
+    await this.deps.store.addSupport({
+      id: this.deps.newId(),
+      userId: turn.user.id,
+      code: 'FIRMA',
+      data: msg.media!.data,
+      mime: msg.media!.mime,
+      filename: 'firma.jpg',
+      receivedAt: this.deps.clock.now().toISOString(),
+    });
+    this.reset(turn);
+    turn.out.push(
+      text(
+        '✅ Guardé tu firma. Desde ahora va en tu informe de actividades y en tu línea del informe de supervisión; la del supervisor siempre queda en blanco. Para ver un informe ya entregado con la firma, escribe *rehacer* y el mes.',
       ),
     );
   }
