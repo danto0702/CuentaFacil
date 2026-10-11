@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { baseFormats } from '@/lib/admin';
 import { dataSource } from '@/lib/data';
-import { uploadBaseFormat } from './actions';
+import { BaseFormatForm } from './base-format-form';
 import { FormatUploader } from './uploader';
 
 export default async function FormatsPage({ params }: { params: Promise<{ id: string }> }) {
@@ -40,15 +40,7 @@ export default async function FormatsPage({ params }: { params: Promise<{ id: st
           {bases.supervision_report ? '✅ Informe de supervisión cargado.' : ''}
         </p>
         {(['activity_report', 'supervision_report'] as const).map((kind) => (
-          <form key={kind} action={uploadBaseFormat} className="inline" style={{ marginBottom: 8 }}>
-            <input type="hidden" name="entityId" value={id} />
-            <input type="hidden" name="kind" value={kind} />
-            <span style={{ minWidth: 190 }}>
-              {kind === 'activity_report' ? 'Informe de actividades' : 'Informe de supervisión'}
-            </span>
-            <input type="file" name="file" accept=".docx" required />
-            <button type="submit">Subir</button>
-          </form>
+          <BaseFormatForm key={kind} entityId={id} kind={kind} />
         ))}
       </div>
 
