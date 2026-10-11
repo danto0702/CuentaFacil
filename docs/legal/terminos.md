@@ -1,6 +1,6 @@
 # Términos y Condiciones del Servicio — CuentaFacil de PascalIA
 
-> ✅ **Versión 1.0, vigente desde el 10 de octubre de 2026.** Publicada en https://pascalia.lat/terminos/ (repo `danto0702/pascalia-web`) por decisión del responsable, antes de la revisión del abogado. Si el abogado pide cambios, se publica una nueva versión.
+> ✅ **Versión 1.1, vigente desde el 11 de octubre de 2026.** Publicada en https://pascalia.lat/terminos/ (repo `danto0702/pascalia-web`). Cambio frente a la 1.0: nueva sección 17, Programa de Aliados, revisada por el abogado (2026-10-11), y referencia a ella en la sección 5. Las preguntas generales de abajo siguen pendientes de revisión.
 
 ## Preguntas pendientes para el abogado (no se publican)
 
@@ -57,6 +57,7 @@ El usuario se compromete a:
 - Los precios están en pesos colombianos y son el **valor final** que paga el usuario.
 - Durante el **piloto**, PascalIA puede ofrecer la configuración o los informes sin costo, lo que se informará en la conversación.
 - PascalIA puede cambiar los precios. Los cambios se informan por WhatsApp y en https://pascalia.lat **antes** de aplicarse, y no afectan los servicios ya pagados.
+- Los Aliados pueden recibir cuentas de cobro gratis y una bonificación según el Programa de Aliados (sección 17).
 
 ## 6. Medios de pago
 
@@ -112,3 +113,13 @@ PascalIA puede actualizar estos términos. Los cambios sustanciales se informan 
 ## 16. Ley aplicable y reclamos
 
 Estos términos se rigen por las leyes de la República de Colombia, en especial la Ley 1480 de 2011 (Estatuto del Consumidor). Las peticiones, quejas y reclamos se reciben por WhatsApp (escribiendo *soporte*) y en contacto@pascalia.lat, y se responden en máximo 15 días hábiles. El usuario puede acudir a la Superintendencia de Industria y Comercio.
+
+## 17. Programa de Aliados
+
+1. **Quién es Aliado.** La primera persona que solicita el servicio para una institución que todavía no está configurada en CuentaFacil, siempre que la institución quede configurada. El Aliado recibe su primera cuenta de cobro sin costo y un código personal (por ejemplo, ALI-7K3M).
+2. **Referidos.** Un referido es un contratista que se registra en CuentaFacil con el código del Aliado: al escribirlo en su primer mensaje (por ejemplo, con el enlace que comparte el Aliado) o dentro de los 30 días siguientes a su registro. El código no se puede cambiar después. El Aliado no puede referirse a sí mismo.
+3. **Niveles.** Cada mes calendario, el Aliado sube un nivel cuando sus referidos pagan, en ese mes, al menos 10 cuentas de cobro por el nivel siguiente: 10 para el nivel 1, 20 para el nivel 2 y así hasta 100 para el nivel 10. Se cuenta una cuenta por referido al mes. No cuentan las cuentas gratuitas, las del piloto ni las de la cédula del propio Aliado. Se sube como máximo un nivel por mes y nunca se baja de nivel.
+4. **Beneficios.** Cada nivel da al Aliado una cuenta de cobro gratis. Al llegar al nivel 10, el Aliado se convierte en **Aliado Premium** y recibe, además, una bonificación por referidos de **$500.000**, que se paga por transferencia bancaria a una cuenta a su nombre, contra su cuenta de cobro, dentro de los 30 días siguientes.
+5. **Cuentas gratis.** Se aplican automáticamente a las siguientes cuentas del Aliado, no son transferibles ni canjeables por dinero y vencen a los 12 meses.
+6. **Uso indebido.** PascalIA puede excluir del programa, y anular niveles y beneficios no usados, a quien registre referidos ficticios, use documentos de otras personas o intente obtener beneficios de forma fraudulenta.
+7. **Cambios.** PascalIA puede modificar o terminar el programa avisando por WhatsApp con 30 días de anticipación; los niveles y beneficios ya ganados se respetan.
