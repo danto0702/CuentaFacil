@@ -246,3 +246,92 @@ export async function listAllies(): Promise<AllyRow[]> {
     };
   });
 }
+
+export interface ObligationRow {
+  id: string;
+  kind: 'specific' | 'general';
+  number: number;
+  text: string;
+  uses: number;
+}
+
+export interface ContractDetail {
+  id: string;
+  number: string;
+  entity: string;
+  startDate: string;
+  endDate: string;
+  obligations: ObligationRow[];
+}
+
+export interface ContractorDetail {
+  id: string;
+  name: string;
+  phone: string;
+  docIssuedIn: string;
+  contracts: ContractDetail[];
+}
+
+export async function getContractorDetail(id: string): Promise<ContractorDetail | null> {
+  const sb = await supabaseServer();
+  const { data: u, error } = await sb
+    .from('users')
+    .select('id, full_name, phone_e164, doc_issued_in')
+    .eq('id', id)
+    .maybeSingle();
+  if (error) throw error;
+  if (!u) return null;
+  const { data: contracts, error: cErr } = await sb
+    .from('contracts')
+    .select(
+      'id, number_full, start_date, end_date, entities(short_name), obligations(id, kind, number, literal_text)',
+    )
+    .eq('user_id', id)
+    .order('start_date', { ascending: false });
+  if (cErr) throw cErr;
+  const obligationIds = (contracts ?? []).flatMap((c) => (c.obligations ?? []).map((o) => o.id));
+  const uses = new Map<string, number>();
+  if (obligationIds.length) {
+    const [notesS, notesC, drafts, evidences] = await Promise.all([
+      sb
+        .from('activity_notes')
+        .select('suggested_obligation_id')
+        .in('suggested_obligation_id', obligationIds),
+      sb
+        .from('activity_notes')
+        .select('confirmed_obligation_id')
+        .in('confirmed_obligation_id', obligationIds),
+      sb.from('drafts').select('obligation_id').in('obligation_id', obligationIds),
+      sb.from('evidences').select('obligation_id').in('obligation_id', obligationIds),
+    ]);
+    const add = (k: string | null) => k && uses.set(k, (uses.get(k) ?? 0) + 1);
+    for (const r of notesS.data ?? []) add(r.suggested_obligation_id);
+    for (const r of notesC.data ?? []) add(r.confirmed_obligation_id);
+    for (const r of drafts.data ?? []) add(r.obligation_id);
+    for (const r of evidences.data ?? []) add(r.obligation_id);
+  }
+  type One<T> = T | T[] | null;
+  const one = <T>(v: One<T>): T | null => (Array.isArray(v) ? (v[0] ?? null) : v);
+  return {
+    id: u.id,
+    name: u.full_name || 'Sin nombre aún',
+    phone: maskPhone(u.phone_e164),
+    docIssuedIn: u.doc_issued_in ?? '',
+    contracts: (contracts ?? []).map((c) => ({
+      id: c.id,
+      number: c.number_full,
+      entity: one(c.entities as One<{ short_name: string }>)?.short_name ?? '',
+      startDate: c.start_date,
+      endDate: c.end_date,
+      obligations: (c.obligations ?? [])
+        .map((o) => ({
+          id: o.id,
+          kind: o.kind as 'specific' | 'general',
+          number: o.number,
+          text: o.literal_text,
+          uses: uses.get(o.id) ?? 0,
+        }))
+        .sort((a, b) => (a.kind === b.kind ? a.number - b.number : a.kind === 'specific' ? -1 : 1)),
+    })),
+  };
+}

@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { dataSource } from '@/lib/data';
 
 export default async function ContractorsPage() {
@@ -17,7 +18,13 @@ export default async function ContractorsPage() {
           <tbody>
             {rows.map((r) => (
               <tr key={r.id}>
-                <td>{r.name}</td>
+                <td>
+                  {dataSource().mode === 'supabase' ? (
+                    <Link href={`/contratistas/${r.id}`}>{r.name}</Link>
+                  ) : (
+                    r.name
+                  )}
+                </td>
                 <td>{r.phoneMasked}</td>
                 <td>{r.contracts}</td>
               </tr>
@@ -25,7 +32,8 @@ export default async function ContractorsPage() {
           </tbody>
         </table>
         <p className="muted">
-          Detalle, corrección de datos, conversación y reenvío de documentos llegan en la Fase 1.
+          Abre un contratista para ver sus contratos y obligaciones. Corrección de datos, conversación y
+          reenvío de documentos llegan después.
         </p>
       </div>
     </>
