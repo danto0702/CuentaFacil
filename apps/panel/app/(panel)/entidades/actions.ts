@@ -132,12 +132,18 @@ export async function uploadRegistry(form: FormData): Promise<void> {
   const client = await sb();
   const stamp = new Date().toISOString().replace(/[:.]/g, '-');
   const safe = file.name.replace(/[^A-Za-z0-9._-]/g, '_');
+  const path = `${entityId}/${stamp}_${safe}`;
   const { error } = await client.storage
     .from('registry')
-    .upload(`${entityId}/${stamp}_${safe}`, Buffer.from(await file.arrayBuffer()), {
+    .upload(path, Buffer.from(await file.arrayBuffer()), {
       contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     });
   fail('No pude subir el archivo', error);
+  // Shows up right away as "En cola"; the worker reads the file and imports it within a minute.
+  const { error: qErr } = await client
+    .from('registry_imports')
+    .insert({ entity_id: entityId, filename: file.name, storage_path: path, status: 'pending' });
+  fail('No pude registrar la carga', qErr);
   revalidatePath(`/entidades/${entityId}`);
 }
 

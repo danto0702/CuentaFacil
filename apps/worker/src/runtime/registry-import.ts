@@ -24,16 +24,26 @@ export async function processRegistryImports(
   sb: SupabaseClient,
   cipher: FieldCipher,
   log: Logger,
+  parse: (data: Buffer) => Promise<RegistryRow[]>,
 ): Promise<void> {
   const { data: pending, error } = await sb
     .from('registry_imports')
-    .select('id, entity_id, rows')
+    .select('id, entity_id, rows, storage_path')
     .eq('status', 'pending')
     .order('id');
   if (error) throw new Error(`registry_imports: ${error.message}`);
   for (const imp of pending ?? []) {
     try {
-      const rows = ((imp.rows ?? []) as RegistryRow[]).filter((r) => r.code && r.doc?.replace(/\D/g, ''));
+      // Uploads queued by the panel carry only the file: read it now.
+      let raw = imp.rows as RegistryRow[] | null;
+      if (raw === null && imp.storage_path) {
+        const { data: blob, error: dlErr } = await sb.storage
+          .from(REGISTRY_BUCKET)
+          .download(imp.storage_path);
+        if (dlErr || !blob) throw new Error(dlErr?.message ?? 'no pude descargar el archivo');
+        raw = await parse(Buffer.from(await blob.arrayBuffer()));
+      }
+      const rows = (raw ?? []).filter((r) => r.code && r.doc?.replace(/\D/g, ''));
       const records = rows.map((r) => ({
         entity_id: imp.entity_id,
         contract_code: String(Number(r.code.replace(/\D/g, '')) || r.code),

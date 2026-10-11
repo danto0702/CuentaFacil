@@ -151,7 +151,7 @@ async function loop(): Promise<void> {
     if (cipher && Date.now() >= nextRegistryCheck) {
       nextRegistryCheck = Date.now() + REGISTRY_CHECK_MS;
       await queueRegistryUploads(sb, parseRegistryWorkbook, log)
-        .then(() => processRegistryImports(sb, cipher, log))
+        .then(() => processRegistryImports(sb, cipher, log, parseRegistryWorkbook))
         .catch((e) => log.error('registry.check_failed', { error: String(e) }));
     }
     let batch: Awaited<ReturnType<typeof inbound.read>> = [];
