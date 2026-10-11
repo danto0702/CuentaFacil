@@ -4,6 +4,11 @@ import type { Outgoing } from '@cuentasbot/conversation';
 const BODY_MAX = 1024;
 const TEXT_MAX = 4096;
 
+/** Phone numbers go in `to`; a business-scoped user id (user with a WhatsApp username) in `recipient`. */
+function addressee(to: string): Record<string, string> {
+  return /^[A-Z]{2}\.[A-Za-z0-9]+$/.test(to) ? { recipient: to } : { to: to.replace(/^\+/, '') };
+}
+
 const clip = (s: string, n: number) => (s.length <= n ? s : `${s.slice(0, n - 1)}…`);
 
 /** Builds the /messages JSON for a non-document reply (documents need an uploaded media id first). */
@@ -11,7 +16,7 @@ export function messagePayload(
   to: string,
   out: Exclude<Outgoing, { type: 'document' }>,
 ): Record<string, unknown> {
-  const base = { messaging_product: 'whatsapp', recipient_type: 'individual', to: to.replace(/^\+/, '') };
+  const base = { messaging_product: 'whatsapp', recipient_type: 'individual', ...addressee(to) };
   switch (out.type) {
     case 'text':
       return { ...base, type: 'text', text: { body: clip(out.text, TEXT_MAX), preview_url: false } };
@@ -73,7 +78,7 @@ export function documentPayload(
   return {
     messaging_product: 'whatsapp',
     recipient_type: 'individual',
-    to: to.replace(/^\+/, ''),
+    ...addressee(to),
     type: 'document',
     document: { id: mediaId, filename, ...(caption ? { caption: clip(caption, BODY_MAX) } : {}) },
   };

@@ -30,9 +30,12 @@ const media = z.object({
   filename: z.string().optional(),
 });
 
+// Users with a WhatsApp username may arrive without their phone number: only `from_user_id`, a
+// business-scoped user id (BSUID) like "CO.1234567890123456", which is then their identity here.
 const message = z.object({
   id: z.string(),
-  from: z.string(),
+  from: z.string().optional(),
+  from_user_id: z.string().optional(),
   timestamp: z.string(),
   type: z.string(),
   text: z.object({ body: z.string() }).optional(),
@@ -53,7 +56,8 @@ const status = z.object({
   id: z.string(),
   status: z.enum(['sent', 'delivered', 'read', 'failed']),
   timestamp: z.string(),
-  recipient_id: z.string(),
+  recipient_id: z.string().optional(),
+  recipient_user_id: z.string().optional(),
   pricing: z.object({ category: z.string().optional() }).optional(),
   errors: z.array(z.object({ code: z.number().optional(), title: z.string().optional() })).optional(),
 });
@@ -75,11 +79,19 @@ const webhook = z.object({
   ),
 });
 
-const e164 = (waId: string) => (waId.startsWith('+') ? waId : `+${waId}`);
+/** A business-scoped user id: country code, a dot and an alphanumeric id ("CO.1234…"). */
+export const isBsuid = (id: string) => /^[A-Z]{2}\.[A-Za-z0-9]+$/.test(id);
+/** Phone numbers get a "+"; BSUIDs are kept as they are. */
+const userId = (id: string) => (isBsuid(id) || id.startsWith('+') ? id : `+${id}`);
 const fromUnix = (s: string) => new Date(Number(s) * 1000);
 
 function toRaw(m: z.infer<typeof message>): RawMessage {
-  const base = { wamid: m.id, from: e164(m.from), at: fromUnix(m.timestamp), metaType: m.type };
+  const base = {
+    wamid: m.id,
+    from: userId(m.from ?? m.from_user_id ?? ''),
+    at: fromUnix(m.timestamp),
+    metaType: m.type,
+  };
   switch (m.type) {
     case 'text':
       return { ...base, kind: 'text', text: m.text?.body ?? '' };
@@ -114,13 +126,13 @@ export function parseWebhook(body: unknown): { messages: RawMessage[]; statuses:
   for (const entry of parsed.entry) {
     for (const change of entry.changes) {
       if (change.field !== 'messages') continue;
-      for (const m of change.value.messages ?? []) messages.push(toRaw(m));
+      for (const m of change.value.messages ?? []) if (m.from || m.from_user_id) messages.push(toRaw(m));
       for (const s of change.value.statuses ?? []) {
         const err = s.errors?.[0];
         statuses.push({
           wamid: s.id,
           status: s.status,
-          recipient: e164(s.recipient_id),
+          recipient: userId(s.recipient_id ?? s.recipient_user_id ?? ''),
           at: fromUnix(s.timestamp),
           ...(s.pricing?.category ? { pricingCategory: s.pricing.category } : {}),
           ...(err ? { error: `${err.code ?? ''} ${err.title ?? ''}`.trim() } : {}),

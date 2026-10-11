@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { InboundPipeline, type InboxItem, type PipelineDb } from '../src/runtime/pipeline.js';
 import { WhatsAppClient } from '../src/whatsapp/client.js';
 import { parseWebhook, type RawMessage, type StatusUpdate } from '../src/whatsapp/parse.js';
-import { messagePayload } from '../src/whatsapp/payload.js';
+import { documentPayload, messagePayload } from '../src/whatsapp/payload.js';
 import { verifySignature } from '../src/whatsapp/signature.js';
 
 const SECRET = 'test-app-secret';
@@ -103,6 +103,64 @@ describe('parseWebhook', () => {
 
   it('rejects payloads that are not WhatsApp notifications', () => {
     expect(() => parseWebhook({ object: 'page', entry: [] })).toThrow();
+  });
+});
+
+describe('users with a WhatsApp username (business-scoped user id)', () => {
+  it('reads messages that come with from_user_id instead of the phone number', () => {
+    const body = {
+      object: 'whatsapp_business_account',
+      entry: [
+        {
+          changes: [
+            {
+              field: 'messages',
+              value: {
+                messaging_product: 'whatsapp',
+                contacts: [{ profile: { name: 'Ana', username: 'ana' }, user_id: 'CO.1234567890123456' }],
+                messages: [
+                  {
+                    id: 'wb1',
+                    from_user_id: 'CO.1234567890123456',
+                    timestamp: '1791650000',
+                    type: 'text',
+                    text: { body: 'Hola' },
+                  },
+                ],
+                statuses: [
+                  {
+                    id: 'out1',
+                    status: 'delivered',
+                    timestamp: '1791650001',
+                    recipient_user_id: 'CO.1234567890123456',
+                  },
+                ],
+              },
+            },
+          ],
+        },
+      ],
+    };
+    const r = parseWebhook(body);
+    expect(r.messages[0]).toMatchObject({
+      wamid: 'wb1',
+      from: 'CO.1234567890123456',
+      kind: 'text',
+      text: 'Hola',
+    });
+    expect(r.statuses[0]?.recipient).toBe('CO.1234567890123456');
+  });
+
+  it('answers them with "recipient" instead of "to"', () => {
+    const t = messagePayload('CO.1234567890123456', { type: 'text', text: 'Hola' });
+    expect(t).toMatchObject({ recipient: 'CO.1234567890123456', recipient_type: 'individual' });
+    expect(t).not.toHaveProperty('to');
+    expect(documentPayload('CO.1234567890123456', 'm1', 'a.pdf')).toMatchObject({
+      recipient: 'CO.1234567890123456',
+    });
+    expect(messagePayload('+573001112233', { type: 'text', text: 'Hola' })).toMatchObject({
+      to: '573001112233',
+    });
   });
 });
 
