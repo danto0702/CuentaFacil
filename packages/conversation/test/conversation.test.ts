@@ -125,12 +125,33 @@ describe('other flows', () => {
     expect(out).toEqual(['Antes de generar necesito que apruebes el borrador del informe. [Ver borrador]']);
   });
 
+  it('asks for activities instead of each obligation when the period has no notes', async () => {
+    const h = harness();
+    await h.say('ver borrador');
+    let out = show(await h.press(`c:${DEMO_IDS.ebs}`));
+    expect(out).toHaveLength(1);
+    expect(out[0]).toMatch(/^📭 Para el informe .* todavía no tengo actividades registradas\./);
+    expect(out[0]).not.toContain('Rehacer');
+
+    // With a delivered report, offer to redo it (e.g. after the entity's format changed).
+    const ps = await h.store.listPeriods(DEMO_IDS.ebs);
+    await h.store.savePeriods(
+      DEMO_IDS.ebs,
+      ps.map((p) => (p.number === 1 ? { ...p, status: 'delivered' } : p)),
+    );
+    await h.say('ver borrador');
+    out = show(await h.press(`c:${DEMO_IDS.ebs}`));
+    expect(out[0]).toMatch(/toca \*Rehacer \w+\*\. \[Rehacer \w+\]$/);
+  });
+
   it('blocks generation when a required support is missing, with links', async () => {
     const h = harness();
-    // Approve all EBS drafts quickly with default texts.
-    await h.say('ver borrador');
+    // One EBS note, then the rest of the drafts quickly with default texts.
+    await h.say('Asistí a la reunión del comité en Ábrego');
     await h.press(`c:${DEMO_IDS.ebs}`);
-    for (let i = 0; i < 3; i++) await h.press('mis:default');
+    await h.say('ver borrador');
+    let out0 = show(await h.press(`c:${DEMO_IDS.ebs}`));
+    while (out0.some((x) => x.startsWith('Para la obligación'))) out0 = show(await h.press('mis:default'));
     await h.press('rev:approve');
     await h.say('generar');
     const out = show(await h.press(`c:${DEMO_IDS.ebs}`));

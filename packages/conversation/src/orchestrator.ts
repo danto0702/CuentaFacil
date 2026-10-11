@@ -1036,6 +1036,7 @@ export class Orchestrator {
     }
     const entity = await this.deps.store.getEntity(c.entityId);
     const notes = await this.deps.store.listNotes(c.id, p.from, p.to);
+    if (notes.length === 0) return this.nothingToDraft(turn, c, p);
     const existing = await this.deps.store.listDrafts(c.id, p.number);
     const missing: string[] = [];
     turn.out.push(text('✍️ Estoy redactando tu informe con lo que me contaste…'));
@@ -1089,6 +1090,30 @@ export class Orchestrator {
     await this.savePeriodStatus(c, p, 'draft_review');
     if (missing.length) return this.askMissing(turn, c, p, missing);
     return this.showReview(turn, c, p);
+  }
+
+  /**
+   * The open period has no notes at all: asking obligation by obligation would mean writing the whole
+   * report from scratch. Ask for the activities instead, and offer to redo the last delivered report
+   * (usually what the contractor wants after a format change or a correction).
+   */
+  private async nothingToDraft(turn: Turn, c: Contract, p: Period): Promise<void> {
+    const report = (x: Period) =>
+      `informe ${formatReportNumber(x.number, c.paymentsCount, c.reportNumberFormat)} (${formatRangeLong(x.from, x.to)})`;
+    const msg = `📭 Para el ${report(p)} todavía no tengo actividades registradas.\n\nCuéntame lo que hiciste con notas de voz, textos o fotos (si no fue hoy, dime la fecha o el mes) y después escribe *genera el informe*.`;
+    const delivered = (await this.deps.store.listPeriods(c.id))
+      .filter((x) => x.status === 'delivered')
+      .sort((a, b) => b.number - a.number)[0];
+    if (!delivered) {
+      turn.out.push(text(msg));
+      return;
+    }
+    turn.out.push(
+      buttons(
+        `${msg}\n\nSi lo que quieres es volver a recibir el ${report(delivered)}, con los formatos y datos actualizados, toca *Rehacer ${monthNameEs(delivered.from).toLowerCase()}*.`,
+        [{ id: 'menu:resend', title: clip(`Rehacer ${monthNameEs(delivered.from).toLowerCase()}`, 20) }],
+      ),
+    );
   }
 
   private draft(
