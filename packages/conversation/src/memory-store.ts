@@ -192,6 +192,11 @@ export class MemoryStore implements Store {
   async addSupport(s: SupportFile) {
     this.data.supports = [...this.data.supports.filter((x) => x.id !== s.id), s];
   }
+  async acceptExpiredSupports(ids: string[]) {
+    this.data.supports = this.data.supports.map((x) =>
+      ids.includes(x.id) ? { ...x, acceptedExpired: true } : x,
+    );
+  }
   async listSupports(userId: string) {
     return this.data.supports.filter((s) => s.userId === userId);
   }

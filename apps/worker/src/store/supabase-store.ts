@@ -1205,6 +1205,15 @@ export class SupabaseStore implements Store {
     );
   }
 
+  async acceptExpiredSupports(ids: string[]): Promise<void> {
+    if (!ids.length) return;
+    // 'confirmed': the contractor confirmed using it although it is older than allowed.
+    must(
+      await this.sb.from('supports').update({ status: 'confirmed' }).in('id', ids),
+      'acceptExpiredSupports',
+    );
+  }
+
   async listSupports(userId: string): Promise<SupportFile[]> {
     const rows = must(
       await this.sb
@@ -1227,6 +1236,7 @@ export class SupabaseStore implements Store {
           mime: str(r.mime_type, file.mime),
           filename: str(r.filename, `${str(r.code)}.${extOf(str(r.mime_type))}`),
           receivedAt: str(r.created_at),
+          ...(r.status === 'confirmed' ? { acceptedExpired: true } : {}),
         };
       }),
     );

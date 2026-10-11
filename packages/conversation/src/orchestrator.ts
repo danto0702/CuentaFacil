@@ -21,6 +21,7 @@ import type {
   Note,
   Obligation,
   Period,
+  SupportFile,
   SupportSegment,
   SupportType,
   User,
@@ -374,6 +375,8 @@ export class Orchestrator {
       case 'pay_wait':
       case 'pay_code':
         return this.onPayment(turn, msg);
+      case 'expired_ask':
+        return this.onExpired(turn, msg);
       case 'photo_pick':
         return this.onPhotoPick(turn, msg);
       case 'amount_confirm':
@@ -692,6 +695,57 @@ export class Orchestrator {
       return;
     }
     return this.menu(turn, false);
+  }
+
+  // -------------------------------------------------------------------------
+  // Expired supports (antecedentes, afiliaciones): generate with them or upload them again
+  // -------------------------------------------------------------------------
+  private async askExpired(turn: Turn, expired: { type: SupportType; supportId: string }[]): Promise<void> {
+    this.setFlow(turn, 'expired_ask', 'ask', {
+      supportIds: expired.map((e) => e.supportId),
+      types: expired.map((e) => ({ label: e.type.label, url: e.type.officialUrl ?? null })),
+    });
+    const names = [...new Set(expired.map((e) => e.type.label))].join(', ');
+    turn.out.push(
+      buttons(
+        `⚠️ ${expired.length === 1 ? 'Este documento está vencido' : 'Estos documentos están vencidos'}: ${names}. La entidad puede devolver la cuenta por eso.\n\n¿Quieres generar el informe con estos documentos o prefieres volver a cargarlos actualizados?`,
+        [
+          { id: 'exp:ok', title: 'Generar así' },
+          { id: 'exp:reload', title: 'Volver a cargar' },
+        ],
+      ),
+    );
+  }
+
+  private async onExpired(turn: Turn, msg: Inbound): Promise<void> {
+    const ctx = turn.state.context as {
+      supportIds: string[];
+      types: { label: string; url: string | null }[];
+    };
+    if (msg.replyId === 'exp:ok') {
+      await this.deps.store.acceptExpiredSupports(ctx.supportIds);
+      this.reset(turn);
+      turn.out.push(
+        text('Listo, usaré estos documentos aunque estén vencidos; quedan bajo tu responsabilidad.'),
+      );
+      return this.command(turn, 'generate');
+    }
+    if (msg.replyId === 'exp:reload') {
+      this.reset(turn);
+      const links = ctx.types
+        .filter((t) => t.url)
+        .map((t) => `🔗 ${t.label}: ${t.url}`)
+        .join('\n');
+      turn.out.push(
+        text(
+          `Perfecto. Descarga los documentos actualizados y envíamelos en PDF; cuando los tenga, escribe *generar*.${links ? `\n\n${links}` : ''}`,
+        ),
+      );
+      return;
+    }
+    // Anything else: leave the question and handle the message normally.
+    this.reset(turn);
+    return this.dispatch(turn, msg);
   }
 
   // -------------------------------------------------------------------------
@@ -1121,6 +1175,7 @@ export class Orchestrator {
 
     const today = this.deps.clock.today();
     const lines: string[] = [];
+    const old: { type: SupportType; supportId: string }[] = [];
     for (const g of known) {
       const t = types.get(g.code!)!;
       const data =
@@ -1151,10 +1206,11 @@ export class Orchestrator {
       }
       const pages = g.fromPage === g.toPage ? `pág. ${g.fromPage}` : `págs. ${g.fromPage}-${g.toPage}`;
       const limit = t.maxAgeDays ?? (t.bundle ? maxAge : undefined);
-      const old = g.issuedOn && limit && addDays(g.issuedOn, limit) < today;
+      const isOld = g.issuedOn && limit && addDays(g.issuedOn, limit) < today;
+      if (isOld) old.push({ type: t, supportId });
       lines.push(
-        `${old ? '⚠️' : '✅'} ${t.label} (${pages})${ssNote || (g.note ? ` · ${g.note}` : '')}${
-          old
+        `${isOld ? '⚠️' : '✅'} ${t.label} (${pages})${ssNote || (g.note ? ` · ${g.note}` : '')}${
+          isOld
             ? ` · expedido el ${formatDdMmYyyy(g.issuedOn!)}, tiene más de ${limit} días: descárgalo de nuevo`
             : ''
         }`,
@@ -1166,6 +1222,7 @@ export class Orchestrator {
         `❓ No reconocí ${unknown.map((g) => (g.fromPage === g.toPage ? `la pág. ${g.fromPage}` : `las págs. ${g.fromPage}-${g.toPage}`)).join(', ')}.`,
       );
     turn.out.push(text(`📎 *${filename}*\n${lines.join('\n')}`));
+    if (old.length) await this.askExpired(turn, old);
     const cert = known.find((g) => g.code === 'CERT_CUMPLIMIENTO' && g.amount);
     if (cert && cs.length === 1) await this.suggestCertificateAmount(turn, cs[0]!, cert.amount!);
   }
@@ -1238,7 +1295,11 @@ export class Orchestrator {
     turn: Turn,
     c: Contract,
     p: Period,
-  ): Promise<{ lines: string[]; missing: SupportType[] }> {
+  ): Promise<{
+    lines: string[];
+    missing: SupportType[];
+    expired: { type: SupportType; supportId: string }[];
+  }> {
     const types = (await this.deps.store.listSupportTypes(c.entityId)).filter(
       (t) =>
         t.required &&
@@ -1249,27 +1310,39 @@ export class Orchestrator {
     const today = this.deps.clock.today();
     const lines: string[] = [];
     const missing: SupportType[] = [];
+    const expired: { type: SupportType; supportId: string }[] = [];
+    const maxAge = (await this.deps.store.getEntity(c.entityId)).settings.certificateMaxAgeDays;
     const later = types.filter((t) => t.stage === 'after_signature');
     for (const t of types.filter((x) => x.stage !== 'after_signature')) {
-      const ok = supports.some((s) => {
-        if (s.code !== t.code) return false;
-        const issued = s.issuedOn ?? s.receivedAt.slice(0, 10);
-        if (compareIso(issued, today) > 0) return false;
-        if (t.maxAgeDays) {
-          const age = (Date.parse(today) - Date.parse(issued)) / 86_400_000;
-          return age <= t.maxAgeDays;
-        }
-        return compareIso(issued, p.from) >= 0;
+      // Certificates with a maximum age (antecedentes, afiliaciones) can be expired; the others must be
+      // issued within the period (e.g. the PILA).
+      const limit = t.maxAgeDays ?? (t.bundle ? maxAge : undefined);
+      const mine = supports.filter((s) => s.code === t.code);
+      const issued = (s: SupportFile) => s.issuedOn ?? s.receivedAt.slice(0, 10);
+      const ok = mine.some((s) => {
+        if (compareIso(issued(s), today) > 0) return false;
+        if (s.acceptedExpired) return true;
+        if (limit) return (Date.parse(today) - Date.parse(issued(s))) / 86_400_000 <= limit;
+        return compareIso(issued(s), p.from) >= 0;
       });
-      if (ok) lines.push(`✅ ${t.label}`);
-      else {
+      const newest = mine.at(-1);
+      if (ok)
+        lines.push(
+          `✅ ${t.label}${mine.some((s) => s.acceptedExpired) ? ' (vencido, aceptado por ti)' : ''}`,
+        );
+      else if (limit && newest) {
+        expired.push({ type: t, supportId: newest.id });
+        lines.push(
+          `⚠️ ${t.label}: vencido (expedido el ${formatDdMmYyyy(issued(newest))})${t.officialUrl ? `\n   🔗 ${t.officialUrl}` : ''}`,
+        );
+      } else {
         missing.push(t);
         lines.push(`❌ ${t.label}${t.officialUrl ? `\n   🔗 ${t.officialUrl}` : ''}`);
       }
     }
     if (later.length)
       lines.push(`📌 Después de la firma del supervisor: ${later.map((t) => t.label).join(', ')}`);
-    return { lines, missing };
+    return { lines, missing, expired };
   }
 
   private async startStatus(turn: Turn, cs: Contract[]): Promise<void> {
@@ -1833,12 +1906,20 @@ export class Orchestrator {
         return;
       }
       const entity = await this.deps.store.getEntity(c.entityId);
-      const { missing } = await this.checklist(turn, c, p);
-      if (missing.length && !entity.settings.generateWithMissing) {
+      const { missing, expired } = await this.checklist(turn, c, p);
+      if (!missing.length && expired.length && !entity.settings.generateWithMissing)
+        return this.askExpired(turn, expired);
+      if ((missing.length || expired.length) && !entity.settings.generateWithMissing) {
         turn.out.push(
           text(
             `⚠️ Me faltan estos soportes para generar tu cuenta:\n${missing
               .map((m) => `❌ ${m.label}${m.officialUrl ? `\n   🔗 ${m.officialUrl}` : ''}`)
+              .concat(
+                expired.map(
+                  (e) =>
+                    `⚠️ ${e.type.label} (vencido)${e.type.officialUrl ? `\n   🔗 ${e.type.officialUrl}` : ''}`,
+                ),
+              )
               .join('\n')}\n\nEnvíamelos y vuelve a escribir *generar*.`,
           ),
         );

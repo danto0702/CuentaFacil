@@ -365,6 +365,45 @@ describe('other flows', () => {
     });
   });
 
+  it('warns about expired certificates when they arrive and asks to generate anyway or upload them again', async () => {
+    const h = harness({ today: '2026-10-25' });
+    const out = show(await h.document('ANTECEDENTES.pdf'));
+    expect(out[0]).toContain('⚠️ ');
+    expect(out.at(-1)).toMatch(
+      /^⚠️ Estos documentos están vencidos: .*¿Quieres generar el informe con estos documentos o prefieres volver a cargarlos actualizados\? \[Generar así\] \[Volver a cargar\]$/s,
+    );
+    const reload = show(await h.press('exp:reload'));
+    expect(reload[0]).toMatch(/^Perfecto\. Descarga los documentos actualizados/);
+  });
+
+  it('asks before generating with expired certificates and generates when the contractor accepts', async () => {
+    const h = harness();
+    await h.say('Asistí a la reunión del comité en Ábrego');
+    await h.press(`c:${DEMO_IDS.ebs}`);
+    await h.say('ver borrador');
+    let out = show(await h.press(`c:${DEMO_IDS.ebs}`));
+    while (out.some((x) => x.startsWith('Para la obligación'))) out = show(await h.press('mis:default'));
+    await h.press('rev:approve');
+    await h.document('certificado.pdf');
+    await h.press('s:CERT_EJECUCION_EBS');
+    // The background checks are now two months old.
+    h.store.data.supports = h.store.data.supports.map((x) =>
+      ['POLICIA', 'RNMC', 'PROCURADURIA', 'CONTRALORIA'].includes(x.code)
+        ? { ...x, issuedOn: '2026-07-20' }
+        : x,
+    );
+    await h.say('generar');
+    out = show(await h.press(`c:${DEMO_IDS.ebs}`));
+    expect(out[0]).toMatch(/^⚠️ Estos documentos están vencidos: /);
+    out = show(await h.press('exp:ok'));
+    expect(out[0]).toBe(
+      'Listo, usaré estos documentos aunque estén vencidos; quedan bajo tu responsabilidad.',
+    );
+    expect(out.join(' ')).toMatch(/¿De cuál contrato\?|⏳ Estoy generando tus documentos/);
+    if (out.join(' ').includes('¿De cuál contrato?')) out = show(await h.press(`c:${DEMO_IDS.ebs}`));
+    expect(out.join(' ')).toContain('⏳ Estoy generando tus documentos, dame un momento…');
+  });
+
   it('changes the cut mode only for undelivered periods, after confirmation', async () => {
     const h = harness();
     await h.say('cambiar corte');

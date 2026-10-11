@@ -158,6 +158,8 @@ export interface SupportFile {
   mime: string;
   filename: string;
   receivedAt: string;
+  /** Expired (older than allowed) but the contractor chose to generate with it anyway. */
+  acceptedExpired?: boolean;
 }
 
 /** One document found inside an uploaded PDF (a PDF can bundle several certificates). */

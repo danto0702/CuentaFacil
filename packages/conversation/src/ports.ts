@@ -168,6 +168,8 @@ export interface Store {
 
   addSupport(s: SupportFile): Promise<void>;
   listSupports(userId: string): Promise<SupportFile[]>;
+  /** The contractor generates with these expired supports anyway (their responsibility). */
+  acceptExpiredSupports(ids: string[]): Promise<void>;
   getSocialSecurity(userId: string, contributionMonth: IsoDate): Promise<SocialSecurity | null>;
   /** Stores the data read from a PILA (confirmed), linked to its support file. */
   saveSocialSecurity(ss: SocialSecurity, supportId: string): Promise<void>;
