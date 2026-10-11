@@ -116,6 +116,8 @@ export interface CuentaInput {
   variables?: Record<string, unknown>;
   /** Evidence image width in cm (2 per row on an "oficio" page ≈ 7.5 cm). */
   evidenceWidthCm?: number;
+  /** Photo of the contractor's signature, only if they shared it (used only in their own documents). */
+  contractorSignature?: ImageInput;
 }
 
 const upper = (s: string) => s.toLocaleUpperCase('es-CO');
@@ -312,6 +314,10 @@ export async function buildTemplateContext(input: CuentaInput): Promise<Template
     specific_obligations: obligations.filter((o) => o.kind === 'specific' && !o.omitted),
     general_obligations: obligations.filter((o) => o.kind === 'general' && !o.omitted),
     evidence_obligations: obligations.filter((o) => o.has_evidence && !o.omitted),
+    has_contractor_signature: !!input.contractorSignature,
+    contractor_signature: input.contractorSignature
+      ? (await toImage(input.contractorSignature, 5, 1.8)).image
+      : null,
     supervision_activities: obligations.filter((o) => o.kind === 'specific' && !o.omitted),
     contractor_duties: contract.contractorDuties.map((d, i) => ({
       number: String(i + 1),

@@ -161,6 +161,9 @@ export class AccountGenerator implements Generator {
       },
       priorPayments: prior.map((p) => ({ voucher: p.voucher, amount: p.amount })),
       ...(ss ? { socialSecurity: ss } : {}),
+      ...(latest(supports, 'FIRMA')
+        ? { contractorSignature: { data: latest(supports, 'FIRMA')!.data } }
+        : {}),
       certificates: {
         ...(latest(supports, 'POLICIA')?.issuedOn ? { policia: latest(supports, 'POLICIA')!.issuedOn! } : {}),
         ...(latest(supports, 'RNMC')?.issuedOn ? { rnmc: latest(supports, 'RNMC')!.issuedOn! } : {}),

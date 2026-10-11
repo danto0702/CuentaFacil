@@ -232,6 +232,8 @@
 | `evidence_obligations[].x_na` | texto | "X" o vacío. Calificación NO APLICA. |
 | `evidence_obligations[].observations` | texto | Observaciones del supervisor. |
 | `evidence_obligations[].omitted` | sí/no | Sin actividades este periodo y la entidad las omite del informe de actividades. |
+| `has_contractor_signature` | sí/no | El contratista compartió la foto de su firma. |
+| `contractor_signature` | texto | Firma del contratista (solo si la compartió). |
 | `contractor_duties[]` | lista | Obligaciones generales del contratista según la cláusula del contrato (tabla 1.2 del informe de supervisión). |
 | `contractor_duties[]` | objeto |  |
 | `contractor_duties[].number` | texto | Número de la obligación ("1", "14"). |

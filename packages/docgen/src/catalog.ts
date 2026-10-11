@@ -203,6 +203,8 @@ export const TemplateContextSchema = z.object({
   evidence_obligations: z
     .array(ObligationSchema)
     .describe('Obligaciones que tienen evidencias (para el anexo).'),
+  has_contractor_signature: z.boolean().describe('El contratista compartió la foto de su firma.'),
+  contractor_signature: ImageSchema.nullable().describe('Firma del contratista (solo si la compartió).'),
   contractor_duties: z
     .array(DutySchema)
     .describe(

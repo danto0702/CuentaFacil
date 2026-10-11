@@ -152,6 +152,18 @@ function obligationsTable(): string {
   );
 }
 
+/** The contractor's signature image if they shared it; otherwise blank space to sign by hand. */
+function contractorSignature(opts: Parameters<typeof p>[1], blank: number): string[] {
+  return [
+    cmd('IF has_contractor_signature', opts),
+    p('{{IMAGE contractor_signature}}', { ...opts, align: 'center', spacingAfter: 0 }),
+    cmd('END-IF', opts),
+    cmd('IF !has_contractor_signature', opts),
+    p('', { ...opts, spacingAfter: blank }),
+    cmd('END-IF', opts),
+  ];
+}
+
 // Certification and evidence annex go inside a bordered box, as in the entity's model.
 function sworn(): string {
   const k = { ...F, bold: true, keepNext: true } as const;
@@ -174,7 +186,8 @@ function sworn(): string {
                   'Como Contratista de la ESE HOSPITAL REGIONAL NOROCCIDENTAL y para dar cumplimiento a lo estipulado en el Artículo 4 del Decreto 2271 de junio 18 de 2009, certifico bajo la gravedad de juramento que los documentos soporte del pago de mis aportes obligatorios al Sistema General de Seguridad Social corresponden a los ingresos provenientes del Contrato No. {{contract_number}} del {{period_range_long}}.',
                   { ...k, align: 'both', spacingAfter: 360 },
                 ),
-                p('NOMBRE Y FIRMA', { ...k, spacingAfter: 480 }),
+                p('NOMBRE Y FIRMA', { ...k, spacingAfter: 240 }),
+                ...contractorSignature({ ...F, keepNext: true }, 480),
                 p('_____________________________________', { ...k, align: 'center', spacingAfter: 0 }),
                 p('{{contractor_name}}', { ...k, align: 'center', spacingAfter: 0 }),
                 p('C.C No. {{contractor_cedula}} de {{contractor_city}}', {
@@ -544,7 +557,7 @@ function activitiesApprovalTable(): string {
   const cols = [1600, W - 3200, 1600];
   return table(cols, [
     row(
-      ['ACTIVIDAD RELACIONADA', 'OBLIGACIÓN ESPECIAL ASOCIADA', 'APROBACIÓN'].map((h, i) =>
+      ['ACTIVIDAD RELACIONADA', 'OBLIGACIÓN ESPECIAL ASOCIADA', 'APROBACIÓN POR EL SUPERVISOR'].map((h, i) =>
         cell(p(h, { ...SUPB, align: 'center' }), { width: cols[i]! }),
       ),
       { header: true },
@@ -626,10 +639,11 @@ function commitmentsTable(): string {
 
 function signatures(): string {
   const half = W / 2;
-  const sig = (name: string, role: string) =>
+  // The supervisor always signs by hand; the contractor's image goes in only if they shared it.
+  const sig = (name: string, role: string, top = [p('', { ...KEEP, spacingAfter: 600 })]) =>
     cell(
       [
-        p('', { ...KEEP, spacingAfter: 600 }),
+        ...top,
         p('_______________________________', { ...KEEP, align: 'center', spacingAfter: 0 }),
         p(name, { ...KEEPB, align: 'center', spacingAfter: 0 }),
         p(role, { ...SUP, align: 'center' }),
@@ -639,9 +653,27 @@ function signatures(): string {
   return table(
     [half, half],
     [
-      row([sig('{{supervisor_name}}', 'Supervisor'), sig('{{contractor_name}}', 'Contratista')], {
-        cantSplit: true,
-      }),
+      row(
+        [
+          sig('{{supervisor_name}}', 'Supervisor', [
+            p('', { ...KEEP, spacingAfter: 0 }),
+            // Same height as the contractor's signature image (1.8 cm), so both lines stay level.
+            cmd('IF has_contractor_signature', KEEP),
+            p('', { ...KEEP, spacingAfter: 760 }),
+            cmd('END-IF', KEEP),
+            cmd('IF !has_contractor_signature', KEEP),
+            p('', { ...KEEP, spacingAfter: 600 }),
+            cmd('END-IF', KEEP),
+          ]),
+          sig('{{contractor_name}}', 'Contratista', [
+            p('', { ...KEEP, spacingAfter: 0 }),
+            ...contractorSignature(KEEP, 600),
+          ]),
+        ],
+        {
+          cantSplit: true,
+        },
+      ),
     ],
     {
       borders: false,

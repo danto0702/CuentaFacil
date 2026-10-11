@@ -106,7 +106,7 @@ Que revisado el certificado de Medidas Correctivas de fecha ______________, NO R
 2.3 CUMPLIMIENTO DE LAS ACTIVIDADES: Relaciono las actividades descritas (en el estudio previo y/o contrato) por el contratista y su respectiva valoración de acuerdo con las obligaciones especiales descritas en el presente contrato de prestación de servicios.
 ACTIVIDAD RELACIONADA
 OBLIGACIÓN ESPECIAL ASOCIADA
-APROBACIÓN
+APROBACIÓN POR EL SUPERVISOR
 Actividad 1
 Coordinar los procesos y actividades de vigilancia en salud pública y notificación de eventos epidemiológicos de la entidad a los entes responsables y hacer seguimiento a las IPS.
 Actividad 2
