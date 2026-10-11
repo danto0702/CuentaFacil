@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { DEMO_IDS } from '../src/demo.js';
+import { MONTHS } from '../src/text.js';
 import { harness, show } from './harness.js';
 
 describe('recorded conversation: a month of notes to delivery', () => {
@@ -142,6 +143,33 @@ describe('other flows', () => {
     await h.say('ver borrador');
     out = show(await h.press(`c:${DEMO_IDS.ebs}`));
     expect(out[0]).toMatch(/toca \*Rehacer \w+\*\. \[Rehacer \w+\]$/);
+  });
+
+  it('takes "informe de <mes>" as a request, not as the answer Pascal was waiting for', async () => {
+    const h = harness();
+    const ps = await h.store.listPeriods(DEMO_IDS.ebs);
+    const first = ps.find((p) => p.number === 1)!;
+    await h.store.savePeriods(
+      DEMO_IDS.ebs,
+      ps.map((p) => (p.number === 1 ? { ...p, status: 'delivered' } : p)),
+    );
+    const month = MONTHS[Number(first.from.slice(5, 7)) - 1]!;
+    await h.say('Asistí a la reunión del comité en Ábrego');
+    await h.press(`c:${DEMO_IDS.ebs}`);
+    await h.say('ver borrador');
+    let out = show(await h.press(`c:${DEMO_IDS.ebs}`));
+    expect(out.at(-1)).toMatch(/^Para la obligación/);
+    const notes = h.store.data.notes.length;
+
+    // Both demo contracts have that month: Pascal asks which one; the delivered one is redone.
+    out = show(await h.say(`Sigamos trabajando en el informe de ${month}`));
+    expect(h.store.data.notes.length).toBe(notes);
+    expect(out[0]).toMatch(new RegExp(`^Tienes informe de ${month} en varios contratos`));
+
+    out = show(await h.say(`Rehacer ${month}`));
+    expect(h.store.data.notes.length).toBe(notes);
+    out = show(await h.press(`redo:${DEMO_IDS.ebs}:1`));
+    expect(out[0]).toBe('⏳ Estoy generando tus documentos, dame un momento…');
   });
 
   it('blocks generation when a required support is missing, with links', async () => {

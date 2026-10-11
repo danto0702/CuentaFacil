@@ -1,4 +1,4 @@
-import { normalize } from './text.js';
+import { MONTHS, normalize } from './text.js';
 
 export type Command =
   | 'menu'
@@ -63,11 +63,16 @@ const ACTION =
   '(genera|generar|generame|genere|haz|hazme|hacer|haga|crea|crear|creame|elabora|elaborar|elaborame|prepara|preparar|preparame|saca|sacar|sacame|arma|armar|armame|redacta|redactar|redactame|cierra|cerrar|cierrame|necesito|quiero|listo para|ya puedes hacer|puedes hacer|ya genera|ya haz)';
 const REPORT =
   '(informe|informes|la cuenta|las cuentas|cuenta de cobro|cuentas de cobro|documentos|reporte|reportes)';
+const REDO =
+  '(rehacer|rehaz|rehazme|rehaga|repetir|repite|repiteme|volver a generar|vuelve a generar|volver a hacer|vuelve a hacer|volver a enviar|vuelve a enviar|reenvia|reenviame)';
+const CONTINUE =
+  '(sigamos|seguimos|seguir|sigue|continuemos|continuar|continua|trabajemos|trabajar|trabajando|volvamos|vamos|ver|veamos|muestrame|abre|abrir|retomemos|retomar)';
 const PATTERNS: [Command, RegExp][] = [
   [
     'undo_note',
     /\b(borra|borrar|borrala|elimina|eliminar|eliminala|quita|quitar|quitala)\b.*\b(nota|actividad|registro|eso|esa|ultima)\b/,
   ],
+  ['resend', new RegExp(`\\b${REDO}\\b.*\\b${REPORT}\\b`)],
   ['draft', new RegExp(`\\b${ACTION}\\b.*\\b${REPORT}\\b`)],
   ['status', /\b(que me falta|que falta|como voy|como va mi cuenta|estado de mi cuenta)\b/],
 ];
@@ -86,4 +91,29 @@ export function matchCommand(text: string): Command | null {
 export function forcedNote(text: string): string | null {
   const m = /^\s*nota\s*[:-]?\s+(.+)$/is.exec(text);
   return m ? m[1]!.trim() : null;
+}
+
+export interface MonthRequest {
+  /** 1..12 */
+  month: number;
+  /** The contractor asked to redo (regenerate) a report already delivered. */
+  redo: boolean;
+}
+
+/**
+ * A short message about the report of a given month: "informe de julio", "sigamos con la cuenta de
+ * agosto", "rehacer julio". It must not be taken as an activity for whatever Pascal was asking.
+ */
+export function matchMonthRequest(text: string): MonthRequest | null {
+  const t = normalize(text);
+  if (t.split(' ').length > MAX_WORDS_FOR_PATTERNS + 2) return null;
+  const m = new RegExp(`\\b(${MONTHS.join('|')})\\b`).exec(t);
+  if (!m) return null;
+  const redo = new RegExp(`\\b${REDO}\\b`).test(t);
+  if (redo) return { month: MONTHS.indexOf(m[1]!) + 1, redo };
+  // "Entregué el informe de julio" is an activity; "sigamos con el informe de julio" is a request.
+  const aboutReport = new RegExp(`\\b${REPORT}\\b`).test(t);
+  const asks = new RegExp(`\\b(${ACTION}|${CONTINUE})\\b`).test(t) || t.split(' ').length <= 4;
+  if (!aboutReport || !asks) return null;
+  return { month: MONTHS.indexOf(m[1]!) + 1, redo };
 }

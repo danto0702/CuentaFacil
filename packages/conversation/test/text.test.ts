@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { impersonal } from '../src/fakes.js';
-import { matchCommand } from '../src/intents.js';
+import { matchCommand, matchMonthRequest } from '../src/intents.js';
 import { parseActivityDate, parseActivityWhen } from '../src/text.js';
 
 describe('parseActivityDate (today = Monday 2026-09-28)', () => {
@@ -75,5 +75,20 @@ describe('requests in other words', () => {
       matchCommand('Se elaboró el informe de vigilancia epidemiológica de las UPGD de Ábrego y El Carmen'),
     ).toBeNull();
     expect(matchCommand('Elaboré el informe del COVE')).toBeNull();
+  });
+});
+
+describe('matchMonthRequest', () => {
+  it('reads requests about the report of a month', () => {
+    expect(matchMonthRequest('Sigamos trabajando en el informe de julio')).toEqual({ month: 7, redo: false });
+    expect(matchMonthRequest('Rehacer Julio')).toEqual({ month: 7, redo: true });
+    expect(matchMonthRequest('informe de agosto')).toEqual({ month: 8, redo: false });
+    expect(matchMonthRequest('vuelve a generar la cuenta de septiembre')).toEqual({ month: 9, redo: true });
+  });
+
+  it('leaves activities alone', () => {
+    expect(matchMonthRequest('Entregué el informe de julio a la secretaría de salud')).toBeNull();
+    expect(matchMonthRequest('En julio capacité a 30 personas')).toBeNull();
+    expect(matchMonthRequest('genera el informe')).toBeNull();
   });
 });

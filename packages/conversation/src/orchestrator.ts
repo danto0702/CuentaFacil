@@ -25,10 +25,10 @@ import type {
   User,
 } from './domain.js';
 import { noteSupports } from './domain.js';
-import { type Command, forcedNote, matchCommand } from './intents.js';
+import { type Command, forcedNote, matchCommand, matchMonthRequest } from './intents.js';
 import type { Deps, Inbound, ListRow, Outgoing } from './ports.js';
 import { POLICY_VERSION, SETUP_FLOW, SetupFlow } from './setup.js';
-import { type ActivityWhen, clip, parseActivityDate, parseActivityWhen } from './text.js';
+import { type ActivityWhen, clip, MONTHS, parseActivityDate, parseActivityWhen } from './text.js';
 
 const MAX_BUTTONS = 3;
 const MAX_ROWS = 10;
@@ -256,6 +256,11 @@ export class Orchestrator {
         this.reset(turn);
         return this.startNote(turn, forced);
       }
+      const monthReq = matchMonthRequest(msg.text);
+      if (monthReq && (await this.activeContracts(turn)).length) {
+        this.reset(turn);
+        return this.startMonthReport(turn, monthReq.month, monthReq.redo);
+      }
       const cmd = matchCommand(msg.text);
       // No contract yet: greetings and the menu go to the setup (or the pending-institution notice).
       if (
@@ -284,6 +289,19 @@ export class Orchestrator {
     }
     if (msg.kind === 'document' && msg.media && turn.state.flow !== 'idle') this.reset(turn);
 
+    if (msg.kind === 'reply' && msg.replyId?.startsWith('redo:')) {
+      this.reset(turn);
+      const [contractId, n] = msg.replyId.slice(5).split(':');
+      const c = (await this.activeContracts(turn)).find((x) => x.id === contractId);
+      if (c) return this.startGenerate(turn, c, true, Number(n));
+    }
+    if (msg.kind === 'reply' && msg.replyId?.startsWith('dft:')) {
+      this.reset(turn);
+      const [contractId, n] = msg.replyId.slice(4).split(':');
+      const c = (await this.activeContracts(turn)).find((x) => x.id === contractId);
+      const p = c && (await this.deps.store.listPeriods(c.id)).find((x) => x.number === Number(n));
+      if (c && p) return this.startDraft(turn, c, p);
+    }
     if (msg.kind === 'reply' && msg.replyId?.startsWith('menu:')) {
       return this.command(turn, msg.replyId.slice(5) as Command);
     }
@@ -1028,8 +1046,8 @@ export class Orchestrator {
   // -------------------------------------------------------------------------
   // Drafting and review
   // -------------------------------------------------------------------------
-  private async startDraft(turn: Turn, c: Contract): Promise<void> {
-    const p = await this.currentPeriod(c);
+  private async startDraft(turn: Turn, c: Contract, period?: Period): Promise<void> {
+    const p = period ?? (await this.currentPeriod(c));
     if (!p) {
       turn.out.push(text(`No tienes cuentas pendientes en ${c.shortLabel}.`));
       return;
@@ -1093,6 +1111,54 @@ export class Orchestrator {
   }
 
   /**
+   * "Informe de julio", "rehacer julio": works on the report of that month, whatever Pascal was asking.
+   * A delivered report is regenerated only when the contractor asked to redo it (or taps the button).
+   */
+  private async startMonthReport(turn: Turn, month: number, redo: boolean): Promise<void> {
+    const today = this.deps.clock.today();
+    const found: { c: Contract; p: Period }[] = [];
+    for (const c of await this.activeContracts(turn)) {
+      const ps = (await this.deps.store.listPeriods(c.id))
+        .filter((x) => Number(x.from.slice(5, 7)) === month && compareIso(x.from, today) <= 0)
+        .sort((a, b) => compareIso(b.from, a.from));
+      if (ps[0]) found.push({ c, p: ps[0] });
+    }
+    const name = MONTHS[month - 1]!;
+    if (found.length === 0) {
+      turn.out.push(
+        text(`No encuentro un informe de ${name} en tus contratos. Escribe *menú* para ver las opciones.`),
+      );
+      return;
+    }
+    if (found.length > 1) {
+      turn.out.push(
+        choose(
+          `Tienes informe de ${name} en varios contratos. ¿Cuál?`,
+          found.map(({ c, p }) =>
+            p.status === 'delivered'
+              ? {
+                  id: `redo:${c.id}:${p.number}`,
+                  title: c.shortLabel,
+                  description: 'Ya entregado: rehacerlo',
+                }
+              : { id: `dft:${c.id}:${p.number}`, title: c.shortLabel },
+          ),
+        ),
+      );
+      return;
+    }
+    const { c, p } = found[0]!;
+    if (p.status !== 'delivered') return this.startDraft(turn, c, p);
+    if (redo) return this.startGenerate(turn, c, true, p.number);
+    turn.out.push(
+      buttons(
+        `El informe ${formatReportNumber(p.number, c.paymentsCount, c.reportNumberFormat)} (${formatRangeLong(p.from, p.to)}) ya te lo entregué. ¿Quieres que lo rehaga con los formatos y datos actualizados?`,
+        [{ id: `redo:${c.id}:${p.number}`, title: `Rehacer ${name}` }],
+      ),
+    );
+  }
+
+  /**
    * The open period has no notes at all: asking obligation by obligation would mean writing the whole
    * report from scratch. Ask for the activities instead, and offer to redo the last delivered report
    * (usually what the contractor wants after a format change or a correction).
@@ -1111,7 +1177,12 @@ export class Orchestrator {
     turn.out.push(
       buttons(
         `${msg}\n\nSi lo que quieres es volver a recibir el ${report(delivered)}, con los formatos y datos actualizados, toca *Rehacer ${monthNameEs(delivered.from).toLowerCase()}*.`,
-        [{ id: 'menu:resend', title: clip(`Rehacer ${monthNameEs(delivered.from).toLowerCase()}`, 20) }],
+        [
+          {
+            id: `redo:${c.id}:${delivered.number}`,
+            title: `Rehacer ${monthNameEs(delivered.from).toLowerCase()}`,
+          },
+        ],
       ),
     );
   }
@@ -1348,10 +1419,12 @@ export class Orchestrator {
   // -------------------------------------------------------------------------
   // Generation and delivery
   // -------------------------------------------------------------------------
-  private async startGenerate(turn: Turn, c: Contract, resend = false): Promise<void> {
+  private async startGenerate(turn: Turn, c: Contract, resend = false, periodNumber?: number): Promise<void> {
     const ps = (await this.deps.store.listPeriods(c.id)).sort((a, b) => a.number - b.number);
     const p = resend
-      ? [...ps].reverse().find((x) => x.status === 'delivered')
+      ? [...ps]
+          .reverse()
+          .find((x) => x.status === 'delivered' && (!periodNumber || x.number === periodNumber))
       : (ps.find((x) => x.status === 'approved') ?? (await this.currentPeriod(c)));
     if (!p) {
       turn.out.push(

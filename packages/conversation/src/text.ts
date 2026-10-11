@@ -12,7 +12,7 @@ export function normalize(text: string): string {
 }
 
 const WEEKDAYS = ['domingo', 'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'];
-const MONTHS = [
+export const MONTHS = [
   'enero',
   'febrero',
   'marzo',
