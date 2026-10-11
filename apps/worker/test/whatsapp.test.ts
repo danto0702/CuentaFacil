@@ -237,6 +237,19 @@ describe('InboundPipeline', () => {
     expect(db.out).toHaveLength(1);
   });
 
+  it('does not re-run the turn when a reply cannot be sent (e.g. a file type WhatsApp rejects)', async () => {
+    const { db, seen, pipeline, put } = setup((n) => {
+      if (n === 1) throw new Error('(#100) Param file must be a file with one of the following types');
+    });
+    put(1, webhook([textMsg('w1', 'generar')]));
+    await pipeline.processInbox(1);
+    expect(seen).toHaveLength(1);
+    expect(db.inbound.get('w1')).toBe(true);
+    expect(db.inbox.get(1)?.status).toBe('processed');
+    // The failed reply is not logged; the contractor gets a short notice instead.
+    expect(db.out.map((o) => o.out.type === 'text' && o.out.text.startsWith('⚠️'))).toEqual([]);
+  });
+
   it('answers unsupported message types without calling the conversation', async () => {
     const { db, seen, pipeline, put } = setup();
     put(

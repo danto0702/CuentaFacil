@@ -21,6 +21,9 @@ export interface PipelineDb {
   applyStatus(s: StatusUpdate): Promise<void>;
 }
 
+const SEND_FAILED =
+  '⚠️ Uno de mis mensajes no se pudo enviar por WhatsApp. Ya quedó registrado y lo revisa una persona; si lo necesitas, escribe *soporte*.';
+
 export interface Messenger {
   send(to: string, out: Outgoing): Promise<string>;
   downloadMedia(mediaId: string): Promise<{ data: Buffer; mime: string }>;
@@ -112,10 +115,19 @@ export class InboundPipeline {
       replies = await conversation.handle(inbound);
     }
 
+    // The turn already ran (state saved): a reply that cannot be sent is logged and skipped. Re-running
+    // the message would repeat the whole turn, e.g. send every document of a report again.
+    let lost = 0;
     for (const out of replies) {
-      const wamid = await this.sendWithRetry(m.from, out);
-      await db.logOutbound(m.from, wamid, out);
+      try {
+        const wamid = await this.sendWithRetry(m.from, out);
+        await db.logOutbound(m.from, wamid, out);
+      } catch (e) {
+        lost++;
+        log.error('message.send_failed', { wamid: m.wamid, type: out.type, error: String(e) });
+      }
     }
+    if (lost) await this.sendWithRetry(m.from, { type: 'text', text: SEND_FAILED }).catch(() => undefined);
     await db.markInboundProcessed(m.wamid);
   }
 

@@ -103,7 +103,24 @@ export class AccountGenerator implements Generator {
     const ss = await store.getSocialSecurity(user.id, pilaMonthFor(entity.settings, period.to));
     const supports = await store.listSupports(user.id);
     const types = await store.listSupportTypes(entity.id);
-    const prior = (await store.listPriorPayments(contractId)).filter((p) => p.periodNumber < periodNumber);
+    // Payments before this report: the vouchers registered for them, or else each delivered report with
+    // its value ("Cuenta No. 01 – julio"), so the balance shows what was already billed.
+    const vouchers = (await store.listPriorPayments(contractId)).filter((p) => p.periodNumber < periodNumber);
+    const prior = periods
+      .filter((p) => p.number < periodNumber && p.status === 'delivered')
+      .sort((a, b) => a.number - b.number)
+      .flatMap((p) => {
+        const own = vouchers.filter((v) => v.periodNumber === p.number);
+        return own.length
+          ? own
+          : [
+              {
+                voucher: `Cuenta No. ${String(p.number).padStart(2, '0')} – ${monthNameEs(p.from).toLowerCase()}`,
+                amount: p.amount,
+                periodNumber: p.number,
+              },
+            ];
+      });
     const next = periods.find((p) => p.number === periodNumber + 1);
     const today = clock.today();
     const reportDate: IsoDate = period.reportDate ?? (today < period.to ? today : period.to);

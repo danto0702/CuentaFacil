@@ -15,7 +15,7 @@ import { FieldCipher } from './crypto.js';
 import { AccountGenerator } from './generator.js';
 import { loadConfig } from './runtime/config.js';
 import { jsonLogger as log } from './runtime/log.js';
-import { InboundPipeline } from './runtime/pipeline.js';
+import { InboundPipeline, type Messenger } from './runtime/pipeline.js';
 import { Queue } from './runtime/queue.js';
 import { processRegistryImports, queueRegistryUploads } from './runtime/registry-import.js';
 import { parseRegistryWorkbook } from './runtime/registry-xlsx.js';
@@ -70,9 +70,29 @@ const orchestrator = new Orchestrator({
   },
 });
 
+/** WhatsApp does not accept ZIP files: the package goes to Storage and the contractor gets a link. */
+const ZIP_LINK_SECONDS = 7 * 24 * 3600;
+const outbound: Messenger = {
+  async send(to, out) {
+    if (out.type !== 'document' || out.mime !== 'application/zip') return messenger.send(to, out);
+    const path = `packages/${randomUUID()}/${out.filename}`;
+    const bucket = sb.storage.from('outputs');
+    const up = await bucket.upload(path, out.data, { contentType: 'application/zip' });
+    if (up.error) throw new Error(`zip upload: ${up.error.message}`);
+    const { data, error } = await bucket.createSignedUrl(path, ZIP_LINK_SECONDS, { download: out.filename });
+    if (error || !data) throw new Error(`zip link: ${error?.message}`);
+    return messenger.send(to, {
+      type: 'text',
+      text: `📦 *${out.filename}*: el paquete completo para cargar en SECOP II. Descárgalo aquí (el enlace vence en 7 días):\n${data.signedUrl}`,
+    });
+  },
+  downloadMedia: (id) => messenger.downloadMedia(id),
+  markRead: (wamid) => messenger.markRead(wamid),
+};
+
 const pipeline = new InboundPipeline({
   db: new SupabasePipelineDb(sb),
-  messenger,
+  messenger: outbound,
   conversation: orchestrator,
   appSecret: cfg.WA_APP_SECRET,
   log,
