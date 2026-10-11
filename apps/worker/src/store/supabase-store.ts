@@ -1205,6 +1205,22 @@ export class SupabaseStore implements Store {
     );
   }
 
+  async openSupportTicket(userId: string, subject: string): Promise<void> {
+    // One open request per subject is enough.
+    const open = must(
+      await this.sb
+        .from('support_tickets')
+        .select('id')
+        .eq('user_id', userId)
+        .eq('subject', subject)
+        .eq('status', 'open')
+        .limit(1),
+      'openSupportTicket.lookup',
+    ) as Row[];
+    if (open.length) return;
+    must(await this.sb.from('support_tickets').insert({ user_id: userId, subject }), 'openSupportTicket');
+  }
+
   async acceptExpiredSupports(ids: string[]): Promise<void> {
     if (!ids.length) return;
     // 'confirmed': the contractor confirmed using it although it is older than allowed.

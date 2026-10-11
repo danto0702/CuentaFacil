@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import { adminAvailable, listInstitutionRequests } from '@/lib/admin';
+import { listOpenTickets } from '@/lib/billing';
 import { dataSource } from '@/lib/data';
+import { closeTicket } from './cobros/actions';
 
 const STATUS: Record<string, string> = {
   scheduled: 'Programadas',
@@ -23,6 +25,7 @@ export default async function Dashboard() {
   const newRequests = adminAvailable()
     ? (await listInstitutionRequests()).filter((r) => r.status === 'pending').length
     : 0;
+  const tickets = adminAvailable() ? await listOpenTickets() : [];
   const byStatus = Object.entries(
     accounts.reduce<Record<string, number>>((acc, a) => {
       acc[a.status] = (acc[a.status] ?? 0) + 1;
@@ -32,6 +35,39 @@ export default async function Dashboard() {
   return (
     <>
       <h2>Inicio</h2>
+      {tickets.length > 0 && (
+        <div className="card">
+          <h3>🙋 Contratistas que pidieron hablar con una persona</h3>
+          <table>
+            <tbody>
+              {tickets.map((t) => (
+                <tr key={t.id}>
+                  <td>
+                    {t.contractor}
+                    <div className="muted">
+                      {t.phone.startsWith('+') ? (
+                        <a href={`https://wa.me/${t.phone.slice(1)}`}>{t.phone}</a>
+                      ) : (
+                        'Usuario de WhatsApp sin número visible: respóndele desde el número de Pascal'
+                      )}
+                    </div>
+                  </td>
+                  <td>{t.subject}</td>
+                  <td className="muted">
+                    {new Date(t.createdAt).toLocaleString('es-CO', { timeZone: 'America/Bogota' })}
+                  </td>
+                  <td>
+                    <form action={closeTicket}>
+                      <input type="hidden" name="id" value={t.id} />
+                      <button type="submit">Atendido</button>
+                    </form>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
       <div className="grid">
         <div className="card">
           <div className="stat">{contractors.length}</div>

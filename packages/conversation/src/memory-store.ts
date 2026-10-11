@@ -65,6 +65,7 @@ export interface MemoryData {
     usedAt?: string;
   }[];
   periodCharges?: Record<string, 'paid' | 'free' | 'pilot'>;
+  tickets?: { userId: string; subject: string }[];
   allies?: { userId: string; code: string; level: number; newLevels: number[] }[];
   referredBy?: Record<string, string>;
   registry?: (RegistryEntry & { entityId: string; contractCode: string; docNumber: string })[];
@@ -191,6 +192,9 @@ export class MemoryStore implements Store {
   }
   async addSupport(s: SupportFile) {
     this.data.supports = [...this.data.supports.filter((x) => x.id !== s.id), s];
+  }
+  async openSupportTicket(userId: string, subject: string) {
+    this.data.tickets = [...(this.data.tickets ?? []), { userId, subject }];
   }
   async acceptExpiredSupports(ids: string[]) {
     this.data.supports = this.data.supports.map((x) =>

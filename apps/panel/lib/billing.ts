@@ -104,3 +104,32 @@ export async function contractorOptions(): Promise<ContractorOption[]> {
 
 /** "K7M4Q2P9" → "K7M4-Q2P9". */
 export const showCode = (c: string) => `${c.slice(0, 4)}-${c.slice(4)}`;
+
+export interface TicketRow {
+  id: string;
+  contractor: string;
+  phone: string;
+  subject: string;
+  createdAt: string;
+}
+
+/** Open requests to talk with a person (soporte, cómo pagar). */
+export async function listOpenTickets(): Promise<TicketRow[]> {
+  const sb = await supabaseServer();
+  const { data, error } = await sb
+    .from('support_tickets')
+    .select('id, subject, created_at, users(full_name, phone_e164)')
+    .eq('status', 'open')
+    .order('created_at');
+  if (error) throw error;
+  return (data ?? []).map((t) => {
+    const u = one(t.users as One<{ full_name: string | null; phone_e164: string }>);
+    return {
+      id: t.id,
+      contractor: u?.full_name || 'Sin nombre aún',
+      phone: u?.phone_e164 ?? '',
+      subject: t.subject,
+      createdAt: t.created_at,
+    };
+  });
+}

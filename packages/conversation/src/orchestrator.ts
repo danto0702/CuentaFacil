@@ -464,6 +464,7 @@ export class Orchestrator {
           else await this.askReset(turn, cs[0]!, p);
         });
       case 'support':
+        await this.deps.store.openSupportTicket(turn.user.id, 'Hablar con una persona');
         turn.out.push(
           text('🙋 Listo, le aviso a una persona del equipo de soporte. Te escribiremos por aquí.'),
         );
@@ -2075,10 +2076,15 @@ export class Orchestrator {
         buttons('¿Pagaste en efectivo y tienes un código?', [{ id: 'pay:code', title: 'Tengo un código' }]),
       );
     } else {
+      // No online payment configured: cash with a code, arranged with a person.
       turn.out.push(
-        buttons(`${intro}\n\nSi pagaste en efectivo, escríbeme tu código de pago.`, [
-          { id: 'pay:code', title: 'Tengo un código' },
-        ]),
+        buttons(
+          `${intro}\n\nPor ahora el pago es en efectivo o por transferencia: toca *Cómo pagar* y una persona del equipo te indica cómo hacerlo y te entrega tu código de pago. Si ya tienes el código, toca *Tengo un código*.`,
+          [
+            { id: 'pay:how', title: 'Cómo pagar' },
+            { id: 'pay:code', title: 'Tengo un código' },
+          ],
+        ),
       );
     }
     return null;
@@ -2092,6 +2098,26 @@ export class Orchestrator {
       return;
     }
     const raw = (msg.text ?? '').trim();
+    // "Pagar", "cómo pago", "quiero pagar": show the payment options again.
+    const asksToPay = /^(pagar|pago|c[oó]mo pago|quiero pagar|link de pago|enlace de pago)\b/i.test(raw);
+    if (msg.replyId === 'pay:how' || (asksToPay && !this.deps.payments)) {
+      turn.out.push(
+        text(
+          '🙋 Listo, le aviso a una persona del equipo para que te indique cómo pagar en efectivo o por transferencia. Cuando pagues te enviamos tu código; escríbemelo aquí y te entrego los documentos.',
+        ),
+      );
+      await this.deps.store.openSupportTicket(turn.user.id, 'Pago en efectivo o transferencia');
+      return;
+    }
+    if (asksToPay) {
+      const charge = await this.deps.store.getCharge(ctx.chargeId);
+      const c = await this.deps.store.getContract(ctx.contractId);
+      const p = ctx.periodNumber
+        ? ((await this.deps.store.listPeriods(c.id)).find((x) => x.number === ctx.periodNumber) ?? null)
+        : null;
+      await this.askPayment(turn, c, p, charge);
+      return;
+    }
     const looksLikeCode = /^[A-Za-z0-9]{4}-?[A-Za-z0-9]{4}$/.test(raw);
     if (!raw || (turn.state.flow === 'pay_wait' && !looksLikeCode)) {
       // Anything else: leave the payment pending and handle the message normally.

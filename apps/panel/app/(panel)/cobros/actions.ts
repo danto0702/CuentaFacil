@@ -52,3 +52,13 @@ export async function createCashCode(_prev: CashCodeState, form: FormData): Prom
   }
   return { error: 'No pude generar un código único; intenta de nuevo.' };
 }
+
+export async function closeTicket(form: FormData): Promise<void> {
+  const sb = await supabaseServer();
+  const { error } = await sb
+    .from('support_tickets')
+    .update({ status: 'closed', closed_at: new Date().toISOString() })
+    .eq('id', s(form, 'id'));
+  if (error) throw new Error(`No pude cerrar la solicitud: ${error.message}`);
+  revalidatePath('/');
+}
