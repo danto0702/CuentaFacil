@@ -116,7 +116,8 @@ note: a very short Spanish note useful to the contractor, e.g. "no registra ante
 Never invent: if unsure of a code, use null.`;
 
 const PILA_RULES = `You read a Colombian social-security payment sheet (PILA: "planilla integrada de liquidación de aportes" or the operator's payment certificate) of an independent contractor.
-Return exactly what is printed, never invent: operator (e.g. "Aportes en Línea", "SOI", "Mi Planilla", "Asopagos"), sheet number (número de planilla), PIN or authorization code if printed, bank / financial entity used to pay, payment date (YYYY-MM-DD), contribution month (YYYY-MM: the health "periodo de cotización" / "período salud"), IBC, health entity (EPS) and value, pension fund (AFP / Colpensiones) and value, solidarity fund (FSP) value, ARL and value, and the total paid.
+Return exactly what is printed, never invent: operator (e.g. "Aportes en Línea", "SOI", "Mi Planilla", "Asopagos"), sheet number (número de planilla), pin, bank / financial entity used to pay, payment date (YYYY-MM-DD), contribution month (YYYY-MM: the health "periodo de cotización" / "período salud"), IBC, health entity (EPS) and value, pension fund (AFP / Colpensiones) and value, solidarity fund (FSP) value, ARL and value, and the total paid.
+pin: the payment number printed on the sheet ("PIN", "número de pago", "No. pago", "referencia de pago", "número de autorización" or "CUS"); it is not the sheet number. Copy it exactly.
 Values are integers in Colombian pesos, without separators. Use null for anything not printed. readable=false if this is not a payment sheet.`;
 
 const int = z.number().int().nullable();

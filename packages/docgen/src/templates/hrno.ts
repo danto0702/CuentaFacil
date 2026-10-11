@@ -546,20 +546,34 @@ function balanceTable(): string {
   ]);
 }
 
+// The closing block (commitments, constancia and signatures) stays together: if it does not fit, the
+// whole block moves to the next page so the signatures never end up alone on a page.
+const KEEP = { ...SUP, keepNext: true } as const;
+const KEEPB = { ...KEEP, bold: true } as const;
+
 function commitmentsTable(): string {
   const cols = [4000, (W - 4000) / 2, (W - 4000) / 2];
   return table(cols, [
-    sTitle('Compromisos adquiridos', W, 3),
+    row(
+      [cell(p('Compromisos adquiridos', { ...KEEPB, align: 'center' }), { width: W, span: 3, fill: GREY })],
+      {
+        cantSplit: true,
+      },
+    ),
     row(
       ['Compromiso', 'Fecha de entrega', 'Responsable'].map((h, i) =>
-        cell(p(h, { ...SUPB, align: 'center' }), { width: cols[i]! }),
+        cell(p(h, { ...KEEPB, align: 'center' }), { width: cols[i]! }),
       ),
+      { cantSplit: true },
     ),
-    row([
-      cell(p('PRESENTACIÓN DE INFORME DE ACTIVIDADES Y CUENTA DE COBRO', SUP), { width: cols[0]! }),
-      cell(p('{{next_report_date}}', { ...SUP, align: 'center' }), { width: cols[1]! }),
-      cell(p('{{contractor_name}}', { ...SUP, align: 'center' }), { width: cols[2]! }),
-    ]),
+    row(
+      [
+        cell(p('PRESENTACIÓN DE INFORME DE ACTIVIDADES Y CUENTA DE COBRO', KEEP), { width: cols[0]! }),
+        cell(p('{{next_report_date}}', { ...KEEP, align: 'center' }), { width: cols[1]! }),
+        cell(p('{{contractor_name}}', { ...KEEP, align: 'center' }), { width: cols[2]! }),
+      ],
+      { cantSplit: true },
+    ),
   ]);
 }
 
@@ -568,16 +582,20 @@ function signatures(): string {
   const sig = (name: string, role: string) =>
     cell(
       [
-        p('', { ...SUP, spacingAfter: 600 }),
-        p('_______________________________', { ...SUP, align: 'center', spacingAfter: 0 }),
-        p(name, { ...SUPB, align: 'center', spacingAfter: 0 }),
+        p('', { ...KEEP, spacingAfter: 600 }),
+        p('_______________________________', { ...KEEP, align: 'center', spacingAfter: 0 }),
+        p(name, { ...KEEPB, align: 'center', spacingAfter: 0 }),
         p(role, { ...SUP, align: 'center' }),
       ],
       { width: half, borders: false },
     );
   return table(
     [half, half],
-    [row([sig('{{supervisor_name}}', 'Supervisor'), sig('{{contractor_name}}', 'Contratista')])],
+    [
+      row([sig('{{supervisor_name}}', 'Supervisor'), sig('{{contractor_name}}', 'Contratista')], {
+        cantSplit: true,
+      }),
+    ],
     {
       borders: false,
     },
@@ -650,9 +668,7 @@ export function hrnoSupervisionBody(): string {
     para(
       // Day and month are written by the supervisor when signing.
       'En constancia se firma a los ______ días del mes de ________________ de {{signing_year}}.',
-      {
-        spacingBefore: 240,
-      },
+      { spacingBefore: 240, keepNext: true },
     ),
     signatures(),
   ].join('');
