@@ -309,6 +309,7 @@ export async function buildTemplateContext(input: CuentaInput): Promise<Template
     specific_obligations: obligations.filter((o) => o.kind === 'specific' && !o.omitted),
     general_obligations: obligations.filter((o) => o.kind === 'general' && !o.omitted),
     evidence_obligations: obligations.filter((o) => o.has_evidence && !o.omitted),
+    supervision_activities: obligations.filter((o) => o.kind === 'specific' && !o.omitted),
     contractor_duties: contract.contractorDuties.map((d, i) => ({
       number: String(i + 1),
       text: d.text,

@@ -138,3 +138,34 @@ export async function rebodyDocx(
   // Drop media/embeddings no longer referenced by the body is unnecessary: Word ignores unreferenced parts.
   return zip.generateAsync({ type: 'nodebuffer', compression: 'DEFLATE' });
 }
+
+/**
+ * Keeps only the page setup, headers and footers (logos) of an entity's original DOCX: the body is
+ * emptied and the images it used are removed, so no example data from the original is stored.
+ * The result is the `base` for the code templates.
+ */
+export async function stripBodyDocx(original: Buffer): Promise<Buffer> {
+  const zip = await JSZip.loadAsync(await rebodyDocx(original, '<w:p/>'));
+  const relsPath = 'word/_rels/document.xml.rels';
+  const rels = await zip.file(relsPath)?.async('string');
+  if (rels) {
+    // Body relationships (images, embedded objects) are no longer used.
+    const kept = rels.replace(/<Relationship\b[^>]*\/>/g, (rel) =>
+      /Type="[^"]*\/(image|oleObject|package|hyperlink)"/.test(rel) ? '' : rel,
+    );
+    zip.file(relsPath, kept);
+  }
+  // Media still referenced by headers/footers stay; the rest goes.
+  const used = new Set<string>();
+  for (const name of Object.keys(zip.files)) {
+    if (!/^word\/_rels\/.+\.rels$/.test(name)) continue;
+    const xml = await zip.file(name)!.async('string');
+    for (const m of xml.matchAll(/Target="(?:\.\.\/)?(?:word\/)?(media\/[^"]+|embeddings\/[^"]+)"/g))
+      used.add(`word/${m[1]}`);
+  }
+  for (const name of Object.keys(zip.files)) {
+    if (/^word\/(media|embeddings)\//.test(name) && !zip.files[name]!.dir && !used.has(name))
+      zip.remove(name);
+  }
+  return zip.generateAsync({ type: 'nodebuffer', compression: 'DEFLATE' });
+}

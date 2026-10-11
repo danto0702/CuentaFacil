@@ -186,6 +186,27 @@
 | `general_obligations[].x_na` | texto | "X" o vacío. Calificación NO APLICA. |
 | `general_obligations[].observations` | texto | Observaciones del supervisor. |
 | `general_obligations[].omitted` | sí/no | Sin actividades este periodo y la entidad las omite del informe de actividades. |
+| `supervision_activities[]` | lista | Obligaciones específicas con actividades en el periodo (tabla 2.3 del informe de supervisión). |
+| `supervision_activities[]` | objeto |  |
+| `supervision_activities[].number` | texto | Número de la obligación ("1", "14"). |
+| `supervision_activities[].text` | texto | Texto literal de la obligación. |
+| `supervision_activities[].kind` | texto | specific \| general |
+| `supervision_activities[].activities[]` | lista | Párrafos de actividad aprobados (al menos uno). |
+| `supervision_activities[].activities[]` | objeto |  |
+| `supervision_activities[].activities[].text` | texto | Párrafo de actividad realizada. |
+| `supervision_activities[].evidences[]` | lista | Evidencias de la obligación en este periodo. |
+| `supervision_activities[].evidences[]` | objeto |  |
+| `supervision_activities[].evidences[].image` | imagen | Imagen lista para el comando IMAGE (ancho y alto en cm). |
+| `supervision_activities[].evidences[].caption` | texto | Pie de foto (puede ir vacío). |
+| `supervision_activities[].has_evidence` | sí/no | Hay al menos una evidencia. |
+| `supervision_activities[].approval` | texto | Valoración en el informe de supervisión ("CUMPLE"). |
+| `supervision_activities[].x_deficient` | texto | "X" o vacío. Calificación DEFICIENTE. |
+| `supervision_activities[].x_improve` | texto | "X" o vacío. Calificación A MEJORAR. |
+| `supervision_activities[].x_satisfactory` | texto | "X" o vacío. Calificación SATISFACTORIO. |
+| `supervision_activities[].x_outstanding` | texto | "X" o vacío. Calificación SOBRESALIENTE. |
+| `supervision_activities[].x_na` | texto | "X" o vacío. Calificación NO APLICA. |
+| `supervision_activities[].observations` | texto | Observaciones del supervisor. |
+| `supervision_activities[].omitted` | sí/no | Sin actividades este periodo y la entidad las omite del informe de actividades. |
 | `evidence_obligations[]` | lista | Obligaciones que tienen evidencias (para el anexo). |
 | `evidence_obligations[]` | objeto |  |
 | `evidence_obligations[].number` | texto | Número de la obligación ("1", "14"). |

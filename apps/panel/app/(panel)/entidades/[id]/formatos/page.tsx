@@ -1,5 +1,7 @@
 import { notFound } from 'next/navigation';
+import { baseFormats } from '@/lib/admin';
 import { dataSource } from '@/lib/data';
+import { uploadBaseFormat } from './actions';
 import { FormatUploader } from './uploader';
 
 export default async function FormatsPage({ params }: { params: Promise<{ id: string }> }) {
@@ -8,6 +10,7 @@ export default async function FormatsPage({ params }: { params: Promise<{ id: st
   const entity = await ds.getEntity(id);
   if (!entity) notFound();
   const vars = await ds.listVariables(id);
+  const bases = await baseFormats(id);
   return (
     <>
       <h2>{entity.shortName} · Formatos y variables</h2>
@@ -26,6 +29,27 @@ export default async function FormatsPage({ params }: { params: Promise<{ id: st
             Informe de supervisión (.docx)
           </a>
         </p>
+      </div>
+
+      <div className="card">
+        <h3>Formato original con logos</h3>
+        <p className="muted">
+          Sube el Word original de la entidad para cada informe. Se toman su encabezado, pie de página, logos
+          y tamaño de hoja; el contenido lo arma {'Pascal'} con los datos de la cuenta. El texto de ejemplo
+          del archivo no se guarda. {bases.activity_report ? '✅ Informe de actividades cargado.' : ''}{' '}
+          {bases.supervision_report ? '✅ Informe de supervisión cargado.' : ''}
+        </p>
+        {(['activity_report', 'supervision_report'] as const).map((kind) => (
+          <form key={kind} action={uploadBaseFormat} className="inline" style={{ marginBottom: 8 }}>
+            <input type="hidden" name="entityId" value={id} />
+            <input type="hidden" name="kind" value={kind} />
+            <span style={{ minWidth: 190 }}>
+              {kind === 'activity_report' ? 'Informe de actividades' : 'Informe de supervisión'}
+            </span>
+            <input type="file" name="file" accept=".docx" required />
+            <button type="submit">Subir</button>
+          </form>
+        ))}
       </div>
 
       <FormatUploader entityId={id} />

@@ -337,3 +337,17 @@ export async function getContractorDetail(id: string): Promise<ContractorDetail 
     })),
   };
 }
+
+/** Which original formats (with logos) the entity has uploaded. */
+export async function baseFormats(
+  entityId: string,
+): Promise<{ activity_report: boolean; supervision_report: boolean }> {
+  if (!adminAvailable()) return { activity_report: false, supervision_report: false };
+  const sb = await supabaseServer();
+  const { data } = await sb.storage.from('templates').list(entityId);
+  const names = new Set((data ?? []).map((f) => f.name));
+  return {
+    activity_report: names.has('activity_report.docx'),
+    supervision_report: names.has('supervision_report.docx'),
+  };
+}

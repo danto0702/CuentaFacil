@@ -1,5 +1,12 @@
 import type { IsoDate } from '@cuentasbot/shared';
-import type { ContractExtraction, DocumentInput, Note, Obligation, SupportSegment } from './domain.js';
+import type {
+  ContractExtraction,
+  DocumentInput,
+  Note,
+  Obligation,
+  SocialSecurity,
+  SupportSegment,
+} from './domain.js';
 import type { AI, ClassifyResult, Clock, DraftResult, STT } from './ports.js';
 import { normalize } from './text.js';
 
@@ -84,6 +91,27 @@ export function sampleExtraction(): ContractExtraction {
 
 export class FakeAI implements AI {
   constructor(private readonly extraction: ContractExtraction = sampleExtraction()) {}
+
+  async extractSocialSecurity(_doc: DocumentInput): Promise<Omit<SocialSecurity, 'userId'> | null> {
+    return {
+      contributionMonth: '2026-09-01',
+      platform: 'APORTES EN LÍNEA',
+      sheetNumber: '9000000001',
+      pin: '100000001',
+      bank: 'BANCOLOMBIA',
+      paymentDate: '2026-09-23',
+      ibc: 5_000_000,
+      eps: 'EPS DE PRUEBA',
+      epsValue: 625_000,
+      afp: 'AFP DE PRUEBA',
+      afpValue: 800_000,
+      fspValue: 0,
+      afcValue: 0,
+      arl: 'ARL DE PRUEBA',
+      arlValue: 121_800,
+      total: 1_546_800,
+    };
+  }
 
   /** Recognizes supports by file name, for tests (the real AI reads the PDF). */
   async classifySupports(

@@ -50,7 +50,8 @@ describe('HRNO templates', () => {
       const s = flat(await pdfToText(sup));
       expect(s).toContain('$8.000.000');
       expect(s).toContain('($4.000.000)');
-      expect(s).toContain('29/09/2026');
+      expect(s).toContain('23/09/2026'); // social security payment date
+      expect(s).not.toContain('CUMPLE'); // approval column is for the supervisor
     }, 120_000);
   });
 });

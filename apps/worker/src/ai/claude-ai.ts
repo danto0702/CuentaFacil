@@ -6,6 +6,7 @@ import type {
   DraftResult,
   Note,
   Obligation,
+  SocialSecurity,
   SupportSegment,
 } from '@cuentasbot/conversation';
 import type { IsoDate } from '@cuentasbot/shared';
@@ -114,6 +115,30 @@ issued_on: the issue/query/payment date printed on the document (YYYY-MM-DD), or
 note: a very short Spanish note useful to the contractor, e.g. "no registra antecedentes", "periodo septiembre 2026", "estado activo"; flag anything worrying, e.g. "REGISTRA ANTECEDENTES" or "afiliación retirada". null if nothing to add.
 Never invent: if unsure of a code, use null.`;
 
+const PILA_RULES = `You read a Colombian social-security payment sheet (PILA: "planilla integrada de liquidación de aportes" or the operator's payment certificate) of an independent contractor.
+Return exactly what is printed, never invent: operator (e.g. "Aportes en Línea", "SOI", "Mi Planilla", "Asopagos"), sheet number (número de planilla), PIN or authorization code if printed, bank / financial entity used to pay, payment date (YYYY-MM-DD), contribution month (YYYY-MM: the health "periodo de cotización" / "período salud"), IBC, health entity (EPS) and value, pension fund (AFP / Colpensiones) and value, solidarity fund (FSP) value, ARL and value, and the total paid.
+Values are integers in Colombian pesos, without separators. Use null for anything not printed. readable=false if this is not a payment sheet.`;
+
+const int = z.number().int().nullable();
+const pilaSchema = z.object({
+  readable: z.boolean(),
+  operator: z.string().nullable(),
+  sheet_number: z.string().nullable(),
+  pin: z.string().nullable(),
+  bank: z.string().nullable(),
+  payment_date: z.string().nullable(),
+  contribution_month: z.string().nullable(),
+  ibc: int,
+  health_entity: z.string().nullable(),
+  health_value: int,
+  pension_entity: z.string().nullable(),
+  pension_value: int,
+  fsp_value: int,
+  arl_entity: z.string().nullable(),
+  arl_value: int,
+  total_value: int,
+});
+
 const supportsSchema = z.object({
   segments: z.array(
     z.object({
@@ -131,6 +156,51 @@ export class ClaudeAI implements AI {
     private readonly llm: Llm,
     private readonly models: ModelChoice,
   ) {}
+
+  async extractSocialSecurity(doc: DocumentInput): Promise<Omit<SocialSecurity, 'userId'> | null> {
+    const r = await this.llm.structured({
+      purpose: 'extract_pila',
+      model: this.models.smart,
+      effort: 'low',
+      maxTokens: 3000,
+      system: PILA_RULES,
+      content: [
+        {
+          type: 'document' as const,
+          title: doc.label,
+          source: {
+            type: 'base64' as const,
+            media_type: 'application/pdf' as const,
+            data: doc.data.toString('base64'),
+          },
+        },
+        { type: 'text', text: 'Extract the payment data of this social-security sheet.' },
+      ],
+      schema: pilaSchema,
+    });
+    const iso = (v: string | null) => (v && /^\d{4}-\d{2}-\d{2}$/.test(v) ? (v as IsoDate) : null);
+    const month =
+      r.contribution_month && /^\d{4}-\d{2}$/.test(r.contribution_month) ? r.contribution_month : null;
+    if (!r.readable || !month) return null;
+    return {
+      contributionMonth: `${month}-01` as IsoDate,
+      platform: r.operator ?? '',
+      sheetNumber: r.sheet_number ?? '',
+      pin: r.pin ?? '',
+      bank: r.bank ?? '',
+      paymentDate: iso(r.payment_date) ?? (`${month}-01` as IsoDate),
+      ibc: r.ibc ?? 0,
+      eps: r.health_entity ?? '',
+      epsValue: r.health_value ?? 0,
+      afp: r.pension_entity ?? '',
+      afpValue: r.pension_value ?? 0,
+      fspValue: r.fsp_value ?? 0,
+      afcValue: 0,
+      ...(r.arl_entity ? { arl: r.arl_entity } : {}),
+      arlValue: r.arl_value ?? 0,
+      total: r.total_value ?? 0,
+    };
+  }
 
   async classifySupports(
     doc: DocumentInput,

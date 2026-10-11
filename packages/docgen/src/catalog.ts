@@ -192,6 +192,11 @@ export const TemplateContextSchema = z.object({
     .describe('Todas las obligaciones: primero específicas y luego generales.'),
   specific_obligations: z.array(ObligationSchema).describe('Solo obligaciones específicas.'),
   general_obligations: z.array(ObligationSchema).describe('Solo obligaciones generales.'),
+  supervision_activities: z
+    .array(ObligationSchema)
+    .describe(
+      'Obligaciones específicas con actividades en el periodo (tabla 2.3 del informe de supervisión).',
+    ),
   evidence_obligations: z
     .array(ObligationSchema)
     .describe('Obligaciones que tienen evidencias (para el anexo).'),

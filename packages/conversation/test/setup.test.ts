@@ -166,6 +166,7 @@ describe('entity rules over the AI reading', () => {
     expect(contract!.startDate).toBe('2026-10-01');
     expect(contract!.supervisor).toEqual({ name: 'CARLOS EDUARDO BONILLA DIAZ', title: 'Subgerente' });
     expect(contract!.obligations.map((o) => o.kind)).toEqual(['specific', 'specific', 'specific']);
+    expect(contract!.contractorDuties).toEqual(['Cumplir con las metas asignadas.']);
   });
 });
 
@@ -344,8 +345,13 @@ describe('supports sent as combined PDFs', () => {
     );
     out = show(await h.document('SEGURIDAD SOCIAL SEPTIEMBRE.pdf'));
     expect(out[0]).toBe(
-      '📎 *SEGURIDAD SOCIAL SEPTIEMBRE.pdf*\n✅ Planilla PILA (págs. 1-2) · periodo septiembre 2026',
+      '📎 *SEGURIDAD SOCIAL SEPTIEMBRE.pdf*\n✅ Planilla PILA (págs. 1-2) · septiembre 2026, total $ 1.546.800',
     );
+    // The PILA values are stored for table 2.1 of the supervision report.
+    expect(await h.store.getSocialSecurity(userId, '2026-09-01')).toMatchObject({
+      pin: '100000001',
+      total: 1_546_800,
+    });
     out = show(await h.document('ANTECEDENTES (1) (1).pdf'));
     expect(out[0]!.split('\n')).toHaveLength(5);
 

@@ -14,7 +14,6 @@ PERÍODO A QUE CORRESPONDE EL INFORME
 DESDE: 06/07/2026
 HASTA: 31/07/2026
 FECHA DE INFORME DE SUPERVISIÓN
-30/07/2026
 ¿Se reporta algún desempeño deficiente o a mejorar?
 SI
 NO  X
@@ -101,31 +100,21 @@ Fecha de pago
 22/07/2026
 2.2 CUMPLIMIENTO RESPECTO A LA AUSENCIA DE INHABILIDADES E INCOMPATIBILIDADES
 De acuerdo con lo preceptuado por la Ley 1474 de 2011, Estatuto Anticorrupción, y respecto a la manifestación hecha por el contratista bajo la gravedad del juramento, se constata que el mismo no se halla incurso en ninguna de las causales de inhabilidad e incompatibilidad consagradas en la Constitución y la ley.
-Que revisado el certificado de Contraloría de fecha 30/07/2026, NO SE ENCUENTRA REPORTADO COMO RESPONSABLE FISCAL.
-Que revisado el certificado de Procuraduría de fecha 30/07/2026, NO REGISTRA SANCIONES NI INHABILIDADES DISCIPLINARIAS VIGENTES.
-Que revisado el certificado de Medidas Correctivas de fecha 30/07/2026, NO REGISTRA SANCIONES VIGENTES.
+Que revisado el certificado de Contraloría de fecha ______________, NO SE ENCUENTRA REPORTADO COMO RESPONSABLE FISCAL.
+Que revisado el certificado de Procuraduría de fecha ______________, NO REGISTRA SANCIONES NI INHABILIDADES DISCIPLINARIAS VIGENTES.
+Que revisado el certificado de Medidas Correctivas de fecha ______________, NO REGISTRA SANCIONES VIGENTES.
 2.3 CUMPLIMIENTO DE LAS ACTIVIDADES: Relaciono las actividades descritas (en el estudio previo y/o contrato) por el contratista y su respectiva valoración de acuerdo con las obligaciones especiales descritas en el presente contrato de prestación de servicios.
 ACTIVIDAD RELACIONADA
 OBLIGACIÓN ESPECIAL ASOCIADA
 APROBACIÓN
 Actividad 1
 Coordinar los procesos y actividades de vigilancia en salud pública y notificación de eventos epidemiológicos de la entidad a los entes responsables y hacer seguimiento a las IPS.
-CUMPLE
 Actividad 2
 Reorganizar los programas y actividades que sean establecidos en cada línea de acción de salud pública a nivel de la entidad.
-CUMPLE
 Actividad 3
 Asistir a las reuniones en las diferentes entidades territoriales de jurisdicción de la ESE cuando sea requerido.
-CUMPLE
 Actividad 4
 Enlace en las actividades extramurales y/o intramurales en cada uno de los municipios donde tiene injerencia la entidad.
-CUMPLE
-Actividad 5
-Reserva y confidencialidad de la información que se obtenga por medio del presente contrato.
-CUMPLE
-Actividad 6
-Cumplir las demás obligaciones afines con la naturaleza de la labor contratada.
-CUMPLE
 BALANCE FINANCIERO Y CONTABLE DEL CONTRATO
 BALANCE FINANCIERO DEL CONTRATO
 Balance General del Contrato
@@ -159,7 +148,7 @@ Responsable
 PRESENTACIÓN DE INFORME DE ACTIVIDADES Y CUENTA DE COBRO
 31/08/2026
 MARÍA FERNANDA PRUEBA FICTICIA
-En constancia se firma a los 30 días del mes de JULIO de 2026.
+En constancia se firma a los ______ días del mes de ________________ de 2026.
 _______________________________
 SUPERVISOR DE PRUEBA
 Supervisor

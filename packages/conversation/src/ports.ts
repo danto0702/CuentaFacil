@@ -82,6 +82,8 @@ export interface AI {
   extractContract(docs: DocumentInput[]): Promise<ContractExtraction>;
   /** Applies the contractor's correction ("el valor mensual es 4.000.000") to an extraction. */
   correctExtraction(extraction: ContractExtraction, instruction: string): Promise<ContractExtraction>;
+  /** Reads a social-security payment sheet (PILA): operator, entities, values, PIN… Null if unreadable. */
+  extractSocialSecurity(doc: DocumentInput): Promise<Omit<SocialSecurity, 'userId'> | null>;
   /** Identifies the supports inside a PDF (one or several, with their pages) against the checklist. */
   classifySupports(doc: DocumentInput, types: { code: string; label: string }[]): Promise<SupportSegment[]>;
 }
@@ -141,6 +143,8 @@ export interface Store {
   addSupport(s: SupportFile): Promise<void>;
   listSupports(userId: string): Promise<SupportFile[]>;
   getSocialSecurity(userId: string, contributionMonth: IsoDate): Promise<SocialSecurity | null>;
+  /** Stores the data read from a PILA (confirmed), linked to its support file. */
+  saveSocialSecurity(ss: SocialSecurity, supportId: string): Promise<void>;
 
   /** New contractor after consent (status onboarding). */
   createUser(phone: string): Promise<User>;

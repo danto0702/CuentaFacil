@@ -102,7 +102,9 @@ export function applyEntityRules(
     entity: { ...e.entity, name: entity.name, nit: entity.nit },
     supervisor: entity.settings.contractDefaults.supervisor ?? e.supervisor,
     startDate: registry?.startDate ?? null,
-    obligations: e.obligations.filter((o) => o.kind === 'specific'),
+    // General obligations stay in the extraction: they are not reported as activities, but the
+    // supervision report rates them (table 1.2) as the contractor's duties.
+    obligations: e.obligations,
     warnings: e.warnings.filter((w) => !SETTLED_WARNING.test(w)),
   };
 }
@@ -455,13 +457,13 @@ export class SetupFlow {
       `• Supervisor: ${e.supervisor ? `${e.supervisor.name} (${e.supervisor.title})` : 'no lo encontré'}`,
       `• A nombre de: ${e.contractor.fullName}, C.C. ${mask(e.contractor.docNumber)}`,
       `• Cuenta: ${[e.contractor.accountType, e.contractor.bankName].filter(Boolean).join(' ') || 'no la encontré'} ${mask(e.contractor.accountNumber)}`,
-      `• Obligaciones específicas: ${e.obligations.length}`,
+      `• Obligaciones específicas: ${e.obligations.filter((o) => o.kind === 'specific').length}`,
       ...(e.warnings.length ? ['', ...e.warnings.map((w) => `⚠️ ${w}`)] : []),
     ];
     turn.out.push(text(lines.join('\n')));
     // Obligations in chunks under WhatsApp's 4096-character limit.
     let chunk = '*Obligaciones (como quedarán en tus informes):*';
-    for (const o of e.obligations) {
+    for (const o of e.obligations.filter((x) => x.kind === 'specific')) {
       const line = `\n${o.number}. ${clip(o.text, 300)}`;
       if (chunk.length + line.length > 3500) {
         turn.out.push(text(chunk));
@@ -807,13 +809,15 @@ export function contractFromSetup(
   input: import('./domain.js').NewContract,
 ): import('./domain.js').Contract {
   const e = input.extraction;
-  const specificOrGeneral = (k: 'specific' | 'general') => e.obligations.filter((o) => o.kind === k);
-  const obligations = [...specificOrGeneral('specific'), ...specificOrGeneral('general')].map((o) => ({
-    key: `${o.kind}-${o.number}`,
-    number: o.number,
-    kind: o.kind,
-    text: o.text,
-  }));
+  // Activities are reported only for the specific obligations; general ones become duties.
+  const obligations = e.obligations
+    .filter((o) => o.kind === 'specific')
+    .map((o) => ({
+      key: `${o.kind}-${o.number}`,
+      number: o.number,
+      kind: o.kind,
+      text: o.text,
+    }));
   const paymentsCount = e.paymentsCount ?? (e.schedule.length || 1);
   const monthlyValue = e.monthlyValue ?? Math.round(e.totalValue / paymentsCount);
   return {
@@ -837,7 +841,7 @@ export function contractFromSetup(
     periodMode: input.periodMode,
     supervisor: e.supervisor ?? { name: '', title: '' },
     obligations,
-    contractorDuties: [],
+    contractorDuties: e.obligations.filter((o) => o.kind === 'general').map((o) => o.text),
     ...(e.schedule.length ? { schedule: e.schedule } : {}),
   };
 }

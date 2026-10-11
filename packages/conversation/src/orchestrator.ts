@@ -848,8 +848,9 @@ export class Orchestrator {
         this.deps.extractPages && (g.fromPage > 1 || segments.length > 1)
           ? await this.deps.extractPages(media.data, g.fromPage, g.toPage)
           : media.data;
+      const supportId = this.deps.newId();
       await this.deps.store.addSupport({
-        id: this.deps.newId(),
+        id: supportId,
         userId: turn.user.id,
         code: t.code,
         data,
@@ -858,11 +859,22 @@ export class Orchestrator {
         issuedOn: g.issuedOn ?? today,
         receivedAt: this.deps.clock.now().toISOString(),
       });
+      // The payment sheet also fills table 2.1 of the supervision report.
+      let ssNote = '';
+      if (t.code === 'PILA') {
+        const ss = await this.deps.ai
+          .extractSocialSecurity({ label: `${t.code}.pdf`, data, mime: 'application/pdf' })
+          .catch(() => null);
+        if (ss) {
+          await this.deps.store.saveSocialSecurity({ ...ss, userId: turn.user.id }, supportId);
+          ssNote = ` · ${monthNameEs(ss.contributionMonth).toLowerCase()} ${ss.contributionMonth.slice(0, 4)}, total ${formatCOP(ss.total)}`;
+        } else ssNote = ' · no pude leer los valores; los reviso con una persona';
+      }
       const pages = g.fromPage === g.toPage ? `pág. ${g.fromPage}` : `págs. ${g.fromPage}-${g.toPage}`;
       const limit = t.maxAgeDays ?? (t.bundle ? maxAge : undefined);
       const old = g.issuedOn && limit && addDays(g.issuedOn, limit) < today;
       lines.push(
-        `${old ? '⚠️' : '✅'} ${t.label} (${pages})${g.note ? ` · ${g.note}` : ''}${
+        `${old ? '⚠️' : '✅'} ${t.label} (${pages})${ssNote || (g.note ? ` · ${g.note}` : '')}${
           old
             ? ` · expedido el ${formatDdMmYyyy(g.issuedOn!)}, tiene más de ${limit} días: descárgalo de nuevo`
             : ''

@@ -21,7 +21,7 @@ import { processRegistryImports, queueRegistryUploads } from './runtime/registry
 import { parseRegistryWorkbook } from './runtime/registry-xlsx.js';
 import { SupabasePipelineDb } from './runtime/supabase-db.js';
 import { SupabaseStore } from './store/supabase-store.js';
-import { CodeTemplateProvider } from './templates.js';
+import { StorageTemplateProvider } from './templates.js';
 import { WhatsAppClient } from './whatsapp/client.js';
 import { parseWebhook } from './whatsapp/parse.js';
 
@@ -60,7 +60,7 @@ const orchestrator = new Orchestrator({
   ai: new ClaudeAI(llm, { fast: cfg.AI_MODEL_FAST, smart: cfg.AI_MODEL_SMART, setup: cfg.AI_MODEL_SETUP }),
   stt: new OpenAISTT(new OpenAI({ apiKey: cfg.OPENAI_API_KEY }), cfg.STT_MODEL),
   clock,
-  generator: new AccountGenerator({ store, clock, templates: new CodeTemplateProvider() }),
+  generator: new AccountGenerator({ store, clock, templates: new StorageTemplateProvider(sb) }),
   newId: randomUUID,
   confidenceThreshold: cfg.AI_CONFIDENCE_THRESHOLD,
   // Interim "working on it" messages go out only on the first attempt, so retries don't repeat them.

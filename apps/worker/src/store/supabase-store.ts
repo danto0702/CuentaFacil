@@ -469,6 +469,10 @@ export class SupabaseStore implements Store {
         await this.sb.from('obligations').delete().eq('contract_id', id),
         'createContract.clearObligations',
       );
+      must(
+        await this.sb.from('contractor_duties').delete().eq('contract_id', id),
+        'createContract.clearDuties',
+      );
     } else {
       id = str(
         (
@@ -479,10 +483,20 @@ export class SupabaseStore implements Store {
         ).id,
       );
     }
-    if (e.obligations.length) {
+    // Specific obligations get activities; general ones are the duties rated in the supervision report.
+    const specific = e.obligations.filter((o) => o.kind === 'specific');
+    const general = e.obligations.filter((o) => o.kind === 'general');
+    if (general.length)
+      must(
+        await this.sb
+          .from('contractor_duties')
+          .insert(general.map((o, i) => ({ contract_id: id, number: i + 1, text: o.text }))),
+        'createContract.duties',
+      );
+    if (specific.length) {
       must(
         await this.sb.from('obligations').insert(
-          e.obligations.map((o) => ({
+          specific.map((o) => ({
             contract_id: id,
             kind: o.kind,
             number: o.number,
@@ -963,6 +977,33 @@ export class SupabaseStore implements Store {
           receivedAt: str(r.created_at),
         };
       }),
+    );
+  }
+
+  async saveSocialSecurity(ss: SocialSecurity, supportId: string): Promise<void> {
+    must(
+      await this.sb.from('social_security_payments').insert({
+        user_id: ss.userId,
+        operator: ss.platform || null,
+        sheet_number: ss.sheetNumber || null,
+        auth_code: ss.pin || null,
+        paid_on: ss.paymentDate,
+        contribution_month: ss.contributionMonth,
+        ibc: ss.ibc || null,
+        health_entity: ss.eps || null,
+        health_value: ss.epsValue,
+        pension_entity: ss.afp || null,
+        pension_value: ss.afpValue,
+        fsp_value: ss.fspValue,
+        arl_entity: ss.arl ?? null,
+        arl_value: ss.arlValue,
+        afc_value: ss.afcValue,
+        total_value: ss.total,
+        bank: ss.bank || null,
+        support_id: supportId,
+        confirmed_at: new Date().toISOString(),
+      }),
+      'saveSocialSecurity',
     );
   }
 

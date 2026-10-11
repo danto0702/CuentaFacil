@@ -143,8 +143,11 @@ function obligationsTable(): string {
       ),
       row([cell(p('Actividades Específicas', { ...F, bold: true }), { width: W, span: 2 })]),
       ...obligationRows('specific_obligations'),
+      // Contracts whose general obligations are not reported as activities (e.g. HRNO) skip this block.
+      cmdRow('IF general_obligations.length > 0', W, 2),
       row([cell(p('Actividades Generales', { ...F, bold: true }), { width: W, span: 2 })]),
       ...obligationRows('general_obligations'),
+      cmdRow('END-IF', W, 2),
     ],
   );
 }
@@ -318,7 +321,8 @@ function generalInfoTable(): string {
         v('DESDE: {{period_start_date}}'),
         v('HASTA: {{period_end_date}}'),
       ]),
-      row([l('FECHA DE INFORME DE SUPERVISIÓN'), v('{{report_date}}', 2)]),
+      // Filled in by the supervisor.
+      row([l('FECHA DE INFORME DE SUPERVISIÓN'), v('', 2)]),
       row([
         l('¿Se reporta algún desempeño deficiente o a mejorar?'),
         v('SI  {{x_deficient_performance_yes}}'),
@@ -486,11 +490,12 @@ function activitiesApprovalTable(): string {
       ),
       { header: true },
     ),
-    cmdRow('FOR o IN obligations', W, 3),
+    // Only the obligations with activities this period; APROBACIÓN is left for the supervisor.
+    cmdRow('FOR o IN supervision_activities', W, 3),
     row([
       cell(p('Actividad {{$o.number}}', SUP), { width: cols[0]! }),
       cell(p('{{$o.text}}', { ...SUP, align: 'both' }), { width: cols[1]! }),
-      cell(p('{{$o.approval}}', { ...SUP, bold: true, align: 'center' }), { width: cols[2]! }),
+      cell(p('', { ...SUP, bold: true, align: 'center' }), { width: cols[2]! }),
     ]),
     cmdRow('END-FOR o', W, 3),
   ]);
@@ -616,13 +621,13 @@ export function hrnoSupervisionBody(): string {
       'De acuerdo con lo preceptuado por la Ley 1474 de 2011, Estatuto Anticorrupción, y respecto a la manifestación hecha por el contratista bajo la gravedad del juramento, se constata que el mismo no se halla incurso en ninguna de las causales de inhabilidad e incompatibilidad consagradas en la Constitución y la ley.',
     ),
     para(
-      'Que revisado el certificado de Contraloría de fecha {{contraloria_date}}, NO SE ENCUENTRA REPORTADO COMO RESPONSABLE FISCAL.',
+      'Que revisado el certificado de Contraloría de fecha ______________, NO SE ENCUENTRA REPORTADO COMO RESPONSABLE FISCAL.',
     ),
     para(
-      'Que revisado el certificado de Procuraduría de fecha {{procuraduria_date}}, NO REGISTRA SANCIONES NI INHABILIDADES DISCIPLINARIAS VIGENTES.',
+      'Que revisado el certificado de Procuraduría de fecha ______________, NO REGISTRA SANCIONES NI INHABILIDADES DISCIPLINARIAS VIGENTES.',
     ),
     para(
-      'Que revisado el certificado de Medidas Correctivas de fecha {{medidas_date}}, NO REGISTRA SANCIONES VIGENTES.',
+      'Que revisado el certificado de Medidas Correctivas de fecha ______________, NO REGISTRA SANCIONES VIGENTES.',
     ),
     para([
       label('2.3 CUMPLIMIENTO DE LAS ACTIVIDADES: '),
@@ -643,7 +648,8 @@ export function hrnoSupervisionBody(): string {
     ),
     commitmentsTable(),
     para(
-      'En constancia se firma a los {{signing_day}} días del mes de {{signing_month}} de {{signing_year}}.',
+      // Day and month are written by the supervisor when signing.
+      'En constancia se firma a los ______ días del mes de ________________ de {{signing_year}}.',
       {
         spacingBefore: 240,
       },

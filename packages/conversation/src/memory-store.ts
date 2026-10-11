@@ -164,6 +164,14 @@ export class MemoryStore implements Store {
   async listSupports(userId: string) {
     return this.data.supports.filter((s) => s.userId === userId);
   }
+  async saveSocialSecurity(ss: SocialSecurity, _supportId: string) {
+    this.data.socialSecurity = [
+      ...this.data.socialSecurity.filter(
+        (x) => !(x.userId === ss.userId && x.contributionMonth === ss.contributionMonth),
+      ),
+      clone(ss),
+    ];
+  }
   async getSocialSecurity(userId: string, contributionMonth: IsoDate) {
     const s = this.data.socialSecurity.find(
       (x) => x.userId === userId && x.contributionMonth === contributionMonth,

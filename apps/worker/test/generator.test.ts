@@ -63,7 +63,8 @@ describe.skipIf(!hasSoffice)('AccountGenerator (end to end with LibreOffice)', (
     expect(sup).toContain('Valor pagado $ 8.000.000');
     expect(sup).toContain('Valor no ejecutado $ 0');
     expect(sup).toContain('N/A – informe final');
-    expect(sup).toContain('29 días del mes de SEPTIEMBRE de 2026');
+    expect(sup).toContain('a los ______ días del mes de ________________ de 2026'); // the supervisor writes it
+    expect(sup).not.toContain('CUMPLE');
     const act = text(await docxPlainText(files[5]!.data));
     expect(act).toContain('Pago No. 03 de 03');
     expect(act).toContain('TOTAL APORTADO (*): $ 1.534.500');
