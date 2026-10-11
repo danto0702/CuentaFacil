@@ -32,6 +32,16 @@ describe('cleanSignature', () => {
     expect(opaque).toBeGreaterThan(1000);
   });
 
+  it('turns a signature photographed sideways back to horizontal', async () => {
+    const sideways = await sharp(await photo())
+      .rotate(90)
+      .jpeg()
+      .toBuffer();
+    const out = await cleanSignature(sideways);
+    const meta = await sharp(out!).metadata();
+    expect(meta.width!).toBeGreaterThan(meta.height!);
+  });
+
   it('returns null when there is no ink', async () => {
     const blank = await sharp({ create: { width: 800, height: 600, channels: 3, background: '#f2f0ec' } })
       .jpeg()

@@ -6,10 +6,9 @@ import sharp from 'sharp';
  * local background (a heavy blur), not with a fixed threshold. Returns null if no ink is found.
  */
 export async function cleanSignature(photo: Buffer): Promise<Buffer | null> {
-  // Work at a bounded size; EXIF rotation applied.
-  const base = sharp(photo)
-    .rotate()
-    .resize({ width: 1400, height: 1400, fit: 'inside', withoutEnlargement: true });
+  // Work at a bounded size. The phone's EXIF rotation is NOT applied: people usually shoot the sheet
+  // sideways and the stored pixels keep the signature horizontal (the orientation is fixed below).
+  const base = sharp(photo).resize({ width: 1400, height: 1400, fit: 'inside', withoutEnlargement: true });
   const { data: gray, info } = await base.clone().greyscale().raw().toBuffer({ resolveWithObject: true });
   const { width: w, height: h } = info;
   // Small enough to follow shadows and folds, large enough not to follow the strokes themselves.
@@ -75,9 +74,9 @@ export async function cleanSignature(photo: Buffer): Promise<Buffer | null> {
       out[o + 3] = Math.round(Math.min(1, a * 1.3) * 255);
     }
   }
-  return sharp(out, { raw: { width: cw, height: ch, channels: 4 } })
-    .png()
-    .toBuffer();
+  // A signature is wider than tall: a clearly vertical result was photographed sideways.
+  const img = sharp(out, { raw: { width: cw, height: ch, channels: 4 } });
+  return (ch > cw * 1.3 ? img.rotate(270) : img).png().toBuffer();
 }
 
 interface Box {
