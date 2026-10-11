@@ -319,7 +319,7 @@ export async function buildTemplateContext(input: CuentaInput): Promise<Template
     contractor_signature: input.contractorSignature
       ? (
           await toImage(
-            // Phone photo → only the ink on a transparent background, cropped to the strokes.
+            // Phone photo → only the ink on white, cropped to the strokes.
             {
               data: (await cleanSignature(input.contractorSignature.data)) ?? input.contractorSignature.data,
             },

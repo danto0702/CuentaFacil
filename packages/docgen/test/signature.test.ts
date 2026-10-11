@@ -16,18 +16,19 @@ async function photo(): Promise<Buffer> {
 }
 
 describe('cleanSignature', () => {
-  it('keeps only the ink, transparent and cropped to the strokes', async () => {
+  it('keeps only the ink on white, opaque and cropped to the strokes', async () => {
     const out = await cleanSignature(await photo());
     expect(out).not.toBeNull();
     const { data, info } = await sharp(out!).raw().toBuffer({ resolveWithObject: true });
-    expect(info.channels).toBe(4);
+    // Opaque RGB: semi-transparent images print as a hatched pattern in some PDF viewers.
+    expect(info.channels).toBe(3);
     // Cropped around the stroke (≈ 540 × 120 px in the photo), not the whole sheet.
     expect(info.width).toBeGreaterThan(450);
     expect(info.width).toBeLessThan(700);
     expect(info.height).toBeLessThan(220);
-    // Mostly transparent: the paper, the shadow, the fold and the table are gone.
+    // Mostly white: the paper, the shadow, the fold and the table are gone.
     let opaque = 0;
-    for (let i = 3; i < data.length; i += 4) if (data[i]! > 128) opaque++;
+    for (let i = 0; i < data.length; i += 3) if (data[i]! < 128) opaque++;
     expect(opaque / (info.width * info.height)).toBeLessThan(0.15);
     expect(opaque).toBeGreaterThan(1000);
   });
@@ -40,6 +41,17 @@ describe('cleanSignature', () => {
     const out = await cleanSignature(sideways);
     const meta = await sharp(out!).metadata();
     expect(meta.width!).toBeGreaterThan(meta.height!);
+  });
+
+  it('handles images with transparency (PNG with alpha) without striping or stretching', async () => {
+    const png = await sharp(await photo())
+      .ensureAlpha()
+      .png()
+      .toBuffer();
+    const fromJpeg = await sharp((await cleanSignature(await photo()))!).metadata();
+    const fromPng = await sharp((await cleanSignature(png))!).metadata();
+    expect(Math.abs(fromPng.width! - fromJpeg.width!)).toBeLessThan(20);
+    expect(Math.abs(fromPng.height! - fromJpeg.height!)).toBeLessThan(20);
   });
 
   it('returns null when there is no ink', async () => {

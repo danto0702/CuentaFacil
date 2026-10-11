@@ -1,7 +1,7 @@
 import sharp from 'sharp';
 
 /**
- * Turns a phone photo of a signature into a clean signature: only the ink, on a transparent background,
+ * Turns a phone photo of a signature into a clean signature: only the ink, on a clean white background,
  * cropped to the strokes. Paper color, shadows and folds go away because each pixel is compared with its
  * local background (a heavy blur), not with a fixed threshold. Returns null if no ink is found.
  */
@@ -9,7 +9,16 @@ export async function cleanSignature(photo: Buffer): Promise<Buffer | null> {
   // Work at a bounded size. The phone's EXIF rotation is NOT applied: people usually shoot the sheet
   // sideways and the stored pixels keep the signature horizontal (the orientation is fixed below).
   const base = sharp(photo).resize({ width: 1400, height: 1400, fit: 'inside', withoutEnlargement: true });
-  const { data: gray, info } = await base.clone().greyscale().raw().toBuffer({ resolveWithObject: true });
+  // One channel only: images with transparency keep an alpha channel after greyscale(), which would
+  // interleave two values per pixel (striped, stretched result).
+  const { data: gray, info } = await base
+    .clone()
+    .flatten({ background: '#ffffff' })
+    .toColourspace('b-w')
+    .extractChannel(0)
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+  if (info.channels !== 1) throw new Error(`cleanSignature: expected 1 channel, got ${info.channels}`);
   const { width: w, height: h } = info;
   // Small enough to follow shadows and folds, large enough not to follow the strokes themselves.
   const blurSigma = Math.max(4, Math.round(Math.max(w, h) / 60));
@@ -54,7 +63,7 @@ export async function cleanSignature(photo: Buffer): Promise<Buffer | null> {
   if (!kept) return null;
   const { box } = kept;
 
-  // Dark ink color on transparent background, cropped with a small margin.
+  // Cropped with a small margin.
   const pad = Math.round(Math.max(box.x1 - box.x0, box.y1 - box.y0) * 0.04) + 4;
   const x0 = Math.max(0, box.x0 - pad);
   const y0 = Math.max(0, box.y0 - pad);
@@ -62,20 +71,20 @@ export async function cleanSignature(photo: Buffer): Promise<Buffer | null> {
   const y1 = Math.min(h - 1, box.y1 + pad);
   const cw = x1 - x0 + 1;
   const ch = y1 - y0 + 1;
-  const out = Buffer.alloc(cw * ch * 4);
+  // Ink blended over white, with no transparency: some PDF viewers (and the Word→PDF conversion) render
+  // semi-transparent images as a hatched pattern. The report page is white, so the result is the same.
+  const ink3 = [20, 30, 70] as const;
+  const out = Buffer.alloc(cw * ch * 3);
   for (let y = 0; y < ch; y++) {
     for (let x = 0; x < cw; x++) {
       const i = (y + y0) * w + (x + x0);
-      const a = kept.mask[i] ? ink[i]! : 0;
-      const o = (y * cw + x) * 4;
-      out[o] = 20;
-      out[o + 1] = 30;
-      out[o + 2] = 70;
-      out[o + 3] = Math.round(Math.min(1, a * 1.3) * 255);
+      const a = Math.min(1, (kept.mask[i] ? ink[i]! : 0) * 1.3);
+      const o = (y * cw + x) * 3;
+      for (let k = 0; k < 3; k++) out[o + k] = Math.round(255 - (255 - ink3[k]!) * a);
     }
   }
   // A signature is wider than tall: a clearly vertical result was photographed sideways.
-  const img = sharp(out, { raw: { width: cw, height: ch, channels: 4 } });
+  const img = sharp(out, { raw: { width: cw, height: ch, channels: 3 } });
   return (ch > cw * 1.3 ? img.rotate(270) : img).png().toBuffer();
 }
 
