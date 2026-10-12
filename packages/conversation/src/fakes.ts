@@ -171,6 +171,7 @@ export class FakeAI implements AI {
       question: null,
     });
     if (/rehac|rehag|rehiz/.test(t)) return r('redo');
+    if (/\b(pasa|mueve|cambia)\b.*\b(actividad|nota)\b/.test(t)) return r('move_note');
     if (/\b(vamos|iniciar|empezar|empecemos|comenzar)\b.*\b(informe|cuenta)\b/.test(t))
       return r('open_report');
     if (/\b(certificados|antecedentes)\b.*\b(ayuda|ayúdame|descargar)\b/.test(t)) return r('guide');

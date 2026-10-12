@@ -61,6 +61,7 @@ const INTENT_TITLES: Record<Exclude<MessageIntentKind, 'activity' | 'unclear'>, 
   my_data: 'Mis datos',
   signature: 'Cargar mi firma',
   undo_note: 'Borrar última nota',
+  move_note: 'Mover actividad',
   support: 'Hablar con soporte',
   help: 'Ayuda',
   menu: 'Ver menú',
@@ -440,6 +441,19 @@ export class Orchestrator {
       const c = (await this.activeContracts(turn)).find((x) => x.id === contractId);
       if (c) return this.startGenerate(turn, c, true, Number(n));
     }
+    // Corrections of a recorded activity work whatever Pascal was asking.
+    if (msg.kind === 'reply' && msg.replyId?.startsWith('chg:')) {
+      this.reset(turn);
+      return this.askCorrection(turn, msg.replyId.slice(4));
+    }
+    if (msg.kind === 'reply' && msg.replyId?.startsWith('cob:'))
+      return this.askObligation(turn, msg.replyId.slice(4));
+    if (msg.kind === 'reply' && msg.replyId?.startsWith('mvq:'))
+      return this.askMoveNote(turn, msg.replyId.slice(4));
+    if (msg.kind === 'reply' && msg.replyId?.startsWith('mv:') && msg.replyId !== 'mv:other') {
+      const [noteId, n] = msg.replyId.slice(3).split(':');
+      return this.moveNote(turn, noteId!, Number(n));
+    }
     if (msg.kind === 'reply' && msg.replyId?.startsWith('rst:')) {
       this.reset(turn);
       const [contractId, n] = msg.replyId.slice(4).split(':');
@@ -461,6 +475,8 @@ export class Orchestrator {
     switch (turn.state.flow) {
       case 'note_contract':
         return this.onNoteContract(turn, msg);
+      case 'note_redate':
+        return this.onNoteRedate(turn, msg);
       case 'note_check':
         return this.onNoteCheck(turn, msg);
       case 'note_period':
@@ -801,8 +817,6 @@ export class Orchestrator {
     }
     if (msg.kind === 'document' && msg.media) return this.receiveSupport(turn, msg);
     if (msg.kind === 'text' && msg.text) return this.freeText(turn, msg.text);
-    if (msg.kind === 'reply' && msg.replyId?.startsWith('chg:'))
-      return this.askObligation(turn, msg.replyId.slice(4));
     if (msg.kind === 'reply' && msg.replyId?.startsWith('del:')) {
       const id = msg.replyId.slice(4);
       if (id !== 'no') await this.deps.store.deleteNote(id);
@@ -1021,9 +1035,10 @@ export class Orchestrator {
     month: number | null,
   ): Promise<void> {
     if (intent === 'activity' || intent === 'unclear') return this.startNote(turn, text);
+    if (intent === 'move_note') return this.moveLastNote(turn, month);
     if (month && ['redo', 'reset', 'open_report', 'draft', 'generate'].includes(intent))
       return this.startMonthReport(turn, month, intent === 'redo', intent === 'reset');
-    const cmd: Record<Exclude<MessageIntentKind, 'activity' | 'unclear'>, Command> = {
+    const cmd: Record<Exclude<MessageIntentKind, 'activity' | 'unclear' | 'move_note'>, Command> = {
       redo: 'resend',
       reset: 'reset',
       open_report: 'status',
@@ -1306,8 +1321,8 @@ export class Orchestrator {
               ? `✅ Anotado ${label ?? `el ${formatDdMmYyyy(date)}`}${photos}${where} en la obligación ${o.number}: «${clip(o.text, 80)}»\n${period}`
               : `📝 Anotado ${label ?? `el ${formatDdMmYyyy(date)}`}${photos}${where}. Creo que va en la obligación ${o.number}: «${clip(o.text, 80)}». ¿Está bien?\n${period}`,
             [
-              { id: `nok:${note.id}`, title: '✅ Está bien' },
-              { id: `chg:${note.id}`, title: 'Cambiar obligación' },
+              ...(sure ? [] : [{ id: `nok:${note.id}`, title: '✅ Está bien' }]),
+              { id: `chg:${note.id}`, title: '✏️ Corregir' },
               { id: `add:${note.id}`, title: '➕ Otra obligación' },
             ],
           ),
@@ -1321,6 +1336,106 @@ export class Orchestrator {
         if (contracts.length > 1) break; // ask one at a time; the other copy stays unassigned for the review step
       }
     }
+  }
+
+  /** "Pasa la última actividad a septiembre": moves the latest note, or asks where when no month is said. */
+  private async moveLastNote(turn: Turn, month: number | null): Promise<void> {
+    const note = await this.deps.store.lastNote(turn.user.id);
+    if (!note) {
+      turn.out.push(text('No tienes actividades registradas para mover.'));
+      return;
+    }
+    if (month) {
+      const today = this.deps.clock.today();
+      const p = (await this.deps.store.listPeriods(note.contractId))
+        .filter((x) => Number(x.from.slice(5, 7)) === month || Number(x.to.slice(5, 7)) === month)
+        .filter((x) => compareIso(x.from, today) <= 0)
+        .sort((a, b) => compareIso(b.from, a.from))[0];
+      if (p) return this.moveNote(turn, note.id, p.number);
+    }
+    return this.askMoveNote(turn, note.id);
+  }
+
+  /** "✏️ Corregir" on a recorded activity: its obligation, its report (date) or delete it. */
+  private async askCorrection(turn: Turn, noteId: string): Promise<void> {
+    const note = await this.deps.store.getNote(noteId);
+    const c = await this.deps.store.getContract(note.contractId);
+    turn.out.push(
+      buttons(
+        `¿Qué corrijo de esta actividad?\n«${clip(note.text, 120)}»\n${await this.periodLine(c, note.date)}`,
+        [
+          { id: `cob:${noteId}`, title: 'La obligación' },
+          { id: `mvq:${noteId}`, title: 'El informe o fecha' },
+          { id: `del:${noteId}`, title: 'Borrarla' },
+        ],
+      ),
+    );
+  }
+
+  /** Moves an activity to another report: the open ones as buttons, or a date written by the contractor. */
+  private async askMoveNote(turn: Turn, noteId: string): Promise<void> {
+    const note = await this.deps.store.getNote(noteId);
+    const c = await this.deps.store.getContract(note.contractId);
+    const today = this.deps.clock.today();
+    const options = (await this.deps.store.listPeriods(c.id))
+      .filter(
+        (p) =>
+          p.status !== 'delivered' &&
+          compareIso(p.from, today) <= 0 &&
+          !(compareIso(p.from, note.date) <= 0 && compareIso(note.date, p.to) <= 0),
+      )
+      .sort((a, b) => compareIso(b.from, a.from))
+      .slice(0, 9);
+    this.setFlow(turn, 'note_redate', 'ask', { noteId });
+    const rows = [
+      ...options.map((p) => ({ id: `mv:${noteId}:${p.number}`, title: this.periodTitle(p) })),
+      { id: 'mv:other', title: 'Otra fecha' },
+    ];
+    const body = `📅 ¿A qué informe paso esta actividad?\n«${clip(note.text, 120)}»\n\nTambién puedes escribirme la fecha (por ejemplo *15/09/2026*).`;
+    turn.out.push(rows.length <= MAX_BUTTONS ? buttons(body, rows) : choose(body, rows));
+  }
+
+  private async moveNote(turn: Turn, noteId: string, periodNumber: number, date?: IsoDate): Promise<void> {
+    const note = await this.deps.store.getNote(noteId);
+    const c = await this.deps.store.getContract(note.contractId);
+    const p = (await this.deps.store.listPeriods(c.id)).find((x) => x.number === periodNumber);
+    const d = date ?? p?.from;
+    if (!d) return;
+    await this.deps.store.updateNote({ ...note, date: d });
+    this.reset(turn);
+    turn.out.push(text(`✅ Listo, moví la actividad.\n${await this.periodLine(c, d)}`));
+  }
+
+  private async onNoteRedate(turn: Turn, msg: Inbound): Promise<void> {
+    const { noteId } = turn.state.context as { noteId: string };
+    if (msg.replyId?.startsWith('mv:') && msg.replyId !== 'mv:other') {
+      const [, n] = msg.replyId.slice(3).split(':');
+      return this.moveNote(turn, noteId, Number(n));
+    }
+    if (msg.replyId === 'mv:other') {
+      turn.out.push(
+        text('Escríbeme la fecha (por ejemplo *15/09/2026*) o el mes (por ejemplo *septiembre*).'),
+      );
+      return;
+    }
+    const when =
+      msg.kind === 'text' && msg.text ? parseActivityWhen(msg.text, this.deps.clock.today()) : null;
+    if (when) {
+      const note = await this.deps.store.getNote(noteId);
+      const date = when.kind === 'day' ? when.date : when.from;
+      const p = (await this.deps.store.listPeriods(note.contractId)).find(
+        (x) => compareIso(x.from, date) <= 0 && compareIso(date, x.to) <= 0,
+      );
+      if (p) return this.moveNote(turn, noteId, p.number, date);
+      const c = await this.deps.store.getContract(note.contractId);
+      turn.out.push(text(`${await this.periodLine(c, date)} Escríbeme otra fecha.`));
+      return;
+    }
+    if (msg.kind === 'text' && msg.text && msg.text.trim().split(/\s+/).length > 4) {
+      this.reset(turn);
+      return this.freeText(turn, msg.text);
+    }
+    turn.out.push(text('Elige el informe en los botones o escríbeme la fecha (por ejemplo *15/09/2026*).'));
   }
 
   private async askObligation(

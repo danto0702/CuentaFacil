@@ -28,10 +28,14 @@ describe('recorded conversation: a month of notes to delivery', () => {
     await h.say('nota: hice el informe semanal');
     out = show(await h.press(`c:${DEMO_IDS.salud}`));
     expect(out[0]).toMatch(
-      /Creo que va en la obligación \d+: .*¿Está bien\?\n📅 Informe 03 DE 03 \(1 al 30 de septiembre de 2026\) \[✅ Está bien\] \[Cambiar obligación\] \[➕ Otra obligación\]$/,
+      /Creo que va en la obligación \d+: .*¿Está bien\?\n📅 Informe 03 DE 03 \(1 al 30 de septiembre de 2026\) \[✅ Está bien\] \[✏️ Corregir\] \[➕ Otra obligación\]$/,
     );
     const noteId = h.store.data.notes.at(-1)!.id;
     out = show(await h.press(`chg:${noteId}`));
+    expect(out[0]).toMatch(
+      /^¿Qué corrijo de esta actividad\?.*\[La obligación\] \[El informe o fecha\] \[Borrarla\]$/s,
+    );
+    out = show(await h.press(`cob:${noteId}`));
     expect(out[0]).toMatch(
       /¿A cuál obligación corresponde\?\n📅 Informe 03 DE 03 \(1 al 30 de septiembre de 2026\) \{1\. Coordinar/,
     );
@@ -428,6 +432,33 @@ describe('other flows', () => {
     out = show(await h.press('pp:2'));
     expect(out[0]).toContain('📅 Informe 02-05 (1 al 30 de septiembre de 2026)');
     expect(h.store.data.notes.filter((n) => n.date.slice(0, 7) === '2026-10')).toHaveLength(0);
+  });
+
+  it('moves an activity to another report from the confirmation or by asking', async () => {
+    // EBS contract on 5 October: September (02-05) and October (03-05) are open.
+    const h = harness({ today: '2026-10-05' });
+    h.store.data.contracts = h.store.data.contracts.filter((c) => c.id === DEMO_IDS.ebs);
+    await h.say('Visité la IPS de Ábrego y revisé las historias clínicas');
+    const note = h.store.data.notes.at(-1)!;
+    expect(note.date).toBe('2026-10-05');
+    await h.press(`chg:${note.id}`);
+    let out = show(await h.press(`mvq:${note.id}`));
+    expect(out[0]).toMatch(
+      /^📅 ¿A qué informe paso esta actividad\?.*\[Septiembre 2026\] .*\[Otra fecha\]$/s,
+    );
+    out = show(await h.press(`mv:${note.id}:2`));
+    expect(out[0]).toBe('✅ Listo, moví la actividad.\n📅 Informe 02-05 (1 al 30 de septiembre de 2026)');
+    expect((await h.store.getNote(note.id)).date).toBe('2026-09-01');
+
+    // In words, with a date.
+    await h.press(`chg:${note.id}`);
+    await h.press(`mvq:${note.id}`);
+    out = show(await h.say('15/09/2026'));
+    expect((await h.store.getNote(note.id)).date).toBe('2026-09-15');
+
+    // "Pasa la última actividad a octubre".
+    out = show(await h.say('pasa la última actividad a octubre por favor'));
+    expect(out[0]).toBe('✅ Listo, moví la actividad.\n📅 Informe 03-05 (1 al 31 de octubre de 2026)');
   });
 
   it('reviews notes that look misplaced before drafting', async () => {
