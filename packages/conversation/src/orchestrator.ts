@@ -30,7 +30,7 @@ import { noteSupports, pilaMonthFor } from './domain.js';
 import { type Command, forcedNote, matchCommand, matchMonthRequest } from './intents.js';
 import type { Deps, Inbound, ListRow, Outgoing, ShortIntent } from './ports.js';
 import { POLICY_VERSION, SETUP_FLOW, SetupFlow, TERMS_VERSION } from './setup.js';
-import { type ActivityWhen, clip, MONTHS, parseActivityDate, parseActivityWhen } from './text.js';
+import { type ActivityWhen, clip, MONTHS, normalize, parseActivityDate, parseActivityWhen } from './text.js';
 
 const MAX_BUTTONS = 3;
 const MAX_ROWS = 10;
@@ -43,6 +43,15 @@ const CONTRACT_ACTIVE =
 const SHORT_TEXT_WORDS = 5;
 
 type Ctx = Record<string, unknown>;
+
+/** Certificates guide: one missing support at a time (ADR-035). */
+const GUIDE_FLOW = 'support_guide';
+interface GuideCtx {
+  contractId: string;
+  total: number;
+  skipped: string[];
+  current?: string;
+}
 
 interface Turn {
   user: User;
@@ -320,6 +329,14 @@ export class Orchestrator {
       ctx.pendingEvidence = [...(ctx.pendingEvidence ?? []), id];
       return;
     }
+    if (msg.kind === 'image' && msg.media && turn.state.flow === GUIDE_FLOW) {
+      turn.out.push(
+        text(
+          '📸 Para los certificados necesito el *PDF*. Si la página no tiene botón de descarga, usa *Compartir → Imprimir → Guardar como PDF* en el navegador y envíame ese archivo.\nSi era una foto de una actividad, escribe *terminar* y vuelve a enviarla.',
+        ),
+      );
+      return;
+    }
     if (msg.kind === 'image' && msg.media && turn.state.flow !== 'idle') {
       if (turn.state.flow === 'note_contract') {
         const id = this.deps.newId();
@@ -335,7 +352,20 @@ export class Orchestrator {
       }
       this.reset(turn);
     }
+    if (msg.kind === 'document' && msg.media && turn.state.flow === GUIDE_FLOW) {
+      const guide = turn.state.context as unknown as GuideCtx;
+      await this.receiveSupport(turn, msg, guide);
+      // When the document was not recognized Pascal asks what it is; the guide resumes after the answer.
+      if (turn.state.flow === GUIDE_FLOW) await this.guideStep(turn, guide);
+      return;
+    }
     if (msg.kind === 'document' && msg.media && turn.state.flow !== 'idle') this.reset(turn);
+
+    if (msg.kind === 'reply' && msg.replyId?.startsWith('guide:')) {
+      this.reset(turn);
+      const c = (await this.activeContracts(turn)).find((x) => x.id === msg.replyId!.slice(6));
+      if (c) return this.startGuide(turn, c);
+    }
 
     if (msg.kind === 'reply' && msg.replyId?.startsWith('redo:')) {
       this.reset(turn);
@@ -397,6 +427,10 @@ export class Orchestrator {
         return this.onPickContract(turn, msg, (c) => this.startGenerate(turn, c));
       case 'status_pick_contract':
         return this.onPickContract(turn, msg, (c) => this.startStatus(turn, [c]));
+      case 'guide_pick_contract':
+        return this.onPickContract(turn, msg, (c) => this.startGuide(turn, c));
+      case GUIDE_FLOW:
+        return this.onGuide(turn, msg);
       case 'signature_upload':
         turn.out.push(
           text('Envíame la firma como *foto* (imagen), no como documento. Para salir escribe *menú*.'),
@@ -499,6 +533,8 @@ export class Orchestrator {
         return;
       case 'signature':
         return this.askSignature(turn);
+      case 'guide':
+        return this.withContract(turn, 'guide_pick_contract', (cs) => this.startGuide(turn, cs[0]!));
       case 'my_data':
         turn.out.push(
           text(
@@ -1148,7 +1184,7 @@ export class Orchestrator {
   // -------------------------------------------------------------------------
   // Supports
   // -------------------------------------------------------------------------
-  private async receiveSupport(turn: Turn, msg: Inbound): Promise<void> {
+  private async receiveSupport(turn: Turn, msg: Inbound, guide?: GuideCtx): Promise<void> {
     const cs = await this.activeContracts(turn);
     const types = new Map<string, SupportType>();
     let maxAge = 30;
@@ -1172,7 +1208,7 @@ export class Orchestrator {
       );
     }
     const known = segments.filter((g) => g.code && types.has(g.code));
-    if (!known.length) return this.askSupportType(turn, msg, types);
+    if (!known.length) return this.askSupportType(turn, msg, types, guide);
 
     const today = this.deps.clock.today();
     const lines: string[] = [];
@@ -1223,13 +1259,20 @@ export class Orchestrator {
         `❓ No reconocí ${unknown.map((g) => (g.fromPage === g.toPage ? `la pág. ${g.fromPage}` : `las págs. ${g.fromPage}-${g.toPage}`)).join(', ')}.`,
       );
     turn.out.push(text(`📎 *${filename}*\n${lines.join('\n')}`));
+    // Inside the guide an expired document is simply asked for again in the next step.
+    if (guide) return;
     if (old.length) await this.askExpired(turn, old);
     const cert = known.find((g) => g.code === 'CERT_CUMPLIMIENTO' && g.amount);
     if (cert && cs.length === 1) await this.suggestCertificateAmount(turn, cs[0]!, cert.amount!);
   }
 
   /** Fallback when the document is not recognized (or is not a PDF): the contractor picks the type. */
-  private async askSupportType(turn: Turn, msg: Inbound, types: Map<string, SupportType>): Promise<void> {
+  private async askSupportType(
+    turn: Turn,
+    msg: Inbound,
+    types: Map<string, SupportType>,
+    guide?: GuideCtx,
+  ): Promise<void> {
     const id = this.deps.newId();
     await this.deps.store.addSupport({
       id,
@@ -1240,7 +1283,7 @@ export class Orchestrator {
       filename: msg.media!.filename ?? 'documento.pdf',
       receivedAt: this.deps.clock.now().toISOString(),
     });
-    this.setFlow(turn, 'support_type', 'pick', { supportId: id });
+    this.setFlow(turn, 'support_type', 'pick', guide ? { supportId: id, guide } : { supportId: id });
     const rows = [...types.values()]
       .filter((t) => t.frequency === 'every_period')
       .map((t) => ({ id: `s:${t.code}`, title: t.label }));
@@ -1250,7 +1293,7 @@ export class Orchestrator {
   }
 
   private async onSupportType(turn: Turn, msg: Inbound): Promise<void> {
-    const { supportId } = turn.state.context as { supportId: string };
+    const { supportId, guide } = turn.state.context as { supportId: string; guide?: GuideCtx };
     if (msg.replyId?.startsWith('smore:')) {
       // Re-show the list from the requested page.
       const page = Number(msg.replyId.slice(6));
@@ -1273,8 +1316,114 @@ export class Orchestrator {
     const supports = await this.deps.store.listSupports(turn.user.id);
     const s = supports.find((x) => x.id === supportId);
     if (s) await this.deps.store.addSupport({ ...s, code, issuedOn: this.deps.clock.today() });
+    if (guide) {
+      turn.out.push(text('✅ Guardado.'));
+      return this.guideStep(turn, guide);
+    }
     this.reset(turn);
     turn.out.push(text('✅ Guardado. Escribe *¿qué me falta?* para ver tu checklist.'));
+  }
+
+  // -------------------------------------------------------------------------
+  // Certificates guide: the official sites ask for a captcha that only the contractor can solve, so
+  // Pascal walks them through one missing support at a time: link, steps and their document number
+  // in a message of its own (easy to copy). The guide moves on when the PDF arrives.
+  // -------------------------------------------------------------------------
+  private async startGuide(turn: Turn, c: Contract): Promise<void> {
+    const p = await this.currentPeriod(c);
+    if (!p) {
+      turn.out.push(text(`No tienes cuentas pendientes en ${c.shortLabel}.`));
+      return;
+    }
+    const { missing, expired } = await this.checklist(turn, c, p);
+    const total = missing.length + expired.length;
+    if (!total) {
+      turn.out.push(
+        buttons(`✅ Tienes todos los soportes al día para tu ${this.reportLabel(c, p)}.`, [
+          { id: 'menu:generate', title: 'Generar documentos' },
+        ]),
+      );
+      return;
+    }
+    turn.out.push(
+      text(
+        `🧭 Vamos uno por uno con los soportes de tu ${this.reportLabel(c, p)}: ${total === 1 ? 'te falta 1' : `te faltan ${total}`}. Te paso el enlace y los pasos; cuando lo descargues, envíamelo aquí en PDF y seguimos con el siguiente.`,
+      ),
+    );
+    return this.guideStep(turn, { contractId: c.id, total, skipped: [] });
+  }
+
+  private async guideStep(turn: Turn, g: GuideCtx): Promise<void> {
+    const c = (await this.activeContracts(turn)).find((x) => x.id === g.contractId);
+    const p = c && (await this.currentPeriod(c));
+    if (!c || !p) {
+      this.reset(turn);
+      return;
+    }
+    const { missing, expired } = await this.checklist(turn, c, p);
+    const all = [
+      ...missing.map((t) => ({ t, expired: false })),
+      ...expired.map((e) => ({ t: e.type, expired: true })),
+    ];
+    const pending = all.filter((x) => !g.skipped.includes(x.t.code));
+    const next = pending[0];
+    if (!next) {
+      this.reset(turn);
+      if (!all.length) {
+        turn.out.push(
+          buttons(
+            `🎉 Ya tienes todos los soportes de tu ${this.reportLabel(c, p)}. ¿Generamos los documentos?`,
+            [{ id: 'menu:generate', title: 'Generar documentos' }],
+          ),
+        );
+        return;
+      }
+      turn.out.push(
+        text(
+          `👍 Terminamos. Quedaron pendientes: ${all.map((x) => x.t.label).join(', ')}. Envíamelos cuando los tengas, o escribe *certificados* para retomar la guía.`,
+        ),
+      );
+      return;
+    }
+    this.setFlow(turn, GUIDE_FLOW, 'step', { ...g, current: next.t.code });
+    const position = Math.max(1, g.total - pending.length + 1);
+    const doc = turn.user.docNumber.replace(/[.\s]/g, '');
+    const body = [
+      `📄 *${next.t.label}*${g.total > 1 ? ` (${Math.min(position, g.total)} de ${g.total})` : ''}`,
+      ...(next.expired ? ['⚠️ El que tengo está vencido; descarga uno nuevo.'] : []),
+      ...(next.t.instructions ? [next.t.instructions] : []),
+      ...(next.t.officialUrl ? [`🔗 ${next.t.officialUrl}`] : []),
+      '',
+      next.t.officialUrl && doc
+        ? 'Te envío tu número de documento en el siguiente mensaje para que lo copies. Cuando tengas el PDF, envíamelo aquí.'
+        : 'Cuando lo tengas, envíamelo aquí en PDF.',
+    ].join('\n');
+    turn.out.push(
+      buttons(body, [
+        { id: 'gd:skip', title: '⏭️ Saltar este' },
+        { id: 'gd:stop', title: '✋ Terminar' },
+      ]),
+    );
+    if (next.t.officialUrl && doc) turn.out.push(text(doc));
+  }
+
+  private async onGuide(turn: Turn, msg: Inbound): Promise<void> {
+    const g = turn.state.context as unknown as GuideCtx;
+    if (msg.replyId === 'gd:skip') {
+      return this.guideStep(turn, { ...g, skipped: [...g.skipped, ...(g.current ? [g.current] : [])] });
+    }
+    const said = msg.kind === 'text' && msg.text ? normalize(msg.text) : '';
+    if (msg.replyId === 'gd:stop' || ['terminar', 'parar', 'detener', 'luego', 'despues'].includes(said)) {
+      this.reset(turn);
+      turn.out.push(text('Listo. Cuando quieras retomar, escribe *certificados*.'));
+      return;
+    }
+    if (['saltar', 'siguiente', 'no lo tengo'].includes(said)) {
+      return this.guideStep(turn, { ...g, skipped: [...g.skipped, ...(g.current ? [g.current] : [])] });
+    }
+    // Anything else (an activity, a question): leave the guide and handle the message normally.
+    this.reset(turn);
+    return this.dispatch(turn, msg);
   }
 
   // -------------------------------------------------------------------------
@@ -1327,9 +1476,24 @@ export class Orchestrator {
         return compareIso(issued(s), p.from) >= 0;
       });
       const newest = mine.at(-1);
+      // A certificate still valid is reused in the next reports: say until when it serves.
+      const validUntil = limit
+        ? mine
+            .filter((s) => !s.acceptedExpired && compareIso(issued(s), today) <= 0)
+            .map((s) => addDays(issued(s), limit))
+            .filter((d) => compareIso(d, today) >= 0)
+            .sort()
+            .at(-1)
+        : undefined;
       if (ok)
         lines.push(
-          `✅ ${t.label}${mine.some((s) => s.acceptedExpired) ? ' (vencido, aceptado por ti)' : ''}`,
+          `✅ ${t.label}${
+            validUntil
+              ? ` (vigente hasta el ${formatDdMmYyyy(validUntil)})`
+              : mine.some((s) => s.acceptedExpired)
+                ? ' (vencido, aceptado por ti)'
+                : ''
+          }`,
         );
       else if (limit && newest) {
         expired.push({ type: t, supportId: newest.id });
@@ -1347,6 +1511,7 @@ export class Orchestrator {
   }
 
   private async startStatus(turn: Turn, cs: Contract[]): Promise<void> {
+    let guideFor: Contract | null = null;
     for (const c of cs) {
       const p = await this.currentPeriod(c);
       if (!p) {
@@ -1362,7 +1527,8 @@ export class Orchestrator {
             `${count(o.key) ? '✅' : '⚠️'} Obligación ${o.number}: ${count(o.key)} registro${count(o.key) === 1 ? '' : 's'}`,
         );
       const unassigned = notes.filter((n) => !n.obligationKey).length;
-      const { lines } = await this.checklist(turn, c, p);
+      const { lines, missing, expired } = await this.checklist(turn, c, p);
+      if (!guideFor && missing.length + expired.length) guideFor = c;
       turn.out.push(
         text(
           [
@@ -1378,6 +1544,12 @@ export class Orchestrator {
         ),
       );
     }
+    if (guideFor)
+      turn.out.push(
+        buttons('🧭 ¿Te guío para descargar los soportes que faltan, uno por uno?', [
+          { id: `guide:${guideFor.id}`, title: 'Guíame' },
+        ]),
+      );
   }
 
   // -------------------------------------------------------------------------
@@ -1923,6 +2095,9 @@ export class Orchestrator {
               )
               .join('\n')}\n\nEnvíamelos y vuelve a escribir *generar*.`,
           ),
+        );
+        turn.out.push(
+          buttons('🧭 ¿Te guío para descargarlos uno por uno?', [{ id: `guide:${c.id}`, title: 'Guíame' }]),
         );
         return;
       }

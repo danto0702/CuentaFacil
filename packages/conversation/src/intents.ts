@@ -18,6 +18,7 @@ export type Command =
   | 'undo_note'
   | 'reset'
   | 'signature'
+  | 'guide'
   | 'cancel';
 
 const COMMANDS: [Command, string[]][] = [
@@ -70,6 +71,19 @@ const COMMANDS: [Command, string[]][] = [
       'subir firma',
       'cambiar firma',
       'actualizar firma',
+    ],
+  ],
+  [
+    'guide',
+    [
+      'certificados',
+      'antecedentes',
+      'afiliaciones',
+      'guiame',
+      'descargar certificados',
+      'descargar antecedentes',
+      'mis certificados',
+      'soportes',
     ],
   ],
   ['cancel', ['cancelar', 'salir']],

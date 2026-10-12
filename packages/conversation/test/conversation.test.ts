@@ -53,10 +53,11 @@ describe('recorded conversation: a month of notes to delivery', () => {
 
     // Checklist for both contracts.
     out = show(await h.say('¿Qué me falta?'));
-    expect(out).toHaveLength(2);
+    expect(out).toHaveLength(3);
     expect(out[0]).toContain('Informe 03 DE 03 (1 al 30 de septiembre de 2026)');
     expect(out[0]).toContain('⚠️ Obligación 2: 0 registros');
-    expect(out[0]).toContain('✅ Antecedentes Policía');
+    expect(out[0]).toMatch(/✅ Antecedentes Policía \(vigente hasta el \d\d\/\d\d\/2026\)/);
+    expect(out[2]).toBe(`🧭 ¿Te guío para descargar los soportes que faltan, uno por uno? [Guíame]`);
     expect(out[0]).toContain('📌 Después de la firma del supervisor');
     expect(out[1]).toContain('❌ Certificado ejecución EBS');
 
@@ -575,5 +576,48 @@ describe('billing (ADR-034)', () => {
     const shown = show(out);
     expect(shown[0]).toBe('✅ Recibí tu pago de $ 50.000. ¡Gracias!');
     expect(shown[1]).toBe('⏳ Estoy generando tus documentos, dame un momento…');
+  });
+});
+
+describe('certificates guide', () => {
+  const withoutBackgroundChecks = () => {
+    const h = harness();
+    h.store.data.supports = h.store.data.supports.filter((s) => !['POLICIA', 'RNMC'].includes(s.code));
+    return h;
+  };
+
+  it('walks through the missing certificates one at a time', async () => {
+    const h = withoutBackgroundChecks();
+    await h.say('certificados');
+    let out = show(await h.press(`c:${DEMO_IDS.salud}`));
+    expect(out[0]).toMatch(
+      /^🧭 Vamos uno por uno con los soportes de tu informe 03 DE 03 \(1 al 30 de septiembre de 2026\): te faltan 2\./,
+    );
+    expect(out[1]).toMatch(/^📄 \*Antecedentes Policía\* \(1 de 2\)/);
+    expect(out[1]).toContain('🔗 https://antecedentes.policia.gov.co:7005/WebJudicial/');
+    expect(out[1]).toMatch(/\[⏭️ Saltar este\] \[✋ Terminar\]$/);
+    expect(out[2]).toBe('1000000001');
+
+    out = show(await h.press('gd:skip'));
+    expect(out[0]).toMatch(/^📄 \*Medidas Correctivas\* \(2 de 2\)/);
+
+    // A photo is not a certificate: ask for the PDF and stay in the guide.
+    expect(show(await h.photo())[0]).toMatch(/^📸 Para los certificados necesito el \*PDF\*/);
+
+    // The PDF carries both certificates: the guide ends and offers to generate.
+    out = show(await h.document('antecedentes.pdf'));
+    expect(out[0]).toMatch(/^📎 \*antecedentes.pdf\*/);
+    expect(out.at(-1)).toMatch(
+      /^🎉 Ya tienes todos los soportes de tu informe 03 DE 03 .*\[Generar documentos\]$/,
+    );
+  });
+
+  it('stops when asked and says what is still missing', async () => {
+    const h = withoutBackgroundChecks();
+    await h.say('certificados');
+    await h.press(`c:${DEMO_IDS.salud}`);
+    expect(show(await h.say('terminar'))).toEqual(['Listo. Cuando quieras retomar, escribe *certificados*.']);
+    // Back to normal: free text is an activity again.
+    expect(show(await h.say('¿Qué me falta?')).at(-1)).toContain('[Guíame]');
   });
 });
