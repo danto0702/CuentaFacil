@@ -391,6 +391,18 @@ describe('other flows', () => {
     });
   });
 
+  it('keeps a photo sent after the period closed inside the report in course', async () => {
+    // The September report is still open on 2 October (Danilo, 2026-10-11).
+    const h = harness({ today: '2026-10-02' });
+    h.store.data.contracts = h.store.data.contracts.filter((c) => c.id === DEMO_IDS.salud);
+    await h.photo();
+    const out = show(await h.say('2'));
+    expect(out[0]).toMatch(
+      /^✅ Guardé la foto en la obligación 2: .*\n📅 Informe 03 DE 03 \(1 al 30 de septiembre de 2026\)\n/s,
+    );
+    expect(h.store.data.notes.at(-1)).toMatchObject({ obligationKey: 'specific-2', date: '2026-09-30' });
+  });
+
   it('warns about expired certificates when they arrive and asks to generate anyway or upload them again', async () => {
     const h = harness({ today: '2026-10-25' });
     const out = show(await h.document('ANTECEDENTES.pdf'));

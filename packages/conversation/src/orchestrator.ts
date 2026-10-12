@@ -910,15 +910,26 @@ export class Orchestrator {
       if (latest) {
         await this.deps.store.updateNote({ ...latest, evidenceIds: [...latest.evidenceIds, ...pending] });
         turn.out.push(
-          text(`✅ Agregué ${photos(pending.length)} a la obligación ${n}, en «${clip(latest.text, 80)}».`),
+          text(
+            `✅ Agregué ${photos(pending.length)} a la obligación ${n}, en «${clip(latest.text, 80)}».\n${await this.periodLine(c, latest.date)}`,
+          ),
         );
         return;
       }
+      // The photos belong to the report in course: a date outside its period would leave them out.
+      const today = this.deps.clock.today();
+      const date = !p
+        ? today
+        : compareIso(today, p.to) > 0
+          ? p.to
+          : compareIso(today, p.from) < 0
+            ? p.from
+            : today;
       await this.deps.store.addNote({
         id: this.deps.newId(),
         userId: turn.user.id,
         contractId: c.id,
-        date: this.deps.clock.today(),
+        date,
         text: `Registro fotográfico de la obligación ${n}.`,
         obligationKey: o.key,
         confidence: 1,
@@ -927,7 +938,7 @@ export class Orchestrator {
       });
       turn.out.push(
         text(
-          `✅ Guardé ${photos(pending.length)} en la obligación ${n}: «${clip(o.text, 80)}». Si quieres, cuéntame qué actividad fue para que quede en el informe.`,
+          `✅ Guardé ${photos(pending.length)} en la obligación ${n}: «${clip(o.text, 80)}».\n${await this.periodLine(c, date)}\nSi quieres, cuéntame qué actividad fue para que quede en el informe.`,
         ),
       );
       return;
