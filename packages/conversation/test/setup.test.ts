@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { DEMO_IDS, DEMO_PHONES } from '../src/demo.js';
 import { FakeAI, sampleExtraction } from '../src/fakes.js';
+import { supportTypesFromRequest } from '../src/setup.js';
 import { harness, show } from './harness.js';
 
 const NEW_PHONE = '+573009998877';
@@ -422,5 +423,42 @@ describe('supports sent as combined PDFs', () => {
     // Something it cannot recognize still asks.
     out = show(await h.document('otro.pdf'));
     expect(out[0]).toMatch(/no reconocí qué es/);
+  });
+});
+
+describe('checklist of a new institution (ADR-040)', () => {
+  it('turns the documents the contractor chose into the entity checklist', () => {
+    const rows = supportTypesFromRequest({
+      required: [
+        { code: 'INFORME_ACTIVIDADES', label: 'Informe de actividades' },
+        { code: 'PILA', label: 'Planilla de seguridad social (PILA)' },
+        { code: 'POLICIA', label: 'Antecedentes judiciales (Policía)' },
+        { code: 'CERT_CUMPLIMIENTO', label: 'Certificado de cumplimiento del supervisor' },
+        { code: 'RUT', label: 'RUT' },
+        { code: null, label: 'paz y salvo' },
+        { code: null, label: 'Paz y salvo' },
+      ],
+      models: { INFORME_ACTIVIDADES: 's1' },
+    });
+    expect(rows.map((r) => r.code)).toEqual([
+      'PILA',
+      'POLICIA',
+      'CERT_CUMPLIMIENTO',
+      'RUT',
+      'PAZ_Y_SALVO',
+      'PAZ_Y_SALVO_2',
+    ]);
+    expect(rows.find((r) => r.code === 'POLICIA')).toMatchObject({
+      bundle: 'ANTECEDENTES',
+      max_age_days: 30,
+      required: true,
+    });
+    expect(rows.find((r) => r.code === 'CERT_CUMPLIMIENTO')?.stage).toBe('after_signature');
+    expect(rows.find((r) => r.code === 'RUT')?.frequency).toBe('at_start');
+    expect(rows.find((r) => r.code === 'PAZ_Y_SALVO')).toMatchObject({
+      label: 'Paz y salvo',
+      frequency: 'every_period',
+    });
+    expect(supportTypesFromRequest(null)).toEqual([]);
   });
 });

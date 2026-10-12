@@ -10,7 +10,7 @@ import {
 import { allyWelcome } from './ally.js';
 import { BRAND, SIGNATURE } from './brand.js';
 import type { ContractExtraction, ConversationState, Entity, Period, RegistryEntry, User } from './domain.js';
-import type { Deps, Inbound, Outgoing } from './ports.js';
+import type { Deps, Inbound, InstitutionDocuments, Outgoing } from './ports.js';
 import { clip } from './text.js';
 
 /** Conversation flow name for contract setup (plan v5 §2.1). */
@@ -69,6 +69,181 @@ export const INSTITUTION_DOCS: { code: string; label: string; generated?: true }
   { code: 'CUENTA_BANCARIA', label: 'Certificación bancaria' },
   { code: 'CEDULA', label: 'Copia de la cédula' },
 ];
+
+/** Checklist row of an entity (support_types), as the panel stores it. */
+export interface SupportTypeSeed {
+  code: string;
+  label: string;
+  required: boolean;
+  frequency: 'every_period' | 'once' | 'at_start';
+  max_age_days: number | null;
+  bundle: 'ANTECEDENTES' | 'AFILIACIONES' | null;
+  bundle_order: number | null;
+  official_url: string | null;
+  instructions: string | null;
+  stage: 'before_generation' | 'after_signature';
+}
+
+/** Usual settings of each support an institution may ask for (same as HRNO's checklist). */
+const SUPPORT_DEFAULTS: Record<string, Omit<SupportTypeSeed, 'code' | 'label' | 'required'>> = {
+  PILA: {
+    frequency: 'every_period',
+    max_age_days: null,
+    bundle: null,
+    bundle_order: null,
+    official_url: null,
+    instructions: 'Descarga la planilla pagada del mes en curso desde tu operador.',
+    stage: 'before_generation',
+  },
+  POLICIA: {
+    frequency: 'every_period',
+    max_age_days: 30,
+    bundle: 'ANTECEDENTES',
+    bundle_order: 1,
+    official_url: 'https://antecedentes.policia.gov.co:7005/WebJudicial/',
+    instructions:
+      'Acepta los términos, elige Cédula de Ciudadanía, escribe tu número, marca «No soy un robot» y pulsa Consultar. Guarda el resultado como PDF (Compartir → Imprimir → Guardar como PDF).',
+    stage: 'before_generation',
+  },
+  RNMC: {
+    frequency: 'every_period',
+    max_age_days: 30,
+    bundle: 'ANTECEDENTES',
+    bundle_order: 2,
+    official_url: 'https://srvcnpc.policia.gov.co/PSC/frm_cnp_consulta.aspx',
+    instructions:
+      'Elige el tipo de documento, escribe tu número, resuelve la verificación y pulsa Consultar. Descarga o imprime el resultado como PDF.',
+    stage: 'before_generation',
+  },
+  PROCURADURIA: {
+    frequency: 'every_period',
+    max_age_days: 30,
+    bundle: 'ANTECEDENTES',
+    bundle_order: 3,
+    official_url: 'https://www.procuraduria.gov.co/Pages/Generacion-de-antecedentes.aspx',
+    instructions:
+      'Elige el certificado Ordinario y Cédula de Ciudadanía, escribe tu número, responde la pregunta de verificación y pulsa Generar. Descarga el PDF.',
+    stage: 'before_generation',
+  },
+  CONTRALORIA: {
+    frequency: 'every_period',
+    max_age_days: 30,
+    bundle: 'ANTECEDENTES',
+    bundle_order: 4,
+    official_url: 'https://www.contraloria.gov.co/web/guest/persona-natural',
+    instructions:
+      'Entra a Certificado Persona Natural, elige Cédula de Ciudadanía, escribe tu número, resuelve la verificación y pulsa Buscar. Se descarga el PDF.',
+    stage: 'before_generation',
+  },
+  EPS: {
+    frequency: 'every_period',
+    max_age_days: 30,
+    bundle: 'AFILIACIONES',
+    bundle_order: 1,
+    official_url: null,
+    instructions: 'Descárgalo del portal de tu EPS.',
+    stage: 'before_generation',
+  },
+  ARL: {
+    frequency: 'every_period',
+    max_age_days: 30,
+    bundle: 'AFILIACIONES',
+    bundle_order: 2,
+    official_url: null,
+    instructions: 'Pídelo a tu ARL; debe cubrir todo el periodo del contrato.',
+    stage: 'before_generation',
+  },
+  AFP: {
+    frequency: 'every_period',
+    max_age_days: 30,
+    bundle: 'AFILIACIONES',
+    bundle_order: 3,
+    official_url: null,
+    instructions: 'Descárgalo del portal de tu fondo de pensiones.',
+    stage: 'before_generation',
+  },
+  CERT_CUMPLIMIENTO: {
+    frequency: 'every_period',
+    max_age_days: null,
+    bundle: null,
+    bundle_order: null,
+    official_url: null,
+    instructions: 'Lo expide el supervisor después de firmar; envíamelo cuando lo tengas.',
+    stage: 'after_signature',
+  },
+  RUT: {
+    frequency: 'at_start',
+    max_age_days: null,
+    bundle: null,
+    bundle_order: null,
+    official_url: null,
+    instructions: null,
+    stage: 'before_generation',
+  },
+  CUENTA_BANCARIA: {
+    frequency: 'at_start',
+    max_age_days: null,
+    bundle: null,
+    bundle_order: null,
+    official_url: null,
+    instructions: null,
+    stage: 'before_generation',
+  },
+  CEDULA: {
+    frequency: 'at_start',
+    max_age_days: null,
+    bundle: null,
+    bundle_order: null,
+    official_url: null,
+    instructions: null,
+    stage: 'before_generation',
+  },
+};
+
+/**
+ * The checklist of a new entity from what the contractor chose in "Otra institución" (ADR-040): the
+ * supports with their usual settings, and documents they wrote as required every period. The
+ * documents Pascal generates are not supports (they are the entity's formats).
+ */
+export function supportTypesFromRequest(docs: InstitutionDocuments | null | undefined): SupportTypeSeed[] {
+  const out: SupportTypeSeed[] = [];
+  const used = new Set<string>();
+  for (const d of docs?.required ?? []) {
+    if (d.code && INSTITUTION_DOCS.find((x) => x.code === d.code)?.generated) continue;
+    const defaults = d.code ? SUPPORT_DEFAULTS[d.code] : undefined;
+    if (d.code && defaults) {
+      if (used.has(d.code)) continue;
+      used.add(d.code);
+      out.push({ code: d.code, label: d.label, required: true, ...defaults });
+      continue;
+    }
+    // A document the contractor wrote: a code from its name ("paz y salvo" → PAZ_Y_SALVO).
+    const base =
+      d.label
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toUpperCase()
+        .replace(/[^A-Z0-9]+/g, '_')
+        .replace(/^_+|_+$/g, '')
+        .slice(0, 30) || 'OTRO';
+    let code = /^[A-Z]/.test(base) ? base : `DOC_${base}`;
+    for (let i = 2; used.has(code); i++) code = `${base}_${i}`;
+    used.add(code);
+    out.push({
+      code,
+      label: d.label.charAt(0).toUpperCase() + d.label.slice(1),
+      required: true,
+      frequency: 'every_period',
+      max_age_days: null,
+      bundle: null,
+      bundle_order: null,
+      official_url: null,
+      instructions: null,
+      stage: 'before_generation',
+    });
+  }
+  return out;
+}
 
 /** "1, 2, 4-6, otro: paz y salvo" → chosen codes and documents written by the contractor. */
 export function parseDocChoice(input: string): { codes: string[]; custom: string[] } | null {

@@ -1,4 +1,5 @@
 'use server';
+import { type InstitutionDocuments, supportTypesFromRequest } from '@cuentasbot/conversation';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { DEFAULT_ENTITY_SETTINGS } from '@/lib/admin';
@@ -36,11 +37,22 @@ export async function createEntity(form: FormData): Promise<void> {
     .single();
   fail('No pude crear la entidad', error);
   const requestId = s(form, 'requestId');
-  if (requestId)
-    await client
+  if (requestId) {
+    const { data: request } = await client
       .from('institution_requests')
       .update({ entity_id: data!.id, status: 'in_progress' })
-      .eq('id', requestId);
+      .eq('id', requestId)
+      .select('documents')
+      .single();
+    // The checklist starts with the documents the contractor said the institution asks for (ADR-040).
+    const rows = supportTypesFromRequest(request?.documents as InstitutionDocuments | null);
+    if (rows.length) {
+      const { error: stErr } = await client
+        .from('support_types')
+        .insert(rows.map((r) => ({ ...r, entity_id: data!.id })));
+      fail('No pude precargar la lista de chequeo', stErr);
+    }
+  }
   revalidatePath('/entidades');
   redirect(`/entidades/${data!.id}`);
 }

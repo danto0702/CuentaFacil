@@ -48,6 +48,12 @@ export default async function EntitiesPage({
               Queda en estado <em>pendiente</em>: configura la lista de chequeo, las variables y los formatos,
               y actívala para que aparezca en WhatsApp.
             </p>
+            {solicitud && (
+              <p className="muted">
+                Viene de una solicitud: la lista de chequeo empieza con los documentos que el contratista dijo
+                que pide la institución. Revísala antes de activarla.
+              </p>
+            )}
             <form action={createEntity} className="stack">
               <input type="hidden" name="requestId" value={solicitud} />
               <label>
