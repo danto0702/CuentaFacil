@@ -469,6 +469,16 @@ describe('other flows', () => {
     expect(out[0]).toBe('✅ Listo, moví la actividad.\n📅 Informe 03-05 (1 al 31 de octubre de 2026)');
   });
 
+  it('asks for the compliance certificate only in contracts that need it', async () => {
+    const h = harness();
+    h.store.data.supports = h.store.data.supports.filter((x) => x.code !== 'CERT_CUMPLIMIENTO');
+    let out = show(await h.say('¿Qué me falta?'));
+    expect(out[0]).toContain('Certificado de cumplimiento');
+    h.store.data.contracts = h.store.data.contracts.map((c) => ({ ...c, requiresCertification: false }));
+    out = show(await h.say('¿Qué me falta?'));
+    expect(out.join('\n')).not.toContain('Certificado de cumplimiento');
+  });
+
   it('reviews notes that look misplaced before drafting', async () => {
     const h = harness();
     const base = {

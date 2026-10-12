@@ -1822,7 +1822,9 @@ export class Orchestrator {
       (t) =>
         t.required &&
         t.frequency === 'every_period' &&
-        (!t.profiles || (c.profile && t.profiles.includes(c.profile))),
+        (!t.profiles || (c.profile && t.profiles.includes(c.profile))) &&
+        // The compliance certificate only for contracts whose accounts ask for it.
+        !(t.code === 'CERT_CUMPLIMIENTO' && c.requiresCertification === false),
     );
     const supports = await this.deps.store.listSupports(turn.user.id);
     const today = this.deps.clock.today();

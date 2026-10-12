@@ -53,7 +53,7 @@ describe('registration and contract setup by documents', () => {
     out = show(await h.say('01/10/2026'));
     expect(out[0]).toMatch(/¿Cómo cortas tus cuentas\?.*\[Fin de mes\] \[Fecha a fecha\]$/s);
     out = show(await h.press('mode:month_end'));
-    expect(out[0]).toMatch(/certificación de cumplimiento/);
+    expect(out[0]).toMatch(/certificado de cumplimiento\*\? Es el que expide una dependencia o coordinación/);
     out = show(await h.press('cert:yes'));
     expect(out[0]).toBe('¿Ya cobraste informes de este contrato? [Es el primero] [Ya cobré informes]');
     out = show(await h.press('prior:none'));

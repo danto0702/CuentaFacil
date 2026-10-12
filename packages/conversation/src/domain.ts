@@ -76,6 +76,11 @@ export interface Contract {
   monthlyValue: number;
   paymentsCount: number;
   reportNumberFormat: ReportNumberFormat;
+  /**
+   * Whether this contract's accounts need the certificado de cumplimiento issued by a dependency or
+   * coordinator (it states how much to pay). Not the supervisor's own approval, which is never asked.
+   */
+  requiresCertification?: boolean;
   periodMode: PeriodMode;
   supervisor: { name: string; title: string };
   obligations: Obligation[];
@@ -224,7 +229,7 @@ export interface SupportType {
   instructions?: string;
   /** Contract profiles this applies to; undefined = all. */
   profiles?: string[];
-  /** Documents the entity issues after the supervisor signs (DSE, certificado de cumplimiento) don't block generation. */
+  /** Documents the entity issues after the supervisor signs (e.g. DSE) don't block generation. */
   stage?: 'before_generation' | 'after_signature';
 }
 

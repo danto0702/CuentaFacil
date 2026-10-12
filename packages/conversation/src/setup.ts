@@ -64,7 +64,10 @@ export const INSTITUTION_DOCS: { code: string; label: string; generated?: true }
   { code: 'EPS', label: 'Certificado de afiliación a EPS' },
   { code: 'ARL', label: 'Certificado de afiliación a ARL' },
   { code: 'AFP', label: 'Certificado de afiliación a pensión' },
-  { code: 'CERT_CUMPLIMIENTO', label: 'Certificado de cumplimiento del supervisor' },
+  {
+    code: 'CERT_CUMPLIMIENTO',
+    label: 'Certificado de cumplimiento (lo expide una dependencia o coordinación)',
+  },
   { code: 'RUT', label: 'RUT' },
   { code: 'CUENTA_BANCARIA', label: 'Certificación bancaria' },
   { code: 'CEDULA', label: 'Copia de la cédula' },
@@ -170,7 +173,7 @@ const SUPPORT_DEFAULTS: Record<string, Omit<SupportTypeSeed, 'code' | 'label' | 
     bundle_order: null,
     official_url: null,
     instructions:
-      'Pídeselo a tu supervisor para la cuenta de este periodo y envíamelo con los demás soportes.',
+      'Pídeselo a la dependencia o coordinación que lo expide para la cuenta de este periodo y envíamelo con los demás soportes; con él sé cuánto cobrar.',
     stage: 'before_generation',
   },
   RUT: {
@@ -946,7 +949,7 @@ export class SetupFlow {
     this.go(turn, 'certification', { mode });
     turn.out.push(
       buttons(
-        '📑 ¿Tu cuenta de cobro necesita *certificación de cumplimiento* (la expide tu supervisor o coordinador)?',
+        '📑 ¿Tu cuenta de cobro necesita *certificado de cumplimiento*? Es el que expide una dependencia o coordinación e indica cuánto se te paga (no es la firma de tu supervisor).',
         [
           { id: 'cert:yes', title: 'Sí la necesita' },
           { id: 'cert:no', title: 'No la necesita' },

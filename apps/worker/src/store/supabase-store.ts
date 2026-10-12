@@ -850,6 +850,7 @@ export class SupabaseStore implements Store {
       paymentsCount: num(r.payments_count),
       reportNumberFormat: r.report_number_fmt === 'NN-NN' ? 'NN-NN' : 'NN DE NN',
       periodMode: r.period_mode === 'date_to_date' ? 'date_to_date' : 'month_end',
+      requiresCertification: r.requires_certification === true,
       supervisor: { name: str(r.supervisor_name), title: str(r.supervisor_title) },
       obligations: obls,
       contractorDuties: (must(duties, 'contractor_duties') as Row[]).map((d) => str(d.text)),
