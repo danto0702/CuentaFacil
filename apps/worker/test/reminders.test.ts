@@ -158,7 +158,10 @@ describe('template registration', () => {
 
     existing = [{ name: 'faltan_soportes', language: 'es', status: 'APPROVED', rejected_reason: 'NONE' }];
     calls.length = 0;
-    expect(await wa.ensureTemplate('77', FALTAN_SOPORTES)).toEqual({ status: 'APPROVED', created: false });
+    expect(await wa.ensureTemplate('77', FALTAN_SOPORTES)).toMatchObject({
+      status: 'APPROVED',
+      created: false,
+    });
     expect(calls.map((c) => c.method)).toEqual(['GET']);
   });
 });

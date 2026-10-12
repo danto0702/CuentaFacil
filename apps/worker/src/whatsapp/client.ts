@@ -144,20 +144,35 @@ export class WhatsAppClient {
   async ensureTemplate(
     businessAccountId: string,
     t: TemplateDefinition,
-  ): Promise<{ status: string; created: boolean; reason?: string }> {
+  ): Promise<{ status: string; created: boolean; reason?: string; body?: string; buttons?: string }> {
     const found = await this.call<{
-      data: { name: string; language: string; status: string; rejected_reason?: string }[];
+      data: {
+        name: string;
+        language: string;
+        status: string;
+        rejected_reason?: string;
+        components?: { type: string; text?: string; buttons?: { text: string }[] }[];
+      }[];
     }>(
-      `${businessAccountId}/message_templates?name=${encodeURIComponent(t.name)}&fields=name,language,status,rejected_reason`,
+      `${businessAccountId}/message_templates?name=${encodeURIComponent(t.name)}&fields=name,language,status,rejected_reason,components`,
       { method: 'GET' },
     );
     const mine = found.data?.find((x) => x.name === t.name && x.language === t.language);
-    if (mine)
+    if (mine) {
+      // The registered text, to check it matches the variables the worker sends.
+      const body = mine.components?.find((c) => c.type === 'BODY')?.text;
+      const buttons = mine.components
+        ?.find((c) => c.type === 'BUTTONS')
+        ?.buttons?.map((b) => b.text)
+        .join(' | ');
       return {
         status: mine.status,
         created: false,
         ...(mine.rejected_reason && mine.rejected_reason !== 'NONE' ? { reason: mine.rejected_reason } : {}),
+        ...(body ? { body } : {}),
+        ...(buttons ? { buttons } : {}),
       };
+    }
     const res = await this.postJson<{ id: string; status: string }>(
       `${businessAccountId}/message_templates`,
       t,
