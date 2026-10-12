@@ -7,7 +7,7 @@ import type {
   SocialSecurity,
   SupportSegment,
 } from './domain.js';
-import type { AI, ClassifyResult, Clock, DraftResult, ShortIntent, STT } from './ports.js';
+import type { AI, ClassifyResult, Clock, DraftResult, MessageIntent, STT } from './ports.js';
 import { normalize } from './text.js';
 
 const STOPWORDS = new Set(
@@ -145,7 +145,8 @@ export class FakeAI implements AI {
     return m ? { ...e, monthlyValue: Number(m[1]!.replace(/\./g, '')) } : structuredClone(e);
   }
 
-  async interpretShort(text: string): Promise<ShortIntent> {
+  /** Rough stand-in for the intent model: requests about the report, acknowledgements, else an activity. */
+  async interpretMessage(text: string): Promise<MessageIntent> {
     const t = text.toLowerCase();
     const months = [
       'enero',
@@ -163,9 +164,25 @@ export class FakeAI implements AI {
     ];
     const m = months.findIndex((x) => t.includes(x));
     const month = m >= 0 ? m + 1 : null;
-    if (/rehac|rehag|rehiz/.test(t)) return { intent: 'redo', month };
-    if (/^(ok|listo|gracias|dale)\b/.test(t)) return { intent: 'unclear', month: null };
-    return { intent: 'activity', month };
+    const r = (intent: MessageIntent['intent'], m = month): MessageIntent => ({
+      intent,
+      month: m,
+      guess: null,
+      question: null,
+    });
+    if (/rehac|rehag|rehiz/.test(t)) return r('redo');
+    if (/\b(vamos|iniciar|empezar|empecemos|comenzar)\b.*\b(informe|cuenta)\b/.test(t))
+      return r('open_report');
+    if (/\b(certificados|antecedentes)\b.*\b(ayuda|ayúdame|descargar)\b/.test(t)) return r('guide');
+    if (/^(ok|listo|gracias|dale)\b/.test(t)) return r('unclear', null);
+    if (/\?$/.test(t.trim()) && t.includes('informe'))
+      return {
+        intent: 'unclear',
+        month,
+        guess: 'open_report',
+        question: '¿Quieres que trabajemos en ese informe?',
+      };
+    return r('activity');
   }
 
   async classifyNote(text: string, obligations: Obligation[]): Promise<ClassifyResult> {

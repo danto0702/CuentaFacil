@@ -4,9 +4,9 @@ import type {
   ContractExtraction,
   DocumentInput,
   DraftResult,
+  MessageIntent,
   Note,
   Obligation,
-  ShortIntent,
   SocialSecurity,
   SupportSegment,
 } from '@cuentasbot/conversation';
@@ -28,34 +28,57 @@ const WRITING_RULES = `Writing rules for the "Actividades realizadas por el cont
 - Keep proper nouns and acronyms as written in the notes (UPGD, PIC, SIVIGILA, PAI, EBS).
 - Do not restate the obligation as if it were the activity.`;
 
-const shortIntentSchema = z.object({
-  intent: z.enum([
-    'activity',
-    'redo',
-    'reset',
-    'open_report',
-    'draft',
-    'generate',
-    'status',
-    'menu',
-    'undo_note',
-    'signature',
-    'unclear',
-  ]),
-  month: z.number().int().min(1).max(12).nullable(),
+const INTENT_KINDS = [
+  'activity',
+  'redo',
+  'reset',
+  'open_report',
+  'draft',
+  'generate',
+  'status',
+  'guide',
+  'contracts',
+  'add_contract',
+  'my_data',
+  'signature',
+  'undo_note',
+  'support',
+  'help',
+  'menu',
+  'unclear',
+] as const;
+
+const messageIntentSchema = z.object({
+  intent: z.enum(INTENT_KINDS),
+  month: z.number().int().min(1).max(12).nullable().describe('1-12 if the message names a month, else null'),
+  guess: z
+    .enum(INTENT_KINDS)
+    .nullable()
+    .describe('Only when intent is "unclear": the most likely meaning, or null'),
+  question: z
+    .string()
+    .nullable()
+    .describe(
+      'Only when intent is "unclear": one short question to the contractor in Colombian Spanish with tuteo, to find out what they want; otherwise null',
+    ),
 });
 
-const SHORT_INTENT_RULES = `A Colombian public-sector contractor writes to Pascal, a WhatsApp assistant that records their work activities and prepares their monthly reports (cuentas de cobro). Decide what this short message is:
-- activity: something they did at work (to be recorded), e.g. "reunión con el alcalde", "visité 3 IPS".
-- redo: regenerate a report already delivered, e.g. "rehace agosto", "vuelve a sacar el de julio", "otra vez el informe de julio".
-- reset: start a report over / delete its notes, e.g. "reinicia agosto", "borra todo lo de agosto".
-- open_report: work on / continue the report of a month, e.g. "vamos con agosto", "sigamos con la cuenta de septiembre".
-- draft: write the report now, e.g. "haz el informe", "ya está todo".
-- generate: produce the final documents, e.g. "genera los documentos".
-- status: what is missing, e.g. "qué me falta".
-- menu: greetings or asking for options. undo_note: delete the last note. signature: upload or change their signature.
-- unclear: acknowledgements ("ok", "gracias", "listo") or anything else that is not clearly a work activity.
-month: 1-12 if a month is named, else null. Spanish may have typos or missing accents.`;
+const MESSAGE_INTENT_RULES = `A Colombian public-sector contractor writes to Pascal, a WhatsApp assistant that records their daily work activities and prepares their monthly reports (cuentas de cobro). Decide what the message is. It may be long or short, written or transcribed from a voice note, with typos or missing accents.
+
+- activity: a description of work the contractor did or is doing for their contract, to be recorded in the report. E.g. "hoy capacité a 30 personas en misión médica", "reunión con el alcalde", "visité 3 IPS y levanté las actas". Work about reports for their employer is still an activity: "elaboré el informe de la visita a la IPS", "entregué el informe mensual de vacunación a la secretaría".
+- open_report: wants to start, continue or work on the account/report of a month with Pascal. E.g. "ahora vamos a iniciar la realización del informe de septiembre", "sigamos con la cuenta de agosto", "quiero hacer la cuenta de este mes".
+- draft: wants Pascal to write or show the report draft now. E.g. "haz el informe", "ya está todo, redacta", "muéstrame cómo va el borrador".
+- generate: wants the final documents. E.g. "genera los documentos", "mándame la cuenta lista para firmar".
+- redo: regenerate a report already delivered. E.g. "rehace agosto", "vuelve a sacar el de julio con los cambios".
+- reset: start a report over, deleting its notes. E.g. "reinicia agosto", "borra todo lo de septiembre y empecemos de cero".
+- status: what is missing or how the account is going. E.g. "qué me falta", "cómo voy con la cuenta".
+- guide: help to download certificates (antecedentes, Policía, Procuraduría, Contraloría, medidas correctivas, afiliaciones). E.g. "ayúdame a sacar los antecedentes".
+- contracts: see their contracts. add_contract: register a new contract. my_data: see their personal or bank data.
+- signature: upload or change their signature. undo_note: delete the last note they sent.
+- support: talk to a person of the team. help: how Pascal works. menu: greetings or asking for options.
+- unclear: acknowledgements ("ok", "gracias", "listo"), questions you cannot map to the above, or anything you are not sure about. When in doubt between an activity and a request, answer unclear: Pascal will ask. Then give guess (the most likely meaning) and question (one short question in Colombian Spanish, tuteo, that lets the contractor say what they want).
+
+Requests are addressed to Pascal about their account, report, documents or the service; activities describe the contractor's own work. month: 1-12 if a month is named ("septiembre", "el mes pasado" does not count), else null.`;
 
 const classifySchema = z.object({
   obligation_number: z
@@ -315,17 +338,23 @@ export class ClaudeAI implements AI {
     return normalizeExtraction(r);
   }
 
-  async interpretShort(text: string): Promise<ShortIntent> {
+  async interpretMessage(text: string): Promise<MessageIntent> {
     const r = await this.llm.structured({
-      purpose: 'interpret_short',
+      purpose: 'interpret_message',
       model: this.models.fast,
       effort: 'low',
-      maxTokens: 500,
-      system: SHORT_INTENT_RULES,
-      content: [{ type: 'text', text: `Message: ${text}` }],
-      schema: shortIntentSchema,
+      maxTokens: 1000,
+      system: MESSAGE_INTENT_RULES,
+      content: [{ type: 'text', text: `Message:\n${text}` }],
+      schema: messageIntentSchema,
     });
-    return { intent: r.intent, month: r.month };
+    const unclear = r.intent === 'unclear';
+    return {
+      intent: r.intent,
+      month: r.month,
+      guess: unclear ? r.guess : null,
+      question: unclear ? r.question : null,
+    };
   }
 
   async classifyNote(text: string, obligations: Obligation[]): Promise<ClassifyResult> {

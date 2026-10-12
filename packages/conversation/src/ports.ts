@@ -78,26 +78,39 @@ export interface ClassifyResult {
 export type DraftResult = { status: 'ok'; paragraphs: string[] } | { status: 'needs_input'; reason: string };
 
 /** What a short free-text message asks for (checked before saving it as an activity). */
-export interface ShortIntent {
-  intent:
-    | 'activity'
-    | 'redo'
-    | 'reset'
-    | 'open_report'
-    | 'draft'
-    | 'generate'
-    | 'status'
-    | 'menu'
-    | 'undo_note'
-    | 'signature'
-    | 'unclear';
+export type MessageIntentKind =
+  | 'activity'
+  | 'redo'
+  | 'reset'
+  | 'open_report'
+  | 'draft'
+  | 'generate'
+  | 'status'
+  | 'guide'
+  | 'contracts'
+  | 'add_contract'
+  | 'my_data'
+  | 'signature'
+  | 'undo_note'
+  | 'support'
+  | 'help'
+  | 'menu'
+  | 'unclear';
+
+/** What a free-text message means: a work activity to record, or a request to Pascal (ADR-037). */
+export interface MessageIntent {
+  intent: MessageIntentKind;
   /** 1..12 when the message names a month. */
   month: number | null;
+  /** When unclear: the most likely meaning, offered as a button. */
+  guess: MessageIntentKind | null;
+  /** When unclear: a short question back to the contractor, in Colombian Spanish (tuteo). */
+  question: string | null;
 }
 
 export interface AI {
-  /** Short messages only: is it a work activity or a request to the assistant? */
-  interpretShort(text: string): Promise<ShortIntent>;
+  /** Any free-text message: is it a work activity or a request to the assistant (cheapest model)? */
+  interpretMessage(text: string): Promise<MessageIntent>;
   classifyNote(text: string, obligations: Obligation[]): Promise<ClassifyResult>;
   /** Must only use facts present in the notes; returns needs_input when there is nothing to say. */
   draftObligation(obligation: Obligation, notes: Note[]): Promise<DraftResult>;

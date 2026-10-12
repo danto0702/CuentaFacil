@@ -302,10 +302,33 @@ describe('other flows', () => {
     out = show(await h.say('rehízolo'));
     expect(out.join(' ')).not.toMatch(/Anotado/);
     out = show(await h.say('ok'));
-    expect(out[0]).toMatch(/^No estoy seguro de qué quieres hacer con «ok»\. ¿Lo anoto como una actividad\?/);
+    expect(out[0]).toBe(
+      'No estoy seguro de qué quieres hacer con «ok». ¿Es una actividad que hiciste o quieres que haga algo? [Anotar actividad] [Ver menú]',
+    );
     expect(h.store.data.notes.length).toBe(notes);
     // A real activity, even a short one, is still recorded.
     await h.say('Reunión con el alcalde');
+    await h.press(`c:${DEMO_IDS.salud}`);
+    expect(h.store.data.notes.length).toBe(notes + 1);
+  });
+
+  it('understands long requests in natural language and asks when unsure', async () => {
+    const h = harness({ today: '2026-10-02' });
+    const notes = h.store.data.notes.length;
+    // A long request about a report is not an activity.
+    let out = show(await h.say('ahora vamos a iniciar la realización del informe de septiembre'));
+    expect(out.join(' ')).not.toMatch(/Anotado/);
+    expect(out.join(' ')).toMatch(/septiembre/);
+    // Unsure: Pascal asks, offering the likely meaning, and does nothing until the answer.
+    out = show(await h.say('¿podemos revisar el informe?'));
+    expect(out[0]).toBe(
+      '¿Quieres que trabajemos en ese informe? [Trabajar el informe] [Anotar actividad] [Ver menú]',
+    );
+    expect(h.store.data.notes.length).toBe(notes);
+    out = show(await h.press('short:do:open_report'));
+    expect(out.join(' ')).not.toMatch(/Anotado/);
+    // A long activity is still recorded.
+    await h.say('Hoy hice la visita de inspección a las tres IPS del municipio y levanté las actas');
     await h.press(`c:${DEMO_IDS.salud}`);
     expect(h.store.data.notes.length).toBe(notes + 1);
   });

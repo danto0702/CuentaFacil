@@ -28,7 +28,7 @@ import type {
 } from './domain.js';
 import { noteSupports, pilaMonthFor } from './domain.js';
 import { type Command, forcedNote, matchCommand, matchMonthRequest } from './intents.js';
-import type { Deps, Inbound, ListRow, Outgoing, ShortIntent } from './ports.js';
+import type { Deps, Inbound, ListRow, MessageIntent, MessageIntentKind, Outgoing } from './ports.js';
 import { POLICY_VERSION, SETUP_FLOW, SetupFlow, TERMS_VERSION } from './setup.js';
 import { type ActivityWhen, clip, MONTHS, normalize, parseActivityDate, parseActivityWhen } from './text.js';
 
@@ -39,10 +39,27 @@ const PHOTO_RECENT_DAYS = 7;
 const PHOTO_RECENT_NOTES = 8;
 const CONTRACT_ACTIVE =
   '🎉 ¡Tu contrato quedó activo! Desde ya cuéntame lo que haces cada día: texto, audio o fotos. Escribe *menú* para ver todas las opciones.';
-/** Free text up to this many words is checked with the AI before being saved as an activity. */
-const SHORT_TEXT_WORDS = 5;
 
 type Ctx = Record<string, unknown>;
+
+/** Button titles (max 20 characters) for the likely meaning of an unclear message. */
+const INTENT_TITLES: Record<Exclude<MessageIntentKind, 'activity' | 'unclear'>, string> = {
+  redo: 'Rehacer informe',
+  reset: 'Reiniciar informe',
+  open_report: 'Trabajar el informe',
+  draft: 'Ver borrador',
+  generate: 'Generar documentos',
+  status: '¿Qué me falta?',
+  guide: 'Guía de soportes',
+  contracts: 'Mis contratos',
+  add_contract: 'Agregar contrato',
+  my_data: 'Mis datos',
+  signature: 'Cargar mi firma',
+  undo_note: 'Borrar última nota',
+  support: 'Hablar con soporte',
+  help: 'Ayuda',
+  menu: 'Ver menú',
+};
 
 /** Certificates guide: one missing support at a time (ADR-035). */
 const GUIDE_FLOW = 'support_guide';
@@ -440,6 +457,10 @@ export class Orchestrator {
         const t = (turn.state.context as { noteText: string }).noteText;
         this.reset(turn);
         if (msg.replyId === 'short:note') return this.startNote(turn, t);
+        if (msg.replyId?.startsWith('short:do:')) {
+          const [intent, month] = msg.replyId.slice(9).split(':');
+          return this.runIntent(turn, t, intent as MessageIntentKind, month ? Number(month) : null);
+        }
         if (msg.kind === 'text' && msg.text) return this.freeText(turn, msg.text);
         return this.menu(turn, false);
       }
@@ -922,35 +943,60 @@ export class Orchestrator {
    * message ("Rehace agosto", "ok", "vamos con julio") is checked with the AI before saving it as an
    * activity, so requests are never recorded as work done.
    */
+  /**
+   * Free text that matched no command: the cheapest model decides whether it is a work activity or a
+   * request to Pascal ("vamos a iniciar el informe de septiembre"), and Pascal asks when it is not
+   * sure instead of saving it as an activity (ADR-037).
+   */
   private async freeText(turn: Turn, text: string): Promise<void> {
-    const words = text.trim().split(/\s+/).length;
-    if (words > SHORT_TEXT_WORDS) return this.startNote(turn, text);
     const r = await this.deps.ai
-      .interpretShort(text)
-      .catch((): ShortIntent => ({ intent: 'activity', month: null }));
-    if (r.intent === 'activity') return this.startNote(turn, text);
-    if (r.month && ['redo', 'reset', 'open_report', 'draft', 'generate'].includes(r.intent))
-      return this.startMonthReport(turn, r.month, r.intent === 'redo', r.intent === 'reset');
-    const cmd: Partial<Record<ShortIntent['intent'], Command>> = {
+      .interpretMessage(text)
+      .catch((): MessageIntent => ({ intent: 'activity', month: null, guess: null, question: null }));
+    if (r.intent !== 'unclear') return this.runIntent(turn, text, r.intent, r.month);
+    this.setFlow(turn, 'short_unclear', 'ask', { noteText: text });
+    const guess = r.guess && r.guess !== 'activity' && r.guess !== 'unclear' ? r.guess : null;
+    const question =
+      r.question?.trim() ||
+      `No estoy seguro de qué quieres hacer con «${clip(text, 60)}». ¿Es una actividad que hiciste o quieres que haga algo?`;
+    turn.out.push(
+      buttons(clip(question, 900), [
+        ...(guess
+          ? [{ id: `short:do:${guess}${r.month ? `:${r.month}` : ''}`, title: INTENT_TITLES[guess] }]
+          : []),
+        { id: 'short:note', title: 'Anotar actividad' },
+        { id: 'menu:menu', title: 'Ver menú' },
+      ]),
+    );
+  }
+
+  /** Acts on what a free-text message means. */
+  private async runIntent(
+    turn: Turn,
+    text: string,
+    intent: MessageIntentKind,
+    month: number | null,
+  ): Promise<void> {
+    if (intent === 'activity' || intent === 'unclear') return this.startNote(turn, text);
+    if (month && ['redo', 'reset', 'open_report', 'draft', 'generate'].includes(intent))
+      return this.startMonthReport(turn, month, intent === 'redo', intent === 'reset');
+    const cmd: Record<Exclude<MessageIntentKind, 'activity' | 'unclear'>, Command> = {
       redo: 'resend',
       reset: 'reset',
       open_report: 'status',
       draft: 'draft',
       generate: 'generate',
       status: 'status',
-      menu: 'menu',
-      undo_note: 'undo_note',
+      guide: 'guide',
+      contracts: 'contracts',
+      add_contract: 'add_contract',
+      my_data: 'my_data',
       signature: 'signature',
+      undo_note: 'undo_note',
+      support: 'support',
+      help: 'help',
+      menu: 'menu',
     };
-    const c = cmd[r.intent];
-    if (c) return this.command(turn, c);
-    this.setFlow(turn, 'short_unclear', 'ask', { noteText: text });
-    turn.out.push(
-      buttons(`No estoy seguro de qué quieres hacer con «${clip(text, 60)}». ¿Lo anoto como una actividad?`, [
-        { id: 'short:note', title: 'Sí, anotarla' },
-        { id: 'menu:menu', title: 'No, ver menú' },
-      ]),
-    );
+    return this.command(turn, cmd[intent]);
   }
 
   private async startNote(turn: Turn, noteText: string, whenOverride?: ActivityWhen): Promise<void> {
