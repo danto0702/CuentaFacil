@@ -147,6 +147,7 @@
 ## ADR-035 — Certificados: guía uno por uno, sin resolver captchas (2026-10-12)
 - **Contexto:** el dueño pidió descargar automáticamente antecedentes y afiliaciones con un servicio que resuelve captchas. Los portales de Policía, Procuraduría, Contraloría y SISPRO usan el captcha precisamente para impedir consultas automáticas; saltarlo va contra sus condiciones de uso y expone a PascalIA a riesgo legal y a bloqueos. Los proveedores con API (Verifik, TusDatos) no sirvieron.
 - **Decisión:** no se automatiza la descarga. Con *certificados* (o el botón *Guíame* del checklist y del aviso de faltantes) Pascal pide un soporte faltante o vencido a la vez: enlace oficial, pasos cortos y el número de documento en un mensaje aparte para copiarlo. Cuando llega el PDF lo clasifica como siempre y pasa al siguiente; se puede saltar o terminar. Un certificado vigente se reutiliza en las cuentas siguientes y el checklist dice hasta cuándo sirve.
+- **RNMC (2026-10-12):** su consulta no tiene captcha, pero el dueño decidió mantenerla también en la guía, sin consultas automáticas.
 - **Consecuencias:** flujo `support_guide` en el orquestador; las instrucciones de cada certificado (`support_types.instructions`) son los pasos que ve el contratista y se editan en el panel.
 
 ## ADR-036 — Recordatorio de soportes antes del corte (2026-10-12, apagado)

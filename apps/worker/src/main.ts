@@ -22,7 +22,6 @@ import { Queue } from './runtime/queue.js';
 import { processRegistryImports, queueRegistryUploads } from './runtime/registry-import.js';
 import { parseRegistryWorkbook } from './runtime/registry-xlsx.js';
 import { SupabaseReminderDb, sendSupportReminders } from './runtime/reminders.js';
-import { probeRnmc } from './runtime/rnmc-probe.js';
 import { SupabasePipelineDb } from './runtime/supabase-db.js';
 import { SupabaseStore } from './store/supabase-store.js';
 import { StorageTemplateProvider } from './templates.js';
@@ -262,7 +261,6 @@ async function loop(): Promise<void> {
     (d.ok ? log.info : log.error)('wompi.keys', { ...d, problems: d.problems.join('; ') });
   }
   void whatsappDiagnostic();
-  void probeRnmc(log);
   let nextRegistryCheck = 0;
   let nextAllyCheck = 0;
   let nextReminderCheck = 0;
