@@ -28,6 +28,7 @@ import type {
 } from './domain.js';
 import { noteSupports, pilaMonthFor } from './domain.js';
 import { type Command, forcedNote, matchCommand, matchMonthRequest } from './intents.js';
+import { type NoteSuspicion, PHOTO_RECORD_PREFIX, suspectNote } from './note-check.js';
 import type { Deps, Inbound, ListRow, MessageIntent, MessageIntentKind, Outgoing } from './ports.js';
 import { POLICY_VERSION, SETUP_FLOW, SetupFlow, TERMS_VERSION } from './setup.js';
 import { type ActivityWhen, clip, MONTHS, normalize, parseActivityDate, parseActivityWhen } from './text.js';
@@ -39,6 +40,8 @@ const PHOTO_RECENT_DAYS = 7;
 const PHOTO_RECENT_NOTES = 8;
 /** An earlier report not delivered yet counts as "being worked on" for this many days after it closes. */
 const OPEN_REPORT_DAYS = 62;
+/** Conversation context kept when the flow changes. */
+const STICKY_KEYS = ['working', 'checkedNotes'] as const;
 const CONTRACT_ACTIVE =
   '🎉 ¡Tu contrato quedó activo! Desde ya cuéntame lo que haces cada día: texto, audio o fotos. Escribe *menú* para ver todas las opciones.';
 
@@ -260,11 +263,16 @@ export class Orchestrator {
   }
 
   private setFlow(turn: Turn, flow: string, step: string, context: Ctx = {}): void {
-    // The report the contractor opened ("vamos con septiembre") is remembered across flows.
-    const working = turn.state.context?.working;
+    // Remembered across flows: the report the contractor opened ("vamos con septiembre") and the notes
+    // already reviewed before drafting.
+    const sticky: Ctx = {};
+    for (const k of STICKY_KEYS) {
+      const v = turn.state.context?.[k];
+      if (v !== undefined && context[k] === undefined) sticky[k] = v;
+    }
     turn.state.flow = flow;
     turn.state.step = step;
-    turn.state.context = working && !context.working ? { ...context, working } : context;
+    turn.state.context = { ...context, ...sticky };
   }
 
   private reset(turn: Turn): void {
@@ -453,6 +461,8 @@ export class Orchestrator {
     switch (turn.state.flow) {
       case 'note_contract':
         return this.onNoteContract(turn, msg);
+      case 'note_check':
+        return this.onNoteCheck(turn, msg);
       case 'note_period':
         return this.onNotePeriod(turn, msg);
       case 'photo_period':
@@ -1177,7 +1187,7 @@ export class Orchestrator {
       userId: turn.user.id,
       contractId: c.id,
       date,
-      text: `Registro fotográfico de la obligación ${o.number}.`,
+      text: `${PHOTO_RECORD_PREFIX} ${o.number}.`,
       obligationKey: o.key,
       confidence: 1,
       evidenceIds: pending,
@@ -1791,6 +1801,16 @@ export class Orchestrator {
     const entity = await this.deps.store.getEntity(c.entityId);
     const notes = await this.deps.store.listNotes(c.id, p.from, p.to);
     if (notes.length === 0) return this.nothingToDraft(turn, c, p);
+    // Before drafting, a look at the notes that seem to be in the wrong report or are not activities.
+    const checked = (turn.state.context.checkedNotes as string[] | undefined) ?? [];
+    const periods = await this.deps.store.listPeriods(c.id);
+    const queue = notes
+      .filter((n) => !checked.includes(n.id))
+      .flatMap((n) => {
+        const why = suspectNote(n, p, periods);
+        return why ? [{ id: n.id, why }] : [];
+      });
+    if (queue.length) return this.askNoteCheck(turn, c, p, queue);
     const existing = await this.deps.store.listDrafts(c.id, p.number);
     const missing: string[] = [];
     turn.out.push(text('✍️ Estoy redactando tu informe con lo que me contaste…'));
@@ -1800,7 +1820,8 @@ export class Orchestrator {
       if (
         prev &&
         (prev.status === 'approved' || prev.status === 'not_applicable') &&
-        mine.every((n) => prev.sourceNoteIds.includes(n.id))
+        mine.every((n) => prev.sourceNoteIds.includes(n.id)) &&
+        prev.sourceNoteIds.every((id) => mine.some((n) => n.id === id))
       ) {
         continue;
       }
@@ -1844,6 +1865,110 @@ export class Orchestrator {
     await this.savePeriodStatus(c, p, 'draft_review');
     if (missing.length) return this.askMissing(turn, c, p, missing);
     return this.showReview(turn, c, p);
+  }
+
+  // -------------------------------------------------------------------------
+  // Review before drafting (ADR-039): notes that name another month, photos without a description and
+  // instructions saved as activities. One at a time; the contractor moves, deletes or keeps each one.
+  // -------------------------------------------------------------------------
+  private async askNoteCheck(
+    turn: Turn,
+    c: Contract,
+    p: Period,
+    queue: { id: string; why: NoteSuspicion }[],
+  ): Promise<void> {
+    const first = queue[0]!;
+    this.setFlow(turn, 'note_check', 'ask', { contractId: c.id, periodNumber: p.number, queue });
+    const note = await this.deps.store.getNote(first.id);
+    const quote = `«${clip(note.text, 160)}»`;
+    const count = queue.length > 1 ? ` (${queue.length} por revisar)` : '';
+    const why = first.why;
+    if (why.reason === 'other_month') {
+      const month = MONTHS[why.month - 1]!;
+      const target = why.target;
+      turn.out.push(
+        buttons(
+          `🔎 Antes de redactar tu ${this.reportLabel(c, p)} reviso las fechas${count}. Esta actividad menciona *${month}*:\n${quote}\n${
+            target ? `¿La muevo al ${this.reportLabel(c, target)}?` : '¿La dejo en este informe?'
+          }`,
+          [
+            ...(target ? [{ id: `nc:move:${target.number}`, title: `Mover a ${month}` }] : []),
+            { id: 'nc:keep', title: 'Dejarla aquí' },
+            { id: 'nc:del', title: 'Borrarla' },
+          ],
+        ),
+      );
+      return;
+    }
+    if (why.reason === 'photo_only') {
+      const o = c.obligations.find((x) => x.key === note.obligationKey);
+      const k = note.evidenceIds.length;
+      turn.out.push(
+        buttons(
+          `📷 Antes de redactar tu ${this.reportLabel(c, p)}${count}: en la obligación ${o?.number ?? ''} tengo ${k === 1 ? 'una foto' : `${k} fotos`} sin descripción. Escríbeme qué actividad fue para que quede en el informe, o elige:`,
+          [
+            { id: 'nc:keep', title: 'Dejarla así' },
+            { id: 'nc:del', title: 'Borrarla' },
+          ],
+        ),
+      );
+      return;
+    }
+    turn.out.push(
+      buttons(
+        `🔎 Antes de redactar tu ${this.reportLabel(c, p)}${count}: esta nota parece una instrucción y no una actividad:\n${quote}`,
+        [
+          { id: 'nc:del', title: 'Borrarla' },
+          { id: 'nc:keep', title: 'Es una actividad' },
+        ],
+      ),
+    );
+  }
+
+  private async onNoteCheck(turn: Turn, msg: Inbound): Promise<void> {
+    const ctx = turn.state.context as {
+      contractId: string;
+      periodNumber: number;
+      queue: { id: string; why: NoteSuspicion }[];
+    };
+    const c = (await this.deps.store.listContracts(turn.user.id)).find((x) => x.id === ctx.contractId);
+    const periods = c ? await this.deps.store.listPeriods(c.id) : [];
+    const p = periods.find((x) => x.number === ctx.periodNumber);
+    const item = ctx.queue[0];
+    if (!c || !p || !item) {
+      this.reset(turn);
+      return;
+    }
+    const note = await this.deps.store.getNote(item.id);
+    const done = () => {
+      const checked = [...((turn.state.context.checkedNotes as string[] | undefined) ?? []), item.id];
+      turn.state.context = { ...turn.state.context, checkedNotes: checked.slice(-200) };
+    };
+    if (msg.replyId === 'nc:keep') done();
+    else if (msg.replyId === 'nc:del') {
+      await this.deps.store.deleteNote(item.id);
+      turn.out.push(text('🗑️ La borré.'));
+    } else if (msg.replyId?.startsWith('nc:move:')) {
+      const target = periods.find((x) => x.number === Number(msg.replyId!.slice(8)));
+      if (target) {
+        await this.deps.store.updateNote({ ...note, date: target.from });
+        turn.out.push(text(`✅ La moví.\n${await this.periodLine(c, target.from)}`));
+      }
+      done();
+    } else if (item.why.reason === 'photo_only' && msg.kind === 'text' && msg.text?.trim()) {
+      // The description of the photo becomes the activity.
+      await this.deps.store.updateNote({ ...note, text: msg.text.trim() });
+      turn.out.push(text('✅ Listo, la foto quedó con esa actividad.'));
+      done();
+    } else if (msg.kind === 'text' && msg.text && msg.text.trim().split(/\s+/).length > 4) {
+      // Something else (a new activity): leave the review; it comes back at the next draft.
+      this.reset(turn);
+      return this.freeText(turn, msg.text);
+    } else {
+      turn.out.push(text('Elige una de las opciones, o escribe *cancelar*.'));
+      return;
+    }
+    return this.startDraft(turn, c, p);
   }
 
   /**

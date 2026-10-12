@@ -430,6 +430,77 @@ describe('other flows', () => {
     expect(h.store.data.notes.filter((n) => n.date.slice(0, 7) === '2026-10')).toHaveLength(0);
   });
 
+  it('reviews notes that look misplaced before drafting', async () => {
+    const h = harness();
+    const base = {
+      userId: h.store.data.notes[0]?.userId ?? 'u',
+      contractId: DEMO_IDS.salud,
+      evidenceIds: [],
+      createdAt: '2026-09-28T10:00:00Z',
+    };
+    const maria = h.store.data.users.find((u) => u.phone === DEMO_PHONES.maria)!;
+    await h.store.addNote({
+      ...base,
+      userId: maria.id,
+      id: 'n-aug',
+      date: '2026-09-10',
+      text: 'En agosto se hizo la reunión de seguimiento con la ESE',
+      obligationKey: 'specific-3',
+    });
+    await h.store.addNote({
+      ...base,
+      userId: maria.id,
+      id: 'n-cmd',
+      date: '2026-09-11',
+      text: 'Rehace agosto',
+      obligationKey: 'specific-1',
+    });
+    await h.store.addNote({
+      ...base,
+      userId: maria.id,
+      id: 'n-ph',
+      date: '2026-09-12',
+      text: 'Registro fotográfico de la obligación 4.',
+      obligationKey: 'specific-4',
+      evidenceIds: ['e1'],
+    });
+
+    await h.say('ver borrador');
+    let out = show(await h.press(`c:${DEMO_IDS.salud}`));
+    expect(out[0]).toMatch(
+      /^🔎 Antes de redactar tu informe 03 DE 03 .* reviso las fechas \(3 por revisar\)\. Esta actividad menciona \*agosto\*:.*¿La muevo al informe 02 DE 03 .*\[Mover a agosto\] \[Dejarla aquí\] \[Borrarla\]$/s,
+    );
+    out = show(await h.press('nc:move:2'));
+    expect(out[0]).toContain('📅 Informe 02 DE 03 (1 al 31 de agosto de 2026)');
+    expect((await h.store.getNote('n-aug')).date).toBe('2026-08-01');
+    expect(out[1]).toMatch(
+      /^🔎 .*esta nota parece una instrucción.*«Rehace agosto».*\[Borrarla\] \[Es una actividad\]$/s,
+    );
+    out = show(await h.press('nc:del'));
+    expect(h.store.data.notes.some((n) => n.id === 'n-cmd')).toBe(false);
+    expect(out[1]).toMatch(/^📷 .*en la obligación 4 tengo una foto sin descripción/);
+    out = show(await h.say('Capacitación a líderes comunitarios en El Carmen'));
+    expect((await h.store.getNote('n-ph')).text).toBe('Capacitación a líderes comunitarios en El Carmen');
+    expect(out).toContain('✍️ Estoy redactando tu informe con lo que me contaste…');
+
+    // Kept notes are not asked again.
+    await h.store.addNote({
+      ...base,
+      userId: maria.id,
+      id: 'n-dic',
+      date: '2026-09-13',
+      text: 'Se planearon las actividades de diciembre con el equipo',
+      obligationKey: 'specific-1',
+    });
+    await h.say('ver borrador');
+    out = show(await h.press(`c:${DEMO_IDS.salud}`));
+    expect(out[0]).toMatch(/menciona \*diciembre\*/);
+    await h.press('nc:keep');
+    await h.say('ver borrador');
+    out = show(await h.press(`c:${DEMO_IDS.salud}`));
+    expect(out[0]).toBe('✍️ Estoy redactando tu informe con lo que me contaste…');
+  });
+
   it('warns about expired certificates when they arrive and asks to generate anyway or upload them again', async () => {
     const h = harness({ today: '2026-10-25' });
     const out = show(await h.document('ANTECEDENTES.pdf'));
