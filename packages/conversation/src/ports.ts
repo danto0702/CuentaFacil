@@ -107,11 +107,13 @@ export interface MessageIntent {
   guess: MessageIntentKind | null;
   /** When unclear: a short question back to the contractor, in Colombian Spanish (tuteo). */
   question: string | null;
+  /** For an activity: the day it happened when the message says or implies it ("el lunes pasado"). */
+  date: IsoDate | null;
 }
 
 export interface AI {
   /** Any free-text message: is it a work activity or a request to the assistant (cheapest model)? */
-  interpretMessage(text: string): Promise<MessageIntent>;
+  interpretMessage(text: string, today: IsoDate): Promise<MessageIntent>;
   classifyNote(text: string, obligations: Obligation[]): Promise<ClassifyResult>;
   /** Must only use facts present in the notes; returns needs_input when there is nothing to say. */
   draftObligation(obligation: Obligation, notes: Note[]): Promise<DraftResult>;

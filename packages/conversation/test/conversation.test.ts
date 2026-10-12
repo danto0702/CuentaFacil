@@ -434,6 +434,14 @@ describe('other flows', () => {
     expect(h.store.data.notes.filter((n) => n.date.slice(0, 7) === '2026-10')).toHaveLength(0);
   });
 
+  it('dates an activity with a relative date the model understands', async () => {
+    const h = harness();
+    h.store.data.contracts = h.store.data.contracts.filter((c) => c.id === DEMO_IDS.salud);
+    const out = show(await h.say('La semana pasada hice la jornada de vacunación en la vereda'));
+    expect(out[0]).toMatch(/^.* Anotado el 21\/09\/2026/);
+    expect(h.store.data.notes.at(-1)!.date).toBe('2026-09-21');
+  });
+
   it('moves an activity to another report from the confirmation or by asking', async () => {
     // EBS contract on 5 October: September (02-05) and October (03-05) are open.
     const h = harness({ today: '2026-10-05' });

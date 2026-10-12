@@ -1007,9 +1007,17 @@ export class Orchestrator {
    * sure instead of saving it as an activity (ADR-037).
    */
   private async freeText(turn: Turn, text: string): Promise<void> {
+    const today = this.deps.clock.today();
     const r = await this.deps.ai
-      .interpretMessage(text)
-      .catch((): MessageIntent => ({ intent: 'activity', month: null, guess: null, question: null }));
+      .interpretMessage(text, today)
+      .catch(
+        (): MessageIntent => ({ intent: 'activity', month: null, guess: null, question: null, date: null }),
+      );
+    if (r.intent === 'activity') {
+      // The dates Pascal reads itself come first; the model covers "la semana pasada", "el lunes pasado"…
+      const when = parseActivityWhen(text, today) ?? this.aiWhen(r, today);
+      return this.startNote(turn, text, when ?? undefined);
+    }
     if (r.intent !== 'unclear') return this.runIntent(turn, text, r.intent, r.month);
     this.setFlow(turn, 'short_unclear', 'ask', { noteText: text });
     const guess = r.guess && r.guess !== 'activity' && r.guess !== 'unclear' ? r.guess : null;
@@ -1025,6 +1033,14 @@ export class Orchestrator {
         { id: 'menu:menu', title: 'Ver menú' },
       ]),
     );
+  }
+
+  /** The activity's date as understood by the model, when it is a plausible past date. */
+  private aiWhen(r: MessageIntent, today: IsoDate): ActivityWhen | null {
+    if (r.date && /^\d{4}-\d{2}-\d{2}$/.test(r.date) && compareIso(r.date, today) <= 0) {
+      if (compareIso(r.date, addDays(today, -400)) >= 0) return { kind: 'day', date: r.date };
+    }
+    return null;
   }
 
   /** Acts on what a free-text message means. */

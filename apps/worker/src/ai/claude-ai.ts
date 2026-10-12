@@ -62,6 +62,12 @@ const messageIntentSchema = z.object({
     .describe(
       'Only when intent is "unclear": one short question to the contractor in Colombian Spanish with tuteo, to find out what they want; otherwise null',
     ),
+  date: z
+    .string()
+    .nullable()
+    .describe(
+      'Only when intent is "activity": the day the activity happened as YYYY-MM-DD, when the message states or implies it relative to today ("ayer", "el lunes pasado", "la semana pasada" = same weekday a week ago, "el 15"); null when it does not say',
+    ),
 });
 
 const MESSAGE_INTENT_RULES = `A Colombian public-sector contractor writes to Pascal, a WhatsApp assistant that records their daily work activities and prepares their monthly reports (cuentas de cobro). Decide what the message is. It may be long or short, written or transcribed from a voice note, with typos or missing accents.
@@ -79,6 +85,8 @@ const MESSAGE_INTENT_RULES = `A Colombian public-sector contractor writes to Pas
 - move_note: move the last activity they sent to another month or report. E.g. "pasa la última actividad a septiembre", "esa nota era de agosto". Give month when named.
 - support: talk to a person of the team. help: how Pascal works. menu: greetings or asking for options.
 - unclear: acknowledgements ("ok", "gracias", "listo"), questions you cannot map to the above, or anything you are not sure about. When in doubt between an activity and a request, answer unclear: Pascal will ask. Then give guess (the most likely meaning) and question (one short question in Colombian Spanish, tuteo, that lets the contractor say what they want).
+
+For an activity, also give date when the message says when it happened; today's date is given with the message. Never guess a date the message does not imply.
 
 Requests are addressed to Pascal about their account, report, documents or the service; activities describe the contractor's own work. month: 1-12 if a month is named ("septiembre", "el mes pasado" does not count), else null.`;
 
@@ -340,14 +348,14 @@ export class ClaudeAI implements AI {
     return normalizeExtraction(r);
   }
 
-  async interpretMessage(text: string): Promise<MessageIntent> {
+  async interpretMessage(text: string, today: string): Promise<MessageIntent> {
     const r = await this.llm.structured({
       purpose: 'interpret_message',
       model: this.models.fast,
       effort: 'low',
       maxTokens: 1000,
       system: MESSAGE_INTENT_RULES,
-      content: [{ type: 'text', text: `Message:\n${text}` }],
+      content: [{ type: 'text', text: `Today: ${today}\nMessage:\n${text}` }],
       schema: messageIntentSchema,
     });
     const unclear = r.intent === 'unclear';
@@ -356,6 +364,7 @@ export class ClaudeAI implements AI {
       month: r.month,
       guess: unclear ? r.guess : null,
       question: unclear ? r.question : null,
+      date: r.intent === 'activity' && r.date && /^\d{4}-\d{2}-\d{2}$/.test(r.date) ? r.date : null,
     };
   }
 

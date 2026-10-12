@@ -1,4 +1,4 @@
-import type { IsoDate } from '@cuentasbot/shared';
+import { addDays, type IsoDate } from '@cuentasbot/shared';
 import type {
   ContractExtraction,
   DocumentInput,
@@ -146,7 +146,7 @@ export class FakeAI implements AI {
   }
 
   /** Rough stand-in for the intent model: requests about the report, acknowledgements, else an activity. */
-  async interpretMessage(text: string): Promise<MessageIntent> {
+  async interpretMessage(text: string, today: IsoDate): Promise<MessageIntent> {
     const t = text.toLowerCase();
     const months = [
       'enero',
@@ -169,7 +169,10 @@ export class FakeAI implements AI {
       month: m,
       guess: null,
       question: null,
+      date: null,
     });
+    // Relative dates the regex does not read.
+    if (/semana pasada/.test(t)) return { ...r('activity'), date: addDays(today, -7) };
     if (/rehac|rehag|rehiz/.test(t)) return r('redo');
     if (/\b(pasa|mueve|cambia)\b.*\b(actividad|nota)\b/.test(t)) return r('move_note');
     if (/\b(vamos|iniciar|empezar|empecemos|comenzar)\b.*\b(informe|cuenta)\b/.test(t))
@@ -182,6 +185,7 @@ export class FakeAI implements AI {
         month,
         guess: 'open_report',
         question: '¿Quieres que trabajemos en ese informe?',
+        date: null,
       };
     return r('activity');
   }
