@@ -1,5 +1,6 @@
 import type { Outgoing } from '@cuentasbot/conversation';
 import { documentPayload, messagePayload, type TemplateMessage, templatePayload } from './payload.js';
+import type { TemplateDefinition } from './wa-templates.js';
 
 export interface WhatsAppConfig {
   accessToken: string;
@@ -134,6 +135,34 @@ export class WhatsAppClient {
     if (apps.data?.length) return false;
     await this.postJson(`${businessAccountId}/subscribed_apps`, {});
     return true;
+  }
+
+  /**
+   * Registers the template in the business account if it is not there yet. Returns its review status
+   * (APPROVED, PENDING, REJECTED…) and whether it was created now. Idempotent: safe at every start-up.
+   */
+  async ensureTemplate(
+    businessAccountId: string,
+    t: TemplateDefinition,
+  ): Promise<{ status: string; created: boolean; reason?: string }> {
+    const found = await this.call<{
+      data: { name: string; language: string; status: string; rejected_reason?: string }[];
+    }>(
+      `${businessAccountId}/message_templates?name=${encodeURIComponent(t.name)}&fields=name,language,status,rejected_reason`,
+      { method: 'GET' },
+    );
+    const mine = found.data?.find((x) => x.name === t.name && x.language === t.language);
+    if (mine)
+      return {
+        status: mine.status,
+        created: false,
+        ...(mine.rejected_reason && mine.rejected_reason !== 'NONE' ? { reason: mine.rejected_reason } : {}),
+      };
+    const res = await this.postJson<{ id: string; status: string }>(
+      `${businessAccountId}/message_templates`,
+      t,
+    );
+    return { status: res.status, created: true };
   }
 
   async markRead(wamid: string): Promise<void> {

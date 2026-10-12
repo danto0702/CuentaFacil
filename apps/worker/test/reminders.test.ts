@@ -127,3 +127,38 @@ describe('missing-supports reminders', () => {
     ]);
   });
 });
+
+describe('template registration', () => {
+  it('creates the template only when Meta does not have it', async () => {
+    const { WhatsAppClient } = await import('../src/whatsapp/client.js');
+    const { FALTAN_SOPORTES } = await import('../src/whatsapp/wa-templates.js');
+    const calls: { method: string; url: string; body?: unknown }[] = [];
+    let existing: unknown[] = [];
+    const fake = (async (url: string, init: RequestInit) => {
+      calls.push({
+        method: init.method ?? 'GET',
+        url,
+        ...(init.body ? { body: JSON.parse(String(init.body)) } : {}),
+      });
+      const body = init.method === 'POST' ? { id: '9', status: 'PENDING' } : { data: existing };
+      return new Response(JSON.stringify(body), { status: 200 });
+    }) as typeof fetch;
+    const wa = new WhatsAppClient({
+      accessToken: 't',
+      phoneNumberId: '1',
+      graphVersion: 'v23.0',
+      fetch: fake,
+    });
+
+    expect(await wa.ensureTemplate('77', FALTAN_SOPORTES)).toEqual({ status: 'PENDING', created: true });
+    expect(calls[1]).toMatchObject({
+      method: 'POST',
+      body: { name: 'faltan_soportes', category: 'UTILITY' },
+    });
+
+    existing = [{ name: 'faltan_soportes', language: 'es', status: 'APPROVED', rejected_reason: 'NONE' }];
+    calls.length = 0;
+    expect(await wa.ensureTemplate('77', FALTAN_SOPORTES)).toEqual({ status: 'APPROVED', created: false });
+    expect(calls.map((c) => c.method)).toEqual(['GET']);
+  });
+});

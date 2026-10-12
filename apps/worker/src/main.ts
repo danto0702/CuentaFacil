@@ -27,6 +27,7 @@ import { SupabaseStore } from './store/supabase-store.js';
 import { StorageTemplateProvider } from './templates.js';
 import { WhatsAppClient } from './whatsapp/client.js';
 import { parseWebhook } from './whatsapp/parse.js';
+import { TEMPLATES } from './whatsapp/wa-templates.js';
 
 const cfg = loadConfig();
 const sb = createClient(cfg.SUPABASE_URL, cfg.SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } });
@@ -125,6 +126,14 @@ async function whatsappDiagnostic(): Promise<void> {
     log.info('whatsapp.subscription', { action: subscribed ? 'subscribed' : 'already_subscribed' });
   } catch (e) {
     log.error('whatsapp.subscription_failed', { error: (e as Error).message });
+  }
+  for (const t of TEMPLATES) {
+    try {
+      const r = await messenger.ensureTemplate(cfg.WA_BUSINESS_ACCOUNT_ID, t);
+      log.info('whatsapp.template', { name: t.name, ...r });
+    } catch (e) {
+      log.error('whatsapp.template_failed', { name: t.name, error: (e as Error).message });
+    }
   }
 }
 
