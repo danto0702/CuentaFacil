@@ -11,6 +11,7 @@ export type Command =
   | 'cut_mode'
   | 'support'
   | 'stop_reminders'
+  | 'start_reminders'
   | 'my_data'
   | 'about'
   | 'add_contract'
@@ -35,6 +36,7 @@ const COMMANDS: [Command, string[]][] = [
   ['cut_mode', ['cambiar corte', 'corte', 'tipo de corte', 'cambiar periodo']],
   ['support', ['soporte', 'hablar con soporte', 'hablar con alguien', 'asesor']],
   ['stop_reminders', ['stop', 'no mas recordatorios', 'detener recordatorios', 'parar recordatorios']],
+  ['start_reminders', ['activar recordatorios', 'quiero recordatorios', 'encender recordatorios']],
   ['my_data', ['mis datos']],
   [
     'about',

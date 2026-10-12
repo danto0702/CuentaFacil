@@ -11,6 +11,42 @@ function addressee(to: string): Record<string, string> {
 
 const clip = (s: string, n: number) => (s.length <= n ? s : `${s.slice(0, n - 1)}…`);
 
+/** An approved template: the only way to write first outside the 24-hour window. */
+export interface TemplateMessage {
+  name: string;
+  language: string;
+  /** Values for {{1}}, {{2}}… of the body. */
+  body: string[];
+  /** Payload of each quick-reply button, in order; it comes back as the reply id. */
+  quickReplies?: string[];
+}
+
+export function templatePayload(to: string, t: TemplateMessage): Record<string, unknown> {
+  return {
+    messaging_product: 'whatsapp',
+    recipient_type: 'individual',
+    ...addressee(to),
+    type: 'template',
+    template: {
+      name: t.name,
+      language: { code: t.language },
+      components: [
+        // Template variables cannot carry line breaks or tabs.
+        {
+          type: 'body',
+          parameters: t.body.map((v) => ({ type: 'text', text: clip(v.replace(/\s+/g, ' ').trim(), 300) })),
+        },
+        ...(t.quickReplies ?? []).map((payload, index) => ({
+          type: 'button',
+          sub_type: 'quick_reply',
+          index: String(index),
+          parameters: [{ type: 'payload', payload }],
+        })),
+      ],
+    },
+  };
+}
+
 /** Builds the /messages JSON for a non-document reply (documents need an uploaded media id first). */
 export function messagePayload(
   to: string,

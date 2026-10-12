@@ -504,7 +504,16 @@ export class Orchestrator {
         );
         return;
       case 'stop_reminders':
-        turn.out.push(text('🔕 Desactivé tus recordatorios. Puedes seguir usando el servicio normalmente.'));
+        await this.deps.store.setRemindersOptOut(turn.user.id, true);
+        turn.out.push(
+          text(
+            '🔕 Desactivé tus recordatorios. Puedes seguir usando el servicio normalmente; si los quieres de nuevo, escribe *activar recordatorios*.',
+          ),
+        );
+        return;
+      case 'start_reminders':
+        await this.deps.store.setRemindersOptOut(turn.user.id, false);
+        turn.out.push(text('🔔 Listo, activé tus recordatorios.'));
         return;
       case 'about':
         turn.out.push(...this.about());
@@ -2371,6 +2380,47 @@ export class Orchestrator {
   }
 
   /** Online payment confirmed (Wompi): thank the contractor and deliver the report. */
+  /**
+   * Reminder before the period closes (ADR-036): what the contractor still lacks for the report in
+   * course, or null when nothing is missing or they turned reminders off. `message` is the free-form
+   * version (inside the 24-hour window); outside it the worker sends the approved template with the
+   * same data.
+   */
+  async supportsReminder(
+    userId: string,
+    contractId: string,
+  ): Promise<{
+    to: string;
+    name: string;
+    report: string;
+    periodNumber: number;
+    missing: string[];
+    message: Outgoing;
+  } | null> {
+    const user = await this.deps.store.getUser(userId);
+    if (user.remindersOptOut) return null;
+    const c = await this.deps.store.getContract(contractId);
+    const p = await this.currentPeriod(c);
+    if (!p) return null;
+    const turn: Turn = { user, state: this.idle(user.id), out: [] };
+    const { missing, expired } = await this.checklist(turn, c, p);
+    const labels = [...missing.map((t) => t.label), ...expired.map((e) => `${e.type.label} (vencido)`)];
+    if (!labels.length) return null;
+    const name = user.fullName.split(' ')[0] ?? '';
+    const report = this.reportLabel(c, p);
+    return {
+      to: user.phone,
+      name,
+      report,
+      periodNumber: p.number,
+      missing: labels,
+      message: buttons(
+        `⏰ Hola ${name}, tu ${report} cierra pronto y aún me faltan:\n${labels.map((l) => `• ${l}`).join('\n')}\n\n¿Te guío para descargarlos uno por uno? Si no quieres recordatorios, escribe *STOP*.`,
+        [{ id: `guide:${c.id}`, title: 'Guíame' }],
+      ),
+    };
+  }
+
   async chargePaid(chargeId: string): Promise<{ to: string; out: Outgoing[] }> {
     const { store } = this.deps;
     const charge = await store.getCharge(chargeId);

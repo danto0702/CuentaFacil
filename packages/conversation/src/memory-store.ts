@@ -254,6 +254,9 @@ export class MemoryStore implements Store {
   async saveUserProfile(user: User) {
     this.data.users = this.data.users.map((u) => (u.id === user.id ? clone(user) : u));
   }
+  async setRemindersOptOut(userId: string, optOut: boolean) {
+    this.data.users = this.data.users.map((u) => (u.id === userId ? { ...u, remindersOptOut: optOut } : u));
+  }
   async findEntity(nit: string | null, name: string) {
     const digits = (v: string) => v.replace(/\D/g, '').slice(0, 9);
     const n = name.toLocaleUpperCase('es-CO');

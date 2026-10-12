@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { DEMO_IDS } from '../src/demo.js';
+import { DEMO_IDS, DEMO_PHONES } from '../src/demo.js';
 import { MONTHS } from '../src/text.js';
 import { harness, show } from './harness.js';
 
@@ -621,5 +621,22 @@ describe('certificates guide', () => {
     expect(show(await h.say('terminar'))).toEqual(['Listo. Cuando quieras retomar, escribe *certificados*.']);
     // Back to normal: free text is an activity again.
     expect(show(await h.say('¿Qué me falta?')).at(-1)).toContain('[Guíame]');
+  });
+});
+
+describe('reminders', () => {
+  it('lists what is missing for the report in course, and respects STOP', async () => {
+    const h = harness();
+    h.store.data.supports = h.store.data.supports.filter((s) => s.code !== 'POLICIA');
+    const maria = h.store.data.users.find((u) => u.phone === DEMO_PHONES.maria)!;
+    const r = await h.orchestrator.supportsReminder(maria.id, DEMO_IDS.salud);
+    expect(r?.missing).toEqual(['Antecedentes Policía']);
+    expect(r?.report).toBe('informe 03 DE 03 (1 al 30 de septiembre de 2026)');
+    expect(show([r!.message])[0]).toMatch(/^⏰ Hola María, tu informe 03 DE 03 .*\[Guíame\]$/s);
+
+    await h.say('stop');
+    expect(await h.orchestrator.supportsReminder(maria.id, DEMO_IDS.salud)).toBeNull();
+    expect(show(await h.say('activar recordatorios'))).toEqual(['🔔 Listo, activé tus recordatorios.']);
+    expect(await h.orchestrator.supportsReminder(maria.id, DEMO_IDS.salud)).not.toBeNull();
   });
 });

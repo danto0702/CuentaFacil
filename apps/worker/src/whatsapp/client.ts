@@ -1,5 +1,5 @@
 import type { Outgoing } from '@cuentasbot/conversation';
-import { documentPayload, messagePayload } from './payload.js';
+import { documentPayload, messagePayload, type TemplateMessage, templatePayload } from './payload.js';
 
 export interface WhatsAppConfig {
   accessToken: string;
@@ -79,6 +79,17 @@ export class WhatsAppClient {
     const res = await this.postJson<{ messages: { id: string }[] }>(
       `${this.cfg.phoneNumberId}/messages`,
       payload,
+    );
+    const id = res.messages?.[0]?.id;
+    if (!id) throw new WhatsAppError('WhatsApp did not return a message id', 502);
+    return id;
+  }
+
+  /** Sends an approved template (writing first, outside the 24-hour window) and returns its wamid. */
+  async sendTemplate(to: string, t: TemplateMessage): Promise<string> {
+    const res = await this.postJson<{ messages: { id: string }[] }>(
+      `${this.cfg.phoneNumberId}/messages`,
+      templatePayload(to, t),
     );
     const id = res.messages?.[0]?.id;
     if (!id) throw new WhatsAppError('WhatsApp did not return a message id', 502);

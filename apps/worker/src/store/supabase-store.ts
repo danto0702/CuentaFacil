@@ -573,6 +573,13 @@ export class SupabaseStore implements Store {
     );
   }
 
+  async setRemindersOptOut(userId: string, optOut: boolean): Promise<void> {
+    must(
+      await this.sb.from('users').update({ reminders_opt_out: optOut }).eq('id', userId),
+      'setRemindersOptOut',
+    );
+  }
+
   async saveUserProfile(u: User): Promise<void> {
     if (!this.cipher) throw new Error('ENCRYPTION_KEY/BLIND_INDEX_KEY are not configured');
     const doc = u.docNumber.replace(/\D/g, '');

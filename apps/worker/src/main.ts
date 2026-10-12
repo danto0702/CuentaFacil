@@ -21,6 +21,7 @@ import { InboundPipeline, type Messenger } from './runtime/pipeline.js';
 import { Queue } from './runtime/queue.js';
 import { processRegistryImports, queueRegistryUploads } from './runtime/registry-import.js';
 import { parseRegistryWorkbook } from './runtime/registry-xlsx.js';
+import { SupabaseReminderDb, sendSupportReminders } from './runtime/reminders.js';
 import { SupabasePipelineDb } from './runtime/supabase-db.js';
 import { SupabaseStore } from './store/supabase-store.js';
 import { StorageTemplateProvider } from './templates.js';
@@ -154,6 +155,28 @@ async function evaluateAllies(): Promise<void> {
   if (data) log.info('allies.levels_granted', { month: prev, granted: data });
 }
 
+/** Missing-supports reminders (ADR-036): checked every 15 minutes, sent once per period. */
+const REMINDER_CHECK_MS = 15 * 60_000;
+const reminderDb = new SupabaseReminderDb(sb);
+
+async function supportReminders(): Promise<void> {
+  const now = new Date();
+  await sendSupportReminders({
+    db: reminderDb,
+    reminder: (userId, contractId) => orchestrator.supportsReminder(userId, contractId),
+    send: async (to, out) => {
+      const wamid = await outbound.send(to, out);
+      await pipelineDb.logOutbound(to, wamid, out).catch(() => undefined);
+      return wamid;
+    },
+    sendTemplate: (to, t) => messenger.sendTemplate(to, t),
+    now,
+    today: clock.today(),
+    hour: new Date(now.getTime() - 5 * 3600_000).getUTCHours(), // Bogotá, UTC-5 all year
+    log,
+  });
+}
+
 /** How often the worker looks for new entity contract registry uploads. */
 const REGISTRY_CHECK_MS = 60_000;
 let stopping = false;
@@ -231,7 +254,12 @@ async function loop(): Promise<void> {
   void whatsappDiagnostic();
   let nextRegistryCheck = 0;
   let nextAllyCheck = 0;
+  let nextReminderCheck = 0;
   while (!stopping) {
+    if (Date.now() >= nextReminderCheck) {
+      nextReminderCheck = Date.now() + REMINDER_CHECK_MS;
+      await supportReminders().catch((e) => log.error('reminders.check_failed', { error: String(e) }));
+    }
     if (Date.now() >= nextAllyCheck) {
       nextAllyCheck = Date.now() + ALLY_CHECK_MS;
       await evaluateAllies().catch((e) => log.error('allies.evaluate_failed', { error: String(e) }));

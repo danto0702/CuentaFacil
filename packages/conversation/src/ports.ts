@@ -220,6 +220,8 @@ export interface Store {
   acceptedVersion(userId: string, kind: 'privacy_policy' | 'terms'): Promise<string | null>;
   /** Saves identity and bank data taken from the contract (encrypted at rest). */
   saveUserProfile(user: User): Promise<void>;
+  /** STOP / «activar recordatorios»: whether Pascal may write first (reminders). */
+  setRemindersOptOut(userId: string, optOut: boolean): Promise<void>;
   /** Matches the contracting entity by NIT (digits) or name; null if the entity is not configured. */
   findEntity(nit: string | null, name: string): Promise<Entity | null>;
   /** Looks up the entity contract registry by contract code and contractor document; null if absent. */
