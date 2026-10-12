@@ -37,6 +37,8 @@ const MAX_ROWS = 10;
 /** A photo without caption offers the activities registered in the last days. */
 const PHOTO_RECENT_DAYS = 7;
 const PHOTO_RECENT_NOTES = 8;
+/** An earlier report not delivered yet counts as "being worked on" for this many days after it closes. */
+const OPEN_REPORT_DAYS = 62;
 const CONTRACT_ACTIVE =
   '🎉 ¡Tu contrato quedó activo! Desde ya cuéntame lo que haces cada día: texto, audio o fotos. Escribe *menú* para ver todas las opciones.';
 
@@ -258,14 +260,53 @@ export class Orchestrator {
   }
 
   private setFlow(turn: Turn, flow: string, step: string, context: Ctx = {}): void {
+    // The report the contractor opened ("vamos con septiembre") is remembered across flows.
+    const working = turn.state.context?.working;
     turn.state.flow = flow;
     turn.state.step = step;
-    turn.state.context = context;
+    turn.state.context = working && !context.working ? { ...context, working } : context;
   }
 
   private reset(turn: Turn): void {
     const pending = turn.state.context.pendingEvidence;
     this.setFlow(turn, 'idle', 'start', pending ? { pendingEvidence: pending } : {});
+  }
+
+  /**
+   * Reports a dateless activity or photo could belong to: today's report, and earlier ones not
+   * delivered yet that are being worked on (opened by the contractor, or closed in the last two
+   * months with activities already). When an earlier one is open Pascal asks instead of assuming today.
+   */
+  private async candidatePeriods(
+    turn: Turn,
+    contracts: Contract[],
+  ): Promise<{ c: Contract; p: Period; current: boolean }[]> {
+    const today = this.deps.clock.today();
+    const working = turn.state.context.working as { contractId: string; number: number } | undefined;
+    const out: { c: Contract; p: Period; current: boolean }[] = [];
+    for (const c of contracts) {
+      for (const p of await this.deps.store.listPeriods(c.id)) {
+        if (p.status === 'delivered' || compareIso(p.from, today) > 0) continue;
+        const current = compareIso(today, p.to) <= 0;
+        const opened = working?.contractId === c.id && working.number === p.number;
+        // A recent earlier report counts once it has activities (one done outside Pascal does not).
+        const inProgress =
+          compareIso(p.to, addDays(today, -OPEN_REPORT_DAYS)) >= 0 &&
+          (await this.deps.store.listNotes(c.id, p.from, p.to)).length > 0;
+        if (current || opened || inProgress) out.push({ c, p, current });
+      }
+    }
+    return out.sort((a, b) => compareIso(a.p.from, b.p.from));
+  }
+
+  /** «Septiembre 2026», or «12 jul – 11 ago» for a period across two months (button title). */
+  private periodTitle(p: Period): string {
+    const short = (d: IsoDate) => `${Number(d.slice(8, 10))} ${monthNameEs(d).toLowerCase().slice(0, 3)}`;
+    if (p.from.slice(0, 7) === p.to.slice(0, 7)) {
+      const m = monthNameEs(p.from);
+      return `${m.charAt(0).toUpperCase()}${m.slice(1).toLowerCase()} ${p.from.slice(0, 4)}`;
+    }
+    return `${short(p.from)} – ${short(p.to)}`;
   }
 
   // -------------------------------------------------------------------------
@@ -355,7 +396,8 @@ export class Orchestrator {
       return;
     }
     if (msg.kind === 'image' && msg.media && turn.state.flow !== 'idle') {
-      if (turn.state.flow === 'note_contract') {
+      // More photos while Pascal asks about the note they belong to.
+      if (['note_contract', 'note_period', 'note_when'].includes(turn.state.flow)) {
         const id = this.deps.newId();
         await this.deps.store.addEvidence({
           id,
@@ -411,6 +453,10 @@ export class Orchestrator {
     switch (turn.state.flow) {
       case 'note_contract':
         return this.onNoteContract(turn, msg);
+      case 'note_period':
+        return this.onNotePeriod(turn, msg);
+      case 'photo_period':
+        return this.onPhotoPeriod(turn, msg);
       case 'note_when':
         return this.onNoteWhen(turn, msg);
       case 'note_obligation':
@@ -901,47 +947,24 @@ export class Orchestrator {
         );
         return;
       }
-      const p = await this.currentPeriod(c);
-      const notes = p
-        ? (await this.deps.store.listNotes(c.id, p.from, p.to)).filter((x) => noteSupports(x, o.key))
-        : [];
-      const latest = notes.sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0];
-      this.setFlow(turn, 'idle', 'start', {}); // the photos are placed
-      if (latest) {
-        await this.deps.store.updateNote({ ...latest, evidenceIds: [...latest.evidenceIds, ...pending] });
-        turn.out.push(
-          text(
-            `✅ Agregué ${photos(pending.length)} a la obligación ${n}, en «${clip(latest.text, 80)}».\n${await this.periodLine(c, latest.date)}`,
-          ),
-        );
+      // An earlier report still open: ask which one instead of assuming today's.
+      const options = await this.candidatePeriods(turn, [c]);
+      if (options.length > 1) {
+        this.setFlow(turn, 'photo_period', 'ask', {
+          pendingEvidence: pending,
+          contractId: c.id,
+          obligation: n,
+        });
+        const rows = options.map(({ p, current }) => ({
+          id: `pp:${p.number}`,
+          title: current ? `${this.periodTitle(p)} (hoy)`.slice(0, 20) : this.periodTitle(p),
+        }));
+        const body = `📅 ¿A qué informe ${pending.length === 1 ? 'corresponde la foto' : 'corresponden las fotos'} de la obligación ${n}?`;
+        turn.out.push(rows.length <= MAX_BUTTONS ? buttons(body, rows) : choose(body, rows));
         return;
       }
-      // The photos belong to the report in course: a date outside its period would leave them out.
-      const today = this.deps.clock.today();
-      const date = !p
-        ? today
-        : compareIso(today, p.to) > 0
-          ? p.to
-          : compareIso(today, p.from) < 0
-            ? p.from
-            : today;
-      await this.deps.store.addNote({
-        id: this.deps.newId(),
-        userId: turn.user.id,
-        contractId: c.id,
-        date,
-        text: `Registro fotográfico de la obligación ${n}.`,
-        obligationKey: o.key,
-        confidence: 1,
-        evidenceIds: pending,
-        createdAt: this.deps.clock.now().toISOString(),
-      });
-      turn.out.push(
-        text(
-          `✅ Guardé ${photos(pending.length)} en la obligación ${n}: «${clip(o.text, 80)}».\n${await this.periodLine(c, date)}\nSi quieres, cuéntame qué actividad fue para que quede en el informe.`,
-        ),
-      );
-      return;
+      const p = options[0]?.p ?? (await this.currentPeriod(c));
+      return this.placePhotos(turn, c, o, p, pending);
     }
     // Anything else describes the activity: a new note with the photos.
     this.setFlow(turn, 'idle', 'start', { pendingEvidence: pending });
@@ -1021,7 +1044,10 @@ export class Orchestrator {
     let date: IsoDate;
     let label: string | undefined;
     if (!when) {
-      // No date in the note: today if a contract is in force, otherwise ask when it happened.
+      // No date while an earlier report is still open: ask which report, never assume today.
+      const options = await this.candidatePeriods(turn, all);
+      if (options.some((o) => !o.current)) return this.askNotePeriod(turn, noteText, evidenceIds, options);
+      // Otherwise today if a contract is in force, or ask when it happened.
       cs = all.filter((c) => overlaps(c, today, today));
       date = today;
     } else if (when.kind === 'day') {
@@ -1057,6 +1083,128 @@ export class Orchestrator {
     const items = cs.map((c) => ({ id: `c:${c.id}`, title: c.shortLabel }));
     if (cs.length === 2) items.push({ id: 'c:*', title: 'Ambos' });
     turn.out.push(choose('¿A cuál contrato corresponde?', items));
+  }
+
+  private async askNotePeriod(
+    turn: Turn,
+    noteText: string,
+    evidenceIds: string[],
+    options: { p: Period; current: boolean }[],
+  ): Promise<void> {
+    const seen = new Set<string>();
+    const rows: { id: string; title: string }[] = [];
+    for (const o of options) {
+      const key = o.current ? 'today' : `${o.p.from}:${o.p.to}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      rows.push(
+        o.current
+          ? { id: 'np:today', title: `Hoy (${monthNameEs(this.deps.clock.today()).toLowerCase()})` }
+          : { id: `np:${key}`, title: this.periodTitle(o.p) },
+      );
+    }
+    rows.push({ id: 'np:other', title: 'Otra fecha' });
+    this.setFlow(turn, 'note_period', 'ask', { noteText, evidenceIds });
+    const body = `📅 Tienes un informe anterior abierto. ¿A qué informe corresponde esta actividad?\n«${clip(noteText, 120)}»\n\nTambién puedes escribirme la fecha (por ejemplo *15/09/2026*).`;
+    turn.out.push(rows.length <= MAX_BUTTONS ? buttons(body, rows) : choose(body, rows));
+  }
+
+  private async onNotePeriod(turn: Turn, msg: Inbound): Promise<void> {
+    const ctx = turn.state.context as { noteText: string; evidenceIds: string[] };
+    const resume = (when: ActivityWhen) => {
+      turn.state.context = { ...turn.state.context, pendingEvidence: ctx.evidenceIds };
+      this.setFlow(turn, 'idle', 'start', { pendingEvidence: ctx.evidenceIds });
+      return this.startNote(turn, ctx.noteText, when);
+    };
+    const id = msg.replyId;
+    if (id === 'np:today') return resume({ kind: 'day', date: this.deps.clock.today() });
+    if (id === 'np:other') {
+      this.setFlow(turn, 'note_when', 'ask', { noteText: ctx.noteText, evidenceIds: ctx.evidenceIds });
+      turn.out.push(
+        text('Escríbeme la fecha (por ejemplo *15/09/2026*) o el mes (por ejemplo *septiembre*).'),
+      );
+      return;
+    }
+    if (id?.startsWith('np:')) {
+      const [from, to] = id.slice(3).split(':') as [IsoDate, IsoDate];
+      return resume({ kind: 'month', from, to });
+    }
+    const when =
+      msg.kind === 'text' && msg.text ? parseActivityWhen(msg.text, this.deps.clock.today()) : null;
+    if (when) return resume(when);
+    if (msg.kind === 'text' && msg.text && msg.text.trim().split(/\s+/).length > 4) {
+      // A new note instead of an answer.
+      this.setFlow(turn, 'idle', 'start', { pendingEvidence: ctx.evidenceIds });
+      return this.freeText(turn, msg.text);
+    }
+    turn.out.push(text('Elige el informe en los botones o escríbeme la fecha (por ejemplo *15/09/2026*).'));
+  }
+
+  /** Photos assigned by obligation number: to its latest activity in report p, or a photo record. */
+  private async placePhotos(
+    turn: Turn,
+    c: Contract,
+    o: Obligation,
+    p: Period | null,
+    pending: string[],
+  ): Promise<void> {
+    const photos = (n: number) => (n === 1 ? 'la foto' : `las ${n} fotos`);
+    const notes = p
+      ? (await this.deps.store.listNotes(c.id, p.from, p.to)).filter((x) => noteSupports(x, o.key))
+      : [];
+    const latest = notes.sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0];
+    this.setFlow(turn, 'idle', 'start', {}); // the photos are placed
+    if (latest) {
+      await this.deps.store.updateNote({ ...latest, evidenceIds: [...latest.evidenceIds, ...pending] });
+      turn.out.push(
+        text(
+          `✅ Agregué ${photos(pending.length)} a la obligación ${o.number}, en «${clip(latest.text, 80)}».\n${await this.periodLine(c, latest.date)}`,
+        ),
+      );
+      return;
+    }
+    // The photos belong to the report in course: a date outside its period would leave them out.
+    const today = this.deps.clock.today();
+    const date = !p
+      ? today
+      : compareIso(today, p.to) > 0
+        ? p.to
+        : compareIso(today, p.from) < 0
+          ? p.from
+          : today;
+    await this.deps.store.addNote({
+      id: this.deps.newId(),
+      userId: turn.user.id,
+      contractId: c.id,
+      date,
+      text: `Registro fotográfico de la obligación ${o.number}.`,
+      obligationKey: o.key,
+      confidence: 1,
+      evidenceIds: pending,
+      createdAt: this.deps.clock.now().toISOString(),
+    });
+    turn.out.push(
+      text(
+        `✅ Guardé ${photos(pending.length)} en la obligación ${o.number}: «${clip(o.text, 80)}».\n${await this.periodLine(c, date)}\nSi quieres, cuéntame qué actividad fue para que quede en el informe.`,
+      ),
+    );
+    return;
+  }
+
+  private async onPhotoPeriod(turn: Turn, msg: Inbound): Promise<void> {
+    const ctx = turn.state.context as { pendingEvidence: string[]; contractId: string; obligation: number };
+    const c = (await this.activeContracts(turn)).find((x) => x.id === ctx.contractId);
+    const o = c?.obligations.find((x) => x.number === ctx.obligation);
+    const number = msg.replyId?.startsWith('pp:') ? Number(msg.replyId.slice(3)) : null;
+    const p =
+      c && number ? (await this.deps.store.listPeriods(c.id)).find((x) => x.number === number) : undefined;
+    if (c && o && p) return this.placePhotos(turn, c, o, p, ctx.pendingEvidence);
+    if (msg.kind === 'text' && msg.text && msg.text.trim().split(/\s+/).length > 4) {
+      // The activity instead of the report: a new note with the photos.
+      this.setFlow(turn, 'idle', 'start', { pendingEvidence: ctx.pendingEvidence });
+      return this.freeText(turn, msg.text);
+    }
+    turn.out.push(text('Elige el informe en los botones.'));
   }
 
   /** Answer to "¿en qué fecha o mes?" for a note that had none (or one outside the contract). */
@@ -1736,6 +1884,9 @@ export class Orchestrator {
       return;
     }
     const { c, p } = found[0]!;
+    // Activities sent from now on without a date may belong to this report: Pascal will ask.
+    if (p.status !== 'delivered')
+      turn.state.context = { ...turn.state.context, working: { contractId: c.id, number: p.number } };
     if (reset) return this.askReset(turn, c, p);
     if (p.status !== 'delivered') return this.startDraft(turn, c, p);
     if (redo) return this.startGenerate(turn, c, true, p.number);

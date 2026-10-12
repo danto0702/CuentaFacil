@@ -403,6 +403,33 @@ describe('other flows', () => {
     expect(h.store.data.notes.at(-1)).toMatchObject({ obligationKey: 'specific-2', date: '2026-09-30' });
   });
 
+  it('asks which report a dateless activity or photo is for while an earlier report is open', async () => {
+    // EBS contract: September (02-05) is being worked on in October.
+    const h = harness({ today: '2026-10-05' });
+    h.store.data.contracts = h.store.data.contracts.filter((c) => c.id === DEMO_IDS.ebs);
+    await h.say('informe de septiembre');
+    const notes = h.store.data.notes.length;
+
+    let out = show(await h.say('Visité la IPS de Ábrego y revisé las historias clínicas'));
+    expect(out[0]).toMatch(
+      /^📅 Tienes un informe anterior abierto\. ¿A qué informe corresponde esta actividad\?.*\[Septiembre 2026\] \[Hoy \(octubre\)\] \[Otra fecha\]$/s,
+    );
+    expect(h.store.data.notes.length).toBe(notes);
+    out = show(await h.press('np:2026-09-01:2026-09-30'));
+    expect(out.join('\n')).toContain('📅 Informe 02-05 (1 al 30 de septiembre de 2026)');
+    expect(h.store.data.notes.at(-1)!.date.slice(0, 7)).toBe('2026-09');
+
+    // A photo given an obligation number: same question.
+    await h.photo();
+    out = show(await h.say('3'));
+    expect(out[0]).toMatch(
+      /^📅 ¿A qué informe corresponde la foto de la obligación 3\? \[Septiembre 2026\] \[Octubre 2026 \(hoy\)\]$/,
+    );
+    out = show(await h.press('pp:2'));
+    expect(out[0]).toContain('📅 Informe 02-05 (1 al 30 de septiembre de 2026)');
+    expect(h.store.data.notes.filter((n) => n.date.slice(0, 7) === '2026-10')).toHaveLength(0);
+  });
+
   it('warns about expired certificates when they arrive and asks to generate anyway or upload them again', async () => {
     const h = harness({ today: '2026-10-25' });
     const out = show(await h.document('ANTECEDENTES.pdf'));
