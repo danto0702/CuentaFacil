@@ -204,10 +204,25 @@ describe('institution not configured yet ("Otra")', () => {
     let out = show(await h.press('ent:other'));
     expect(out[0]).toMatch(/nombre completo/);
     out = show(await h.say('E.S.E. Hospital Emiro Quintero Cañizares'));
-    expect(out[0]).toMatch(/modelo de cuenta de cobro/);
+    // The documents the institution asks for: a checklist by numbers.
+    expect(out[0]).toMatch(/^📋 ¿Qué documentos te pide \*E\.S\.E\. Hospital Emiro Quintero Cañizares\*/);
+    expect(out[0]).toContain('1. Informe de actividades ✍️');
+    expect(out[0]).toContain('15. Copia de la cédula');
+    expect(show(await h.say('ninguno'))[0]).toMatch(/Escríbeme los números/);
+    // At least one document Pascal prepares.
+    expect(show(await h.say('4, 5'))[0]).toMatch(/al menos uno de los documentos que preparo yo/);
+    out = show(await h.say('1, 3, 4-5, otro: paz y salvo'));
+    expect(out[0]).toBe(
+      'Esto es lo que pide *E.S.E. Hospital Emiro Quintero Cañizares*:\n• Informe de actividades\n• Cuenta de cobro\n• Planilla de seguridad social (PILA)\n• Antecedentes judiciales (Policía)\n• paz y salvo\n\n¿Está completo? [Sí, está completo] [Corregir]',
+    );
+    out = show(await h.press('docs:ok'));
+    // A model of each document Pascal prepares, one at a time.
+    expect(out[0]).toMatch(/^📄 Modelo 1 de 2: envíame un \*modelo de informe de actividades\*/);
     expect(show(await h.photo())[0]).toMatch(/PDF o Word/);
+    out = show(await h.document('informe-modelo.pdf'));
+    expect(out[1]).toMatch(/^📄 Modelo 2 de 2: envíame un \*modelo de cuenta de cobro\*/);
     out = show(await h.document('cuenta-modelo.pdf'));
-    expect(out[0]).toMatch(/Ahora envíame tu \*contrato\*/);
+    expect(out[1]).toMatch(/envíame tu \*contrato\*/);
     out = show(await h.document('contrato.pdf'));
     expect(out[0]).toMatch(/configurar esa institución/);
     expect(out[0]).toMatch(/tu primera cuenta de cobro es gratis/);
@@ -220,6 +235,15 @@ describe('institution not configured yet ("Otra")', () => {
     );
     const user = (await h.store.getUserByPhone(NEW_PHONE))!;
     expect(h.store.data.freeReports?.[user.id]).toBe(1);
+    const req = h.store.data.institutionRequests![0]!;
+    expect(req.documents?.required.map((d) => d.label)).toEqual([
+      'Informe de actividades',
+      'Cuenta de cobro',
+      'Planilla de seguridad social (PILA)',
+      'Antecedentes judiciales (Policía)',
+      'paz y salvo',
+    ]);
+    expect(Object.keys(req.documents?.models ?? {})).toEqual(['INFORME_ACTIVIDADES', 'CUENTA_COBRO']);
 
     // While the institution is being configured, Pascal says so instead of restarting setup.
     expect(show(await h.say('hola'))[0]).toMatch(/Estamos configurando \*E\.S\.E\. Hospital Emiro/);
@@ -230,6 +254,8 @@ describe('institution not configured yet ("Otra")', () => {
     await h2.press('consent:yes');
     await h2.press('ent:other');
     await h2.say('Hospital Emiro Quintero Cañizares');
+    await h2.say('1');
+    await h2.press('docs:ok');
     await h2.document('modelo.docx');
     out = show(await h2.document('contrato.pdf'));
     expect(out[0]).not.toMatch(/gratis/);
@@ -243,7 +269,10 @@ describe('Programa de Aliados', () => {
     await a.press('consent:yes');
     await a.press('ent:other');
     await a.say('Hospital Nuevo de Prueba');
+    await a.say('1, 2');
+    await a.press('docs:ok');
     await a.document('modelo.pdf');
+    await a.document('modelo-supervision.pdf');
     await a.document('contrato.pdf');
     const allyId = (await a.store.getUserByPhone(NEW_PHONE))!.id;
 

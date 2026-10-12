@@ -11,6 +11,7 @@ import type {
   Entity,
   EntitySettings,
   Evidence,
+  InstitutionDocuments,
   NewContract,
   Note,
   Obligation,
@@ -155,6 +156,7 @@ export class SupabaseStore implements Store {
     institutionName: string;
     modelSupportId: string;
     contractSupportId: string;
+    documents?: InstitutionDocuments;
   }): Promise<{ firstForInstitution: boolean; requestId: string }> {
     const key = institutionKey(input.institutionName);
     const entities = must(await this.sb.from('entities').select('name'), 'createInstitutionRequest') as Row[];
@@ -173,6 +175,7 @@ export class SupabaseStore implements Store {
           model_support_id: input.modelSupportId,
           contract_support_id: input.contractSupportId,
           first_for_institution: firstForInstitution,
+          documents: input.documents ?? null,
         })
         .select('id')
         .single(),

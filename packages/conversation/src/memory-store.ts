@@ -20,7 +20,7 @@ import type {
   SupportType,
   User,
 } from './domain.js';
-import type { Store } from './ports.js';
+import type { InstitutionDocuments, Store } from './ports.js';
 import { contractFromSetup, institutionKey } from './setup.js';
 
 export interface MemoryData {
@@ -52,6 +52,7 @@ export interface MemoryData {
     modelSupportId: string;
     contractSupportId: string;
     firstForInstitution: boolean;
+    documents?: InstitutionDocuments;
   }[];
   freeReports?: Record<string, number>;
   billing?: BillingSettings;
@@ -273,6 +274,7 @@ export class MemoryStore implements Store {
     institutionName: string;
     modelSupportId: string;
     contractSupportId: string;
+    documents?: InstitutionDocuments;
   }) {
     const key = institutionKey(input.institutionName);
     const known =

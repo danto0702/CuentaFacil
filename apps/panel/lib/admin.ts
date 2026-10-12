@@ -69,7 +69,17 @@ export interface InstitutionRequestRow {
   createdAt: string;
   modelUrl: string | null;
   contractUrl: string | null;
+  /** Documents the institution asks for (ADR-040); empty for requests made before. */
+  required: string[];
+  /** Model of each document Pascal generates. */
+  models: { label: string; url: string | null }[];
 }
+
+const MODEL_LABELS: Record<string, string> = {
+  INFORME_ACTIVIDADES: 'Modelo de informe de actividades',
+  INFORME_SUPERVISION: 'Modelo de informe de supervisión',
+  CUENTA_COBRO: 'Modelo de cuenta de cobro',
+};
 
 export function adminAvailable(): boolean {
   return supabaseConfigured();
@@ -157,7 +167,7 @@ export async function listInstitutionRequests(): Promise<InstitutionRequestRow[]
   const { data, error } = await sb
     .from('institution_requests')
     .select(
-      'id, institution_name, first_for_institution, status, created_at, users(full_name, phone_e164), model:supports!institution_requests_model_support_id_fkey(original_path), contract:supports!institution_requests_contract_support_id_fkey(original_path)',
+      'id, institution_name, first_for_institution, status, created_at, documents, users(full_name, phone_e164), model:supports!institution_requests_model_support_id_fkey(original_path), contract:supports!institution_requests_contract_support_id_fkey(original_path)',
     )
     .order('created_at', { ascending: false })
     .limit(100);
@@ -172,7 +182,31 @@ export async function listInstitutionRequests(): Promise<InstitutionRequestRow[]
   return Promise.all(
     (data ?? []).map(async (r) => {
       const u = one(r.users as One<{ full_name: string | null; phone_e164: string }>);
+      const docs = r.documents as {
+        required?: { label: string }[];
+        models?: Record<string, string>;
+      } | null;
+      const modelIds = Object.entries(docs?.models ?? {});
+      const paths = modelIds.length
+        ? ((
+            await sb
+              .from('supports')
+              .select('id, original_path')
+              .in(
+                'id',
+                modelIds.map(([, id]) => id),
+              )
+          ).data ?? [])
+        : [];
+      const models = await Promise.all(
+        modelIds.map(async ([code, id]) => ({
+          label: MODEL_LABELS[code] ?? `Modelo ${code}`,
+          url: await sign(paths.find((x) => x.id === id)?.original_path),
+        })),
+      );
       return {
+        required: (docs?.required ?? []).map((d) => d.label),
+        models,
         id: r.id,
         institutionName: r.institution_name,
         contractor: u?.full_name || 'Sin nombre aún',

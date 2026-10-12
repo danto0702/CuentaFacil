@@ -111,6 +111,12 @@ export interface MessageIntent {
   date: IsoDate | null;
 }
 
+export interface InstitutionDocuments {
+  /** `code` matches INSTITUTION_DOCS; null for a document the contractor wrote. */
+  required: { code: string | null; label: string }[];
+  models: Record<string, string>;
+}
+
 export interface AI {
   /** Any free-text message: is it a work activity or a request to the assistant (cheapest model)? */
   interpretMessage(text: string, today: IsoDate): Promise<MessageIntent>;
@@ -147,6 +153,8 @@ export interface Store {
     institutionName: string;
     modelSupportId: string;
     contractSupportId: string;
+    /** What the institution asks for in each cuenta de cobro, and the model of each generated document. */
+    documents?: InstitutionDocuments;
   }): Promise<{ firstForInstitution: boolean; requestId: string }>;
   /** Makes the contractor an Aliado with a fresh referral code (idempotent per user). */
   createAlly(userId: string, institutionRequestId: string | null): Promise<{ code: string }>;

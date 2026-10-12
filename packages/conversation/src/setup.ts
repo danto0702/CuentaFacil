@@ -41,8 +41,58 @@ interface SetupCtx {
   /** Version of applyEntityRules already applied to `extraction`. */
   rules?: number;
   otherName?: string;
-  otherModelId?: string;
+  /** Codes chosen from INSTITUTION_DOCS, plus documents the contractor wrote. */
+  otherDocs?: string[];
+  otherCustom?: string[];
+  /** Model uploaded for each document Pascal generates (code → support id). */
+  otherModels?: Record<string, string>;
 }
+
+/**
+ * Documents an institution may ask for in a cuenta de cobro (ADR-040). The ones Pascal generates need
+ * a model from the contractor to configure the institution; the rest only tell Pascal what to ask for.
+ */
+export const INSTITUTION_DOCS: { code: string; label: string; generated?: true }[] = [
+  { code: 'INFORME_ACTIVIDADES', label: 'Informe de actividades', generated: true },
+  { code: 'INFORME_SUPERVISION', label: 'Informe de supervisión', generated: true },
+  { code: 'CUENTA_COBRO', label: 'Cuenta de cobro', generated: true },
+  { code: 'PILA', label: 'Planilla de seguridad social (PILA)' },
+  { code: 'POLICIA', label: 'Antecedentes judiciales (Policía)' },
+  { code: 'PROCURADURIA', label: 'Antecedentes disciplinarios (Procuraduría)' },
+  { code: 'CONTRALORIA', label: 'Antecedentes fiscales (Contraloría)' },
+  { code: 'RNMC', label: 'Medidas correctivas (RNMC)' },
+  { code: 'EPS', label: 'Certificado de afiliación a EPS' },
+  { code: 'ARL', label: 'Certificado de afiliación a ARL' },
+  { code: 'AFP', label: 'Certificado de afiliación a pensión' },
+  { code: 'CERT_CUMPLIMIENTO', label: 'Certificado de cumplimiento del supervisor' },
+  { code: 'RUT', label: 'RUT' },
+  { code: 'CUENTA_BANCARIA', label: 'Certificación bancaria' },
+  { code: 'CEDULA', label: 'Copia de la cédula' },
+];
+
+/** "1, 2, 4-6, otro: paz y salvo" → chosen codes and documents written by the contractor. */
+export function parseDocChoice(input: string): { codes: string[]; custom: string[] } | null {
+  const [numbersPart, ...rest] = input.split(/\botros?\s*:/i);
+  const codes = new Set<string>();
+  for (const m of (numbersPart ?? '').matchAll(/(\d{1,2})(?:\s*(?:-|a)\s*(\d{1,2}))?/g)) {
+    const a = Number(m[1]);
+    const b = m[2] ? Number(m[2]) : a;
+    for (let i = Math.min(a, b); i <= Math.max(a, b); i++) {
+      const d = INSTITUTION_DOCS[i - 1];
+      if (d) codes.add(d.code);
+    }
+  }
+  const custom = rest
+    .join(',')
+    .split(/[,;\n]/)
+    .map((x) => x.trim())
+    .filter((x) => x.length >= 3)
+    .map((x) => x.slice(0, 80));
+  if (!codes.size && !custom.length) return null;
+  return { codes: INSTITUTION_DOCS.filter((d) => codes.has(d.code)).map((d) => d.code), custom };
+}
+
+const docLabel = (code: string) => INSTITUTION_DOCS.find((d) => d.code === code)?.label ?? code;
 
 /**
  * Normalized institution name to recognize the same institution written differently:
@@ -242,10 +292,86 @@ export class SetupFlow {
       );
       return;
     }
-    this.go(turn, 'other_model', { otherName: name });
+    this.go(turn, 'other_docs', { otherName: name, otherDocs: [], otherCustom: [], otherModels: {} });
+    this.askDocs(turn, name);
+  }
+
+  /** Which documents the new institution asks for in each cuenta de cobro. */
+  private askDocs(turn: SetupTurn, name: string): void {
     turn.out.push(
       text(
-        `Gracias. Para configurar *${name}* necesito dos documentos:\n\n1️⃣ Un *modelo de cuenta de cobro* o informe de esa institución (PDF o Word), por ejemplo uno que ya hayas presentado.\n\nEnvíamelo primero (📎 → Documento).`,
+        `📋 ¿Qué documentos te pide *${name}* para tramitar cada cuenta de cobro?\n\n${INSTITUTION_DOCS.map(
+          (d, i) => `${i + 1}. ${d.label}${d.generated ? ' ✍️' : ''}`,
+        ).join(
+          '\n',
+        )}\n\n✍️ = lo preparo yo; de esos te pediré un modelo de la institución.\n\nEscríbeme los números separados por coma, por ejemplo: *1, 2, 3, 4, 5, 9*. Si piden algo que no está en la lista, agrégalo así: *1, 2, 4, otro: paz y salvo*.`,
+      ),
+    );
+  }
+
+  private async onOtherDocs(turn: SetupTurn, msg: Inbound): Promise<void> {
+    const ctx = this.ctx(turn);
+    const choice = msg.kind === 'text' && msg.text ? parseDocChoice(msg.text) : null;
+    if (!choice) {
+      turn.out.push(text('Escríbeme los números de la lista separados por coma, por ejemplo: *1, 2, 3, 4*.'));
+      return;
+    }
+    if (!choice.codes.some((c) => INSTITUTION_DOCS.find((d) => d.code === c)?.generated)) {
+      turn.out.push(
+        text(
+          'Necesito que elijas al menos uno de los documentos que preparo yo: *1* (informe de actividades), *2* (informe de supervisión) o *3* (cuenta de cobro). Escríbeme de nuevo los números.',
+        ),
+      );
+      return;
+    }
+    this.go(turn, 'other_docs_ok', { otherDocs: choice.codes, otherCustom: choice.custom });
+    const lines = [...choice.codes.map(docLabel), ...choice.custom].map((l) => `• ${l}`).join('\n');
+    turn.out.push(
+      buttons(`Esto es lo que pide *${ctx.otherName}*:\n${lines}\n\n¿Está completo?`, [
+        { id: 'docs:ok', title: 'Sí, está completo' },
+        { id: 'docs:edit', title: 'Corregir' },
+      ]),
+    );
+  }
+
+  private async onOtherDocsOk(turn: SetupTurn, msg: Inbound): Promise<void> {
+    const ctx = this.ctx(turn);
+    if (msg.replyId === 'docs:edit' || (msg.kind === 'text' && msg.text && parseDocChoice(msg.text))) {
+      this.go(turn, 'other_docs');
+      if (msg.kind === 'text') return this.onOtherDocs(turn, msg);
+      this.askDocs(turn, ctx.otherName!);
+      return;
+    }
+    if (msg.replyId !== 'docs:ok') {
+      turn.out.push(
+        buttons('¿Está completa la lista?', [
+          { id: 'docs:ok', title: 'Sí, está completo' },
+          { id: 'docs:edit', title: 'Corregir' },
+        ]),
+      );
+      return;
+    }
+    this.go(turn, 'other_model');
+    this.askModel(turn);
+  }
+
+  /** The next document Pascal generates that still has no model. */
+  private nextModel(ctx: SetupCtx): string | undefined {
+    return (ctx.otherDocs ?? []).find(
+      (c) => INSTITUTION_DOCS.find((d) => d.code === c)?.generated && !ctx.otherModels?.[c],
+    );
+  }
+
+  private askModel(turn: SetupTurn): void {
+    const ctx = this.ctx(turn);
+    const code = this.nextModel(ctx)!;
+    const pending = (ctx.otherDocs ?? []).filter(
+      (c) => INSTITUTION_DOCS.find((d) => d.code === c)?.generated,
+    );
+    const n = pending.indexOf(code) + 1;
+    turn.out.push(
+      text(
+        `📄 ${pending.length > 1 ? `Modelo ${n} de ${pending.length}: e` : 'E'}nvíame un *modelo de ${docLabel(code).toLowerCase()}* de ${ctx.otherName} (PDF o Word). Puede ser uno que ya hayas presentado. Usa 📎 → Documento.`,
       ),
     );
   }
@@ -267,21 +393,27 @@ export class SetupFlow {
   }
 
   private async onOtherModel(turn: SetupTurn, msg: Inbound): Promise<void> {
-    const id = await this.saveAnyDocument(turn, msg, 'MODELO_CUENTA');
+    const ctx = this.ctx(turn);
+    const code = this.nextModel(ctx);
+    if (!code) return this.askContractSample(turn);
+    const id = await this.saveAnyDocument(turn, msg, `MODELO_${code}`);
     if (!id) {
       turn.out.push(
         text(
-          'Necesito el modelo de cuenta de cobro en *PDF o Word*. Envíalo como documento (📎 → Documento).',
+          `Necesito el modelo de ${docLabel(code).toLowerCase()} en *PDF o Word*. Envíalo como documento (📎 → Documento).`,
         ),
       );
       return;
     }
-    this.go(turn, 'other_contract', { otherModelId: id });
-    turn.out.push(
-      text(
-        '✅ Recibí el modelo.\n\n2️⃣ Ahora envíame tu *contrato* en PDF (el de SECOP II o el que firmaste).',
-      ),
-    );
+    this.go(turn, 'other_model', { otherModels: { ...ctx.otherModels, [code]: id } });
+    turn.out.push(text(`✅ Recibí el modelo de ${docLabel(code).toLowerCase()}.`));
+    if (this.nextModel(this.ctx(turn))) return this.askModel(turn);
+    return this.askContractSample(turn);
+  }
+
+  private askContractSample(turn: SetupTurn): void {
+    this.go(turn, 'other_contract');
+    turn.out.push(text('📑 Por último, envíame tu *contrato* en PDF (el de SECOP II o el que firmaste).'));
   }
 
   private async onOtherContract(turn: SetupTurn, msg: Inbound): Promise<void> {
@@ -291,18 +423,26 @@ export class SetupFlow {
       return;
     }
     const ctx = this.ctx(turn);
+    const models = ctx.otherModels ?? {};
     const { firstForInstitution, requestId } = await this.deps.store.createInstitutionRequest({
       userId: turn.user.id,
       institutionName: ctx.otherName!,
-      modelSupportId: ctx.otherModelId!,
+      modelSupportId: Object.values(models)[0]!,
       contractSupportId: id,
+      documents: {
+        required: [
+          ...(ctx.otherDocs ?? []).map((code) => ({ code, label: docLabel(code) })),
+          ...(ctx.otherCustom ?? []).map((label) => ({ code: null, label })),
+        ],
+        models,
+      },
     });
     turn.state.flow = 'idle';
     turn.state.step = 'start';
     turn.state.context = {};
     turn.out.push(
       text(
-        `✅ ¡Listo! Recibí el modelo y tu contrato de *${ctx.otherName}*.\n\nNuestro equipo va a configurar esa institución y te escribimos por aquí cuando esté lista (normalmente en 1 o 2 días hábiles).${
+        `✅ ¡Listo! Recibí ${Object.keys(models).length > 1 ? 'los modelos' : 'el modelo'}, la lista de documentos y tu contrato de *${ctx.otherName}*.\n\nNuestro equipo va a configurar esa institución y te escribimos por aquí cuando esté lista (normalmente en 1 o 2 días hábiles).${
           firstForInstitution
             ? '\n\n🎁 Como eres la primera persona de esta institución en usar el servicio, *tu primera cuenta de cobro es gratis* (válida por 12 meses).'
             : ''
@@ -321,6 +461,10 @@ export class SetupFlow {
         return this.onEntity(turn, msg);
       case 'other_name':
         return this.onOtherName(turn, msg);
+      case 'other_docs':
+        return this.onOtherDocs(turn, msg);
+      case 'other_docs_ok':
+        return this.onOtherDocsOk(turn, msg);
       case 'other_model':
         return this.onOtherModel(turn, msg);
       case 'other_contract':
