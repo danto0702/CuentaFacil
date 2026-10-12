@@ -28,20 +28,22 @@ describe('recorded conversation: a month of notes to delivery', () => {
     await h.say('nota: hice el informe semanal');
     out = show(await h.press(`c:${DEMO_IDS.salud}`));
     expect(out[0]).toMatch(
-      /Creo que va en la obligación \d+: .*¿Está bien\? \[✅ Está bien\] \[Cambiar obligación\] \[➕ Otra obligación\]$/,
+      /Creo que va en la obligación \d+: .*¿Está bien\?\n📅 Informe 03 DE 03 \(1 al 30 de septiembre de 2026\) \[✅ Está bien\] \[Cambiar obligación\] \[➕ Otra obligación\]$/,
     );
     const noteId = h.store.data.notes.at(-1)!.id;
     out = show(await h.press(`chg:${noteId}`));
-    expect(out[0]).toMatch(/¿A cuál obligación corresponde\? \{1\. Coordinar/);
+    expect(out[0]).toMatch(
+      /¿A cuál obligación corresponde\?\n📅 Informe 03 DE 03 \(1 al 30 de septiembre de 2026\) \{1\. Coordinar/,
+    );
     expect(show(await h.press('o:specific-1'))).toEqual([
-      '✅ Listo, quedó en la obligación 1. ¿Esta actividad sirve también para otra? [➕ Otra obligación]',
+      '✅ Listo, quedó en la obligación 1.\n📅 Informe 03 DE 03 (1 al 30 de septiembre de 2026)\n¿Esta actividad sirve también para otra? [➕ Otra obligación]',
     ]);
     // The same activity can support several obligations.
     out = show(await h.press(`add:${noteId}`));
     expect(out[0]).toMatch(/^¿En qué otra obligación va esta actividad\?/);
     expect(out[0]).not.toContain('1. Coordinar');
     expect(show(await h.press('o:specific-3'))).toEqual([
-      '✅ También quedó en la obligación 3. [➕ Otra obligación]',
+      '✅ También quedó en la obligación 3.\n📅 Informe 03 DE 03 (1 al 30 de septiembre de 2026) [➕ Otra obligación]',
     ]);
     const multi = await h.store.getNote(noteId);
     expect([multi.obligationKey, ...(multi.alsoKeys ?? [])]).toEqual(['specific-1', 'specific-3']);
@@ -183,7 +185,7 @@ describe('other flows', () => {
     );
     let out = show(await h.press(`redo:${DEMO_IDS.ebs}:1`));
     expect(out[0]).toMatch(
-      /^🧾 Para llenar la tabla de seguridad social necesito la planilla PILA de \*\w+ de 2026\*/,
+      /^🧾 Para llenar la tabla de seguridad social de tu informe 01-05 \(20 al 31 de agosto de 2026\) necesito la planilla PILA de \*\w+ de 2026\*/,
     );
     expect(out[0]).toContain('[Generar sin planilla]');
     out = show(await h.press('nopila:go'));
@@ -202,7 +204,7 @@ describe('other flows', () => {
     await h.say('generar');
     const out = show(await h.press(`c:${DEMO_IDS.ebs}`));
     expect(out[0]).toMatch(
-      /^⚠️ Me faltan estos soportes para generar tu cuenta:\n❌ Certificado ejecución EBS/,
+      /^⚠️ Me faltan estos soportes para generar tu informe 02-05 \(1 al 30 de septiembre de 2026\):\n❌ Certificado ejecución EBS/,
     );
 
     // Sending the document and classifying it unblocks generation.
@@ -344,7 +346,7 @@ describe('other flows', () => {
     expect(await h.photo()).toEqual([]);
     out = show(await h.press(`ph:${note.id}`));
     expect(out[0]).toBe(
-      '✅ Agregué las 2 fotos a «Hoy capacité a 30 personas en misión médica en El Carmen».',
+      '✅ Agregué las 2 fotos a «Hoy capacité a 30 personas en misión médica en El Carmen».\n📅 Informe 03 DE 03 (1 al 30 de septiembre de 2026)',
     );
     expect((await h.store.getNote(note.id)).evidenceIds).toHaveLength(2);
     const notes = h.store.data.notes.length;

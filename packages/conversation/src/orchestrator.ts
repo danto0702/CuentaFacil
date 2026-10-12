@@ -841,7 +841,12 @@ export class Orchestrator {
       const note = await this.deps.store.getNote(msg.replyId.slice(3));
       await this.deps.store.updateNote({ ...note, evidenceIds: [...note.evidenceIds, ...pending] });
       this.setFlow(turn, 'idle', 'start', {}); // the photos are placed
-      turn.out.push(text(`✅ Agregué ${photos(pending.length)} a «${clip(note.text, 80)}».`));
+      const c = await this.deps.store.getContract(note.contractId);
+      turn.out.push(
+        text(
+          `✅ Agregué ${photos(pending.length)} a «${clip(note.text, 80)}».\n${await this.periodLine(c, note.date)}`,
+        ),
+      );
       return;
     }
     if (msg.replyId === 'ph:new') {
@@ -1067,14 +1072,15 @@ export class Orchestrator {
         ? ` con ${evidenceIds.length} foto${evidenceIds.length > 1 ? 's' : ''}`
         : '';
       const where = contracts.length > 1 ? ` (${c.shortLabel})` : '';
+      const period = await this.periodLine(c, date);
       if (note.obligationKey) {
         const o = c.obligations.find((x) => x.key === note.obligationKey)!;
         const sure = result.confidence >= this.deps.confidenceThreshold;
         turn.out.push(
           buttons(
             sure
-              ? `✅ Anotado ${label ?? `el ${formatDdMmYyyy(date)}`}${photos}${where} en la obligación ${o.number}: «${clip(o.text, 80)}»`
-              : `📝 Anotado ${label ?? `el ${formatDdMmYyyy(date)}`}${photos}${where}. Creo que va en la obligación ${o.number}: «${clip(o.text, 80)}». ¿Está bien?`,
+              ? `✅ Anotado ${label ?? `el ${formatDdMmYyyy(date)}`}${photos}${where} en la obligación ${o.number}: «${clip(o.text, 80)}»\n${period}`
+              : `📝 Anotado ${label ?? `el ${formatDdMmYyyy(date)}`}${photos}${where}. Creo que va en la obligación ${o.number}: «${clip(o.text, 80)}». ¿Está bien?\n${period}`,
             [
               { id: `nok:${note.id}`, title: '✅ Está bien' },
               { id: `chg:${note.id}`, title: 'Cambiar obligación' },
@@ -1102,7 +1108,8 @@ export class Orchestrator {
     const note = await this.deps.store.getNote(noteId);
     const c = await this.deps.store.getContract(note.contractId);
     this.setFlow(turn, 'note_obligation', 'pick', { noteId });
-    turn.out.push(choose(body, c.obligations.map(obligationRow), page, 'omore'));
+    const head = page === 0 ? `${body}\n${await this.periodLine(c, note.date)}` : body;
+    turn.out.push(choose(head, c.obligations.map(obligationRow), page, 'omore'));
   }
 
   /** WhatsApp lists allow one choice: further obligations are added one at a time. */
@@ -1116,7 +1123,12 @@ export class Orchestrator {
     }
     this.setFlow(turn, 'note_extra_obligation', 'pick', { noteId });
     turn.out.push(
-      choose('¿En qué otra obligación va esta actividad?', free.map(obligationRow), page, 'xmore'),
+      choose(
+        `¿En qué otra obligación va esta actividad?\n${await this.periodLine(c, note.date)}`,
+        free.map(obligationRow),
+        page,
+        'xmore',
+      ),
     );
   }
 
@@ -1144,7 +1156,7 @@ export class Orchestrator {
     }
     this.reset(turn);
     turn.out.push(
-      buttons(`✅ También quedó en la obligación ${o.number}.`, [
+      buttons(`✅ También quedó en la obligación ${o.number}.\n${await this.periodLine(c, note.date)}`, [
         { id: `add:${note.id}`, title: '➕ Otra obligación' },
       ]),
     );
@@ -1175,9 +1187,10 @@ export class Orchestrator {
     });
     this.reset(turn);
     turn.out.push(
-      buttons(`✅ Listo, quedó en la obligación ${o.number}. ¿Esta actividad sirve también para otra?`, [
-        { id: `add:${note.id}`, title: '➕ Otra obligación' },
-      ]),
+      buttons(
+        `✅ Listo, quedó en la obligación ${o.number}.\n${await this.periodLine(c, note.date)}\n¿Esta actividad sirve también para otra?`,
+        [{ id: `add:${note.id}`, title: '➕ Otra obligación' }],
+      ),
     );
   }
 
@@ -1848,7 +1861,7 @@ export class Orchestrator {
     this.setFlow(turn, 'draft_missing', 'ask', { contractId: c.id, periodNumber: p.number, missing });
     turn.out.push(
       buttons(
-        `Para la obligación ${o.number} («${clip(o.text, 90)}») no tengo registros este periodo. ¿Qué hiciste?`,
+        `Para la obligación ${o.number} («${clip(o.text, 90)}») no tengo registros en tu ${this.reportLabel(c, p)}. ¿Qué hiciste?`,
         [
           { id: 'mis:write', title: 'Escribir/Audio' },
           { id: 'mis:default', title: 'Texto por defecto' },
@@ -1887,7 +1900,9 @@ export class Orchestrator {
     } else if (msg.replyId === 'mis:write') {
       this.setFlow(turn, 'draft_missing_text', 'write', { ...ctx });
       turn.out.push(
-        text(`Cuéntame qué hiciste para la obligación ${o.number}. Puedes escribir o mandar un audio.`),
+        text(
+          `Cuéntame qué hiciste para la obligación ${o.number} en tu ${this.reportLabel(c, p)}. Puedes escribir o mandar un audio.`,
+        ),
       );
       return;
     } else if (msg.kind === 'text' && msg.text) {
@@ -2085,7 +2100,7 @@ export class Orchestrator {
       if ((missing.length || expired.length) && !entity.settings.generateWithMissing) {
         turn.out.push(
           text(
-            `⚠️ Me faltan estos soportes para generar tu cuenta:\n${missing
+            `⚠️ Me faltan estos soportes para generar tu ${this.reportLabel(c, p)}:\n${missing
               .map((m) => `❌ ${m.label}${m.officialUrl ? `\n   🔗 ${m.officialUrl}` : ''}`)
               .concat(
                 expired.map(
@@ -2115,7 +2130,7 @@ export class Orchestrator {
       this.setFlow(turn, 'generate_no_pila', 'ask', { contractId: c.id, periodNumber: p.number, resend });
       turn.out.push(
         buttons(
-          `🧾 Para llenar la tabla de seguridad social necesito la planilla PILA de *${month}* y no la tengo. Envíamela en PDF (o una foto) y luego escribe ${again}.`,
+          `🧾 Para llenar la tabla de seguridad social de tu ${this.reportLabel(c, p)} necesito la planilla PILA de *${month}* y no la tengo. Envíamela en PDF (o una foto) y luego escribe ${again}.`,
           [{ id: 'nopila:go', title: 'Generar sin planilla' }],
         ),
       );
@@ -2380,6 +2395,16 @@ export class Orchestrator {
     if (p.amountSource === 'contractor' || p.amountSource === 'certificate') return true;
     const ps = await this.deps.store.listPeriods(c.id);
     return ps.reduce((a, x) => a + x.amount, 0) === c.totalValue;
+  }
+
+  /** Which report a date belongs to, so every note and question says its period. */
+  private async periodLine(c: Contract, date: IsoDate): Promise<string> {
+    const p = (await this.deps.store.listPeriods(c.id)).find(
+      (x) => compareIso(x.from, date) <= 0 && compareIso(date, x.to) <= 0,
+    );
+    if (!p) return `📅 El ${formatDdMmYyyy(date)} no está dentro de ningún periodo de ${c.shortLabel}.`;
+    const label = this.reportLabel(c, p);
+    return `📅 ${label.charAt(0).toUpperCase()}${label.slice(1)}`;
   }
 
   private reportLabel(c: Contract, p: Period): string {
