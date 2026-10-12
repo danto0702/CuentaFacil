@@ -453,7 +453,11 @@ describe('checklist of a new institution (ADR-040)', () => {
       max_age_days: 30,
       required: true,
     });
-    expect(rows.find((r) => r.code === 'CERT_CUMPLIMIENTO')?.stage).toBe('after_signature');
+    // Monthly, with the documents of the account in course.
+    expect(rows.find((r) => r.code === 'CERT_CUMPLIMIENTO')).toMatchObject({
+      frequency: 'every_period',
+      stage: 'before_generation',
+    });
     expect(rows.find((r) => r.code === 'RUT')?.frequency).toBe('at_start');
     expect(rows.find((r) => r.code === 'PAZ_Y_SALVO')).toMatchObject({
       label: 'Paz y salvo',

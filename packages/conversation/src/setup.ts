@@ -162,14 +162,16 @@ const SUPPORT_DEFAULTS: Record<string, Omit<SupportTypeSeed, 'code' | 'label' | 
     instructions: 'Descárgalo del portal de tu fondo de pensiones.',
     stage: 'before_generation',
   },
+  // Goes with the documents of the account in course, every month (when the institution asks for it).
   CERT_CUMPLIMIENTO: {
     frequency: 'every_period',
     max_age_days: null,
     bundle: null,
     bundle_order: null,
     official_url: null,
-    instructions: 'Lo expide el supervisor después de firmar; envíamelo cuando lo tengas.',
-    stage: 'after_signature',
+    instructions:
+      'Pídeselo a tu supervisor para la cuenta de este periodo y envíamelo con los demás soportes.',
+    stage: 'before_generation',
   },
   RUT: {
     frequency: 'at_start',
