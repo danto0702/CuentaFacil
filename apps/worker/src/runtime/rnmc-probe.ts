@@ -11,6 +11,9 @@ export function describeForm(html: string): {
   fields: string[];
   captcha: string[];
   forms: number;
+  postbacks: string[];
+  options: string[];
+  action: string;
 } {
   const fields = [...html.matchAll(/<(input|select|textarea)\b[^>]*>/gi)]
     .map((m) => {
@@ -25,7 +28,15 @@ export function describeForm(html: string): {
     lower.includes(k),
   );
   const forms = (html.match(/<form\b/gi) ?? []).length;
-  return { fields: [...new Set(fields)], captcha, forms };
+  // Buttons rendered as links post back through __doPostBack('target', …).
+  const postbacks = [
+    ...new Set([...html.matchAll(/__doPostBack\(\s*(?:&#39;|['"])([^'"&]+)/g)].map((m) => m[1]!)),
+  ];
+  const options = [...html.matchAll(/<option\b[^>]*value=["']([^"']*)["'][^>]*>([^<]*)</gi)]
+    .map((m) => `${m[1]}=${m[2]!.trim()}`)
+    .slice(0, 20);
+  const action = /<form\b[^>]*action=["']([^"']+)/i.exec(html)?.[1] ?? '';
+  return { fields: [...new Set(fields)], captcha, forms, postbacks, options, action };
 }
 
 export async function probeRnmc(log: Logger, http: typeof fetch = fetch): Promise<void> {

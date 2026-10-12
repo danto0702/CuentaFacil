@@ -2393,6 +2393,8 @@ export class Orchestrator {
     to: string;
     name: string;
     report: string;
+    /** «septiembre de 2026»: the month of the account, for the template. */
+    month: string;
     periodNumber: number;
     missing: string[];
     message: Outgoing;
@@ -2412,6 +2414,7 @@ export class Orchestrator {
       to: user.phone,
       name,
       report,
+      month: `${monthNameEs(p.from).toLowerCase()} de ${p.from.slice(0, 4)}`,
       periodNumber: p.number,
       missing: labels,
       message: buttons(

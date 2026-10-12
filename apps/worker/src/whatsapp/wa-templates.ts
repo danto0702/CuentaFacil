@@ -9,7 +9,7 @@ export interface TemplateDefinition {
   components: Record<string, unknown>[];
 }
 
-/** Missing-supports reminder (ADR-036). The quick reply carries `guide:<contract>` when sent. */
+/** Missing-supports reminder (ADR-036), as approved by Meta. The quick reply opens the checklist. */
 export const FALTAN_SOPORTES: TemplateDefinition = {
   name: 'faltan_soportes',
   language: 'es',
@@ -17,19 +17,10 @@ export const FALTAN_SOPORTES: TemplateDefinition = {
   components: [
     {
       type: 'BODY',
-      text: 'Hola {{1}}, tu {{2}} cierra pronto y aún me faltan estos soportes: {{3}}. ¿Te guío para descargarlos uno por uno?',
-      example: {
-        body_text: [
-          [
-            'María',
-            'informe 03 DE 03 (1 al 30 de septiembre de 2026)',
-            'Antecedentes Policía, Afiliación EPS',
-          ],
-        ],
-      },
+      text: 'Hola {{1}}, para tu cuenta de {{2}} aún me faltan estos soportes: {{3}}. Envíamelos por aquí cuando los tengas.',
+      example: { body_text: [['María', 'septiembre de 2026', 'Antecedentes Policía, Afiliación EPS']] },
     },
-    { type: 'FOOTER', text: 'Responde STOP si no quieres recordatorios' },
-    { type: 'BUTTONS', buttons: [{ type: 'QUICK_REPLY', text: 'Guíame' }] },
+    { type: 'BUTTONS', buttons: [{ type: 'QUICK_REPLY', text: '¿Qué me falta?' }] },
   ],
 };
 

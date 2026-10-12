@@ -31,6 +31,7 @@ export interface Reminder {
   to: string;
   name: string;
   report: string;
+  month: string;
   periodNumber: number;
   missing: string[];
   message: Outgoing;
@@ -76,8 +77,10 @@ export async function sendSupportReminders(d: ReminderDeps): Promise<number> {
     const template: TemplateMessage = {
       name: s.template,
       language: s.language,
-      body: [r.name, r.report, r.missing.join(', ')],
-      quickReplies: [`guide:${p.contractId}`],
+      // Approved text: «Hola {{1}}, para tu cuenta de {{2}} aún me faltan estos soportes: {{3}}…»
+      body: [r.name, r.month, r.missing.join(', ')],
+      // Its button reads «¿Qué me falta?»: it opens the checklist, which offers the guide.
+      quickReplies: ['menu:status'],
     };
     if (!(await d.db.claim(p.userId, key, open ? 'free' : 'template', open ? r.message : template))) continue;
     try {

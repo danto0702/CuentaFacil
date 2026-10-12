@@ -20,6 +20,7 @@ const reminder: Reminder = {
   to: '+573001112233',
   name: 'María',
   report: 'informe 03 DE 03 (1 al 30 de septiembre de 2026)',
+  month: 'septiembre de 2026',
   periodNumber: 3,
   missing: ['Antecedentes Policía', 'Afiliación EPS (vencido)'],
   message: { type: 'text', text: 'faltan' },
@@ -83,8 +84,8 @@ describe('missing-supports reminders', () => {
       {
         name: 'faltan_soportes',
         language: 'es',
-        body: ['María', reminder.report, 'Antecedentes Policía, Afiliación EPS (vencido)'],
-        quickReplies: ['guide:c1'],
+        body: ['María', 'septiembre de 2026', 'Antecedentes Policía, Afiliación EPS (vencido)'],
+        quickReplies: ['menu:status'],
       },
     ]);
     expect(s.finished['reminder:supports:c1:3']).toEqual({ wamid: 'wamid-template' });
