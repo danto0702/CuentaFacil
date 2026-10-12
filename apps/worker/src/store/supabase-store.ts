@@ -930,6 +930,16 @@ export class SupabaseStore implements Store {
         await this.sb.from('periods').upsert(rows, { onConflict: 'contract_id,report_number' }),
         'savePeriods.upsert',
       );
+      // First delivery date, kept on later redeliveries: notes added after it are worth a look.
+      must(
+        await this.sb
+          .from('periods')
+          .update({ delivered_at: new Date().toISOString() })
+          .eq('contract_id', contractId)
+          .eq('status', 'delivered')
+          .is('delivered_at', null),
+        'savePeriods.deliveredAt',
+      );
     }
     const keep = periods.map((p) => p.number);
     let del = this.sb.from('periods').delete().eq('contract_id', contractId);

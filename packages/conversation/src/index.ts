@@ -5,6 +5,7 @@ export * from './domain.js';
 export * from './fakes.js';
 export * from './intents.js';
 export * from './memory-store.js';
+export * from './note-check.js';
 export * from './orchestrator.js';
 export * from './ports.js';
 export * from './setup.js';

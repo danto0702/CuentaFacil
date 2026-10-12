@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { adminAvailable, listInstitutionRequests } from '@/lib/admin';
 import { listOpenTickets } from '@/lib/billing';
 import { dataSource } from '@/lib/data';
+import { listSuspiciousNotes } from '@/lib/note-review';
 import { closeTicket } from './cobros/actions';
 
 const STATUS: Record<string, string> = {
@@ -26,6 +27,7 @@ export default async function Dashboard() {
     ? (await listInstitutionRequests()).filter((r) => r.status === 'pending').length
     : 0;
   const tickets = adminAvailable() ? await listOpenTickets() : [];
+  const suspicious = adminAvailable() ? await listSuspiciousNotes().catch(() => []) : [];
   const byStatus = Object.entries(
     accounts.reduce<Record<string, number>>((acc, a) => {
       acc[a.status] = (acc[a.status] ?? 0) + 1;
@@ -62,6 +64,32 @@ export default async function Dashboard() {
                       <button type="submit">Atendido</button>
                     </form>
                   </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+      {suspicious.length > 0 && (
+        <div className="card">
+          <h3>🔎 Actividades por revisar ({suspicious.length})</h3>
+          <p className="muted">
+            Pueden estar en el informe equivocado o no ser actividades. Pascal también le pregunta al
+            contratista antes de redactar su informe.
+          </p>
+          <table>
+            <tbody>
+              {suspicious.slice(0, 50).map((n) => (
+                <tr key={n.id}>
+                  <td>
+                    {n.contractor}
+                    <div className="muted">
+                      Contrato {n.contract}
+                      {n.report ? ` · informe ${n.report}` : ''} · {n.date}
+                    </div>
+                  </td>
+                  <td>{n.text.length > 140 ? `${n.text.slice(0, 139)}…` : n.text}</td>
+                  <td>{n.reason}</td>
                 </tr>
               ))}
             </tbody>
