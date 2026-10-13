@@ -35,6 +35,8 @@ export interface Reminder {
   periodNumber: number;
   missing: string[];
   message: Outgoing;
+  /** Payload of the template's quick reply. */
+  reply: string;
 }
 
 export interface ReminderDb {
@@ -50,7 +52,9 @@ export interface ReminderDb {
 
 export interface ReminderDeps {
   db: ReminderDb;
-  reminder(userId: string, contractId: string): Promise<Reminder | null>;
+  reminder(userId: string, contractId: string, recipientId?: string): Promise<Reminder | null>;
+  /** Gestores of the contractor (ADR-042): they get the reminder too. */
+  managersOf(userId: string): Promise<string[]>;
   send(to: string, out: Outgoing): Promise<string>;
   sendTemplate(to: string, t: TemplateMessage): Promise<string>;
   now: Date;
@@ -69,37 +73,55 @@ export async function sendSupportReminders(d: ReminderDeps): Promise<number> {
   if (!s.enabled || d.hour < s.hour) return 0;
   let sent = 0;
   for (const p of await d.db.periodsEndingOn(addDays(d.today, s.daysBeforeEnd))) {
-    const r = await d.reminder(p.userId, p.contractId);
-    if (!r) continue;
-    const key = `reminder:supports:${p.contractId}:${p.periodNumber}`;
-    const last = await d.db.lastActivity(p.userId);
-    const open = !!last && d.now.getTime() - last.getTime() < WINDOW_MS;
-    const template: TemplateMessage = {
-      name: s.template,
-      language: s.language,
-      // Approved text: «Hola {{1}}, para tu cuenta de {{2}} aún me faltan estos soportes: {{3}}…»
-      body: [r.name, r.month, r.missing.join(', ')],
-      // Its button reads «¿Qué me falta?»: it opens the checklist, which offers the guide.
-      quickReplies: ['menu:status'],
-    };
-    if (!(await d.db.claim(p.userId, key, open ? 'free' : 'template', open ? r.message : template))) continue;
-    try {
-      let wamid: string;
-      try {
-        wamid = open ? await d.send(r.to, r.message) : await d.sendTemplate(r.to, template);
-      } catch (e) {
-        if (!open || (e as { code?: number }).code !== WINDOW_CLOSED) throw e;
-        wamid = await d.sendTemplate(r.to, template);
-      }
-      await d.db.finish(key, { wamid });
-      sent++;
-    } catch (e) {
-      d.log.error('reminders.send_failed', { contractId: p.contractId, error: String(e) });
-      await d.db.finish(key, { error: String(e).slice(0, 500) });
+    const managers = await d.managersOf(p.userId);
+    // The contractor, if they use Pascal themselves (or nobody manages them), and each gestor.
+    const own = !managers.length || !!(await d.db.lastActivity(p.userId));
+    for (const recipientId of [...(own ? [p.userId] : []), ...managers]) {
+      sent += await sendOne(d, s, p, recipientId);
     }
   }
   if (sent) d.log.info('reminders.sent', { sent });
   return sent;
+}
+
+/** One reminder for one recipient (the contractor or a gestor); 1 when sent. */
+async function sendOne(
+  d: ReminderDeps,
+  s: ReminderSettings,
+  p: { userId: string; contractId: string; periodNumber: number },
+  recipientId: string,
+): Promise<number> {
+  const r = await d.reminder(p.userId, p.contractId, recipientId);
+  if (!r) return 0;
+  const who = recipientId === p.userId ? '' : `:${recipientId}`;
+  const key = `reminder:supports:${p.contractId}:${p.periodNumber}${who}`;
+  const last = await d.db.lastActivity(recipientId);
+  const open = !!last && d.now.getTime() - last.getTime() < WINDOW_MS;
+  const template: TemplateMessage = {
+    name: s.template,
+    language: s.language,
+    // Approved text: «Hola {{1}}, para tu cuenta de {{2}} aún me faltan estos soportes: {{3}}…»
+    body: [r.name, r.month, r.missing.join(', ')],
+    // Its button reads «¿Qué me falta?»: it opens the checklist (of that person, for a gestor).
+    quickReplies: [r.reply],
+  };
+  if (!(await d.db.claim(recipientId, key, open ? 'free' : 'template', open ? r.message : template)))
+    return 0;
+  try {
+    let wamid: string;
+    try {
+      wamid = open ? await d.send(r.to, r.message) : await d.sendTemplate(r.to, template);
+    } catch (e) {
+      if (!open || (e as { code?: number }).code !== WINDOW_CLOSED) throw e;
+      wamid = await d.sendTemplate(r.to, template);
+    }
+    await d.db.finish(key, { wamid });
+    return 1;
+  } catch (e) {
+    d.log.error('reminders.send_failed', { contractId: p.contractId, error: String(e) });
+    await d.db.finish(key, { error: String(e).slice(0, 500) });
+    return 0;
+  }
 }
 
 export class SupabaseReminderDb implements ReminderDb {

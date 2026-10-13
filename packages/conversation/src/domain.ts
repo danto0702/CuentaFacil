@@ -326,6 +326,22 @@ export interface Charge {
   method: ChargeMethod | null;
   /** Reference sent to the payment provider. */
   reference: string;
+  /** Who asked for it when a gestor works for the contractor (ADR-042): receives the documents. */
+  requestedBy?: string | null;
+}
+
+/**
+ * A gestor (one WhatsApp number) preparing the accounts of another person (ADR-042). The person
+ * authorizes it from their own WhatsApp; until then the delegation is pending.
+ */
+export interface Delegation {
+  id: string;
+  managerId: string;
+  /** Null until the person accepts (they may not be registered yet). */
+  personId: string | null;
+  personName: string;
+  personPhone: string;
+  status: 'pending' | 'active' | 'declined' | 'revoked';
 }
 
 export type CashCodeResult =

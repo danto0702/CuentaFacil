@@ -17,6 +17,7 @@ import type {
   Charge,
   Contract,
   ConversationState,
+  Delegation,
   Draft,
   Note,
   Obligation,
@@ -41,7 +42,7 @@ const PHOTO_RECENT_NOTES = 8;
 /** An earlier report not delivered yet counts as "being worked on" for this many days after it closes. */
 const OPEN_REPORT_DAYS = 62;
 /** Conversation context kept when the flow changes. */
-const STICKY_KEYS = ['working', 'checkedNotes'] as const;
+const STICKY_KEYS = ['working', 'checkedNotes', 'actingFor', 'dlgAsked'] as const;
 const CONTRACT_ACTIVE =
   '🎉 ¡Tu contrato quedó activo! Desde ya cuéntame lo que haces cada día: texto, audio o fotos. Escribe *menú* para ver todas las opciones.';
 
@@ -77,10 +78,18 @@ interface GuideCtx {
 }
 
 interface Turn {
+  /** Whose accounts are being worked: the sender, or the person a gestor acts for (ADR-042). */
   user: User;
+  /** Who is writing (the WhatsApp number); receives every reply. Defaults to `user`. */
+  actor?: User;
+  /** Name the gestor gave for `user`, until their contract fills in the real one. */
+  personLabel?: string;
   state: ConversationState;
   out: Outgoing[];
 }
+
+/** The WhatsApp number writing in this turn. */
+const actorOf = (turn: Turn): User => turn.actor ?? turn.user;
 
 const text = (t: string): Outgoing => ({ type: 'text', text: t });
 
@@ -144,8 +153,12 @@ export class Orchestrator {
   /** Handles one inbound WhatsApp message and returns the replies to send, in order. */
   async handle(msg: Inbound): Promise<Outgoing[]> {
     const { store } = this.deps;
+    if (msg.kind === 'reply' && /^dlg:(yes|no):/.test(msg.replyId ?? '')) return this.onDelegationAnswer(msg);
     const user = await store.getUserByPhone(msg.from);
     if (!user) {
+      // A gestor asked this number for authorization: that question comes first.
+      const pending = await store.pendingDelegationsFor(msg.from);
+      if (pending.length) return this.askDelegation(pending[0]!, msg.from);
       // Unregistered numbers: nothing is stored until the person accepts the data policy.
       if (msg.kind === 'reply' && msg.replyId === 'consent:no') return this.setup.declined();
       if (
@@ -194,13 +207,267 @@ export class Orchestrator {
       // asked to accept the terms in force (or declined)
     } else if (turn.state.flow === 'profile_doc_issued_in' && (await this.onDocIssuedIn(turn, msg))) {
       // answered
+    } else if (await this.askPendingDelegation(turn)) {
+      // a gestor asked this contractor for authorization
     } else {
+      await this.actAs(turn);
       await this.dispatch(turn, msg);
       await this.askMissingProfile(turn);
+      this.markPerson(turn);
     }
     turn.state.updatedAt = this.deps.clock.now().toISOString();
     await store.saveConversation(turn.state);
     return turn.out;
+  }
+
+  // -------------------------------------------------------------------------
+  // Gestor (ADR-042): one WhatsApp number preparing the accounts of several people, each of whom
+  // authorizes it from their own WhatsApp. The active person is kept in the conversation.
+  // -------------------------------------------------------------------------
+
+  /** Works the accounts of the active person, if the gestor still has their authorization. */
+  private async actAs(turn: Turn): Promise<void> {
+    const id = turn.state.context.actingFor as string | undefined;
+    if (!id || id === turn.user.id) return;
+    const d = (await this.deps.store.listDelegations(turn.user.id)).find(
+      (x) => x.personId === id && x.status === 'active',
+    );
+    if (!d) {
+      turn.state.context = { ...turn.state.context, actingFor: undefined };
+      turn.out.push(
+        text('⚠️ Ya no tienes autorización para las cuentas de esa persona; volvimos a las tuyas.'),
+      );
+      return;
+    }
+    turn.actor = turn.user;
+    turn.user = await this.deps.store.getUser(id);
+    turn.personLabel = d.personName;
+  }
+
+  private personName(u: User, fallback = ''): string {
+    return (u.fullName || fallback).split(/\s+/).slice(0, 3).join(' ') || 'la persona';
+  }
+
+  /** Short name of the person whose accounts are being worked. */
+  private labelOf(turn: Turn): string {
+    return this.personName(turn.user, turn.personLabel);
+  }
+
+  /** While working someone else's accounts, the first reply says whose they are. */
+  private markPerson(turn: Turn): void {
+    if (!turn.actor || turn.actor.id === turn.user.id) return;
+    const first = turn.out.find((o) => o.type !== 'document') as { text: string } | undefined;
+    if (first) first.text = `👤 *${this.labelOf(turn)}*\n${first.text}`;
+  }
+
+  /** "Cambiar persona": the gestor's own accounts and the people they manage. */
+  private async showPeople(turn: Turn): Promise<void> {
+    const me = actorOf(turn);
+    const ds = await this.deps.store.listDelegations(me.id);
+    const active = ds.filter((d) => d.status === 'active' && d.personId);
+    const pending = ds.filter((d) => d.status === 'pending');
+    const current = (turn.state.context.actingFor as string | undefined) ?? me.id;
+    const rows = [
+      {
+        id: 'who:me',
+        title: `${current === me.id ? '✅ ' : ''}Mis cuentas`,
+        description: this.personName(me),
+      },
+      ...active.map((d) => ({
+        id: `who:${d.personId}`,
+        title: `${current === d.personId ? '✅ ' : ''}${d.personName.split(/\s+/).slice(0, 2).join(' ')}`,
+        description: d.personName,
+      })),
+      { id: 'menu:add_person', title: '➕ Agregar persona', description: 'Hacer las cuentas de alguien más' },
+    ];
+    const waiting = pending.length
+      ? `\n\n⏳ Esperando autorización: ${pending.map((d) => d.personName).join(', ')}.`
+      : '';
+    turn.out.push(choose(`👥 ¿De quién son las cuentas que vamos a trabajar?${waiting}`, rows));
+  }
+
+  /** Switches the active person ("who:me", "who:<id>", optionally ":status" to show the checklist). */
+  private async switchPerson(turn: Turn, replyId: string): Promise<void> {
+    const me = actorOf(turn);
+    const [, id, then] = replyId.split(':');
+    const target = id === 'me' ? me.id : id!;
+    if (target !== me.id) {
+      const d = (await this.deps.store.listDelegations(me.id)).find(
+        (x) => x.personId === target && x.status === 'active',
+      );
+      if (!d) {
+        turn.out.push(text('No tengo autorización para las cuentas de esa persona.'));
+        return;
+      }
+      turn.personLabel = d.personName;
+    }
+    turn.user = me;
+    turn.actor = undefined;
+    this.setFlow(turn, 'idle', 'start', {});
+    // The open report and the reviewed notes belong to the previous person.
+    turn.state.context = {
+      ...turn.state.context,
+      actingFor: target === me.id ? undefined : target,
+      working: undefined,
+      checkedNotes: undefined,
+    };
+    if (target !== me.id) {
+      turn.actor = me;
+      turn.user = await this.deps.store.getUser(target);
+    }
+    turn.out.push(
+      text(
+        target === me.id
+          ? '👥 Listo, volvimos a *tus* cuentas.'
+          : `👥 Listo, ahora trabajamos con las cuentas de *${this.labelOf(turn)}*. Todo lo que me envíes queda en sus cuentas hasta que escribas *cambiar persona*.`,
+      ),
+    );
+    if (then === 'status') await this.command(turn, 'status');
+  }
+
+  private async startAddPerson(turn: Turn): Promise<void> {
+    this.setFlow(turn, 'person_phone', 'ask');
+    turn.out.push(
+      text(
+        '➕ Vamos a agregar a una persona para hacer sus cuentas.\n\n📱 Escríbeme su número de WhatsApp, por ejemplo *3001234567*. Le voy a escribir para que autorice que prepares sus cuentas.',
+      ),
+    );
+  }
+
+  private async onPersonPhone(turn: Turn, msg: Inbound): Promise<void> {
+    const raw = (msg.text ?? '').replace(/[^\d+]/g, '');
+    const phone = /^3\d{9}$/.test(raw)
+      ? `+57${raw}`
+      : /^57\d{10}$/.test(raw)
+        ? `+${raw}`
+        : /^\+\d{8,15}$/.test(raw)
+          ? raw
+          : null;
+    if (!phone) {
+      if (msg.kind === 'text' && msg.text && msg.text.trim().split(/\s+/).length > 4) {
+        this.reset(turn);
+        return this.freeText(turn, msg.text);
+      }
+      turn.out.push(
+        text('Escríbeme el número de WhatsApp de la persona con 10 dígitos, por ejemplo *3001234567*.'),
+      );
+      return;
+    }
+    if (phone === actorOf(turn).phone) {
+      turn.out.push(text('Ese es tu propio número. Escríbeme el número de la otra persona.'));
+      return;
+    }
+    this.setFlow(turn, 'person_name', 'ask', { personPhone: phone });
+    turn.out.push(text('✍️ ¿Cuál es su *nombre completo*?'));
+  }
+
+  private async onPersonName(turn: Turn, msg: Inbound): Promise<void> {
+    const name = (msg.text ?? '').trim().replace(/\s+/g, ' ');
+    if (name.length < 5 || name.length > 80 || /\d/.test(name)) {
+      turn.out.push(text('Escríbeme su nombre completo, por ejemplo *Ana María Pérez Gómez*.'));
+      return;
+    }
+    const { personPhone } = turn.state.context as { personPhone: string };
+    const me = actorOf(turn);
+    const d = await this.deps.store.createDelegation({ managerId: me.id, personName: name, personPhone });
+    this.reset(turn);
+    if (d.status === 'active') {
+      turn.out.push(
+        buttons(`✅ *${d.personName}* ya te había autorizado.`, [
+          { id: `who:${d.personId}`, title: 'Trabajar sus cuentas' },
+        ]),
+      );
+      return;
+    }
+    const sent = this.deps.inviteDelegate
+      ? await this.deps.inviteDelegate(d, this.personName(me)).then(
+          () => true,
+          () => false,
+        )
+      : false;
+    turn.out.push(
+      text(
+        sent
+          ? `📨 Le escribí a *${d.personName}* para que autorice que prepares sus cuentas. Te aviso apenas responda.`
+          : `📨 Pídele a *${d.personName}* que me escriba desde su WhatsApp (+57 312 388 5012); ahí le pregunto si autoriza que prepares sus cuentas. Te aviso apenas responda.`,
+      ),
+    );
+  }
+
+  /** Registered contractor with a pending request from a gestor: asked once, before anything else. */
+  private async askPendingDelegation(turn: Turn): Promise<boolean> {
+    const asked = (turn.state.context.dlgAsked as string[] | undefined) ?? [];
+    const d = (await this.deps.store.pendingDelegationsFor(turn.user.phone)).find(
+      (x) => !asked.includes(x.id),
+    );
+    if (!d) return false;
+    turn.state.context = { ...turn.state.context, dlgAsked: [...asked, d.id] };
+    turn.out.push(...(await this.askDelegation(d, turn.user.phone)));
+    return true;
+  }
+
+  /** The authorization question, with the data policy and the terms (Ley 1581). */
+  private async askDelegation(d: Delegation, _to: string): Promise<Outgoing[]> {
+    const manager = await this.deps.store.getUser(d.managerId);
+    return [
+      {
+        type: 'cta_url',
+        text: `👋 Hola ${d.personName.split(' ')[0]}. *${this.personName(manager)}* quiere preparar tus cuentas de cobro con ${SIGNATURE}.\n\nSi lo autorizas, podrá registrar tus actividades, cargar tus soportes y recibir tus documentos, y aceptas nuestra política de tratamiento de datos (Ley 1581 de 2012) y los términos del servicio: ${BRAND.terms}`,
+        button: 'Ver política',
+        url: BRAND.privacyPolicy,
+      },
+      buttons('¿Autorizas que prepare tus cuentas de cobro?', [
+        { id: `dlg:yes:${d.id}`, title: 'Autorizo' },
+        { id: `dlg:no:${d.id}`, title: 'No autorizo' },
+      ]),
+    ];
+  }
+
+  /** The person answers the gestor's request (from the template or from Pascal's question). */
+  private async onDelegationAnswer(msg: Inbound): Promise<Outgoing[]> {
+    const { store } = this.deps;
+    const [, answer, id] = (msg.replyId ?? '').split(':');
+    const d = id ? await store.getDelegation(id) : null;
+    if (!d || d.personPhone !== msg.from || d.status !== 'pending')
+      return [text('Esa solicitud ya no está vigente.')];
+    const manager = await store.getUser(d.managerId);
+    if (answer === 'no') {
+      await store.answerDelegation(d.id, { accepted: false });
+      await this.deps
+        .notify?.(manager.phone, [text(`❌ *${d.personName}* no autorizó que prepares sus cuentas.`)])
+        .catch(() => undefined);
+      return [text('Entendido, no lo autoricé. 🙌')];
+    }
+    const person = (await store.getUserByPhone(msg.from)) ?? (await store.createUser(msg.from));
+    // Accepting covers the data policy and the terms in force for this person.
+    await store.recordConsent({
+      userId: person.id,
+      phone: msg.from,
+      policyVersion: POLICY_VERSION,
+      accepted: true,
+      wamid: msg.id,
+    });
+    await store.recordConsent({
+      userId: person.id,
+      phone: msg.from,
+      kind: 'terms',
+      policyVersion: TERMS_VERSION,
+      accepted: true,
+      wamid: msg.id,
+    });
+    await store.answerDelegation(d.id, { accepted: true, personId: person.id });
+    await this.deps
+      .notify?.(manager.phone, [
+        buttons(`✅ *${d.personName}* autorizó que prepares sus cuentas.`, [
+          { id: `who:${person.id}`, title: 'Trabajar sus cuentas' },
+        ]),
+      ])
+      .catch(() => undefined);
+    return [
+      text(
+        `✅ Listo, autorizaste a *${this.personName(manager)}* para preparar tus cuentas de cobro. Tú también puedes escribirme cuando quieras: lo que registres queda en las mismas cuentas.`,
+      ),
+    ];
   }
 
   /**
@@ -441,6 +708,7 @@ export class Orchestrator {
       const c = (await this.activeContracts(turn)).find((x) => x.id === contractId);
       if (c) return this.startGenerate(turn, c, true, Number(n));
     }
+    if (msg.kind === 'reply' && msg.replyId?.startsWith('who:')) return this.switchPerson(turn, msg.replyId);
     // Corrections of a recorded activity work whatever Pascal was asking.
     if (msg.kind === 'reply' && msg.replyId?.startsWith('chg:')) {
       this.reset(turn);
@@ -475,6 +743,10 @@ export class Orchestrator {
     switch (turn.state.flow) {
       case 'note_contract':
         return this.onNoteContract(turn, msg);
+      case 'person_phone':
+        return this.onPersonPhone(turn, msg);
+      case 'person_name':
+        return this.onPersonName(turn, msg);
       case 'note_redate':
         return this.onNoteRedate(turn, msg);
       case 'note_check':
@@ -633,6 +905,10 @@ export class Orchestrator {
       case 'add_contract':
         await this.setup.start(turn, 'another');
         return;
+      case 'people':
+        return this.showPeople(turn);
+      case 'add_person':
+        return this.startAddPerson(turn);
       case 'signature':
         return this.askSignature(turn);
       case 'guide':
@@ -652,7 +928,7 @@ export class Orchestrator {
     if (help) {
       turn.out.push(
         text(
-          `Soy ${SIGNATURE}. Así me usas:\n1️⃣ Durante el mes, cuéntame lo que haces: texto, audio o fotos. Yo lo anoto en la obligación que corresponde.\n2️⃣ Envíame los soportes (planilla, antecedentes, afiliaciones) cuando los tengas.\n3️⃣ Al cierre escribe *genera el informe* (o *ver borrador*): redacto el informe y tú lo apruebas.\n4️⃣ Escribe *generar* y te envío los documentos listos para firmar.\n↩️ Si una nota quedó mal, escribe *borra la última nota*; para empezar un informe de cero, *reiniciar*.\n✍️ Para cargar o cambiar tu firma, escribe *firma*.`,
+          `Soy ${SIGNATURE}. Así me usas:\n1️⃣ Durante el mes, cuéntame lo que haces: texto, audio o fotos. Yo lo anoto en la obligación que corresponde.\n2️⃣ Envíame los soportes (planilla, antecedentes, afiliaciones) cuando los tengas.\n3️⃣ Al cierre escribe *genera el informe* (o *ver borrador*): redacto el informe y tú lo apruebas.\n4️⃣ Escribe *generar* y te envío los documentos listos para firmar.\n↩️ Si una nota quedó mal, escribe *borra la última nota*; para empezar un informe de cero, *reiniciar*.\n✍️ Para cargar o cambiar tu firma, escribe *firma*.\n👥 Para hacer las cuentas de otra persona, escribe *agregar persona*; para cambiar entre cuentas, *cambiar persona*.`,
         ),
       );
       turn.out.push(
@@ -684,9 +960,9 @@ export class Orchestrator {
           },
           { id: 'menu:help', title: 'Ayuda y soporte', description: 'Cómo usarme o hablar con una persona' },
           {
-            id: 'menu:about',
-            title: `Conocer ${BRAND.company}`,
-            description: 'Nuestros servicios y página web',
+            id: 'menu:people',
+            title: 'Cuentas de otra persona',
+            description: 'Hacer o cambiar las cuentas de alguien más',
           },
         ],
       ),
@@ -1568,7 +1844,7 @@ export class Orchestrator {
     let segments: SupportSegment[] = [];
     if (isPdf) {
       await this.deps
-        .progress?.(turn.user.phone, text(`🔎 Estoy revisando *${filename}*…`))
+        .progress?.(actorOf(turn).phone, text(`🔎 Estoy revisando *${filename}*…`))
         .catch(() => undefined);
       segments = await this.deps.ai.classifySupports(
         { label: filename, data: media.data, mime: media.mime },
@@ -2704,6 +2980,7 @@ export class Orchestrator {
       return existing.status === 'free' ? 'free' : existing.status === 'pilot' ? 'pilot' : 'paid';
     const charge = await store.openCharge({
       userId: turn.user.id,
+      requestedBy: turn.actor?.id ?? null,
       product: 'report',
       contractId: c.id,
       periodNumber: p.number,
@@ -2729,7 +3006,7 @@ export class Orchestrator {
       ? `💳 Tu ${this.reportLabel(c, p)} está listo. Para entregártelo el valor es *${formatCOP(charge.amount)}*.`
       : `💳 Para activar tu contrato *${c.fullNumber}* el valor de la configuración es *${formatCOP(charge.amount)}*. Cuando se confirme el pago empezamos a registrar tus actividades.`;
     const after = p ? 'te envío los documentos' : 'te aviso';
-    const url = this.deps.payments?.checkoutUrl(charge, turn.user.phone);
+    const url = this.deps.payments?.checkoutUrl(charge, actorOf(turn).phone);
     if (url) {
       turn.out.push({
         type: 'cta_url',
@@ -2855,6 +3132,8 @@ export class Orchestrator {
   async supportsReminder(
     userId: string,
     contractId: string,
+    /** A gestor of this contractor (ADR-042); omitted, the contractor themselves. */
+    recipientId?: string,
   ): Promise<{
     to: string;
     name: string;
@@ -2864,9 +3143,13 @@ export class Orchestrator {
     periodNumber: number;
     missing: string[];
     message: Outgoing;
+    /** Payload of the template's quick reply. */
+    reply: string;
   } | null> {
     const user = await this.deps.store.getUser(userId);
-    if (user.remindersOptOut) return null;
+    const recipient =
+      recipientId && recipientId !== userId ? await this.deps.store.getUser(recipientId) : user;
+    if (recipient.remindersOptOut) return null;
     const c = await this.deps.store.getContract(contractId);
     const p = await this.currentPeriod(c);
     if (!p) return null;
@@ -2874,17 +3157,37 @@ export class Orchestrator {
     const { missing, expired } = await this.checklist(turn, c, p);
     const labels = [...missing.map((t) => t.label), ...expired.map((e) => `${e.type.label} (vencido)`)];
     if (!labels.length) return null;
-    const name = user.fullName.split(' ')[0] ?? '';
+    const name = recipient.fullName.split(' ')[0] ?? '';
     const report = this.reportLabel(c, p);
+    const month = `${monthNameEs(p.from).toLowerCase()} de ${p.from.slice(0, 4)}`;
+    const list = labels.map((l) => `• ${l}`).join('\n');
+    if (recipient.id !== user.id) {
+      // To the gestor: whose account it is, and a button that switches to that person.
+      const person = this.personName(user);
+      return {
+        to: recipient.phone,
+        name,
+        report,
+        month: `${month} de ${person}`,
+        periodNumber: p.number,
+        missing: labels,
+        reply: `who:${user.id}:status`,
+        message: buttons(
+          `⏰ Hola ${name}, el ${report} de *${person}* cierra pronto y aún faltan:\n${list}\n\nSi no quieres recordatorios, escribe *STOP*.`,
+          [{ id: `who:${user.id}:status`, title: 'Ver sus soportes' }],
+        ),
+      };
+    }
     return {
       to: user.phone,
       name,
       report,
-      month: `${monthNameEs(p.from).toLowerCase()} de ${p.from.slice(0, 4)}`,
+      month,
       periodNumber: p.number,
       missing: labels,
+      reply: 'menu:status',
       message: buttons(
-        `⏰ Hola ${name}, tu ${report} cierra pronto y aún me faltan:\n${labels.map((l) => `• ${l}`).join('\n')}\n\n¿Te guío para descargarlos uno por uno? Si no quieres recordatorios, escribe *STOP*.`,
+        `⏰ Hola ${name}, tu ${report} cierra pronto y aún me faltan:\n${list}\n\n¿Te guío para descargarlos uno por uno? Si no quieres recordatorios, escribe *STOP*.`,
         [{ id: `guide:${c.id}`, title: 'Guíame' }],
       ),
     };
@@ -2894,16 +3197,23 @@ export class Orchestrator {
     const { store } = this.deps;
     const charge = await store.getCharge(chargeId);
     const user = await store.getUser(charge.userId);
-    const state = (await store.getConversation(user.id)) ?? this.idle(user.id);
-    const turn: Turn = { user, state, out: [] };
+    // Asked for by a gestor (ADR-042): the documents go to them, in their conversation.
+    const actor =
+      charge.requestedBy && charge.requestedBy !== user.id
+        ? await store.getUser(charge.requestedBy)
+        : undefined;
+    const owner = actor ?? user;
+    const state = (await store.getConversation(owner.id)) ?? this.idle(owner.id);
+    const turn: Turn = { user, ...(actor ? { actor } : {}), state, out: [] };
     if (turn.state.flow === 'pay_wait' || turn.state.flow === 'pay_code') this.reset(turn);
     turn.out.push(text(`✅ Recibí tu pago de ${formatCOP(charge.amount)}. ¡Gracias!`));
     if (charge.product === 'report')
       await this.startGenerate(turn, await store.getContract(charge.contractId));
     else turn.out.push(text(CONTRACT_ACTIVE));
+    this.markPerson(turn);
     turn.state.updatedAt = this.deps.clock.now().toISOString();
     await store.saveConversation(turn.state);
-    return { to: user.phone, out: turn.out };
+    return { to: owner.phone, out: turn.out };
   }
 
   // -------------------------------------------------------------------------

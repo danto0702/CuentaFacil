@@ -7,6 +7,7 @@ import type {
   ChargeMethod,
   Contract,
   ConversationState,
+  Delegation,
   Draft,
   Entity,
   EntitySettings,
@@ -222,6 +223,7 @@ export class SupabaseStore implements Store {
       status: r.status as Charge['status'],
       method: (r.method ?? null) as ChargeMethod | null,
       reference: str(r.reference),
+      requestedBy: ((r.raw as { requested_by?: string } | null)?.requested_by as string | undefined) ?? null,
     };
   }
 
@@ -271,11 +273,20 @@ export class SupabaseStore implements Store {
       must(
         await this.sb
           .from('charges')
-          .update({ amount: input.amount, covers_setup: input.coversSetup })
+          .update({
+            amount: input.amount,
+            covers_setup: input.coversSetup,
+            raw: input.requestedBy ? { requested_by: input.requestedBy } : null,
+          })
           .eq('id', existing.id),
         'openCharge.update',
       );
-      return { ...existing, amount: input.amount, coversSetup: input.coversSetup };
+      return {
+        ...existing,
+        amount: input.amount,
+        coversSetup: input.coversSetup,
+        requestedBy: input.requestedBy ?? null,
+      };
     }
     const row = must(
       await this.sb
@@ -289,6 +300,8 @@ export class SupabaseStore implements Store {
           covers_setup: input.coversSetup,
           amount: input.amount,
           reference: `CF-${randomBytes(6).toString('hex').toUpperCase()}`,
+          // A gestor asked for it (ADR-042): they get the documents once paid.
+          raw: input.requestedBy ? { requested_by: input.requestedBy } : null,
         })
         .select(SupabaseStore.CHARGE_COLS)
         .single(),
@@ -574,6 +587,110 @@ export class SupabaseStore implements Store {
       }),
       'recordConsent',
     );
+  }
+
+  // -------------------------------------------------------------------------
+  // Gestor (ADR-042)
+  // -------------------------------------------------------------------------
+  private toDelegation(r: Row): Delegation {
+    return {
+      id: str(r.id),
+      managerId: str(r.manager_id),
+      personId: r.person_id ? str(r.person_id) : null,
+      personName: str(r.person_name),
+      personPhone: str(r.person_phone),
+      status: r.status as Delegation['status'],
+    };
+  }
+
+  async createDelegation(input: {
+    managerId: string;
+    personName: string;
+    personPhone: string;
+  }): Promise<Delegation> {
+    const live = must(
+      await this.sb
+        .from('delegations')
+        .select('*')
+        .eq('manager_id', input.managerId)
+        .eq('person_phone', input.personPhone)
+        .in('status', ['pending', 'active'])
+        .maybeSingle(),
+      'createDelegation.find',
+    ) as Row | null;
+    if (live) return this.toDelegation(live);
+    const known = must(
+      await this.sb.from('users').select('full_name').eq('phone_e164', input.personPhone).maybeSingle(),
+      'createDelegation.user',
+    ) as Row | null;
+    const row = must(
+      await this.sb
+        .from('delegations')
+        .insert({
+          manager_id: input.managerId,
+          person_name: (known?.full_name as string | null) || input.personName,
+          person_phone: input.personPhone,
+        })
+        .select('*')
+        .single(),
+      'createDelegation.insert',
+    ) as Row;
+    return this.toDelegation(row);
+  }
+
+  async getDelegation(id: string): Promise<Delegation | null> {
+    const r = must(
+      await this.sb.from('delegations').select('*').eq('id', id).maybeSingle(),
+      'getDelegation',
+    ) as Row | null;
+    return r ? this.toDelegation(r) : null;
+  }
+
+  async listDelegations(managerId: string): Promise<Delegation[]> {
+    const rows = must(
+      await this.sb.from('delegations').select('*').eq('manager_id', managerId).order('created_at'),
+      'listDelegations',
+    ) as Row[];
+    return rows.map((r) => this.toDelegation(r));
+  }
+
+  async pendingDelegationsFor(phone: string): Promise<Delegation[]> {
+    const rows = must(
+      await this.sb
+        .from('delegations')
+        .select('*')
+        .eq('person_phone', phone)
+        .eq('status', 'pending')
+        .order('created_at'),
+      'pendingDelegationsFor',
+    ) as Row[];
+    return rows.map((r) => this.toDelegation(r));
+  }
+
+  async answerDelegation(
+    id: string,
+    answer: { accepted: true; personId: string } | { accepted: false },
+  ): Promise<void> {
+    must(
+      await this.sb
+        .from('delegations')
+        .update(
+          answer.accepted
+            ? { status: 'active', person_id: answer.personId, answered_at: new Date().toISOString() }
+            : { status: 'declined', answered_at: new Date().toISOString() },
+        )
+        .eq('id', id)
+        .eq('status', 'pending'),
+      'answerDelegation',
+    );
+  }
+
+  async managersOf(personId: string): Promise<User[]> {
+    const rows = must(
+      await this.sb.from('delegations').select('manager_id').eq('person_id', personId).eq('status', 'active'),
+      'managersOf',
+    ) as Row[];
+    return Promise.all(rows.map((r) => this.getUser(str(r.manager_id))));
   }
 
   async setRemindersOptOut(userId: string, optOut: boolean): Promise<void> {

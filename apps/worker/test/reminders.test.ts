@@ -24,11 +24,17 @@ const reminder: Reminder = {
   periodNumber: 3,
   missing: ['Antecedentes Policía', 'Afiliación EPS (vencido)'],
   message: { type: 'text', text: 'faltan' },
+  reply: 'menu:status',
 };
 const now = new Date('2026-09-27T14:00:00Z');
 
 function setup(
-  opts: { settings?: Partial<ReminderSettings>; lastActivity?: Date | null; failFree?: number } = {},
+  opts: {
+    settings?: Partial<ReminderSettings>;
+    lastActivity?: Date | null;
+    failFree?: number;
+    managers?: string[];
+  } = {},
 ) {
   const claimed = new Set<string>();
   const finished: Record<string, unknown> = {};
@@ -51,7 +57,11 @@ function setup(
   const run = (hour = 9) =>
     sendSupportReminders({
       db,
-      reminder: async () => reminder,
+      reminder: async (_u, _c, recipientId) =>
+        recipientId === 'g1'
+          ? { ...reminder, to: '+573009998877', month: 'septiembre de 2026 de María', reply: 'who:u1:status' }
+          : reminder,
+      managersOf: async () => opts.managers ?? [],
       send: async (_to, out) => {
         if (opts.failFree) throw Object.assign(new Error('window closed'), { code: opts.failFree });
         free.push(out);
@@ -101,6 +111,20 @@ describe('missing-supports reminders', () => {
     const closed = setup({ lastActivity: new Date(now.getTime() - 3600_000), failFree: 131047 });
     await closed.run();
     expect(closed.templates).toHaveLength(1);
+  });
+
+  it('also reminds the gestor, about that person, and skips the contractor who never wrote', async () => {
+    const s = setup({ managers: ['g1'] });
+    expect(await s.run()).toBe(1);
+    expect(s.templates).toEqual([
+      {
+        name: 'faltan_soportes',
+        language: 'es',
+        body: ['María', 'septiembre de 2026 de María', 'Antecedentes Policía, Afiliación EPS (vencido)'],
+        quickReplies: ['who:u1:status'],
+      },
+    ]);
+    expect(s.finished['reminder:supports:c1:3:g1']).toEqual({ wamid: 'wamid-template' });
   });
 
   it('builds the template payload with a quick-reply payload and no line breaks', () => {

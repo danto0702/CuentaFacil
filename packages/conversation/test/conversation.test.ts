@@ -632,7 +632,8 @@ describe('other flows', () => {
       expect.stringMatching(/^🌼 PascalIA crea soluciones .* <Ir a PascalIA → https:\/\/pascalia\.lat\/>$/s),
     ]);
     const menu = show(await h.say('menú'));
-    expect(menu[0]).toContain('Conocer PascalIA');
+    // The menu row gave way to 'Cuentas de otra persona'; «pascalia» still answers.
+    expect(menu[0]).toContain('Cuentas de otra persona');
     expect(show(await h.press('menu:about'))[0]).toContain('https://pascalia.lat/');
 
     const stranger = harness({ phone: '+573999999999' });
@@ -761,6 +762,24 @@ describe('billing (ADR-034)', () => {
     expect(shown[0]).toBe('✅ Recibí tu pago de $ 50.000. ¡Gracias!');
     expect(shown[1]).toBe('⏳ Estoy generando tus documentos, dame un momento…');
   });
+
+  it('delivers to the gestor who asked for the payment (ADR-042)', async () => {
+    const h = await readyToGenerate();
+    h.store.data.billing = { mode: 'live', prices: { setup: 15_000, report: 50_000 } };
+    await h.say('generar');
+    await h.press(`c:${DEMO_IDS.ebs}`);
+    const p = (await h.store.listPeriods(DEMO_IDS.ebs)).find((x) => x.status === 'approved')!;
+    const charge = (await h.store.findCharge(DEMO_IDS.ebs, 'report', p.number))!;
+    // Asked for by Carlos, gestor of María.
+    const carlos = h.store.data.users.find((u) => u.phone === DEMO_PHONES.carlos)!;
+    h.store.data.charges = h.store.data.charges!.map((c) =>
+      c.id === charge.id ? { ...c, requestedBy: carlos.id } : c,
+    );
+    await h.store.settleCharge(charge.id, 'paid', 'wompi', 'tx-1');
+    const { to, out } = await h.orchestrator.chargePaid(charge.id);
+    expect(to).toBe(DEMO_PHONES.carlos);
+    expect(show(out)[0]).toMatch(/^👤 \*María .*\*\n✅ Recibí tu pago de \$ 50\.000/);
+  });
 });
 
 describe('certificates guide', () => {
@@ -820,5 +839,68 @@ describe('reminders', () => {
     expect(await h.orchestrator.supportsReminder(maria.id, DEMO_IDS.salud)).toBeNull();
     expect(show(await h.say('activar recordatorios'))).toEqual(['🔔 Listo, activé tus recordatorios.']);
     expect(await h.orchestrator.supportsReminder(maria.id, DEMO_IDS.salud)).not.toBeNull();
+  });
+});
+
+describe('gestor: several people from one WhatsApp (ADR-042)', () => {
+  it('invites a person, who authorizes from their WhatsApp, and switches between accounts', async () => {
+    const h = harness();
+    const ana = '+573005556677';
+    let out = show(await h.say('agregar persona'));
+    expect(out[0]).toMatch(/Escríbeme su número de WhatsApp/);
+    expect(show(await h.say('300 555'))[0]).toMatch(/10 dígitos/);
+    out = show(await h.say('300 555 6677'));
+    expect(out[0]).toBe('✍️ ¿Cuál es su *nombre completo*?');
+    out = show(await h.say('Ana María Pérez Gómez'));
+    // Without the approved template, the person is asked to write to Pascal.
+    expect(out[0]).toMatch(/^📨 Pídele a \*Ana María Pérez Gómez\* que me escriba/);
+
+    // Nobody can work her accounts yet.
+    out = show(await h.say('cambiar persona'));
+    expect(out[0]).toMatch(/⏳ Esperando autorización: Ana María Pérez Gómez/);
+
+    // Ana writes: the authorization question comes first, with the data policy.
+    const a = h.as(ana);
+    out = show(await a.say('Hola'));
+    expect(out[0]).toMatch(/^👋 Hola Ana\. \*María Fernanda Prueba\* quiere preparar tus cuentas de cobro/);
+    expect(out[1]).toBe('¿Autorizas que prepare tus cuentas de cobro? [Autorizo] [No autorizo]');
+    const d = h.store.data.delegations![0]!;
+    out = show(await a.press(`dlg:yes:${d.id}`));
+    expect(out[0]).toMatch(/^✅ Listo, autorizaste a \*María Fernanda Prueba\*/);
+    const anaUser = (await h.store.getUserByPhone(ana))!;
+    expect(
+      h.store.data.consents?.filter((c) => c.userId === anaUser.id).map((c) => c.kind ?? 'policy'),
+    ).toEqual(['policy', 'terms']);
+    // A second answer does nothing.
+    expect(show(await a.press(`dlg:yes:${d.id}`))).toEqual(['Esa solicitud ya no está vigente.']);
+
+    // María switches to Ana: every reply says whose accounts they are.
+    out = show(await h.say('cambiar persona'));
+    expect(out[0]).toBe(
+      '👥 ¿De quién son las cuentas que vamos a trabajar? [✅ Mis cuentas] [Ana María] [➕ Agregar persona]',
+    );
+    out = show(await h.press(`who:${anaUser.id}`));
+    expect(out[0]).toMatch(
+      /^👤 \*Ana María Pérez\*\n👥 Listo, ahora trabajamos con las cuentas de \*Ana María Pérez\*/,
+    );
+    out = show(await h.say('Hola'));
+    // Ana has no contract yet: setup starts for her.
+    expect(out[0]).toMatch(/^👤 \*Ana María Pérez\*\n📄 Para empezar necesito configurar tu contrato\./);
+    expect(out[1]).toMatch(/¿Con qué institución es tu contrato\?/);
+
+    // Back to her own accounts.
+    await h.say('cancelar');
+    out = show(await h.press('who:me'));
+    expect(out[0]).toBe('👥 Listo, volvimos a *tus* cuentas.');
+    out = show(await h.say('¿Qué me falta?'));
+    expect(out[0]).not.toMatch(/^👤/);
+  });
+
+  it('does not let anyone act for a person without an active authorization', async () => {
+    const h = harness();
+    const stranger = h.store.data.users.find((u) => u.phone !== DEMO_PHONES.maria)!;
+    expect(show(await h.press(`who:${stranger.id}`))).toEqual([
+      'No tengo autorización para las cuentas de esa persona.',
+    ]);
   });
 });

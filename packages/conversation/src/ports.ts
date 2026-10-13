@@ -8,6 +8,7 @@ import type {
   Contract,
   ContractExtraction,
   ConversationState,
+  Delegation,
   DocumentInput,
   Draft,
   Entity,
@@ -244,6 +245,25 @@ export interface Store {
   acceptedVersion(userId: string, kind: 'privacy_policy' | 'terms'): Promise<string | null>;
   /** Saves identity and bank data taken from the contract (encrypted at rest). */
   saveUserProfile(user: User): Promise<void>;
+  // Gestor (ADR-042)
+  /** Asks a person to authorize a gestor; one live delegation per manager and phone. */
+  createDelegation(input: {
+    managerId: string;
+    personName: string;
+    personPhone: string;
+  }): Promise<Delegation>;
+  getDelegation(id: string): Promise<Delegation | null>;
+  /** Delegations of a manager (all statuses), oldest first. */
+  listDelegations(managerId: string): Promise<Delegation[]>;
+  /** Pending delegations addressed to this phone. */
+  pendingDelegationsFor(phone: string): Promise<Delegation[]>;
+  /** The person answered: active (linked to their user) or declined. */
+  answerDelegation(
+    id: string,
+    answer: { accepted: true; personId: string } | { accepted: false },
+  ): Promise<void>;
+  /** Users who manage this person (active delegations). */
+  managersOf(personId: string): Promise<User[]>;
   /** STOP / «activar recordatorios»: whether Pascal may write first (reminders). */
   setRemindersOptOut(userId: string, optOut: boolean): Promise<void>;
   /** Matches the contracting entity by NIT (digits) or name; null if the entity is not configured. */
@@ -284,4 +304,11 @@ export interface Deps {
   payments?: { checkoutUrl(charge: Charge, phone: string): string };
   /** Splits a PDF (pages from..to, 1-based). Without it, each support keeps the whole file. */
   extractPages?: (data: Buffer, from: number, to: number) => Promise<Buffer>;
+  /**
+   * Asks a person to authorize a gestor (approved WhatsApp template, ADR-042). Without it the gestor is
+   * told to ask the person to write to Pascal and accept from there.
+   */
+  inviteDelegate?: (d: Delegation, managerName: string) => Promise<void>;
+  /** Writes to another number outside the current turn (e.g. tells the gestor the person accepted). */
+  notify?: (to: string, out: Outgoing[]) => Promise<void>;
 }

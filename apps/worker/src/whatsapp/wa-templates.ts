@@ -24,4 +24,25 @@ export const FALTAN_SOPORTES: TemplateDefinition = {
   ],
 };
 
-export const TEMPLATES: TemplateDefinition[] = [FALTAN_SOPORTES];
+/** A gestor asks a person to authorize preparing their accounts (ADR-042). Payloads: dlg:yes|no:<id>. */
+export const AUTORIZAR_GESTOR: TemplateDefinition = {
+  name: 'autorizar_gestor',
+  language: 'es',
+  category: 'UTILITY',
+  components: [
+    {
+      type: 'BODY',
+      text: 'Hola {{1}}, {{2}} quiere preparar tus cuentas de cobro con Pascal, el asistente de CuentaFacil. Si lo autorizas, podrá registrar tus actividades, cargar tus soportes y recibir tus documentos, y aceptas nuestra política de tratamiento de datos y los términos del servicio: https://pascalia.lat/terminos/ ¿Lo autorizas?',
+      example: { body_text: [['Ana', 'Danilo Torrado']] },
+    },
+    {
+      type: 'BUTTONS',
+      buttons: [
+        { type: 'QUICK_REPLY', text: 'Autorizo' },
+        { type: 'QUICK_REPLY', text: 'No autorizo' },
+      ],
+    },
+  ],
+};
+
+export const TEMPLATES: TemplateDefinition[] = [FALTAN_SOPORTES, AUTORIZAR_GESTOR];

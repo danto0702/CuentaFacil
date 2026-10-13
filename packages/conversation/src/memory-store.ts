@@ -7,6 +7,7 @@ import type {
   ChargeMethod,
   Contract,
   ConversationState,
+  Delegation,
   Draft,
   Entity,
   Evidence,
@@ -55,6 +56,7 @@ export interface MemoryData {
     documents?: InstitutionDocuments;
   }[];
   freeReports?: Record<string, number>;
+  delegations?: Delegation[];
   billing?: BillingSettings;
   charges?: (Charge & { providerTx?: string })[];
   cashCodes?: {
@@ -255,6 +257,53 @@ export class MemoryStore implements Store {
   async saveUserProfile(user: User) {
     this.data.users = this.data.users.map((u) => (u.id === user.id ? clone(user) : u));
   }
+  async createDelegation(input: { managerId: string; personName: string; personPhone: string }) {
+    const live = (this.data.delegations ?? []).find(
+      (d) =>
+        d.managerId === input.managerId &&
+        d.personPhone === input.personPhone &&
+        (d.status === 'pending' || d.status === 'active'),
+    );
+    if (live) return clone(live);
+    const person = this.data.users.find((u) => u.phone === input.personPhone);
+    const d: Delegation = {
+      id: `dlg-${(this.data.delegations ?? []).length + 1}`,
+      managerId: input.managerId,
+      personId: null,
+      personName: person?.fullName || input.personName,
+      personPhone: input.personPhone,
+      status: 'pending',
+    };
+    this.data.delegations = [...(this.data.delegations ?? []), d];
+    return clone(d);
+  }
+  async getDelegation(id: string) {
+    const d = (this.data.delegations ?? []).find((x) => x.id === id);
+    return d ? clone(d) : null;
+  }
+  async listDelegations(managerId: string) {
+    return clone((this.data.delegations ?? []).filter((d) => d.managerId === managerId));
+  }
+  async pendingDelegationsFor(phone: string) {
+    return clone(
+      (this.data.delegations ?? []).filter((d) => d.personPhone === phone && d.status === 'pending'),
+    );
+  }
+  async answerDelegation(id: string, answer: { accepted: true; personId: string } | { accepted: false }) {
+    this.data.delegations = (this.data.delegations ?? []).map((d) =>
+      d.id !== id
+        ? d
+        : answer.accepted
+          ? { ...d, status: 'active' as const, personId: answer.personId }
+          : { ...d, status: 'declined' as const },
+    );
+  }
+  async managersOf(personId: string) {
+    const ids = (this.data.delegations ?? [])
+      .filter((d) => d.personId === personId && d.status === 'active')
+      .map((d) => d.managerId);
+    return clone(this.data.users.filter((u) => ids.includes(u.id)));
+  }
   async setRemindersOptOut(userId: string, optOut: boolean) {
     this.data.users = this.data.users.map((u) => (u.id === userId ? { ...u, remindersOptOut: optOut } : u));
   }
@@ -332,7 +381,12 @@ export class MemoryStore implements Store {
     const existing = await this.findCharge(input.contractId, input.product, input.periodNumber);
     if (existing && existing.status !== 'pending') return existing;
     const charge: Charge = existing
-      ? { ...existing, amount: input.amount, coversSetup: input.coversSetup }
+      ? {
+          ...existing,
+          amount: input.amount,
+          coversSetup: input.coversSetup,
+          requestedBy: input.requestedBy ?? null,
+        }
       : {
           ...input,
           id: randomUUID(),

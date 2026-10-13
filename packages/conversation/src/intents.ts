@@ -20,6 +20,8 @@ export type Command =
   | 'reset'
   | 'signature'
   | 'guide'
+  | 'people'
+  | 'add_person'
   | 'cancel';
 
 const COMMANDS: [Command, string[]][] = [
@@ -88,6 +90,20 @@ const COMMANDS: [Command, string[]][] = [
       'soportes',
     ],
   ],
+  [
+    'people',
+    [
+      'cambiar persona',
+      'cambiar de persona',
+      'personas',
+      'mis personas',
+      'personas a cargo',
+      'otra persona',
+      'cuentas de otra persona',
+      'mis cuentas',
+    ],
+  ],
+  ['add_person', ['agregar persona', 'nueva persona', 'agregar otra persona', 'anadir persona']],
   ['cancel', ['cancelar', 'salir']],
 ];
 

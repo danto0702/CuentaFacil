@@ -80,6 +80,27 @@ const orchestrator = new Orchestrator({
   // Interim "working on it" messages go out only on the first attempt, so retries don't repeat them.
   extractPages,
   ...(wompi ? { payments: { checkoutUrl: (charge) => checkoutUrl(wompi, charge) } } : {}),
+  // Gestor (ADR-042): the authorization request goes as the approved template; it fails (and the
+  // gestor is told to ask the person to write) while Meta has not approved it.
+  inviteDelegate: async (d, managerName) => {
+    const body = [d.personName.split(' ')[0] ?? d.personName, managerName];
+    const wamid = await messenger.sendTemplate(d.personPhone, {
+      name: 'autorizar_gestor',
+      language: 'es',
+      body,
+      quickReplies: [`dlg:yes:${d.id}`, `dlg:no:${d.id}`],
+    });
+    await pipelineDb
+      .logOutbound(d.personPhone, wamid, {
+        type: 'text',
+        text: `[plantilla autorizar_gestor] ${body.join(' · ')}`,
+      })
+      .catch(() => undefined);
+  },
+  notify: async (to, out) => {
+    for (const o of out)
+      await pipelineDb.logOutbound(to, await outbound.send(to, o), o).catch(() => undefined);
+  },
   progress: async (to, out) => {
     if (currentAttempt <= 1) await messenger.send(to, out);
   },
@@ -172,7 +193,9 @@ async function supportReminders(): Promise<void> {
   const now = new Date();
   await sendSupportReminders({
     db: reminderDb,
-    reminder: (userId, contractId) => orchestrator.supportsReminder(userId, contractId),
+    reminder: (userId, contractId, recipientId) =>
+      orchestrator.supportsReminder(userId, contractId, recipientId),
+    managersOf: async (userId) => (await store.managersOf(userId)).map((u) => u.id),
     send: async (to, out) => {
       const wamid = await outbound.send(to, out);
       await pipelineDb.logOutbound(to, wamid, out).catch(() => undefined);
@@ -222,7 +245,8 @@ async function processWompi(inboxId: number): Promise<void> {
     await pipelineDb.markInbox(inboxId, 'rejected', `unknown reference ${tx.reference}`);
     return;
   }
-  const user = await store.getUser(charge.userId);
+  // The one who asked for the payment: the contractor, or their gestor (ADR-042).
+  const user = await store.getUser(charge.requestedBy ?? charge.userId);
   if (tx.status === 'APPROVED') {
     if (tx.amountInCents !== charge.amount * 100) {
       log.error('wompi.amount_mismatch', { inboxId, reference: tx.reference });

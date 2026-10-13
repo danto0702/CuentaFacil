@@ -31,10 +31,20 @@ export function harness(opts: { today?: string; generator?: Generator; phone?: s
   const from = opts.phone ?? DEMO_PHONES.maria;
   const send = (m: Omit<Inbound, 'id' | 'from' | 'at'>) =>
     orchestrator.handle({ id: `wamid-${++seq}`, from, at: clock.now(), ...m });
+  /** Another WhatsApp number writing to the same Pascal (e.g. the person a gestor works for). */
+  const as = (phone: string) => {
+    const sendAs = (m: Omit<Inbound, 'id' | 'from' | 'at'>) =>
+      orchestrator.handle({ id: `wamid-${++seq}`, from: phone, at: clock.now(), ...m });
+    return {
+      say: (text: string) => sendAs({ kind: 'text', text }),
+      press: (replyId: string) => sendAs({ kind: 'reply', replyId }),
+    };
+  };
   return {
     store,
     clock,
     orchestrator,
+    as,
     say: (text: string) => send({ kind: 'text', text }),
     press: (replyId: string) => send({ kind: 'reply', replyId }),
     photo: (caption?: string) =>

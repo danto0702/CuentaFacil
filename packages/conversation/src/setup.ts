@@ -21,9 +21,15 @@ export const TERMS_VERSION = '1.1';
 
 export interface SetupTurn {
   user: User;
+  /** The gestor writing for `user` (ADR-042); progress messages go to them. */
+  actor?: User;
   state: ConversationState;
   out: Outgoing[];
 }
+
+/** Context that survives the setup: the person a gestor is working for (ADR-042). */
+const keepActing = (ctx: Record<string, unknown>): Record<string, unknown> =>
+  ctx.actingFor ? { actingFor: ctx.actingFor } : {};
 
 interface SetupCtx {
   contractDocId?: string;
@@ -413,7 +419,7 @@ export class SetupFlow {
   }
 
   async start(turn: SetupTurn, intro: 'consent' | 'first' | 'another' = 'consent'): Promise<void> {
-    turn.state.context = {};
+    turn.state.context = keepActing(turn.state.context);
     const opening = {
       consent: '✅ ¡Gracias! Ahora configuremos tu contrato.',
       first: '📄 Para empezar necesito configurar tu contrato.',
@@ -619,7 +625,7 @@ export class SetupFlow {
     });
     turn.state.flow = 'idle';
     turn.state.step = 'start';
-    turn.state.context = {};
+    turn.state.context = keepActing(turn.state.context);
     turn.out.push(
       text(
         `✅ ¡Listo! Recibí ${Object.keys(models).length > 1 ? 'los modelos' : 'el modelo'}, la lista de documentos y tu contrato de *${ctx.otherName}*.\n\nNuestro equipo va a configurar esa institución y te escribimos por aquí cuando esté lista (normalmente en 1 o 2 días hábiles).${
@@ -727,7 +733,7 @@ export class SetupFlow {
     });
     await this.deps
       .progress?.(
-        turn.user.phone,
+        (turn.actor ?? turn.user).phone,
         text('⏳ Recibí el clausulado. Estoy leyendo tus documentos; esto puede tardar uno o dos minutos…'),
       )
       .catch(() => undefined);
@@ -738,7 +744,7 @@ export class SetupFlow {
     if (!entity) {
       turn.state.flow = 'idle';
       turn.state.step = 'start';
-      turn.state.context = {};
+      turn.state.context = keepActing(turn.state.context);
       turn.out.push(
         text(
           `Leí tu contrato con *${extraction.entity.name}*. Esa entidad todavía no está configurada en ${BRAND.service}; por ahora trabajamos con la ESE Hospital Regional Noroccidental. Una persona de nuestro equipo te va a contactar por aquí. 🙏`,
@@ -1120,7 +1126,7 @@ export class SetupFlow {
 
     turn.state.flow = 'idle';
     turn.state.step = 'start';
-    turn.state.context = {};
+    turn.state.context = keepActing(turn.state.context);
     const next = periods.find((p) => p.status !== 'delivered');
     const billing = await store.getBillingSettings();
     // Live mode: the contract is active once its configuration is paid (terms, section 5); the
@@ -1128,6 +1134,7 @@ export class SetupFlow {
     if (billing.mode === 'live')
       await store.openCharge({
         userId: user.id,
+        requestedBy: turn.actor?.id ?? null,
         product: 'setup',
         contractId: contract.id,
         periodNumber: null,
