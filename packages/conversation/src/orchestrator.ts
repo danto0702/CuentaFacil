@@ -280,9 +280,9 @@ export class Orchestrator {
       })),
       { id: 'menu:add_person', title: '➕ Agregar persona', description: 'Hacer las cuentas de alguien más' },
     ];
-    const waiting = pending.length
-      ? `\n\n⏳ Esperando autorización: ${pending.map((d) => d.personName).join(', ')}.`
-      : '';
+    const waiting = `${
+      pending.length ? `\n\n⏳ Esperando autorización: ${pending.map((d) => d.personName).join(', ')}.` : ''
+    }${active.length ? '\n\nPara dejar de manejar las cuentas de alguien, escribe *revocar autorización*.' : ''}`;
     turn.out.push(choose(`👥 ¿De quién son las cuentas que vamos a trabajar?${waiting}`, rows));
   }
 
@@ -323,6 +323,103 @@ export class Orchestrator {
       ),
     );
     if (then === 'status') await this.command(turn, 'status');
+  }
+
+  /**
+   * "Revocar autorización": the gestores who manage my accounts and the people I manage; either side
+   * can end it, and the other one is told.
+   */
+  private async showAuthorizations(turn: Turn): Promise<void> {
+    // Button titles fit 20 characters: first name and first surname.
+    const short = (name: string) => name.split(/\s+/).slice(0, 2).join(' ');
+    const me = actorOf(turn);
+    const { store } = this.deps;
+    const mine = await store.delegationsOf(me.id);
+    const managed = (await store.listDelegations(me.id)).filter((d) => d.status === 'active');
+    if (!mine.length && !managed.length) {
+      turn.out.push(
+        text(
+          'No tienes autorizaciones activas: nadie maneja tus cuentas y tú no manejas las de otra persona.',
+        ),
+      );
+      return;
+    }
+    const rows = [
+      ...(await Promise.all(
+        mine.map(async (d) => ({
+          id: `rvk:ask:${d.id}`,
+          title: short(this.personName(await store.getUser(d.managerId))),
+          description: 'Maneja tus cuentas: quitarle el acceso',
+        })),
+      )),
+      ...managed.map((d) => ({
+        id: `rvk:ask:${d.id}`,
+        title: short(d.personName),
+        description: 'Manejas sus cuentas: dejar de hacerlo',
+      })),
+    ];
+    turn.out.push(choose('🔐 ¿Qué autorización quieres revocar?', rows));
+  }
+
+  private async onRevoke(turn: Turn, replyId: string): Promise<void> {
+    const me = actorOf(turn);
+    const { store } = this.deps;
+    const [, step, id] = replyId.split(':');
+    const d = id ? await store.getDelegation(id) : null;
+    const asPerson = d?.personId === me.id;
+    const asManager = d?.managerId === me.id;
+    if (!d || d.status !== 'active' || (!asPerson && !asManager)) {
+      turn.out.push(text('Esa autorización ya no está activa.'));
+      return;
+    }
+    const manager = asPerson ? await store.getUser(d.managerId) : me;
+    if (step === 'no') {
+      turn.out.push(text('Listo, no cambié nada.'));
+      return;
+    }
+    if (step === 'ask') {
+      turn.out.push(
+        buttons(
+          asPerson
+            ? `¿Le quito a *${this.personName(manager)}* el acceso a tus cuentas de cobro? Ya no podrá registrar actividades, cargar soportes ni recibir tus documentos.`
+            : `¿Dejas de manejar las cuentas de *${d.personName}*? Para volver a hacerlo, tendría que autorizarte de nuevo.`,
+          [
+            { id: `rvk:yes:${d.id}`, title: 'Sí, revocar' },
+            { id: `rvk:no:${d.id}`, title: 'No' },
+          ],
+        ),
+      );
+      return;
+    }
+    await store.revokeDelegation(d.id);
+    // The gestor who was working this person's accounts goes back to their own.
+    if (asManager && turn.state.context.actingFor === d.personId) {
+      turn.state.context = {
+        ...turn.state.context,
+        actingFor: undefined,
+        working: undefined,
+        checkedNotes: undefined,
+      };
+      turn.user = me;
+      turn.actor = undefined;
+    }
+    if (asPerson) {
+      await this.deps
+        .notify?.(manager.phone, [
+          text(`🔐 *${d.personName}* revocó tu autorización: ya no puedes manejar sus cuentas de cobro.`),
+        ])
+        .catch(() => undefined);
+      turn.out.push(text(`✅ Listo, *${this.personName(manager)}* ya no tiene acceso a tus cuentas.`));
+    } else {
+      await this.deps
+        .notify?.(d.personPhone, [
+          text(
+            `🔐 *${this.personName(me)}* dejó de manejar tus cuentas de cobro. Puedes seguir usándolas desde tu WhatsApp.`,
+          ),
+        ])
+        .catch(() => undefined);
+      turn.out.push(text(`✅ Listo, ya no manejas las cuentas de *${d.personName}*.`));
+    }
   }
 
   private async startAddPerson(turn: Turn): Promise<void> {
@@ -465,7 +562,7 @@ export class Orchestrator {
       .catch(() => undefined);
     return [
       text(
-        `✅ Listo, autorizaste a *${this.personName(manager)}* para preparar tus cuentas de cobro. Tú también puedes escribirme cuando quieras: lo que registres queda en las mismas cuentas.`,
+        `✅ Listo, autorizaste a *${this.personName(manager)}* para preparar tus cuentas de cobro. Tú también puedes escribirme cuando quieras: lo que registres queda en las mismas cuentas. Si quieres quitarle el acceso, escribe *revocar autorización*.`,
       ),
     ];
   }
@@ -709,6 +806,7 @@ export class Orchestrator {
       if (c) return this.startGenerate(turn, c, true, Number(n));
     }
     if (msg.kind === 'reply' && msg.replyId?.startsWith('who:')) return this.switchPerson(turn, msg.replyId);
+    if (msg.kind === 'reply' && msg.replyId?.startsWith('rvk:')) return this.onRevoke(turn, msg.replyId);
     // Corrections of a recorded activity work whatever Pascal was asking.
     if (msg.kind === 'reply' && msg.replyId?.startsWith('chg:')) {
       this.reset(turn);
@@ -909,6 +1007,8 @@ export class Orchestrator {
         return this.showPeople(turn);
       case 'add_person':
         return this.startAddPerson(turn);
+      case 'revoke':
+        return this.showAuthorizations(turn);
       case 'signature':
         return this.askSignature(turn);
       case 'guide':

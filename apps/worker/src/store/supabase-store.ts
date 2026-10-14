@@ -685,6 +685,30 @@ export class SupabaseStore implements Store {
     );
   }
 
+  async delegationsOf(personId: string): Promise<Delegation[]> {
+    const rows = must(
+      await this.sb
+        .from('delegations')
+        .select('*')
+        .eq('person_id', personId)
+        .eq('status', 'active')
+        .order('created_at'),
+      'delegationsOf',
+    ) as Row[];
+    return rows.map((r) => this.toDelegation(r));
+  }
+
+  async revokeDelegation(id: string): Promise<void> {
+    must(
+      await this.sb
+        .from('delegations')
+        .update({ status: 'revoked', answered_at: new Date().toISOString() })
+        .eq('id', id)
+        .eq('status', 'active'),
+      'revokeDelegation',
+    );
+  }
+
   async managersOf(personId: string): Promise<User[]> {
     const rows = must(
       await this.sb.from('delegations').select('manager_id').eq('person_id', personId).eq('status', 'active'),

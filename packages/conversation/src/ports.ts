@@ -264,6 +264,10 @@ export interface Store {
   ): Promise<void>;
   /** Users who manage this person (active delegations). */
   managersOf(personId: string): Promise<User[]>;
+  /** Active delegations where this user is the person managed. */
+  delegationsOf(personId: string): Promise<Delegation[]>;
+  /** Ends an active delegation (by the person or the gestor). */
+  revokeDelegation(id: string): Promise<void>;
   /** STOP / «activar recordatorios»: whether Pascal may write first (reminders). */
   setRemindersOptOut(userId: string, optOut: boolean): Promise<void>;
   /** Matches the contracting entity by NIT (digits) or name; null if the entity is not configured. */

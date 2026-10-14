@@ -22,6 +22,7 @@ export type Command =
   | 'guide'
   | 'people'
   | 'add_person'
+  | 'revoke'
   | 'cancel';
 
 const COMMANDS: [Command, string[]][] = [
@@ -101,6 +102,18 @@ const COMMANDS: [Command, string[]][] = [
       'otra persona',
       'cuentas de otra persona',
       'mis cuentas',
+    ],
+  ],
+  [
+    'revoke',
+    [
+      'revocar',
+      'revocar autorizacion',
+      'quitar autorizacion',
+      'quitar gestor',
+      'quitar acceso',
+      'dejar de gestionar',
+      'autorizaciones',
     ],
   ],
   ['add_person', ['agregar persona', 'nueva persona', 'agregar otra persona', 'anadir persona']],

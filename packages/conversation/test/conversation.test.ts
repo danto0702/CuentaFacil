@@ -877,7 +877,7 @@ describe('gestor: several people from one WhatsApp (ADR-042)', () => {
     // María switches to Ana: every reply says whose accounts they are.
     out = show(await h.say('cambiar persona'));
     expect(out[0]).toBe(
-      '👥 ¿De quién son las cuentas que vamos a trabajar? [✅ Mis cuentas] [Ana María] [➕ Agregar persona]',
+      '👥 ¿De quién son las cuentas que vamos a trabajar?\n\nPara dejar de manejar las cuentas de alguien, escribe *revocar autorización*. [✅ Mis cuentas] [Ana María] [➕ Agregar persona]',
     );
     out = show(await h.press(`who:${anaUser.id}`));
     expect(out[0]).toMatch(
@@ -894,6 +894,53 @@ describe('gestor: several people from one WhatsApp (ADR-042)', () => {
     expect(out[0]).toBe('👥 Listo, volvimos a *tus* cuentas.');
     out = show(await h.say('¿Qué me falta?'));
     expect(out[0]).not.toMatch(/^👤/);
+  });
+
+  it('lets the person or the gestor revoke the authorization from WhatsApp', async () => {
+    const h = harness();
+    const ana = '+573005556677';
+    await h.say('agregar persona');
+    await h.say('3005556677');
+    await h.say('Ana María Pérez Gómez');
+    const a = h.as(ana);
+    const d = h.store.data.delegations![0]!;
+    await a.press(`dlg:yes:${d.id}`);
+    const anaUser = (await h.store.getUserByPhone(ana))!;
+    await h.press(`who:${anaUser.id}`);
+
+    // Ana takes the access away: asked to confirm first.
+    let out = show(await a.say('revocar autorización'));
+    expect(out[0]).toMatch(/^🔐 ¿Qué autorización quieres revocar\? \[María Fernanda\]$/);
+    out = show(await a.press(`rvk:ask:${d.id}`));
+    expect(out[0]).toMatch(/^¿Le quito a \*María Fernanda Prueba\* el acceso.*\[Sí, revocar\] \[No\]$/s);
+    expect(show(await a.press(`rvk:no:${d.id}`))).toEqual(['Listo, no cambié nada.']);
+    out = show(await a.press(`rvk:yes:${d.id}`));
+    expect(out).toEqual(['✅ Listo, *María Fernanda Prueba* ya no tiene acceso a tus cuentas.']);
+    expect(h.store.data.delegations![0]!.status).toBe('revoked');
+
+    // María was working Ana's accounts: her next message goes back to her own.
+    out = show(await h.say('¿Qué me falta?'));
+    expect(out[0]).toMatch(/^⚠️ Ya no tienes autorización para las cuentas de esa persona/);
+    expect(show(await a.press(`rvk:yes:${d.id}`))).toEqual(['Esa autorización ya no está activa.']);
+    expect(show(await a.say('revocar autorización'))[0]).toMatch(/^No tienes autorizaciones activas/);
+  });
+
+  it('lets the gestor stop managing a person', async () => {
+    const h = harness();
+    const ana = '+573005556677';
+    await h.say('agregar persona');
+    await h.say('3005556677');
+    await h.say('Ana María Pérez Gómez');
+    const d = h.store.data.delegations![0]!;
+    await h.as(ana).press(`dlg:yes:${d.id}`);
+    let out = show(await h.say('revocar'));
+    expect(out[0]).toMatch(/\[Ana María\]$/);
+    out = show(await h.press(`rvk:ask:${d.id}`));
+    expect(out[0]).toMatch(/^¿Dejas de manejar las cuentas de \*Ana María Pérez Gómez\*\?/);
+    out = show(await h.press(`rvk:yes:${d.id}`));
+    expect(out).toEqual(['✅ Listo, ya no manejas las cuentas de *Ana María Pérez Gómez*.']);
+    // Someone else cannot revoke it.
+    expect(show(await h.as('+573001112299').press(`rvk:yes:${d.id}`))[0]).toMatch(/👋|Esa autorización/);
   });
 
   it('does not let anyone act for a person without an active authorization', async () => {

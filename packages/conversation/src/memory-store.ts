@@ -298,6 +298,16 @@ export class MemoryStore implements Store {
           : { ...d, status: 'declined' as const },
     );
   }
+  async delegationsOf(personId: string) {
+    return clone(
+      (this.data.delegations ?? []).filter((d) => d.personId === personId && d.status === 'active'),
+    );
+  }
+  async revokeDelegation(id: string) {
+    this.data.delegations = (this.data.delegations ?? []).map((d) =>
+      d.id === id && d.status === 'active' ? { ...d, status: 'revoked' as const } : d,
+    );
+  }
   async managersOf(personId: string) {
     const ids = (this.data.delegations ?? [])
       .filter((d) => d.personId === personId && d.status === 'active')
