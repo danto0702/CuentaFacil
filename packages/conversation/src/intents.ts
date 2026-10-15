@@ -21,6 +21,7 @@ export type Command =
   | 'signature'
   | 'style'
   | 'delete_data'
+  | 'payments'
   | 'guide'
   | 'people'
   | 'add_person'
@@ -67,6 +68,20 @@ const COMMANDS: [Command, string[]][] = [
   [
     'reset',
     ['reiniciar', 'reiniciar cuenta', 'reiniciar informe', 'resetear', 'resetear cuenta', 'empezar de nuevo'],
+  ],
+  [
+    'payments',
+    [
+      'mis pagos',
+      'pagos',
+      'que debo',
+      'cuanto debo',
+      'debo algo',
+      'pagos pendientes',
+      'estado de pagos',
+      'estado de cuenta',
+      'mis cobros',
+    ],
   ],
   [
     'delete_data',
@@ -177,6 +192,11 @@ const PATTERNS: [Command, RegExp][] = [
   ['resend', new RegExp(`\\b${REDO}\\b.*\\b${REPORT}\\b`)],
   ['draft', new RegExp(`\\b${ACTION}\\b.*\\b${REPORT}\\b`)],
   ['status', /\b(que me falta|que falta|como voy|como va mi cuenta|estado de mi cuenta)\b/],
+  // «¿Debo la configuración del contrato 0385?», «ya pagué el informe?»
+  [
+    'payments',
+    /\b(debo|adeudo|ya pague|ya esta pagad[oa]|cuanto (debo|vale|cuesta)|tengo que pagar)\b.*\b(configuracion|informe|cuenta|contrato|pago)\b|\b(debo|adeudo) algo\b/,
+  ],
 ];
 const MAX_WORDS_FOR_PATTERNS = 8;
 

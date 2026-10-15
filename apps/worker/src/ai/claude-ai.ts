@@ -46,6 +46,7 @@ const INTENT_KINDS = [
   'undo_note',
   'move_note',
   'note_request',
+  'payments',
   'support',
   'help',
   'menu',
@@ -87,6 +88,7 @@ const MESSAGE_INTENT_RULES = `A Colombian public-sector contractor writes to Pas
 - signature: upload or change their signature. undo_note: delete the last note they sent.
 - move_note: move the last activity they sent to another month or report. E.g. "pasa la última actividad a septiembre", "esa nota era de agosto". Give month when named.
 - note_request: says they want to record or register an activity but does not describe any work. E.g. "quiero anotar una actividad", "voy a registrar lo de hoy", "anotar actividad", "tengo una actividad". This is never an activity.
+- payments: asks what they owe or paid to CuentaFacil: the configuration charge, the price of a report, a payment or a cash code. E.g. "debo la configuración del contrato 0385?", "cuánto debo", "ya pagué?".
 - support: talk to a person of the team. help: how Pascal works. menu: greetings or asking for options.
 - unclear: acknowledgements ("ok", "gracias", "listo"), questions you cannot map to the above, or anything you are not sure about. When in doubt between an activity and a request, answer unclear: Pascal will ask. Then give guess (the most likely meaning) and question (one short question in Colombian Spanish, tuteo, that lets the contractor say what they want).
 

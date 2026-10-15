@@ -97,6 +97,7 @@ export type MessageIntentKind =
   | 'undo_note'
   | 'move_note'
   | 'note_request'
+  | 'payments'
   | 'support'
   | 'help'
   | 'menu'

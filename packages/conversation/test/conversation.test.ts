@@ -194,6 +194,26 @@ describe('other flows', () => {
     expect([note.contractId, note.date]).toEqual([DEMO_IDS.salud, '2026-09-02']);
   });
 
+  it('says what the contractor owes and offers to pay it', async () => {
+    const h = harness();
+    const userId = h.store.data.users[0]!.id;
+    h.store.data.billing = { mode: 'live', prices: { setup: 15_000, report: 50_000 } };
+    const charge = await h.store.openCharge({
+      userId,
+      product: 'setup',
+      contractId: DEMO_IDS.ebs,
+      periodNumber: null,
+      coversSetup: false,
+      amount: 15_000,
+    });
+    let out = show(await h.say('¿Debo la configuración del contrato 0002?'));
+    expect(out[0]).toBe(
+      '💳 Tus pagos:\n✅ *0001*: configuración sin costo.\n⏳ *0002*: configuración pendiente, $ 15.000. [Pagar 0002] [Hablar con soporte]',
+    );
+    out = show(await h.press(`payc:${charge.id}`));
+    expect(out[0]).toMatch(/^💳 Para activar tu contrato \*CPS-0002/);
+  });
+
   it('takes the contract named in the text without asking', async () => {
     const h = harness();
     const out = show(await h.say('Hice seguimiento a las UPGD de Ábrego, esto es del contrato 0002'));

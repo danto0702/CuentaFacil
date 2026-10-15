@@ -67,6 +67,7 @@ const OPEN_WHILE_UNPAID: Command[] = [
   'ally',
   'stop_reminders',
   'start_reminders',
+  'payments',
 ];
 
 type Ctx = Record<string, unknown>;
@@ -149,6 +150,7 @@ const INTENT_TITLES: Record<Exclude<MessageIntentKind, 'activity' | 'unclear'>, 
   reset: 'Reiniciar informe',
   open_report: 'Trabajar el informe',
   note_request: 'Anotar actividad',
+  payments: 'Mis pagos',
   draft: 'Ver borrador',
   generate: 'Generar documentos',
   status: '¿Qué me falta?',
@@ -874,6 +876,10 @@ export class Orchestrator {
 
     // Answers about the previous report used as writing style work anywhere, also during the setup.
     if (msg.replyId?.startsWith('style:')) return this.onStyleReply(turn, msg.replyId);
+    if (msg.replyId?.startsWith('payc:')) {
+      this.reset(turn);
+      return this.payCharge(turn, msg.replyId.slice(5));
+    }
 
     const allyCode = msg.kind === 'text' && msg.text ? findAllyCode(msg.text) : null;
     if (allyCode) {
@@ -1253,6 +1259,8 @@ export class Orchestrator {
         return this.askSignature(turn);
       case 'style':
         return this.showStyle(turn);
+      case 'payments':
+        return this.showPayments(turn);
       case 'delete_data':
         // Ley 1581: a person of the team handles it and confirms; it shows on the panel's start page.
         await this.deps.store.openSupportTicket(turn.user.id, 'Solicitud de borrado de datos (Ley 1581)');
@@ -1296,7 +1304,7 @@ export class Orchestrator {
     if (help) {
       turn.out.push(
         text(
-          `Soy ${SIGNATURE}. Así me usas:\n1️⃣ Durante el mes, cuéntame lo que haces: texto, audio o fotos. Yo lo anoto en la obligación que corresponde.\n2️⃣ Envíame los soportes (planilla, antecedentes, afiliaciones) cuando los tengas.\n3️⃣ Al cierre escribe *genera el informe* (o *ver borrador*): redacto el informe y tú lo apruebas.\n4️⃣ Escribe *generar* y te envío los documentos listos para firmar.\n↩️ Si una nota quedó mal, escribe *borra la última nota*; para empezar un informe de cero, *reiniciar*.\n✍️ Para cargar o cambiar tu firma, escribe *firma*.\n📝 Para que redacte como tú, escribe *informe anterior* y envíame uno que ya hayas hecho.\n👥 Para hacer las cuentas de otra persona, escribe *agregar persona*; para cambiar entre cuentas, *cambiar persona*.`,
+          `Soy ${SIGNATURE}. Así me usas:\n1️⃣ Durante el mes, cuéntame lo que haces: texto, audio o fotos. Yo lo anoto en la obligación que corresponde.\n2️⃣ Envíame los soportes (planilla, antecedentes, afiliaciones) cuando los tengas.\n3️⃣ Al cierre escribe *genera el informe* (o *ver borrador*): redacto el informe y tú lo apruebas.\n4️⃣ Escribe *generar* y te envío los documentos listos para firmar.\n↩️ Si una nota quedó mal, escribe *borra la última nota*; para empezar un informe de cero, *reiniciar*.\n✍️ Para cargar o cambiar tu firma, escribe *firma*.\n📝 Para que redacte como tú, escribe *informe anterior* y envíame uno que ya hayas hecho.\n💳 Para ver qué debes o pagar, escribe *mis pagos*.\n👥 Para hacer las cuentas de otra persona, escribe *agregar persona*; para cambiar entre cuentas, *cambiar persona*.`,
         ),
       );
       turn.out.push(
@@ -1427,6 +1435,65 @@ export class Orchestrator {
     return n ? cs.find((c) => c.number.endsWith(n) || c.fullNumber.includes(n)) : undefined;
   }
 
+  /** «¿Qué debo?»: configuration and report charges of each contract, with a button to pay. */
+  private async showPayments(turn: Turn): Promise<void> {
+    const { store } = this.deps;
+    const cs = await store.listContracts(turn.user.id);
+    if (!cs.length) {
+      turn.out.push(text('Aún no tienes contratos registrados, así que no tienes pagos pendientes.'));
+      return;
+    }
+    if ((await store.getBillingSettings()).mode === 'pilot') {
+      turn.out.push(
+        text(
+          '✅ Durante el piloto no tienes pagos pendientes: la configuración y los informes no tienen costo.',
+        ),
+      );
+      return;
+    }
+    const lines: string[] = [];
+    const due: { c: Contract; charge: Charge; what: string }[] = [];
+    for (const c of cs) {
+      const setup = await store.findCharge(c.id, 'setup', null);
+      if (setup?.status === 'pending') {
+        lines.push(`⏳ *${c.number}*: configuración pendiente, ${formatCOP(setup.amount)}.`);
+        due.push({ c, charge: setup, what: `Pagar ${c.number}` });
+      } else
+        lines.push(`✅ *${c.number}*: configuración ${setup?.status === 'paid' ? 'pagada' : 'sin costo'}.`);
+      for (const p of await store.listPeriods(c.id)) {
+        const r = await store.findCharge(c.id, 'report', p.number);
+        if (r?.status !== 'pending') continue;
+        lines.push(`⏳ *${c.number}*: ${this.reportLabel(c, p)}, ${formatCOP(r.amount)}.`);
+        due.push({ c, charge: r, what: `Pagar inf. ${p.number} ${c.number}` });
+      }
+    }
+    turn.out.push(
+      buttons(
+        `💳 Tus pagos:
+${lines.join('\n')}${due.length ? '' : '\n\nNo tienes nada pendiente. 👍'}`,
+        [
+          ...due.slice(0, 2).map((d) => ({ id: `payc:${d.charge.id}`, title: clip(d.what, 20) })),
+          { id: 'menu:support', title: 'Hablar con soporte' },
+        ],
+      ),
+    );
+  }
+
+  /** «Pagar …» from the payments summary: the usual payment request for that charge. */
+  private async payCharge(turn: Turn, chargeId: string): Promise<void> {
+    const charge = await this.deps.store.getCharge(chargeId);
+    if (charge.status !== 'pending') {
+      turn.out.push(text('✅ Ese cobro ya está pagado.'));
+      return;
+    }
+    const c = await this.deps.store.getContract(charge.contractId);
+    const p =
+      charge.periodNumber != null
+        ? ((await this.deps.store.listPeriods(c.id)).find((x) => x.number === charge.periodNumber) ?? null)
+        : null;
+    await this.askPayment(turn, c, p, charge);
+  }
+
   private async showContracts(turn: Turn): Promise<void> {
     const cs = await this.deps.store.listContracts(turn.user.id);
     if (!cs.length) {
@@ -1437,7 +1504,12 @@ export class Orchestrator {
       cs.map(async (c) => {
         const e = await this.deps.store.getEntity(c.entityId);
         const mode = c.periodMode === 'month_end' ? 'corte a fin de mes' : 'corte fecha a fecha';
-        return `📄 *${c.fullNumber}* – ${e.shortName}\n${clip(c.object, 120)}\n${formatDdMmYyyy(c.startDate)} a ${formatDdMmYyyy(c.endDate)} · ${formatCOP(c.totalValue)} · ${c.paymentsCount} pagos · ${mode}`;
+        const setup = await this.deps.store.findCharge(c.id, 'setup', null);
+        const owes =
+          setup?.status === 'pending'
+            ? `\n⏳ Configuración pendiente de pago (${formatCOP(setup.amount)}): escribe *mis pagos*.`
+            : '';
+        return `📄 *${c.fullNumber}* – ${e.shortName}\n${clip(c.object, 120)}\n${formatDdMmYyyy(c.startDate)} a ${formatDdMmYyyy(c.endDate)} · ${formatCOP(c.totalValue)} · ${c.paymentsCount} pagos · ${mode}${owes}`;
       }),
     );
     turn.out.push(text(lines.join('\n\n')));
@@ -1782,6 +1854,7 @@ export class Orchestrator {
       support: 'support',
       help: 'help',
       menu: 'menu',
+      payments: 'payments',
     };
     return this.command(turn, cmd[intent]);
   }
