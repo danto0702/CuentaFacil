@@ -151,9 +151,7 @@ export default async function Dashboard() {
             ))}
           </tbody>
         </table>
-        <p className="muted">
-          Ingresos y costos de IA y WhatsApp llegan en la fase 3.
-        </p>
+        <p className="muted">Ingresos y costos de IA y WhatsApp llegan en la fase 3.</p>
       </div>
     </>
   );
