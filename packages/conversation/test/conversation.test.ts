@@ -7,7 +7,9 @@ describe('recorded conversation: a month of notes to delivery', () => {
   it('runs the whole flow for the salud pública contract', async () => {
     const h = harness();
 
-    expect(show(await h.say('Hola'))[0]).toMatch(/^Hola María 👋 ¿Qué quieres hacer\?/);
+    expect(show(await h.say('Hola'))[0]).toMatch(
+      /^Hola María 👋 ¿Qué quieres hacer\? También puedes contarme directamente lo que hiciste hoy en tus contratos \*0001 Salud Pública\* y \*0002 EBS\*\./,
+    );
 
     // Two contracts in force → ask which one; the note talks about "misión médica".
     let out = show(await h.say('Hoy capacité a 30 personas en misión médica en El Carmen'));

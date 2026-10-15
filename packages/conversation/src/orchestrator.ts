@@ -60,6 +60,40 @@ const OPEN_WHILE_UNPAID: Command[] = [
 
 type Ctx = Record<string, unknown>;
 
+/** A report the contractor made before (kept with their supports). */
+const PREVIOUS_REPORT = 'INFORME_ANTERIOR';
+
+/** Options of «¿Qué documento es?»: the period's supports, an activity evidence or a previous report. */
+function supportRows(types: Map<string, SupportType>): { id: string; title: string }[] {
+  return [
+    ...[...types.values()]
+      .filter((t) => t.frequency === 'every_period')
+      .map((t) => ({ id: `s:${t.code}`, title: t.label })),
+    { id: 's:EVIDENCIA', title: 'Evidencia de actividad' },
+    { id: `s:${PREVIOUS_REPORT}`, title: 'Informe de actividades (uno que ya hiciste)' },
+  ];
+}
+
+/** The option whose words are all in the text, or that contains it: the longest match wins. */
+function matchSupportRow(rows: { id: string; title: string }[], written: string): string | null {
+  const w = normalize(written)
+    .replace(/[^a-z0-9ñ ]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (w.length < 4) return null;
+  const words = (t: string) =>
+    normalize(t.replace(/\(.*?\)/g, ' '))
+      .replace(/[^a-z0-9ñ ]/g, ' ')
+      .split(/\s+/)
+      .filter((x) => x.length > 2);
+  const hits = rows.filter((r) => {
+    const ws = words(r.title);
+    return ws.length > 0 && (ws.every((x) => w.includes(x)) || ws.join(' ').includes(w));
+  });
+  hits.sort((a, b) => words(b.title).length - words(a.title).length);
+  return hits[0]?.id.slice(2) ?? null;
+}
+
 /** Button titles (max 20 characters) for the likely meaning of an unclear message. */
 const INTENT_TITLES: Record<Exclude<MessageIntentKind, 'activity' | 'unclear'>, string> = {
   redo: 'Rehacer informe',
@@ -762,7 +796,7 @@ export class Orchestrator {
         );
         if (msg.replyId?.startsWith('menu:') && msg.replyId !== 'menu:menu')
           return this.command(turn, msg.replyId.slice(5) as Command);
-        if (hadContracts) this.menu(turn, cmd === 'help');
+        if (hadContracts) await this.menu(turn, cmd === 'help');
         return;
       }
       if (cmd !== 'about' && cmd !== 'support' && cmd !== 'ally') {
@@ -1085,8 +1119,24 @@ export class Orchestrator {
     }
   }
 
-  private menu(turn: Turn, help: boolean): void {
+  /**
+   * « en tu contrato *0001 Salud Pública*», or the one being worked on, or all of them: with several
+   * contracts the contractor knows where the activity goes (and Pascal asks if it is not clear).
+   */
+  private async menuContracts(turn: Turn): Promise<string> {
+    const cs = await this.activeContracts(turn);
+    if (!cs.length) return '';
+    const working = turn.state.context.working as { contractId: string } | undefined;
+    const open = cs.find((c) => c.id === working?.contractId);
+    if (open && cs.length > 1) return ` en el contrato *${open.shortLabel}*`;
+    if (cs.length === 1) return ` en tu contrato *${cs[0]!.shortLabel}*`;
+    const names = cs.map((c) => `*${c.shortLabel}*`);
+    return ` en tus contratos ${names.slice(0, -1).join(', ')} y ${names.at(-1)}`;
+  }
+
+  private async menu(turn: Turn, help: boolean): Promise<void> {
     const first = turn.user.fullName.split(' ')[0];
+    const where = await this.menuContracts(turn);
     if (help) {
       turn.out.push(
         text(
@@ -1101,7 +1151,7 @@ export class Orchestrator {
     }
     turn.out.push(
       list(
-        `Hola ${first} 👋 ¿Qué quieres hacer? También puedes contarme directamente lo que hiciste hoy.`,
+        `Hola ${first} 👋 ¿Qué quieres hacer? También puedes contarme directamente lo que hiciste hoy${where}.`,
         'Ver opciones',
         [
           { id: 'menu:status', title: '¿Qué me falta?', description: 'Checklist de tu cuenta del periodo' },
@@ -2090,10 +2140,7 @@ export class Orchestrator {
       receivedAt: this.deps.clock.now().toISOString(),
     });
     this.setFlow(turn, 'support_type', 'pick', guide ? { supportId: id, guide } : { supportId: id });
-    const rows = [...types.values()]
-      .filter((t) => t.frequency === 'every_period')
-      .map((t) => ({ id: `s:${t.code}`, title: t.label }));
-    rows.push({ id: 's:EVIDENCIA', title: 'Evidencia de actividad' });
+    const rows = supportRows(types);
     turn.out.push(text(`📎 Recibí *${msg.media!.filename ?? 'tu documento'}*, pero no reconocí qué es.`));
     turn.out.push(choose('¿Qué documento es?', rows, 0, 'smore'));
   }
@@ -2107,14 +2154,18 @@ export class Orchestrator {
       const types = new Map<string, SupportType>();
       for (const c of cs)
         for (const t of await this.deps.store.listSupportTypes(c.entityId)) types.set(t.code, t);
-      const rows = [...types.values()]
-        .filter((t) => t.frequency === 'every_period')
-        .map((t) => ({ id: `s:${t.code}`, title: t.label }));
-      rows.push({ id: 's:EVIDENCIA', title: 'Evidencia de actividad' });
-      turn.out.push(choose('¿Qué documento es?', rows, page, 'smore'));
+      turn.out.push(choose('¿Qué documento es?', supportRows(types), page, 'smore'));
       return;
     }
-    const code = msg.replyId?.startsWith('s:') ? msg.replyId.slice(2) : null;
+    let code = msg.replyId?.startsWith('s:') ? msg.replyId.slice(2) : null;
+    if (!code && msg.kind === 'text' && msg.text) {
+      // Written instead of tapped: «Informe de actividades», «antecedentes policía».
+      const cs = await this.activeContracts(turn);
+      const types = new Map<string, SupportType>();
+      for (const c of cs)
+        for (const t of await this.deps.store.listSupportTypes(c.entityId)) types.set(t.code, t);
+      code = matchSupportRow(supportRows(types), msg.text);
+    }
     if (!code) {
       turn.out.push(text('Elige el tipo de documento de la lista, o escribe *cancelar*.'));
       return;
@@ -2122,6 +2173,11 @@ export class Orchestrator {
     const supports = await this.deps.store.listSupports(turn.user.id);
     const s = supports.find((x) => x.id === supportId);
     if (s) await this.deps.store.addSupport({ ...s, code, issuedOn: this.deps.clock.today() });
+    if (code === PREVIOUS_REPORT) {
+      this.reset(turn);
+      turn.out.push(text('✅ Guardé tu informe anterior.'));
+      return;
+    }
     if (guide) {
       turn.out.push(text('✅ Guardado.'));
       return this.guideStep(turn, guide);
@@ -2656,7 +2712,7 @@ export class Orchestrator {
       delete ctx.termsPending;
       turn.out.push(text('✅ ¡Gracias! Quedó registrada tu aceptación de los términos.'));
       if (pending) await this.dispatch(turn, { ...msg, kind: 'text', text: pending, replyId: undefined });
-      else this.menu(turn, false);
+      else await this.menu(turn, false);
       return true;
     }
     if (msg.replyId === 'terms:no') {

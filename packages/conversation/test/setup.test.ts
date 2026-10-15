@@ -423,6 +423,10 @@ describe('supports sent as combined PDFs', () => {
     // Something it cannot recognize still asks.
     out = show(await h.document('otro.pdf'));
     expect(out[0]).toMatch(/no reconocí qué es/);
+    // Written instead of picked from the list: a report made before.
+    out = show(await h.say('Informe de actividades'));
+    expect(out).toEqual(['✅ Guardé tu informe anterior.']);
+    expect(h.store.data.supports.at(-1)?.code).toBe('INFORME_ANTERIOR');
   });
 });
 
