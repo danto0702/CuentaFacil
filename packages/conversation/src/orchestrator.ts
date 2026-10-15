@@ -62,6 +62,33 @@ const OPEN_WHILE_UNPAID: Command[] = [
 
 type Ctx = Record<string, unknown>;
 
+/** Short replies that only close a question («no», «listo», «gracias»). */
+const ACKNOWLEDGEMENTS = new Set([
+  'no',
+  'nop',
+  'no gracias',
+  'ninguna',
+  'ninguno',
+  'nada',
+  'listo',
+  'ok',
+  'okay',
+  'vale',
+  'dale',
+  'ya',
+  'ya esta',
+  'gracias',
+  'muchas gracias',
+  'perfecto',
+  'bien',
+  'muy bien',
+  'entendido',
+  'de acuerdo',
+  'si',
+  'si gracias',
+  'listo gracias',
+]);
+
 /** Fewer words than this are never saved as an activity («ok», «Actividad 2», «·»). */
 const MIN_ACTIVITY_WORDS = 3;
 
@@ -147,11 +174,17 @@ const actorOf = (turn: Turn): User => turn.actor ?? turn.user;
 const text = (t: string): Outgoing => ({ type: 'text', text: t });
 
 function buttons(body: string, items: { id: string; title: string }[]): Outgoing {
-  return {
-    type: 'buttons',
-    text: body,
-    buttons: items.slice(0, MAX_BUTTONS).map((b) => ({ ...b, title: clip(b.title, 20) })),
-  };
+  // Two buttons with the same title make WhatsApp reject the message: keep the first.
+  const seen = new Set<string>();
+  const unique = items
+    .map((b) => ({ ...b, title: clip(b.title, 20) }))
+    .filter((b) => {
+      const k = b.title.toLowerCase();
+      if (seen.has(k) || seen.has(b.id)) return false;
+      seen.add(k).add(b.id);
+      return true;
+    });
+  return { type: 'buttons', text: body, buttons: unique.slice(0, MAX_BUTTONS) };
 }
 
 function list(body: string, button: string, rows: ListRow[]): Outgoing {
@@ -1353,6 +1386,10 @@ export class Orchestrator {
     }
     if (msg.kind === 'reply' && msg.replyId?.startsWith('add:'))
       return this.askExtraObligation(turn, msg.replyId.slice(4));
+    if (msg.kind === 'reply' && msg.replyId === 'note:done') {
+      turn.out.push(text('👍 Perfecto. Cuando quieras, cuéntame otra actividad.'));
+      return;
+    }
     if (msg.kind === 'reply' && msg.replyId?.startsWith('nok:')) {
       const note = await this.deps.store.getNote(msg.replyId.slice(4));
       await this.deps.store.updateNote({ ...note, confidence: 1 });
@@ -1538,6 +1575,20 @@ export class Orchestrator {
     const today = this.deps.clock.today();
     // «.», «ok», «6»: never an activity. With no letters at all there is nothing to interpret.
     if (!/\p{L}/u.test(text) || isNoteRequest(text)) return this.askActivityText(turn);
+    // «No», «listo», «gracias» after a question already answered: nothing to do, no menu to dig.
+    if (
+      ACKNOWLEDGEMENTS.has(
+        normalize(text)
+          .replace(/[^a-zñ ]/g, '')
+          .trim(),
+      )
+    ) {
+      turn.out.push({
+        type: 'text',
+        text: '👍 Listo. Cuando quieras, cuéntame qué hiciste o escribe *menú*.',
+      });
+      return;
+    }
     const r = await this.deps.ai
       .interpretMessage(text, today)
       .catch(
@@ -2079,9 +2130,13 @@ export class Orchestrator {
     }
     this.reset(turn);
     turn.out.push(
-      buttons(`✅ También quedó en la obligación ${o.number}.\n${await this.periodLine(c, note.date)}`, [
-        { id: `add:${note.id}`, title: '➕ Otra obligación' },
-      ]),
+      buttons(
+        `✅ También quedó en la obligación ${o.number}.\n${await this.periodLine(c, note.date)}\n¿Va en otra más?`,
+        [
+          { id: 'note:done', title: '✅ Listo' },
+          { id: `add:${note.id}`, title: '➕ Otra obligación' },
+        ],
+      ),
     );
   }
 
@@ -2122,7 +2177,10 @@ export class Orchestrator {
     turn.out.push(
       buttons(
         `✅ Listo, quedó en la obligación ${o.number}.\n${await this.periodLine(c, note.date)}\n¿Esta actividad sirve también para otra?`,
-        [{ id: `add:${note.id}`, title: '➕ Otra obligación' }],
+        [
+          { id: 'note:done', title: '✅ Listo' },
+          { id: `add:${note.id}`, title: '➕ Otra obligación' },
+        ],
       ),
     );
   }

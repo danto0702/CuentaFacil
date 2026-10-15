@@ -345,3 +345,20 @@ describe('WhatsAppClient.ensureSubscribed', () => {
     expect(done.calls).toEqual(['GET 99/subscribed_apps']);
   });
 });
+
+describe('interactive payloads', () => {
+  it('never sends two buttons with the same title (WhatsApp rejects the message)', async () => {
+    const { messagePayload } = await import('../src/whatsapp/payload.js');
+    const p = messagePayload('+573001112233', {
+      type: 'buttons',
+      text: '¿Qué quieres hacer?',
+      buttons: [
+        { id: 'short:do:menu', title: 'Ver menú' },
+        { id: 'menu:menu', title: 'Ver menú' },
+      ],
+    }) as { interactive: { action: { buttons: unknown[] } } };
+    expect(p.interactive.action.buttons).toEqual([
+      { type: 'reply', reply: { id: 'short:do:menu', title: 'Ver menú' } },
+    ]);
+  });
+});

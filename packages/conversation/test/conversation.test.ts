@@ -43,14 +43,17 @@ describe('recorded conversation: a month of notes to delivery', () => {
       /¿A cuál obligación corresponde\?\n📅 Informe 03 DE 03 \(1 al 30 de septiembre de 2026\) \{1\. Coordinar/,
     );
     expect(show(await h.press('o:specific-1'))).toEqual([
-      '✅ Listo, quedó en la obligación 1.\n📅 Informe 03 DE 03 (1 al 30 de septiembre de 2026)\n¿Esta actividad sirve también para otra? [➕ Otra obligación]',
+      '✅ Listo, quedó en la obligación 1.\n📅 Informe 03 DE 03 (1 al 30 de septiembre de 2026)\n¿Esta actividad sirve también para otra? [✅ Listo] [➕ Otra obligación]',
     ]);
     // The same activity can support several obligations.
     out = show(await h.press(`add:${noteId}`));
     expect(out[0]).toMatch(/^¿En qué otra obligación va esta actividad\?/);
     expect(out[0]).not.toContain('1. Coordinar');
     expect(show(await h.press('o:specific-3'))).toEqual([
-      '✅ También quedó en la obligación 3.\n📅 Informe 03 DE 03 (1 al 30 de septiembre de 2026) [➕ Otra obligación]',
+      '✅ También quedó en la obligación 3.\n📅 Informe 03 DE 03 (1 al 30 de septiembre de 2026)\n¿Va en otra más? [✅ Listo] [➕ Otra obligación]',
+    ]);
+    expect(show(await h.press('note:done'))).toEqual([
+      '👍 Perfecto. Cuando quieras, cuéntame otra actividad.',
     ]);
     const multi = await h.store.getNote(noteId);
     expect([multi.obligationKey, ...(multi.alsoKeys ?? [])]).toEqual(['specific-1', 'specific-3']);
@@ -360,7 +363,14 @@ describe('other flows', () => {
     // Fewer than 3 words is never an activity: Pascal asks for it in a sentence.
     const ask =
       '📝 Si quieres anotar una actividad, cuéntame en una frase qué hiciste, por ejemplo: «Hoy hice la visita de seguimiento a la IPS de Ábrego». Si buscas otra cosa, abre el menú. [Ver menú]';
-    expect(show(await h.say('ok'))).toEqual([ask]);
+    // «ok», «no», «gracias» only close the question: no menu to dig, nothing saved.
+    expect(show(await h.say('ok'))).toEqual([
+      '👍 Listo. Cuando quieras, cuéntame qué hiciste o escribe *menú*.',
+    ]);
+    expect(show(await h.say('No'))).toEqual([
+      '👍 Listo. Cuando quieras, cuéntame qué hiciste o escribe *menú*.',
+    ]);
+    expect(show(await h.say('6'))).toEqual([ask]);
     expect(show(await h.say('·'))).toEqual([ask]);
     expect(h.store.data.notes.length).toBe(notes);
     // «Quiero anotar una actividad» asks for the activity; it is never saved as one (Danilo, 2026-10-15).

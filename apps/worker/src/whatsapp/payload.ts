@@ -64,9 +64,13 @@ export function messagePayload(
           type: 'button',
           body: { text: clip(out.text, BODY_MAX) },
           action: {
-            buttons: out.buttons
+            // WhatsApp rejects the whole message (#131009) if two buttons share a title or an id.
+            buttons: unique(
+              out.buttons.map((b) => ({ id: b.id, title: clip(b.title, 20) })),
+              (b) => [b.id, b.title.toLowerCase()],
+            )
               .slice(0, 3)
-              .map((b) => ({ type: 'reply', reply: { id: b.id, title: clip(b.title, 20) } })),
+              .map((b) => ({ type: 'reply', reply: b })),
           },
         },
       };
@@ -82,11 +86,13 @@ export function messagePayload(
             sections: [
               {
                 title: 'Opciones',
-                rows: out.rows.slice(0, 10).map((r) => ({
-                  id: r.id,
-                  title: clip(r.title, 24),
-                  ...(r.description ? { description: clip(r.description, 72) } : {}),
-                })),
+                rows: unique(out.rows, (r) => [r.id])
+                  .slice(0, 10)
+                  .map((r) => ({
+                    id: r.id,
+                    title: clip(r.title, 24),
+                    ...(r.description ? { description: clip(r.description, 72) } : {}),
+                  })),
               },
             ],
           },
@@ -118,4 +124,15 @@ export function documentPayload(
     type: 'document',
     document: { id: mediaId, filename, ...(caption ? { caption: clip(caption, BODY_MAX) } : {}) },
   };
+}
+
+/** Drops items whose keys were already seen (first one wins). */
+function unique<T>(items: T[], keys: (t: T) => string[]): T[] {
+  const seen = new Set<string>();
+  return items.filter((t) => {
+    const ks = keys(t);
+    if (ks.some((k) => seen.has(k))) return false;
+    for (const k of ks) seen.add(k);
+    return true;
+  });
 }
