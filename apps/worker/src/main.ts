@@ -80,6 +80,7 @@ const orchestrator = new Orchestrator({
   generator: new AccountGenerator({ store, clock, templates: new StorageTemplateProvider(sb) }),
   newId: turnId,
   confidenceThreshold: cfg.AI_CONFIDENCE_THRESHOLD,
+  warn: (event, data) => log.error(event, data),
   // Interim "working on it" messages go out only on the first attempt, so retries don't repeat them.
   extractPages,
   ...(wompi ? { payments: { checkoutUrl: (charge) => checkoutUrl(wompi, charge) } } : {}),

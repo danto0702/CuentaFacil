@@ -304,6 +304,8 @@ export interface Deps {
   confidenceThreshold: number;
   /** Sends a message right away, before the turn ends (e.g. "estoy leyendo tus documentos…"). */
   progress?: (to: string, out: Outgoing) => Promise<void>;
+  /** Problems Pascal works around (a voice note it could not transcribe): for the logs and alerts. */
+  warn?: (event: string, data: Record<string, unknown>) => void;
   /** Online payment links (Wompi). Without it only cash codes and free reports are offered. */
   payments?: { checkoutUrl(charge: Charge, phone: string): string };
   /** Splits a PDF (pages from..to, 1-based). Without it, each support keeps the whole file. */

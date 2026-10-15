@@ -699,7 +699,21 @@ export class Orchestrator {
   // -------------------------------------------------------------------------
   private async dispatch(turn: Turn, msg: Inbound): Promise<void> {
     if (msg.kind === 'audio' && msg.media) {
-      const transcript = await this.deps.stt.transcribe(msg.media.data, msg.media.mime);
+      let transcript = '';
+      try {
+        transcript = await this.deps.stt.transcribe(msg.media.data, msg.media.mime);
+      } catch (e) {
+        // No credits, provider down…: say so instead of failing the whole message.
+        this.deps.warn?.('stt.failed', { userId: turn.user.id, error: String(e) });
+      }
+      if (!transcript.trim()) {
+        turn.out.push(
+          text(
+            '🎙️ No pude escuchar bien tu nota de voz. ¿Me la escribes, o me la envías de nuevo en unos minutos?',
+          ),
+        );
+        return;
+      }
       turn.out.push(text(`🎙️ Te entendí: «${clip(transcript, 300)}»`));
       return this.dispatch(turn, { ...msg, kind: 'text', text: transcript });
     }

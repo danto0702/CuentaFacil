@@ -118,6 +118,16 @@ describe('other flows', () => {
     expect(out[1]).toBe('¿A cuál contrato corresponde? [0001 Salud Pública] [0002 EBS] [Ambos]');
   });
 
+  it('asks to write it when a voice note cannot be transcribed', async () => {
+    const h = harness();
+    const notes = h.store.data.notes.length;
+    const out = show(await h.audio(''));
+    expect(out).toEqual([
+      '🎙️ No pude escuchar bien tu nota de voz. ¿Me la escribes, o me la envías de nuevo en unos minutos?',
+    ]);
+    expect(h.store.data.notes.length).toBe(notes);
+  });
+
   it('registers a note in both contracts', async () => {
     const h = harness();
     await h.say('Asistí a la reunión del comité en Ábrego');
