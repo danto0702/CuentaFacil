@@ -707,17 +707,39 @@ export class Orchestrator {
 
     if (turn.state.flow === SETUP_FLOW) {
       const cmd = msg.kind === 'text' && msg.text ? matchCommand(msg.text) : null;
-      if (cmd === 'cancel') {
+      // There is always a way out: "cancelar", "menú", "olvídalo", "ayuda" or a menu button.
+      const leave =
+        cmd === 'cancel' ||
+        cmd === 'menu' ||
+        cmd === 'help' ||
+        msg.replyId === 'setup:leave' ||
+        (msg.replyId?.startsWith('menu:') ?? false);
+      if (leave) {
+        const hadContracts = (await this.deps.store.listContracts(turn.user.id)).length > 0;
         this.reset(turn);
         turn.out.push(
           text('Listo, dejé la configuración en pausa. Cuando quieras retomarla escribe *agregar contrato*.'),
         );
+        if (msg.replyId?.startsWith('menu:') && msg.replyId !== 'menu:menu')
+          return this.command(turn, msg.replyId.slice(5) as Command);
+        if (hadContracts) this.menu(turn, cmd === 'help');
         return;
       }
       if (cmd !== 'about' && cmd !== 'support' && cmd !== 'ally') {
+        const before = turn.state.step;
         await this.setup.handle(turn, msg);
         // A contract configured in live mode starts with its configuration charge pending.
-        if (turn.state.flow !== SETUP_FLOW) await this.setupGate(turn, true);
+        if (turn.state.flow !== SETUP_FLOW) return void (await this.setupGate(turn, true));
+        // Asked the same thing again: from the second time, offer the way out with a button.
+        const ctx = turn.state.context as { setupRetries?: number };
+        const retries = turn.state.step === before ? (ctx.setupRetries ?? 0) + 1 : 0;
+        turn.state.context = { ...turn.state.context, setupRetries: retries };
+        if (retries >= 2)
+          turn.out.push(
+            buttons('¿Prefieres dejar la configuración para después?', [
+              { id: 'setup:leave', title: 'Salir y ver menú' },
+            ]),
+          );
         return;
       }
     }

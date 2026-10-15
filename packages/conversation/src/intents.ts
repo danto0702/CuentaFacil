@@ -117,7 +117,25 @@ const COMMANDS: [Command, string[]][] = [
     ],
   ],
   ['add_person', ['agregar persona', 'nueva persona', 'agregar otra persona', 'anadir persona']],
-  ['cancel', ['cancelar', 'salir']],
+  [
+    'cancel',
+    [
+      'cancelar',
+      'salir',
+      'olvidalo',
+      'olvida',
+      'olvidate',
+      'dejalo',
+      'dejalo asi',
+      'no quiero',
+      'no quiero seguir',
+      'mejor no',
+      'detente',
+      'para',
+      'atras',
+      'volver',
+    ],
+  ],
 ];
 
 // Requests said in other words ("genera el informe", "hazme la cuenta de cobro", "borra esa nota").

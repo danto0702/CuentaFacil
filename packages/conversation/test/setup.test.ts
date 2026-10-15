@@ -466,3 +466,30 @@ describe('checklist of a new institution (ADR-040)', () => {
     expect(supportTypesFromRequest(null)).toEqual([]);
   });
 });
+
+describe('there is always a way out of the setup', () => {
+  it('leaves with menú, olvídalo or a menu button, and offers the exit after repeated answers', async () => {
+    const h = harness({ phone: NEW_PHONE, today: '2026-10-10' });
+    await h.press('consent:yes');
+    await h.press('ent:other');
+    await h.say('Hospital Nuevo de Prueba');
+    await h.say('1');
+    await h.press('docs:ok');
+    // Stuck asking for the model (Danilo, 2026-10-15): «.», «Olvídalo», «Menú».
+    let out = show(await h.say('.'));
+    expect(out[0]).toMatch(/Necesito el modelo de informe de actividades/);
+    out = show(await h.say('ok'));
+    expect(out.at(-1)).toBe('¿Prefieres dejar la configuración para después? [Salir y ver menú]');
+    out = show(await h.say('Olvídalo'));
+    expect(out[0]).toBe(
+      'Listo, dejé la configuración en pausa. Cuando quieras retomarla escribe *agregar contrato*.',
+    );
+
+    await h.say('agregar contrato');
+    out = show(await h.say('Menú'));
+    expect(out[0]).toMatch(/dejé la configuración en pausa/);
+    await h.say('agregar contrato');
+    out = show(await h.press('setup:leave'));
+    expect(out[0]).toMatch(/dejé la configuración en pausa/);
+  });
+});
