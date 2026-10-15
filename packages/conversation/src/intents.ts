@@ -184,6 +184,29 @@ export function matchCommand(text: string): Command | null {
   return null;
 }
 
+/**
+ * «Quiero anotar una actividad», «registrar actividad», «nueva actividad»: the contractor wants to
+ * record something but has not said what. Never saved as an activity.
+ */
+export function isNoteRequest(text: string): boolean {
+  const t = normalize(text)
+    .replace(/[^a-zñ ]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (!t || t.split(' ').length > 9) return false;
+  const verb =
+    '(anotar|anota|anoto|registrar|registra|registro|agregar|agrega|añadir|anadir|reportar|cargar|subir|meter|poner|apuntar)';
+  const what =
+    '(una |otra |la |mi |mis |las |unas |nueva |nuevas |algo|lo de hoy)*\\s*(actividad|actividades|nota|notas|algo|lo de hoy)?';
+  return (
+    new RegExp(
+      `^(hola )?((yo )?(quiero|quisiera|voy a|vamos a|necesito|deseo|me gustaria|puedo|podemos|ayudame a|para) )?${verb} ?${what}( por favor)?$`,
+    ).test(t) ||
+    /^(nueva|otra) (actividad|nota)( por favor)?$/.test(t) ||
+    /^tengo (una|otra) (actividad|nota)( para anotar| para registrar)?$/.test(t)
+  );
+}
+
 /** "nota: ..." forces a note even if the text looks like a command. */
 export function forcedNote(text: string): string | null {
   const m = /^\s*nota\s*[:-]?\s+(.+)$/is.exec(text);

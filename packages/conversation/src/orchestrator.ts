@@ -29,7 +29,7 @@ import type {
   WritingStyle,
 } from './domain.js';
 import { noteSupports, pilaMonthFor } from './domain.js';
-import { type Command, forcedNote, matchCommand, matchMonthRequest } from './intents.js';
+import { type Command, forcedNote, isNoteRequest, matchCommand, matchMonthRequest } from './intents.js';
 import { type NoteSuspicion, PHOTO_RECORD_PREFIX, suspectNote } from './note-check.js';
 import type { Deps, Inbound, ListRow, MessageIntent, MessageIntentKind, Outgoing } from './ports.js';
 import { isWordMime, POLICY_VERSION, SETUP_FLOW, SetupFlow, TERMS_VERSION } from './setup.js';
@@ -105,6 +105,7 @@ const INTENT_TITLES: Record<Exclude<MessageIntentKind, 'activity' | 'unclear'>, 
   redo: 'Rehacer informe',
   reset: 'Reiniciar informe',
   open_report: 'Trabajar el informe',
+  note_request: 'Anotar actividad',
   draft: 'Ver borrador',
   generate: 'Generar documentos',
   status: '¿Qué me falta?',
@@ -172,18 +173,25 @@ function choose(
   items: { id: string; title: string; description?: string }[],
   page = 0,
   moreId = 'more',
+  /** A row shown on every page (e.g. «No era actividad»). */
+  always?: { id: string; title: string },
 ): Outgoing {
-  if (items.length <= MAX_BUTTONS) return buttons(body, items);
-  const pageSize = MAX_ROWS - 1;
+  if (items.length + (always ? 1 : 0) <= MAX_BUTTONS)
+    return buttons(body, always ? [...items, always] : items);
+  const room = MAX_ROWS - (always ? 1 : 0);
+  const pageSize = room - 1;
   const slice = items.slice(page * pageSize, (page + 1) * pageSize);
   const rows: ListRow[] = slice.map((i) => ({
     id: i.id,
     title: i.title,
     ...(i.description ? { description: i.description } : {}),
   }));
-  if (items.length > (page + 1) * pageSize) rows.push({ id: `${moreId}:${page + 1}`, title: 'Ver más…' });
-  else if (items.length === MAX_ROWS)
-    rows.push({ id: items[MAX_ROWS - 1]!.id, title: items[MAX_ROWS - 1]!.title });
+  if (items.length > (page + 1) * pageSize) {
+    if (items.length === (page + 1) * pageSize + 1 && page * pageSize + room === items.length)
+      rows.push({ id: items.at(-1)!.id, title: items.at(-1)!.title });
+    else rows.push({ id: `${moreId}:${page + 1}`, title: 'Ver más…' });
+  }
+  if (always) rows.push(always);
   return list(body, 'Elegir', rows);
 }
 
@@ -1005,7 +1013,9 @@ export class Orchestrator {
         );
         return;
       case 'note_write': {
+        const pendingEvidence = turn.state.context.pendingEvidence;
         this.reset(turn);
+        if (pendingEvidence) turn.state.context = { ...turn.state.context, pendingEvidence };
         if (msg.replyId?.startsWith('short:do:')) {
           const [intent, month] = msg.replyId.slice(9).split(':');
           return this.runIntent(turn, '', intent as MessageIntentKind, month ? Number(month) : null);
@@ -1019,7 +1029,9 @@ export class Orchestrator {
         const t = (turn.state.context as { noteText: string }).noteText;
         this.reset(turn);
         if (msg.replyId === 'short:note')
-          return wordCount(t) < MIN_ACTIVITY_WORDS ? this.askActivityText(turn) : this.startNote(turn, t);
+          return wordCount(t) < MIN_ACTIVITY_WORDS || isNoteRequest(t)
+            ? this.askActivityText(turn)
+            : this.startNote(turn, t);
         if (msg.replyId?.startsWith('short:do:')) {
           const [intent, month] = msg.replyId.slice(9).split(':');
           return this.runIntent(turn, t, intent as MessageIntentKind, month ? Number(month) : null);
@@ -1525,7 +1537,7 @@ export class Orchestrator {
   private async freeText(turn: Turn, text: string): Promise<void> {
     const today = this.deps.clock.today();
     // «.», «ok», «6»: never an activity. With no letters at all there is nothing to interpret.
-    if (!/\p{L}/u.test(text)) return this.askActivityText(turn);
+    if (!/\p{L}/u.test(text) || isNoteRequest(text)) return this.askActivityText(turn);
     const r = await this.deps.ai
       .interpretMessage(text, today)
       .catch(
@@ -1543,15 +1555,16 @@ export class Orchestrator {
     if (r.intent !== 'unclear') return this.runIntent(turn, text, r.intent, r.month);
     this.setFlow(turn, 'short_unclear', 'ask', { noteText: text });
     const guess = r.guess && r.guess !== 'activity' && r.guess !== 'unclear' ? r.guess : null;
-    const question =
-      r.question?.trim() ||
-      `No estoy seguro de qué quieres hacer con «${clip(text, 60)}». ¿Es una actividad que hiciste o quieres que haga algo?`;
+    // The button saves this very text, so the message says which text it is.
+    const question = `${
+      r.question?.trim() || 'No estoy seguro de qué quieres hacer.'
+    }\n\nSi «${clip(text, 80)}» es algo que hiciste, toca *Es una actividad* y lo anoto así.`;
     turn.out.push(
       buttons(clip(question, 900), [
         ...(guess
           ? [{ id: `short:do:${guess}${r.month ? `:${r.month}` : ''}`, title: INTENT_TITLES[guess] }]
           : []),
-        { id: 'short:note', title: 'Anotar actividad' },
+        { id: 'short:note', title: 'Es una actividad' },
         { id: 'menu:menu', title: 'Ver menú' },
       ]),
     );
@@ -1562,7 +1575,8 @@ export class Orchestrator {
    * activity (flow note_write); a likely request from the AI is offered as a button.
    */
   private askActivityText(turn: Turn, r?: MessageIntent): void {
-    this.setFlow(turn, 'note_write', 'ask');
+    const pendingEvidence = turn.state.context.pendingEvidence;
+    this.setFlow(turn, 'note_write', 'ask', pendingEvidence ? { pendingEvidence } : {});
     const guess = r?.guess && r.guess !== 'activity' && r.guess !== 'unclear' ? r.guess : null;
     turn.out.push(
       buttons(
@@ -1593,10 +1607,14 @@ export class Orchestrator {
     month: number | null,
   ): Promise<void> {
     if (intent === 'activity' || intent === 'unclear') return this.startNote(turn, text);
+    if (intent === 'note_request') return this.askActivityText(turn);
     if (intent === 'move_note') return this.moveLastNote(turn, month);
     if (month && ['redo', 'reset', 'open_report', 'draft', 'generate'].includes(intent))
       return this.startMonthReport(turn, month, intent === 'redo', intent === 'reset');
-    const cmd: Record<Exclude<MessageIntentKind, 'activity' | 'unclear' | 'move_note'>, Command> = {
+    const cmd: Record<
+      Exclude<MessageIntentKind, 'activity' | 'unclear' | 'move_note' | 'note_request'>,
+      Command
+    > = {
       redo: 'resend',
       reset: 'reset',
       open_report: 'status',
@@ -1617,6 +1635,8 @@ export class Orchestrator {
   }
 
   private async startNote(turn: Turn, noteText: string, whenOverride?: ActivityWhen): Promise<void> {
+    // «Quiero anotar una actividad» is never the activity itself, whatever path brought it here.
+    if (isNoteRequest(noteText)) return this.askActivityText(turn);
     const today = this.deps.clock.today();
     const evidenceIds = (turn.state.context.pendingEvidence as string[]) ?? [];
     const when = whenOverride ?? parseActivityWhen(noteText, today);
@@ -2006,7 +2026,13 @@ export class Orchestrator {
     const c = await this.deps.store.getContract(note.contractId);
     this.setFlow(turn, 'note_obligation', 'pick', { noteId });
     const head = page === 0 ? `${body}\n${await this.periodLine(c, note.date)}` : body;
-    turn.out.push(choose(head, c.obligations.map(obligationRow), page, 'omore'));
+    // Always a way back when it was not an activity at all.
+    turn.out.push(
+      choose(head, c.obligations.map(obligationRow), page, 'omore', {
+        id: 'o:-',
+        title: '🗑️ No era actividad',
+      }),
+    );
   }
 
   /** WhatsApp lists allow one choice: further obligations are added one at a time. */
@@ -2063,6 +2089,16 @@ export class Orchestrator {
     const { noteId } = turn.state.context as { noteId: string };
     if (msg.replyId?.startsWith('omore:'))
       return this.askObligation(turn, noteId, 'Más obligaciones:', Number(msg.replyId.slice(6)));
+    if (msg.replyId === 'o:-') {
+      await this.deps.store.deleteNote(noteId);
+      this.reset(turn);
+      turn.out.push(
+        buttons('🗑️ Listo, no la anoté. Cuando quieras, cuéntame en una frase qué hiciste.', [
+          { id: 'menu:menu', title: 'Ver menú' },
+        ]),
+      );
+      return;
+    }
     const note = await this.deps.store.getNote(noteId);
     const c = await this.deps.store.getContract(note.contractId);
     let o: Obligation | undefined;

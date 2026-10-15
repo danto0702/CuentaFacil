@@ -363,6 +363,17 @@ describe('other flows', () => {
     expect(show(await h.say('ok'))).toEqual([ask]);
     expect(show(await h.say('·'))).toEqual([ask]);
     expect(h.store.data.notes.length).toBe(notes);
+    // «Quiero anotar una actividad» asks for the activity; it is never saved as one (Danilo, 2026-10-15).
+    expect(show(await h.say('Quiero anotar una actividad'))).toEqual([ask]);
+    expect(show(await h.say('registrar actividad'))).toEqual([ask]);
+    expect(h.store.data.notes.length).toBe(notes);
+    // Saved by mistake: the obligation list always offers to drop it.
+    await h.say('Estuve organizando varias cosas pendientes durante toda la jornada');
+    out = show(await h.press(`c:${DEMO_IDS.salud}`));
+    expect(out.join(' ')).toMatch(/¿A cuál obligación corresponde\?.*No era actividad/s);
+    out = show(await h.press('o:-'));
+    expect(out[0]).toMatch(/^🗑️ Listo, no la anoté/);
+    expect(h.store.data.notes.length).toBe(notes);
     // The answer to that question is the activity.
     out = show(await h.say('Hice la visita de seguimiento a la IPS de Ábrego'));
     expect(out[0]).toBe('¿A cuál contrato corresponde? [0001 Salud Pública] [0002 EBS] [Ambos]');
@@ -383,7 +394,7 @@ describe('other flows', () => {
     // Unsure: Pascal asks, offering the likely meaning, and does nothing until the answer.
     out = show(await h.say('¿podemos revisar el informe?'));
     expect(out[0]).toBe(
-      '¿Quieres que trabajemos en ese informe? [Trabajar el informe] [Anotar actividad] [Ver menú]',
+      '¿Quieres que trabajemos en ese informe?\n\nSi «¿podemos revisar el informe?» es algo que hiciste, toca *Es una actividad* y lo anoto así. [Trabajar el informe] [Es una actividad] [Ver menú]',
     );
     expect(h.store.data.notes.length).toBe(notes);
     out = show(await h.press('short:do:open_report'));

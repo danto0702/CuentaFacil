@@ -96,6 +96,7 @@ export type MessageIntentKind =
   | 'signature'
   | 'undo_note'
   | 'move_note'
+  | 'note_request'
   | 'support'
   | 'help'
   | 'menu'
