@@ -2,6 +2,7 @@
  * Worker entry point (Railway): consumes the `inbound` queue fed by the wa-webhook Edge Function,
  * runs the conversation and replies through the WhatsApp Cloud API.
  */
+import { AsyncLocalStorage } from 'node:async_hooks';
 import { randomUUID } from 'node:crypto';
 import Anthropic from '@anthropic-ai/sdk';
 import { BogotaClock, BRAND, Orchestrator } from '@cuentasbot/conversation';
@@ -104,7 +105,7 @@ const orchestrator = new Orchestrator({
     if (user) await deliver(deliverDeps, recipient(user), out, 'un mensaje sobre tus cuentas');
   },
   progress: async (to, out) => {
-    if (currentAttempt <= 1) await messenger.send(to, out);
+    if ((attemptScope.getStore() ?? 1) <= 1) await messenger.send(to, out);
   },
 });
 
@@ -186,7 +187,8 @@ async function whatsappDiagnostic(): Promise<void> {
   }
 }
 
-let currentAttempt = 1;
+/** Attempt of the message being processed: several are processed at once. */
+const attemptScope = new AsyncLocalStorage<number>();
 
 const FAILURE_TEXT =
   'Lo siento, tuve un problema procesando tu último mensaje y no lo pude completar. 🙏 Por favor envíalo de nuevo en unos minutos; si sigue fallando, escribe *soporte*.';
@@ -201,6 +203,8 @@ async function notifyFailure(inboxId: number): Promise<void> {
 
 const inbound = new Queue<{ inbox_id: number; provider: string }>(sb, 'inbound');
 const VISIBILITY_SECONDS = 180;
+/** Queue messages read at once; their senders are served in parallel. */
+const BATCH_SIZE = 10;
 /** Programa de Aliados: the previous month is evaluated (idempotently) every hour. */
 const ALLY_CHECK_MS = 60 * 60_000;
 
@@ -301,6 +305,29 @@ async function processWompi(inboxId: number): Promise<void> {
   await pipelineDb.markInbox(inboxId, 'processed');
 }
 
+type InboundItem = Awaited<ReturnType<typeof inbound.read>>[number];
+
+/** Who sent a stored webhook delivery, to keep each person's messages in order. */
+async function senderOf(inboxId: number): Promise<string | null> {
+  const { data } = await sb.from('webhook_inbox').select('body').eq('id', inboxId).single();
+  if (!data) return null;
+  return parseWebhook(JSON.parse(data.body)).messages[0]?.from ?? null;
+}
+
+async function processQueued(m: InboundItem): Promise<void> {
+  try {
+    await attemptScope.run(m.readCount, async () => {
+      if (m.message.provider === 'whatsapp') await pipeline.processInbox(m.message.inbox_id);
+      else if (m.message.provider === 'wompi') await processWompi(m.message.inbox_id);
+    });
+    await inbound.delete(m.msgId);
+  } catch (e) {
+    log.error('inbound.failed', { msgId: m.msgId, attempt: m.readCount, error: String(e) });
+    if (m.readCount >= cfg.WORKER_MAX_ATTEMPTS)
+      await failed(m.msgId, m.message, e, m.readCount).catch(() => undefined);
+  }
+}
+
 async function loop(): Promise<void> {
   log.info('worker.started', { queue: inbound.name });
   if (cfg.WOMPI_PUBLIC_KEY || cfg.WOMPI_INTEGRITY_SECRET || cfg.WOMPI_EVENTS_SECRET) {
@@ -332,7 +359,7 @@ async function loop(): Promise<void> {
     }
     let batch: Awaited<ReturnType<typeof inbound.read>> = [];
     try {
-      batch = await inbound.read(VISIBILITY_SECONDS, 5);
+      batch = await inbound.read(VISIBILITY_SECONDS, BATCH_SIZE);
     } catch (e) {
       log.error('queue.read_failed', { error: String(e) });
     }
@@ -340,18 +367,25 @@ async function loop(): Promise<void> {
       await new Promise((r) => setTimeout(r, cfg.WORKER_POLL_MS));
       continue;
     }
+    // Each sender's messages in order; different senders at the same time, so one long report does
+    // not hold everyone else. Wompi events go after, one by one: they write the payer's conversation.
+    const bySender = new Map<string, InboundItem[]>();
+    const payments: InboundItem[] = [];
     for (const m of batch) {
-      try {
-        currentAttempt = m.readCount;
-        if (m.message.provider === 'whatsapp') await pipeline.processInbox(m.message.inbox_id);
-        else if (m.message.provider === 'wompi') await processWompi(m.message.inbox_id);
-        await inbound.delete(m.msgId);
-      } catch (e) {
-        log.error('inbound.failed', { msgId: m.msgId, attempt: m.readCount, error: String(e) });
-        if (m.readCount >= cfg.WORKER_MAX_ATTEMPTS)
-          await failed(m.msgId, m.message, e, m.readCount).catch(() => undefined);
+      if (m.message.provider !== 'whatsapp') {
+        payments.push(m);
+        continue;
       }
+      const key = await senderOf(m.message.inbox_id).catch(() => null);
+      const k = key ?? `inbox:${m.message.inbox_id}`;
+      bySender.set(k, [...(bySender.get(k) ?? []), m]);
     }
+    await Promise.all(
+      [...bySender.values()].map(async (ms) => {
+        for (const m of ms) await processQueued(m);
+      }),
+    );
+    for (const m of payments) await processQueued(m);
   }
   log.info('worker.stopped');
 }
