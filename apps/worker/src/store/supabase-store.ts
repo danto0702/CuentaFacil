@@ -1020,6 +1020,13 @@ export class SupabaseStore implements Store {
   }
 
   /** Persists the fields the conversation can change (period mode, supervisor, end date). */
+  async setContractLabel(contractId: string, label: string): Promise<void> {
+    must(
+      await this.sb.from('contracts').update({ short_label: label }).eq('id', contractId),
+      'setContractLabel',
+    );
+  }
+
   async updateContract(c: Contract): Promise<void> {
     must(
       await this.sb

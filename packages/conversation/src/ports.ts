@@ -175,6 +175,8 @@ export interface Store {
   listContracts(userId: string): Promise<Contract[]>;
   getContract(id: string): Promise<Contract>;
   updateContract(contract: Contract): Promise<void>;
+  /** The label shown in buttons («0385 Coordinación EBS»): number plus the contractor's description. */
+  setContractLabel(contractId: string, label: string): Promise<void>;
 
   listPeriods(contractId: string): Promise<Period[]>;
   savePeriods(contractId: string, periods: Period[]): Promise<void>;

@@ -79,6 +79,9 @@ function namesContract(text: string, c: Contract): boolean {
   return new RegExp(`(^|\\D)0*${n}(\\D|$)`).test(text) && /contrato|cps|\b0\d{3}\b/i.test(text);
 }
 
+/** Longest contract description: lists show it whole, buttons clip it after 20 characters. */
+const DESCRIPTION_MAX = 20;
+
 /** Short replies that only close a question («no», «listo», «gracias»). */
 const ACKNOWLEDGEMENTS = new Set([
   'no',
@@ -876,6 +879,13 @@ export class Orchestrator {
 
     // Answers about the previous report used as writing style work anywhere, also during the setup.
     if (msg.replyId?.startsWith('style:')) return this.onStyleReply(turn, msg.replyId);
+    if (msg.replyId?.startsWith('desc:')) {
+      this.reset(turn);
+      const c = (await this.deps.store.listContracts(turn.user.id)).find(
+        (x) => x.id === msg.replyId!.slice(5),
+      );
+      if (c) return this.askDescription(turn, c);
+    }
     if (msg.replyId?.startsWith('payc:')) {
       this.reset(turn);
       return this.payCharge(turn, msg.replyId.slice(5));
@@ -923,7 +933,18 @@ export class Orchestrator {
         const before = turn.state.step;
         await this.setup.handle(turn, msg);
         // A contract configured in live mode starts with its configuration charge pending.
-        if (turn.state.flow !== SETUP_FLOW) return void (await this.setupGate(turn, true));
+        if (turn.state.flow !== SETUP_FLOW) {
+          // With several contracts, a description avoids choosing the wrong one later.
+          const all = await this.deps.store.listContracts(turn.user.id);
+          if (all.length > 1 && turn.state.flow === 'idle')
+            turn.out.push(
+              buttons(
+                `Ya tienes ${all.length} contratos. Para no confundirlos, ¿le pones una descripción corta a este (por ejemplo *Coordinación EBS*)?`,
+                [{ id: `desc:${all.at(-1)!.id}`, title: '🏷️ Ponerle descripción' }],
+              ),
+            );
+          return void (await this.setupGate(turn, true));
+        }
         // Asked the same thing again: from the second time, offer the way out with a button.
         const ctx = turn.state.context as { setupRetries?: number };
         const retries = turn.state.step === before ? (ctx.setupRetries ?? 0) + 1 : 0;
@@ -1158,6 +1179,10 @@ export class Orchestrator {
           if (!p) turn.out.push(text(`No tienes cuentas pendientes en ${c.shortLabel}.`));
           else await this.askReset(turn, c, p);
         });
+      case 'describe_pick_contract':
+        return this.onPickContract(turn, msg, (c) => this.askDescription(turn, c));
+      case 'describe_text':
+        return this.onDescription(turn, msg);
       case 'cut_pick_contract':
         return this.onPickContract(turn, msg, (c) => this.startCut(turn, c));
       case 'draft_missing':
@@ -1261,6 +1286,8 @@ export class Orchestrator {
         return this.showStyle(turn);
       case 'payments':
         return this.showPayments(turn);
+      case 'describe':
+        return this.withContract(turn, 'describe_pick_contract', (cs) => this.askDescription(turn, cs[0]!));
       case 'delete_data':
         // Ley 1581: a person of the team handles it and confirms; it shows on the panel's start page.
         await this.deps.store.openSupportTicket(turn.user.id, 'Solicitud de borrado de datos (Ley 1581)');
@@ -1304,7 +1331,7 @@ export class Orchestrator {
     if (help) {
       turn.out.push(
         text(
-          `Soy ${SIGNATURE}. Así me usas:\n1️⃣ Durante el mes, cuéntame lo que haces: texto, audio o fotos. Yo lo anoto en la obligación que corresponde.\n2️⃣ Envíame los soportes (planilla, antecedentes, afiliaciones) cuando los tengas.\n3️⃣ Al cierre escribe *genera el informe* (o *ver borrador*): redacto el informe y tú lo apruebas.\n4️⃣ Escribe *generar* y te envío los documentos listos para firmar.\n↩️ Si una nota quedó mal, escribe *borra la última nota*; para empezar un informe de cero, *reiniciar*.\n✍️ Para cargar o cambiar tu firma, escribe *firma*.\n📝 Para que redacte como tú, escribe *informe anterior* y envíame uno que ya hayas hecho.\n💳 Para ver qué debes o pagar, escribe *mis pagos*.\n👥 Para hacer las cuentas de otra persona, escribe *agregar persona*; para cambiar entre cuentas, *cambiar persona*.`,
+          `Soy ${SIGNATURE}. Así me usas:\n1️⃣ Durante el mes, cuéntame lo que haces: texto, audio o fotos. Yo lo anoto en la obligación que corresponde.\n2️⃣ Envíame los soportes (planilla, antecedentes, afiliaciones) cuando los tengas.\n3️⃣ Al cierre escribe *genera el informe* (o *ver borrador*): redacto el informe y tú lo apruebas.\n4️⃣ Escribe *generar* y te envío los documentos listos para firmar.\n↩️ Si una nota quedó mal, escribe *borra la última nota*; para empezar un informe de cero, *reiniciar*.\n✍️ Para cargar o cambiar tu firma, escribe *firma*.\n📝 Para que redacte como tú, escribe *informe anterior* y envíame uno que ya hayas hecho.\n💳 Para ver qué debes o pagar, escribe *mis pagos*.\n🏷️ Para ponerle a cada contrato una descripción corta, escribe *describir contrato*.\n👥 Para hacer las cuentas de otra persona, escribe *agregar persona*; para cambiar entre cuentas, *cambiar persona*.`,
         ),
       );
       turn.out.push(
@@ -1435,6 +1462,44 @@ export class Orchestrator {
     return n ? cs.find((c) => c.number.endsWith(n) || c.fullNumber.includes(n)) : undefined;
   }
 
+  /**
+   * A short description of the contract («Coordinación EBS»), shown in every button that asks for a
+   * contract, so a contractor with several does not mix them up. Kept as the contract's label.
+   */
+  private async askDescription(turn: Turn, c: Contract): Promise<void> {
+    this.setFlow(turn, 'describe_text', 'write', { contractId: c.id });
+    turn.out.push(
+      text(
+        `🏷️ Escríbeme una descripción corta para el contrato *${c.number}* (máximo ${DESCRIPTION_MAX} letras), por ejemplo: *Coordinación EBS* o *Vacunación Ábrego*. Así lo verás en los botones.\nHoy aparece como *${c.shortLabel}*.`,
+      ),
+    );
+  }
+
+  private async onDescription(turn: Turn, msg: Inbound): Promise<void> {
+    const { contractId } = turn.state.context as { contractId: string };
+    const c = await this.deps.store.getContract(contractId);
+    const desc = (msg.kind === 'text' ? (msg.text ?? '') : '')
+      .replace(/\s+/g, ' ')
+      .replace(/[*_~]/g, '')
+      .trim();
+    if (msg.kind !== 'text' || !desc) {
+      this.reset(turn);
+      return this.dispatch(turn, msg);
+    }
+    if (desc.length > DESCRIPTION_MAX) {
+      turn.out.push(
+        text(
+          `Es un poco larga (${desc.length} letras). Escríbela en máximo ${DESCRIPTION_MAX}, por ejemplo: *${clip(desc, DESCRIPTION_MAX - 1)}*`,
+        ),
+      );
+      return;
+    }
+    const label = `${c.number} ${desc}`;
+    await this.deps.store.setContractLabel(c.id, label);
+    this.reset(turn);
+    turn.out.push(text(`✅ Listo: tu contrato *${c.fullNumber}* ahora aparece como *${label}*.`));
+  }
+
   /** «¿Qué debo?»: configuration and report charges of each contract, with a button to pay. */
   private async showPayments(turn: Turn): Promise<void> {
     const { store } = this.deps;
@@ -1509,10 +1574,15 @@ ${lines.join('\n')}${due.length ? '' : '\n\nNo tienes nada pendiente. 👍'}`,
           setup?.status === 'pending'
             ? `\n⏳ Configuración pendiente de pago (${formatCOP(setup.amount)}): escribe *mis pagos*.`
             : '';
-        return `📄 *${c.fullNumber}* – ${e.shortName}\n${clip(c.object, 120)}\n${formatDdMmYyyy(c.startDate)} a ${formatDdMmYyyy(c.endDate)} · ${formatCOP(c.totalValue)} · ${c.paymentsCount} pagos · ${mode}${owes}`;
+        return `📄 *${c.fullNumber}* – ${e.shortName}\n🏷️ En los botones: *${c.shortLabel}*\n${clip(c.object, 120)}\n${formatDdMmYyyy(c.startDate)} a ${formatDdMmYyyy(c.endDate)} · ${formatCOP(c.totalValue)} · ${c.paymentsCount} pagos · ${mode}${owes}`;
       }),
     );
     turn.out.push(text(lines.join('\n\n')));
+    turn.out.push(
+      buttons('¿Quieres cambiar cómo se llama alguno en los botones?', [
+        { id: 'menu:describe', title: '🏷️ Describir contrato' },
+      ]),
+    );
   }
 
   // -------------------------------------------------------------------------

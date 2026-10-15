@@ -22,6 +22,7 @@ export type Command =
   | 'style'
   | 'delete_data'
   | 'payments'
+  | 'describe'
   | 'guide'
   | 'people'
   | 'add_person'
@@ -68,6 +69,19 @@ const COMMANDS: [Command, string[]][] = [
   [
     'reset',
     ['reiniciar', 'reiniciar cuenta', 'reiniciar informe', 'resetear', 'resetear cuenta', 'empezar de nuevo'],
+  ],
+  [
+    'describe',
+    [
+      'describir contrato',
+      'describir contratos',
+      'descripcion del contrato',
+      'descripcion de contrato',
+      'cambiar descripcion',
+      'nombre del contrato',
+      'renombrar contrato',
+      'ponerle nombre al contrato',
+    ],
   ],
   [
     'payments',

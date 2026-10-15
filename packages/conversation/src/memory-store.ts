@@ -128,6 +128,11 @@ export class MemoryStore implements Store {
   async updateContract(contract: Contract) {
     this.data.contracts = this.data.contracts.map((c) => (c.id === contract.id ? clone(contract) : c));
   }
+  async setContractLabel(contractId: string, label: string) {
+    this.data.contracts = this.data.contracts.map((c) =>
+      c.id === contractId ? { ...c, shortLabel: label } : c,
+    );
+  }
   async listPeriods(contractId: string) {
     return clone(
       this.data.periods.filter((p) => p.contractId === contractId).sort((a, b) => a.number - b.number),

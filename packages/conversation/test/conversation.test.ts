@@ -214,6 +214,23 @@ describe('other flows', () => {
     expect(out[0]).toMatch(/^💳 Para activar tu contrato \*CPS-0002/);
   });
 
+  it('lets each contract have a short description shown in the buttons', async () => {
+    const h = harness();
+    let out = show(await h.say('describir contrato'));
+    expect(out[0]).toBe('¿De cuál contrato? [0001 Salud Pública] [0002 EBS]');
+    out = show(await h.press(`c:${DEMO_IDS.ebs}`));
+    expect(out[0]).toMatch(/^🏷️ Escríbeme una descripción corta para el contrato \*0002\*/);
+    out = show(await h.say('Coordinación de los equipos básicos'));
+    expect(out[0]).toMatch(/^Es un poco larga \(35 letras\)/);
+    out = show(await h.say('Coordinación EBS'));
+    expect(out[0]).toBe('✅ Listo: tu contrato *CPS-0002-2026* ahora aparece como *0002 Coordinación EBS*.');
+    out = show(await h.say('Hoy capacité a 30 personas en misión médica en El Carmen'));
+    expect(out[0]).toBe('¿A cuál contrato corresponde? [0001 Salud Pública] [0002 Coordinación E…] [Ambos]');
+    expect(show(await h.say('mis contratos')).join('\n')).toContain(
+      '🏷️ En los botones: *0002 Coordinación EBS*',
+    );
+  });
+
   it('takes the contract named in the text without asking', async () => {
     const h = harness();
     const out = show(await h.say('Hice seguimiento a las UPGD de Ábrego, esto es del contrato 0002'));
