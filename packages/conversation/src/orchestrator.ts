@@ -71,6 +71,13 @@ const OPEN_WHILE_UNPAID: Command[] = [
 
 type Ctx = Record<string, unknown>;
 
+/** The text names this contract: «contrato 0649», «el 0649», «CPS-0649-2026». */
+function namesContract(text: string, c: Contract): boolean {
+  const n = c.number.replace(/^0+/, '');
+  if (!n) return false;
+  return new RegExp(`(^|\\D)0*${n}(\\D|$)`).test(text) && /contrato|cps|\b0\d{3}\b/i.test(text);
+}
+
 /** Short replies that only close a question («no», «listo», «gracias»). */
 const ACKNOWLEDGEMENTS = new Set([
   'no',
@@ -193,6 +200,8 @@ function buttons(body: string, items: { id: string; title: string }[]): Outgoing
       seen.add(k).add(b.id);
       return true;
     });
+  // WhatsApp rejects interactive messages without buttons (#100): send the text alone.
+  if (!unique.length) return { type: 'text', text: body };
   return { type: 'buttons', text: body, buttons: unique.slice(0, MAX_BUTTONS) };
 }
 
@@ -1808,11 +1817,21 @@ export class Orchestrator {
       );
       return;
     }
+    // «…esto es del contrato 0649»: the contract named in the text needs no question.
+    const named = cs.filter((c) => namesContract(noteText, c));
+    if (named.length === 1) cs = named;
     if (cs.length === 1) {
       this.setFlow(turn, 'idle', 'start');
       return this.saveNote(turn, [cs[0]!], noteText, date, evidenceIds, label);
     }
-    this.setFlow(turn, 'note_contract', 'pick', { noteText, date, evidenceIds, ...(label ? { label } : {}) });
+    // The answer is checked against these same contracts (not recomputed with other rules).
+    this.setFlow(turn, 'note_contract', 'pick', {
+      noteText,
+      date,
+      evidenceIds,
+      contractIds: cs.map((c) => c.id),
+      ...(label ? { label } : {}),
+    });
     const items = cs.map((c) => ({ id: `c:${c.id}`, title: c.shortLabel }));
     if (cs.length === 2) items.push({ id: 'c:*', title: 'Ambos' });
     turn.out.push(choose('¿A cuál contrato corresponde?', items));
@@ -1964,8 +1983,12 @@ export class Orchestrator {
       date: IsoDate;
       evidenceIds: string[];
       label?: string;
+      contractIds?: string[];
     };
-    const cs = await this.activeContracts(turn, ctx.date);
+    // The contracts offered in the question (older conversations: those in force on the date).
+    const all = await this.deps.store.listContracts(turn.user.id);
+    const offered = ctx.contractIds ? all.filter((c) => ctx.contractIds!.includes(c.id)) : [];
+    const cs = offered.length ? offered : await this.activeContracts(turn, ctx.date);
     let chosen: Contract[] = [];
     if (msg.replyId === 'c:*') chosen = cs;
     else if (msg.replyId?.startsWith('c:')) chosen = cs.filter((c) => c.id === msg.replyId!.slice(2));
@@ -1978,7 +2001,7 @@ export class Orchestrator {
         return this.freeText(turn, msg.text);
       }
     }
-    if (!chosen.length) {
+    if (!chosen.length && cs.length) {
       turn.out.push(
         choose(
           'Elige el contrato:',
@@ -1986,6 +2009,11 @@ export class Orchestrator {
         ),
       );
       return;
+    }
+    if (!chosen.length) {
+      // Nothing left to choose from: never an empty question; start the note over.
+      this.setFlow(turn, 'idle', 'start', { pendingEvidence: ctx.evidenceIds });
+      return this.startNote(turn, ctx.noteText);
     }
     this.setFlow(turn, 'idle', 'start');
     await this.saveNote(turn, chosen, ctx.noteText, ctx.date, ctx.evidenceIds, ctx.label);
@@ -2001,11 +2029,18 @@ export class Orchestrator {
   ): Promise<void> {
     for (const c of contracts) {
       const result = await this.deps.ai.classifyNote(noteText, c.obligations);
+      // A month («en octubre») falls inside each contract: one that starts on the 2nd gets the 2nd.
+      const day =
+        label && compareIso(date, c.startDate) < 0
+          ? c.startDate
+          : label && compareIso(c.endDate, date) < 0
+            ? c.endDate
+            : date;
       const note: Note = {
         id: this.deps.newId(),
         userId: turn.user.id,
         contractId: c.id,
-        date,
+        date: day,
         text: noteText,
         evidenceIds,
         createdAt: this.deps.clock.now().toISOString(),
@@ -2019,7 +2054,7 @@ export class Orchestrator {
         ? ` con ${evidenceIds.length} foto${evidenceIds.length > 1 ? 's' : ''}`
         : '';
       const where = contracts.length > 1 ? ` (${c.shortLabel})` : '';
-      const period = await this.periodLine(c, date);
+      const period = await this.periodLine(c, day);
       if (note.obligationKey) {
         const o = c.obligations.find((x) => x.key === note.obligationKey)!;
         const sure = result.confidence >= this.deps.confidenceThreshold;

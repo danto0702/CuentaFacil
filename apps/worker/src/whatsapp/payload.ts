@@ -57,6 +57,8 @@ export function messagePayload(
     case 'text':
       return { ...base, type: 'text', text: { body: clip(out.text, TEXT_MAX), preview_url: false } };
     case 'buttons':
+      // WhatsApp rejects an interactive message without buttons (#100): send the text alone.
+      if (!out.buttons.length) return messagePayload(to, { type: 'text', text: out.text });
       return {
         ...base,
         type: 'interactive',
@@ -75,6 +77,7 @@ export function messagePayload(
         },
       };
     case 'list':
+      if (!out.rows.length) return messagePayload(to, { type: 'text', text: out.text });
       return {
         ...base,
         type: 'interactive',

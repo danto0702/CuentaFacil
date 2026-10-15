@@ -347,6 +347,19 @@ describe('WhatsAppClient.ensureSubscribed', () => {
 });
 
 describe('interactive payloads', () => {
+  it('sends the text alone when a question has no options (WhatsApp rejects it with #100)', async () => {
+    const { messagePayload } = await import('../src/whatsapp/payload.js');
+    const p = messagePayload('+573001112233', {
+      type: 'buttons',
+      text: 'Elige el contrato:',
+      buttons: [],
+    }) as {
+      type: string;
+      text: { body: string };
+    };
+    expect([p.type, p.text.body]).toEqual(['text', 'Elige el contrato:']);
+  });
+
   it('never sends two buttons with the same title (WhatsApp rejects the message)', async () => {
     const { messagePayload } = await import('../src/whatsapp/payload.js');
     const p = messagePayload('+573001112233', {

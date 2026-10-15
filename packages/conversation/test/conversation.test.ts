@@ -173,6 +173,34 @@ describe('other flows', () => {
     );
   });
 
+  it('saves the note in the contract chosen even if it starts mid-month or owes its setup (Danilo, 2026-10-15)', async () => {
+    const h = harness();
+    const userId = h.store.data.users[0]!.id;
+    h.store.data.contracts.find((c) => c.id === DEMO_IDS.salud)!.startDate = '2026-09-02';
+    h.store.data.billing = { mode: 'live', prices: { setup: 15_000, report: 50_000 } };
+    await h.store.openCharge({
+      userId,
+      product: 'setup',
+      contractId: DEMO_IDS.ebs,
+      periodNumber: null,
+      coversSetup: false,
+      amount: 15_000,
+    });
+    let out = show(await h.say('En septiembre hice mesas de trabajo con el personal de las IPS'));
+    expect(out[0]).toBe('¿A cuál contrato corresponde? [0001 Salud Pública] [0002 EBS] [Ambos]');
+    out = show(await h.press(`c:${DEMO_IDS.salud}`));
+    expect(out[0]).toMatch(/Anotado en septiembre de 2026/);
+    const note = h.store.data.notes.at(-1)!;
+    expect([note.contractId, note.date]).toEqual([DEMO_IDS.salud, '2026-09-02']);
+  });
+
+  it('takes the contract named in the text without asking', async () => {
+    const h = harness();
+    const out = show(await h.say('Hice seguimiento a las UPGD de Ábrego, esto es del contrato 0002'));
+    expect(out.join(' ')).not.toMatch(/¿A cuál contrato corresponde/);
+    expect(h.store.data.notes.at(-1)!.contractId).toBe(DEMO_IDS.ebs);
+  });
+
   it('registers a note in both contracts', async () => {
     const h = harness();
     await h.say('Asistí a la reunión del comité en Ábrego');
