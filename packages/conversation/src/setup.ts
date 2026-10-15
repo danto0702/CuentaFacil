@@ -11,6 +11,7 @@ import { allyWelcome } from './ally.js';
 import { BRAND, SIGNATURE } from './brand.js';
 import type { ContractExtraction, ConversationState, Entity, Period, RegistryEntry, User } from './domain.js';
 import type { Deps, Inbound, InstitutionDocuments, Outgoing } from './ports.js';
+import { learnWritingStyle, PREVIOUS_REPORT } from './style.js';
 import { clip } from './text.js';
 
 /** Conversation flow name for contract setup (plan v5 §2.1). */
@@ -359,6 +360,10 @@ const WORD_MIMES = new Set([
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
   'application/msword',
 ]);
+/** Word documents Pascal accepts as models or previous reports (converted to PDF to read them). */
+export function isWordMime(mime: string): boolean {
+  return WORD_MIMES.has(mime);
+}
 const mask = (v: string | null | undefined) =>
   v ? `****${v.replace(/\D/g, '').slice(-4)}` : 'no la encontré';
 
@@ -1012,7 +1017,7 @@ export class SetupFlow {
     if (n > 0) {
       turn.out.push(
         text(
-          '📎 Si tienes tu último informe en Word o PDF, envíamelo cuando quieras: así copio tu forma de redactar. No es obligatorio.',
+          '📎 Si tienes tu último informe de actividades en Word o PDF, envíamelo: lo uso como ejemplo de tu forma de redactar (los hechos siempre salen de lo que me cuentes). No es obligatorio.',
         ),
       );
     }
@@ -1040,16 +1045,25 @@ export class SetupFlow {
 
   private async onSignature(turn: SetupTurn, msg: Inbound): Promise<void> {
     if (msg.kind === 'document' && msg.media && (isPdf(msg.media.mime) || WORD_MIMES.has(msg.media.mime))) {
+      const supportId = this.deps.newId();
       await this.deps.store.addSupport({
-        id: this.deps.newId(),
+        id: supportId,
         userId: turn.user.id,
-        code: 'INFORME_ANTERIOR',
+        code: PREVIOUS_REPORT,
         data: msg.media.data,
         mime: msg.media.mime,
         filename: msg.media.filename ?? 'informe-anterior',
         receivedAt: this.deps.clock.now().toISOString(),
       });
-      turn.out.push(text('✅ Guardé tu informe anterior.'));
+      // Read at once (ADR-046), with buttons to undo it if it was the wrong file.
+      const r = await learnWritingStyle(this.deps, turn.user.id, {
+        supportId,
+        data: msg.media.data,
+        mime: msg.media.mime,
+        filename: msg.media.filename ?? 'informe-anterior',
+      });
+      turn.state.context = { ...turn.state.context, styleCandidate: r.candidate };
+      turn.out.push(...r.out);
       this.askSignature(turn);
       return;
     }

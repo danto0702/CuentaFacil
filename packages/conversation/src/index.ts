@@ -9,4 +9,5 @@ export * from './note-check.js';
 export * from './orchestrator.js';
 export * from './ports.js';
 export * from './setup.js';
+export * from './style.js';
 export * from './text.js';

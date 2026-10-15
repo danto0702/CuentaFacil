@@ -17,6 +17,7 @@ import type {
   Note,
   Obligation,
   Period,
+  PreviousReportReading,
   PriorPaymentRecord,
   ReferralResult,
   RegistryEntry,
@@ -25,6 +26,7 @@ import type {
   SupportSegment,
   SupportType,
   User,
+  WritingStyle,
 } from './domain.js';
 
 // ---------------------------------------------------------------------------
@@ -123,7 +125,9 @@ export interface AI {
   interpretMessage(text: string, today: IsoDate): Promise<MessageIntent>;
   classifyNote(text: string, obligations: Obligation[]): Promise<ClassifyResult>;
   /** Must only use facts present in the notes; returns needs_input when there is nothing to say. */
-  draftObligation(obligation: Obligation, notes: Note[]): Promise<DraftResult>;
+  draftObligation(obligation: Obligation, notes: Note[], style?: WritingStyle | null): Promise<DraftResult>;
+  /** Reads a report the contractor made before (PDF or Word): is it one, and how do they write? */
+  readPreviousReport(doc: DocumentInput): Promise<PreviousReportReading>;
   rewrite(paragraphs: string[], instruction: string, obligation: Obligation): Promise<string[]>;
   /** Reads the SECOP contract and the clauses (setup model). Never invents values: unknowns are null. */
   extractContract(docs: DocumentInput[]): Promise<ContractExtraction>;
@@ -193,6 +197,9 @@ export interface Store {
 
   addSupport(s: SupportFile): Promise<void>;
   listSupports(userId: string): Promise<SupportFile[]>;
+  /** The contractor's writing style (ADR-046); null removes it. */
+  saveWritingStyle(userId: string, style: WritingStyle | null): Promise<void>;
+  getWritingStyle(userId: string): Promise<WritingStyle | null>;
   /** The contractor generates with these expired supports anyway (their responsibility). */
   acceptExpiredSupports(ids: string[]): Promise<void>;
   /** Asks a person of the team to write to the contractor (shown in the panel). */

@@ -6,7 +6,7 @@ import { AsyncLocalStorage } from 'node:async_hooks';
 import { randomUUID } from 'node:crypto';
 import Anthropic from '@anthropic-ai/sdk';
 import { BogotaClock, BRAND, Orchestrator } from '@cuentasbot/conversation';
-import { extractPages } from '@cuentasbot/docgen';
+import { docxToPdf, extractPages } from '@cuentasbot/docgen';
 import { formatCOP } from '@cuentasbot/shared';
 import { createClient } from '@supabase/supabase-js';
 import OpenAI from 'openai';
@@ -87,7 +87,11 @@ const wompi =
 
 const orchestrator = new Orchestrator({
   store,
-  ai: new ClaudeAI(llm, { fast: cfg.AI_MODEL_FAST, smart: cfg.AI_MODEL_SMART, setup: cfg.AI_MODEL_SETUP }),
+  ai: new ClaudeAI(
+    llm,
+    { fast: cfg.AI_MODEL_FAST, smart: cfg.AI_MODEL_SMART, setup: cfg.AI_MODEL_SETUP },
+    (doc) => docxToPdf(doc),
+  ),
   stt: new OpenAISTT(new OpenAI({ apiKey: cfg.OPENAI_API_KEY }), cfg.STT_MODEL),
   clock,
   generator: new AccountGenerator({ store, clock, templates: new StorageTemplateProvider(sb) }),

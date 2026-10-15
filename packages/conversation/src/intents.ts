@@ -19,6 +19,7 @@ export type Command =
   | 'undo_note'
   | 'reset'
   | 'signature'
+  | 'style'
   | 'guide'
   | 'people'
   | 'add_person'
@@ -65,6 +66,18 @@ const COMMANDS: [Command, string[]][] = [
   [
     'reset',
     ['reiniciar', 'reiniciar cuenta', 'reiniciar informe', 'resetear', 'resetear cuenta', 'empezar de nuevo'],
+  ],
+  [
+    'style',
+    [
+      'informe anterior',
+      'mi informe anterior',
+      'cambiar informe anterior',
+      'quitar informe anterior',
+      'estilo de redaccion',
+      'mi estilo',
+      'mi forma de escribir',
+    ],
   ],
   [
     'signature',

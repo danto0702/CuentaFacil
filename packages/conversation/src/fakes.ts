@@ -4,8 +4,10 @@ import type {
   DocumentInput,
   Note,
   Obligation,
+  PreviousReportReading,
   SocialSecurity,
   SupportSegment,
+  WritingStyle,
 } from './domain.js';
 import type { AI, ClassifyResult, Clock, DraftResult, MessageIntent, STT } from './ports.js';
 import { normalize } from './text.js';
@@ -203,7 +205,24 @@ export class FakeAI implements AI {
     return { obligationKey: best.key, confidence: Math.min(1, best.score / 3) };
   }
 
-  async draftObligation(_o: Obligation, notes: Note[]): Promise<DraftResult> {
+  /** Style passed to the last draft, for tests. */
+  lastStyle: WritingStyle | null = null;
+
+  /** «Informe…» in the file name or text reads as an activity report. */
+  async readPreviousReport(doc: DocumentInput): Promise<PreviousReportReading> {
+    const isActivityReport = /informe/i.test(`${doc.label} ${doc.data.toString('utf8')}`);
+    return {
+      isActivityReport,
+      summary: isActivityReport
+        ? 'Informe de actividades de agosto de 2026, CPS-0001-2026'
+        : 'Una factura de servicios públicos',
+      guide: 'Frases cortas en pasado impersonal.',
+      examples: ['Se realizó la visita de seguimiento a la IPS.'],
+    };
+  }
+
+  async draftObligation(_o: Obligation, notes: Note[], style?: WritingStyle | null): Promise<DraftResult> {
+    this.lastStyle = style ?? null;
     const useful = notes.filter((n) => n.text.trim().length > 0);
     if (!useful.length) return { status: 'needs_input', reason: 'Sin notas para esta obligación.' };
     const sorted = [...useful].sort((a, b) => (a.date < b.date ? -1 : 1));

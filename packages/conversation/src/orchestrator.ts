@@ -26,12 +26,14 @@ import type {
   SupportSegment,
   SupportType,
   User,
+  WritingStyle,
 } from './domain.js';
 import { noteSupports, pilaMonthFor } from './domain.js';
 import { type Command, forcedNote, matchCommand, matchMonthRequest } from './intents.js';
 import { type NoteSuspicion, PHOTO_RECORD_PREFIX, suspectNote } from './note-check.js';
 import type { Deps, Inbound, ListRow, MessageIntent, MessageIntentKind, Outgoing } from './ports.js';
-import { POLICY_VERSION, SETUP_FLOW, SetupFlow, TERMS_VERSION } from './setup.js';
+import { isWordMime, POLICY_VERSION, SETUP_FLOW, SetupFlow, TERMS_VERSION } from './setup.js';
+import { DISCARDED, learnWritingStyle, PREVIOUS_REPORT, STYLE_UPLOAD_TEXT } from './style.js';
 import { type ActivityWhen, clip, MONTHS, normalize, parseActivityDate, parseActivityWhen } from './text.js';
 
 const MAX_BUTTONS = 3;
@@ -42,7 +44,7 @@ const PHOTO_RECENT_NOTES = 8;
 /** An earlier report not delivered yet counts as "being worked on" for this many days after it closes. */
 const OPEN_REPORT_DAYS = 62;
 /** Conversation context kept when the flow changes. */
-const STICKY_KEYS = ['working', 'checkedNotes', 'actingFor', 'dlgAsked'] as const;
+const STICKY_KEYS = ['working', 'checkedNotes', 'actingFor', 'dlgAsked', 'styleCandidate'] as const;
 const CONTRACT_ACTIVE =
   '🎉 ¡Tu contrato quedó activo! Desde ya cuéntame lo que haces cada día: texto, audio o fotos. Escribe *menú* para ver todas las opciones.';
 
@@ -59,9 +61,6 @@ const OPEN_WHILE_UNPAID: Command[] = [
 ];
 
 type Ctx = Record<string, unknown>;
-
-/** A report the contractor made before (kept with their supports). */
-const PREVIOUS_REPORT = 'INFORME_ANTERIOR';
 
 /** Options of «¿Qué documento es?»: the period's supports, an activity evidence or a previous report. */
 function supportRows(types: Map<string, SupportType>): { id: string; title: string }[] {
@@ -761,6 +760,9 @@ export class Orchestrator {
       return this.dispatch(turn, { ...msg, kind: 'text', text: transcript });
     }
 
+    // Answers about the previous report used as writing style work anywhere, also during the setup.
+    if (msg.replyId?.startsWith('style:')) return this.onStyleReply(turn, msg.replyId);
+
     const allyCode = msg.kind === 'text' && msg.text ? findAllyCode(msg.text) : null;
     if (allyCode) {
       turn.out.push(referralText(await this.deps.store.applyReferral(turn.user.id, allyCode), allyCode));
@@ -887,6 +889,8 @@ export class Orchestrator {
       if (turn.state.flow === GUIDE_FLOW) await this.guideStep(turn, guide);
       return;
     }
+    if (msg.kind === 'document' && msg.media && turn.state.flow === 'style_upload')
+      return this.onStyleUpload(turn, msg);
     if (msg.kind === 'document' && msg.media && turn.state.flow !== 'idle') this.reset(turn);
 
     if (msg.kind === 'reply' && msg.replyId?.startsWith('guide:')) {
@@ -986,6 +990,8 @@ export class Orchestrator {
         return this.onPickContract(turn, msg, (c) => this.startGuide(turn, c));
       case GUIDE_FLOW:
         return this.onGuide(turn, msg);
+      case 'style_upload':
+        return this.onStyleUpload(turn, msg);
       case 'signature_upload':
         turn.out.push(
           text('Envíame la firma como *foto* (imagen), no como documento. Para salir escribe *menú*.'),
@@ -1107,6 +1113,8 @@ export class Orchestrator {
         return this.showAuthorizations(turn);
       case 'signature':
         return this.askSignature(turn);
+      case 'style':
+        return this.showStyle(turn);
       case 'guide':
         return this.withContract(turn, 'guide_pick_contract', (cs) => this.startGuide(turn, cs[0]!));
       case 'my_data':
@@ -1141,7 +1149,7 @@ export class Orchestrator {
     if (help) {
       turn.out.push(
         text(
-          `Soy ${SIGNATURE}. Así me usas:\n1️⃣ Durante el mes, cuéntame lo que haces: texto, audio o fotos. Yo lo anoto en la obligación que corresponde.\n2️⃣ Envíame los soportes (planilla, antecedentes, afiliaciones) cuando los tengas.\n3️⃣ Al cierre escribe *genera el informe* (o *ver borrador*): redacto el informe y tú lo apruebas.\n4️⃣ Escribe *generar* y te envío los documentos listos para firmar.\n↩️ Si una nota quedó mal, escribe *borra la última nota*; para empezar un informe de cero, *reiniciar*.\n✍️ Para cargar o cambiar tu firma, escribe *firma*.\n👥 Para hacer las cuentas de otra persona, escribe *agregar persona*; para cambiar entre cuentas, *cambiar persona*.`,
+          `Soy ${SIGNATURE}. Así me usas:\n1️⃣ Durante el mes, cuéntame lo que haces: texto, audio o fotos. Yo lo anoto en la obligación que corresponde.\n2️⃣ Envíame los soportes (planilla, antecedentes, afiliaciones) cuando los tengas.\n3️⃣ Al cierre escribe *genera el informe* (o *ver borrador*): redacto el informe y tú lo apruebas.\n4️⃣ Escribe *generar* y te envío los documentos listos para firmar.\n↩️ Si una nota quedó mal, escribe *borra la última nota*; para empezar un informe de cero, *reiniciar*.\n✍️ Para cargar o cambiar tu firma, escribe *firma*.\n📝 Para que redacte como tú, escribe *informe anterior* y envíame uno que ya hayas hecho.\n👥 Para hacer las cuentas de otra persona, escribe *agregar persona*; para cambiar entre cuentas, *cambiar persona*.`,
         ),
       );
       turn.out.push(
@@ -2176,7 +2184,7 @@ export class Orchestrator {
     if (s) await this.deps.store.addSupport({ ...s, code, issuedOn: this.deps.clock.today() });
     if (code === PREVIOUS_REPORT) {
       this.reset(turn);
-      turn.out.push(text('✅ Guardé tu informe anterior.'));
+      if (s) await this.learnStyle(turn, s);
       return;
     }
     if (guide) {
@@ -2442,6 +2450,7 @@ export class Orchestrator {
     const existing = await this.deps.store.listDrafts(c.id, p.number);
     const missing: string[] = [];
     turn.out.push(text('✍️ Estoy redactando tu informe con lo que me contaste…'));
+    const style = await this.deps.store.getWritingStyle(turn.user.id);
     for (const o of c.obligations) {
       const prev = existing.find((d) => d.obligationKey === o.key);
       const mine = notes.filter((n) => noteSupports(n, o.key));
@@ -2464,7 +2473,7 @@ export class Orchestrator {
         }
         continue;
       }
-      const r = await this.deps.ai.draftObligation(o, mine);
+      const r = await this.deps.ai.draftObligation(o, mine, style);
       if (r.status === 'ok') {
         await this.deps.store.saveDraft(
           this.draft(
@@ -2649,6 +2658,96 @@ export class Orchestrator {
         [{ id: `redo:${c.id}:${p.number}`, title: `Rehacer ${name}` }],
       ),
     );
+  }
+
+  // -------------------------------------------------------------------------
+  // Previous report as writing style (ADR-046): read with AI, confirmed or undone with buttons
+  // -------------------------------------------------------------------------
+  private async learnStyle(turn: Turn, file: SupportFile): Promise<void> {
+    const r = await learnWritingStyle(this.deps, turn.user.id, {
+      supportId: file.id,
+      data: file.data,
+      mime: file.mime,
+      filename: file.filename,
+    });
+    turn.state.context = { ...turn.state.context, styleCandidate: r.candidate };
+    turn.out.push(...r.out);
+  }
+
+  private async showStyle(turn: Turn): Promise<void> {
+    const style = await this.deps.store.getWritingStyle(turn.user.id);
+    if (!style) {
+      this.setFlow(turn, 'style_upload', 'wait');
+      turn.out.push(text(STYLE_UPLOAD_TEXT));
+      return;
+    }
+    turn.out.push(
+      buttons(`📝 Redacto con la forma de escribir de tu informe anterior: *${style.summary}*.`, [
+        { id: 'style:other', title: 'Cambiarlo' },
+        { id: 'style:wrong', title: 'Quitarlo' },
+      ]),
+    );
+  }
+
+  private async onStyleUpload(turn: Turn, msg: Inbound): Promise<void> {
+    const media = msg.kind === 'document' ? msg.media : undefined;
+    if (!media || !(media.mime === 'application/pdf' || isWordMime(media.mime))) {
+      // Something else: leave the upload and handle the message normally.
+      this.reset(turn);
+      return this.dispatch(turn, msg);
+    }
+    const file: SupportFile = {
+      id: this.deps.newId(),
+      userId: turn.user.id,
+      code: PREVIOUS_REPORT,
+      data: media.data,
+      mime: media.mime,
+      filename: media.filename ?? 'informe-anterior',
+      receivedAt: this.deps.clock.now().toISOString(),
+    };
+    await this.deps.store.addSupport(file);
+    this.reset(turn);
+    await this.learnStyle(turn, file);
+  }
+
+  private async onStyleReply(turn: Turn, replyId: string): Promise<void> {
+    const { store } = this.deps;
+    const inSetup = turn.state.flow === SETUP_FLOW;
+    const candidate = turn.state.context.styleCandidate as WritingStyle | undefined;
+    turn.state.context = { ...turn.state.context, styleCandidate: undefined };
+    switch (replyId) {
+      case 'style:ok':
+        turn.out.push(text('👍 Listo.'));
+        return;
+      case 'style:keep':
+        if (!candidate) {
+          turn.out.push(text('Envíamelo de nuevo, por favor: escribe *informe anterior*.'));
+          return;
+        }
+        await store.saveWritingStyle(turn.user.id, candidate);
+        turn.out.push(text('✅ Listo, lo uso como ejemplo de tu forma de escribir.'));
+        return;
+      case 'style:wrong': {
+        const style = await store.getWritingStyle(turn.user.id);
+        await store.saveWritingStyle(turn.user.id, null);
+        const file = style && (await store.listSupports(turn.user.id)).find((x) => x.id === style.supportId);
+        if (file) await store.addSupport({ ...file, code: DISCARDED });
+        turn.out.push(
+          text(
+            '🗑️ Listo, lo quité: no lo usaré para redactar. Cuando quieras, escribe *informe anterior* y envíame el correcto (PDF o Word).',
+          ),
+        );
+        return;
+      }
+      case 'style:other':
+        if (inSetup) {
+          turn.out.push(text('Envíamelo cuando quieras, en PDF o Word.'));
+          return;
+        }
+        this.setFlow(turn, 'style_upload', 'wait');
+        turn.out.push(text(STYLE_UPLOAD_TEXT));
+        return;
+    }
   }
 
   // -------------------------------------------------------------------------
@@ -2918,7 +3017,11 @@ export class Orchestrator {
       createdAt: this.deps.clock.now().toISOString(),
     };
     await this.deps.store.addNote(note);
-    const r = await this.deps.ai.draftObligation(o, [note]);
+    const r = await this.deps.ai.draftObligation(
+      o,
+      [note],
+      await this.deps.store.getWritingStyle(turn.user.id),
+    );
     const paragraphs = r.status === 'ok' ? r.paragraphs : [msg.text.trim()];
     await this.deps.store.saveDraft(this.draft(c, p, o, paragraphs, 'proposed', [note.id]));
     return this.nextMissing(turn, c, p, missing.slice(1));

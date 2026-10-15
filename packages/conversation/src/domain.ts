@@ -285,6 +285,29 @@ export interface RegistryEntry {
   initialValue: number | null;
 }
 
+/**
+ * How the contractor writes, read from a report they made before (ADR-046). Pascal imitates it when
+ * drafting; the facts always come from the period's notes.
+ */
+export interface WritingStyle {
+  /** The support file it was read from. */
+  supportId: string;
+  /** What the document is, as read: «Informe de actividades de septiembre de 2026, CPS-0330-2026». */
+  summary: string;
+  /** Tone, person, tense, length and structure of the activity paragraphs (Spanish). */
+  guide: string;
+  /** Up to 3 activity paragraphs copied from the report, as samples of style only. */
+  examples: string[];
+}
+
+/** What the AI read in a document sent as «informe anterior». */
+export interface PreviousReportReading {
+  isActivityReport: boolean;
+  summary: string;
+  guide: string;
+  examples: string[];
+}
+
 export interface DocumentInput {
   label: string;
   data: Buffer;

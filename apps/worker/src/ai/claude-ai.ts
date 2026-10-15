@@ -7,8 +7,10 @@ import type {
   MessageIntent,
   Note,
   Obligation,
+  PreviousReportReading,
   SocialSecurity,
   SupportSegment,
+  WritingStyle,
 } from '@cuentasbot/conversation';
 import type { IsoDate } from '@cuentasbot/shared';
 import { z } from 'zod';
@@ -109,6 +111,37 @@ const draftSchema = z.object({
 });
 
 const rewriteSchema = z.object({ paragraphs: z.array(z.string()) });
+
+const previousReportSchema = z.object({
+  isActivityReport: z
+    .boolean()
+    .describe(
+      "True only if this is a contractor's activity report (informe de actividades) with activity text",
+    ),
+  summary: z
+    .string()
+    .describe(
+      'What the document is, in Colombian Spanish, one line: type, month or period, contract number if visible (e.g. "Informe de actividades de septiembre de 2026, contrato CPS-0330-2026")',
+    ),
+  guide: z
+    .string()
+    .describe(
+      'In Colombian Spanish, 2-4 sentences: how the contractor writes the activities (person and tense, sentence length, whether they cite dates, places and quantities, lists or paragraphs, typical openings). Empty if not an activity report',
+    ),
+  examples: z
+    .array(z.string())
+    .describe('Up to 3 activity paragraphs copied verbatim from the report; empty if not an activity report'),
+});
+
+/** How the contractor writes (ADR-046): style only, never facts. */
+function styleBlock(style: WritingStyle | null | undefined): string {
+  if (!style?.guide) return '';
+  return `\n\nThe contractor's own way of writing, read from a report they made before. Imitate its tone, person, tense, sentence length and structure; where it differs from the rules above on style, follow the contractor. NEVER take facts, dates, places, names or quantities from it: facts come only from this period's notes.\nStyle: ${style.guide}${
+    style.examples.length
+      ? `\nSamples of their writing (style only):\n${style.examples.map((e) => `- ${e}`).join('\n')}`
+      : ''
+  }`;
+}
 
 const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
 
@@ -221,7 +254,36 @@ export class ClaudeAI implements AI {
   constructor(
     private readonly llm: Llm,
     private readonly models: ModelChoice,
+    /** Word → PDF (LibreOffice), for reports sent as .docx. */
+    private readonly toPdf?: (doc: Buffer) => Promise<Buffer>,
   ) {}
+
+  async readPreviousReport(doc: DocumentInput): Promise<PreviousReportReading> {
+    const pdf = doc.mime === 'application/pdf' ? doc.data : this.toPdf ? await this.toPdf(doc.data) : null;
+    if (!pdf) throw new Error(`readPreviousReport: cannot read ${doc.mime}`);
+    const r = await this.llm.structured({
+      purpose: 'read_previous_report',
+      model: this.models.smart,
+      effort: 'low',
+      maxTokens: 2500,
+      system:
+        "You read a document a Colombian public-sector contractor sent as a previous activity report, to learn how they write. Say what the document really is; if it is not an activity report (a contract, an invoice, a certificate, a supervision report without the contractor's activities), isActivityReport is false.",
+      content: [
+        {
+          type: 'document' as const,
+          title: doc.label,
+          source: {
+            type: 'base64' as const,
+            media_type: 'application/pdf' as const,
+            data: pdf.toString('base64'),
+          },
+        },
+        { type: 'text', text: 'What is this document, and how does the contractor write their activities?' },
+      ],
+      schema: previousReportSchema,
+    });
+    return { ...r, examples: r.examples.slice(0, 3) };
+  }
 
   async extractSocialSecurity(doc: DocumentInput): Promise<Omit<SocialSecurity, 'userId'> | null> {
     const r = await this.llm.structured({
@@ -386,7 +448,11 @@ export class ClaudeAI implements AI {
     return { obligationKey: match?.key ?? null, confidence: match ? r.confidence : 0 };
   }
 
-  async draftObligation(obligation: Obligation, notes: Note[]): Promise<DraftResult> {
+  async draftObligation(
+    obligation: Obligation,
+    notes: Note[],
+    style?: WritingStyle | null,
+  ): Promise<DraftResult> {
     if (!notes.length)
       return { status: 'needs_input', reason: 'No hay notas para esta obligación en el periodo.' };
     const r = await this.llm.structured({
@@ -394,7 +460,7 @@ export class ClaudeAI implements AI {
       model: this.models.smart,
       effort: 'medium',
       maxTokens: 4000,
-      system: `${WRITING_RULES}\nIf the notes contain no concrete fact for this obligation, answer status "needs_input".`,
+      system: `${WRITING_RULES}\nIf the notes contain no concrete fact for this obligation, answer status "needs_input".${styleBlock(style)}`,
       content: [
         {
           type: 'text',

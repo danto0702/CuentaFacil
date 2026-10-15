@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { DEMO_IDS, DEMO_PHONES } from '../src/demo.js';
+import { FakeAI } from '../src/fakes.js';
 import { MONTHS } from '../src/text.js';
 import { harness, show } from './harness.js';
 
@@ -128,6 +129,45 @@ describe('other flows', () => {
       '🎙️ No pude escuchar bien tu nota de voz. ¿Me la escribes, o me la envías de nuevo en unos minutos?',
     ]);
     expect(h.store.data.notes.length).toBe(notes);
+  });
+
+  it('learns the writing style of a previous report and lets the contractor undo it (ADR-046)', async () => {
+    const ai = new FakeAI();
+    const h = harness({ ai });
+    const userId = h.store.data.users[0]!.id;
+    expect(show(await h.say('informe anterior'))[0]).toMatch(/^📎 Envíame un informe de actividades/);
+    let out = show(await h.document('INFORME AGOSTO.pdf'));
+    expect(out[0]).toBe(
+      '📝 Leí tu informe anterior: *Informe de actividades de agosto de 2026, CPS-0001-2026*.\nDesde ahora redacto tus informes con tu forma de escribir; los hechos siempre salen de lo que me cuentes.\n\n¿Es el documento correcto? [Sí, es ese] [No es ese]',
+    );
+    expect((await h.store.getWritingStyle(userId))?.guide).toBe('Frases cortas en pasado impersonal.');
+
+    // Wrong file: removed and discarded.
+    out = show(await h.press('style:wrong'));
+    expect(out[0]).toMatch(/^🗑️ Listo, lo quité/);
+    expect(await h.store.getWritingStyle(userId)).toBeNull();
+    expect(h.store.data.supports.at(-1)?.code).toBe('DESCARTADO');
+
+    // Something that is not a report is only used if the contractor says it is.
+    await h.say('informe anterior');
+    out = show(await h.document('factura.pdf'));
+    expect(out[0]).toMatch(/^🤔 Este documento no parece un informe de actividades: parece \*Una factura/);
+    expect(await h.store.getWritingStyle(userId)).toBeNull();
+    out = show(await h.press('style:keep'));
+    expect(out[0]).toBe('✅ Listo, lo uso como ejemplo de tu forma de escribir.');
+    expect((await h.store.getWritingStyle(userId))?.summary).toBe('Una factura de servicios públicos');
+
+    // The command shows it, with buttons to change or remove it.
+    // The draft is written with that style.
+    await h.say('Hoy hice seguimiento a la vigilancia en salud pública de las UPGD de Ábrego');
+    await h.press(`c:${DEMO_IDS.salud}`);
+    await h.say('ver borrador');
+    await h.press(`c:${DEMO_IDS.salud}`);
+    expect(ai.lastStyle?.summary).toBe('Una factura de servicios públicos');
+
+    expect(show(await h.say('mi estilo'))[0]).toMatch(
+      /^📝 Redacto con la forma de escribir.*\[Cambiarlo\] \[Quitarlo\]$/s,
+    );
   });
 
   it('registers a note in both contracts', async () => {

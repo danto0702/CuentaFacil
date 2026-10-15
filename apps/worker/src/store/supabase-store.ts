@@ -25,6 +25,7 @@ import type {
   SupportFile,
   SupportType,
   User,
+  WritingStyle,
 } from '@cuentasbot/conversation';
 import { institutionKey } from '@cuentasbot/conversation';
 import type { IsoDate, ScheduledPayment } from '@cuentasbot/shared';
@@ -1391,6 +1392,34 @@ export class SupabaseStore implements Store {
       await this.sb.from('supports').update({ status: 'confirmed' }).in('id', ids),
       'acceptExpiredSupports',
     );
+  }
+
+  // Writing style (ADR-046): a small JSON next to the contractor's supports; no table needed.
+  private stylePath(userId: string): string {
+    return `${userId}/estilo-redaccion.json`;
+  }
+
+  async saveWritingStyle(userId: string, style: WritingStyle | null): Promise<void> {
+    if (!style) {
+      await this.sb.storage.from('supports').remove([this.stylePath(userId)]);
+      return;
+    }
+    await this.upload(
+      'supports',
+      this.stylePath(userId),
+      Buffer.from(JSON.stringify(style)),
+      'application/json',
+    );
+  }
+
+  async getWritingStyle(userId: string): Promise<WritingStyle | null> {
+    const { data, error } = await this.sb.storage.from('supports').download(this.stylePath(userId));
+    if (error || !data) return null;
+    try {
+      return JSON.parse(await data.text()) as WritingStyle;
+    } catch {
+      return null;
+    }
   }
 
   async listSupports(userId: string): Promise<SupportFile[]> {

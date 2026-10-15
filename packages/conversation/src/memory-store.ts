@@ -20,6 +20,7 @@ import type {
   SupportFile,
   SupportType,
   User,
+  WritingStyle,
 } from './domain.js';
 import type { InstitutionDocuments, Store } from './ports.js';
 import { contractFromSetup, institutionKey } from './setup.js';
@@ -35,6 +36,7 @@ export interface MemoryData {
   evidences: Evidence[];
   drafts: Draft[];
   supports: SupportFile[];
+  writingStyles?: Record<string, WritingStyle>;
   socialSecurity: SocialSecurity[];
   conversations: ConversationState[];
   consents?: {
@@ -206,6 +208,15 @@ export class MemoryStore implements Store {
   }
   async listSupports(userId: string) {
     return this.data.supports.filter((s) => s.userId === userId);
+  }
+  async saveWritingStyle(userId: string, style: WritingStyle | null) {
+    const all = { ...(this.data.writingStyles ?? {}) };
+    if (style) all[userId] = style;
+    else delete all[userId];
+    this.data.writingStyles = all;
+  }
+  async getWritingStyle(userId: string) {
+    return this.data.writingStyles?.[userId] ?? null;
   }
   async saveSocialSecurity(ss: SocialSecurity, _supportId: string) {
     this.data.socialSecurity = [

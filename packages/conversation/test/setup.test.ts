@@ -93,7 +93,7 @@ describe('registration and contract setup by documents', () => {
     await h.press('prior:some');
     expect(show(await h.say('dos'))[0]).toMatch(/Escribe solo el número/);
     const out = show(await h.say('1'));
-    expect(out[0]).toMatch(/último informe en Word o PDF/);
+    expect(out[0]).toMatch(/último informe de actividades en Word o PDF/);
     expect(show(await h.photo())[0]).toMatch(/Guardé tu firma/);
     const user = (await h.store.getUserByPhone(NEW_PHONE))!;
     const [contract] = await h.store.listContracts(user.id);
@@ -424,8 +424,9 @@ describe('supports sent as combined PDFs', () => {
     out = show(await h.document('otro.pdf'));
     expect(out[0]).toMatch(/no reconocí qué es/);
     // Written instead of picked from the list: a report made before.
+    // «otro.pdf» does not read as a report: Pascal says so and does not use it unless told.
     out = show(await h.say('Informe de actividades'));
-    expect(out).toEqual(['✅ Guardé tu informe anterior.']);
+    expect(out[0]).toMatch(/^🤔 Este documento no parece un informe de actividades/);
     expect(h.store.data.supports.at(-1)?.code).toBe('INFORME_ANTERIOR');
   });
 });
