@@ -13,7 +13,14 @@ function setup(windowOpen: boolean) {
       for (const out of outs) kept.push({ out, sent: false });
     },
     pending: async () =>
-      kept.filter((k) => !k.sent).map((k) => ({ out: k.out, done: async () => void (k.sent = true) })),
+      kept
+        .filter((k) => !k.sent)
+        .map((k) => ({
+          out: k.out,
+          done: async () => {
+            k.sent = true;
+          },
+        })),
   };
   const d: DeliverDeps = {
     held,
@@ -28,7 +35,15 @@ function setup(windowOpen: boolean) {
     },
     log: { info: () => undefined, error: () => undefined },
   };
-  return { d, sent, templates, kept, reopen: () => void (open = true) };
+  return {
+    d,
+    sent,
+    templates,
+    kept,
+    reopen: () => {
+      open = true;
+    },
+  };
 }
 
 const to = { userId: 'u1', phone: '+573001112233', name: 'María' };
