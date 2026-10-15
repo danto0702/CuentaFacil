@@ -371,11 +371,15 @@ describe('other flows', () => {
       '👍 Listo. Cuando quieras, cuéntame qué hiciste o escribe *menú*.',
     ]);
     expect(show(await h.say('6'))).toEqual([ask]);
-    expect(show(await h.say('·'))).toEqual([ask]);
+    // The same question again, word for word: the way out is offered too (ADR-047).
+    expect(show(await h.say('·'))).toEqual([
+      ask,
+      '¿Prefieres dejar esto para después? También puedes hablar con una persona del equipo. [Salir y ver menú] [Hablar con soporte]',
+    ]);
     expect(h.store.data.notes.length).toBe(notes);
     // «Quiero anotar una actividad» asks for the activity; it is never saved as one (Danilo, 2026-10-15).
-    expect(show(await h.say('Quiero anotar una actividad'))).toEqual([ask]);
-    expect(show(await h.say('registrar actividad'))).toEqual([ask]);
+    expect(show(await h.say('Quiero anotar una actividad'))[0]).toBe(ask);
+    expect(show(await h.say('registrar actividad'))[0]).toBe(ask);
     expect(h.store.data.notes.length).toBe(notes);
     // Saved by mistake: the obligation list always offers to drop it.
     await h.say('Estuve organizando varias cosas pendientes durante toda la jornada');
@@ -415,13 +419,20 @@ describe('other flows', () => {
     expect(h.store.data.notes.length).toBe(notes + 1);
   });
 
+  it('never makes support or data deletion wait for the terms (ADR-047)', async () => {
+    const h = harness();
+    h.store.data.consents = (h.store.data.consents ?? []).map((c) => ({ ...c, policyVersion: '1.0' }));
+    expect(show(await h.say('borrar mis datos'))[0]).toMatch(/^🗂️ Recibí tu solicitud de borrar tus datos/);
+    expect(show(await h.press('menu:support'))[0]).toMatch(/soporte|equipo/i);
+  });
+
   it('asks to accept new terms once and then handles the message the user had sent', async () => {
     const h = harness();
     h.store.data.consents = (h.store.data.consents ?? []).map((c) => ({ ...c, policyVersion: '1.0' }));
     let out = show(await h.say('¿Qué me falta?'));
     expect(out[0]).toMatch(/^📜 Actualizamos los términos del servicio de CuentaFacil \(versión 1\.1\)/);
     expect(out[1]).toBe(
-      '¿Aceptas los términos del servicio? Apenas aceptes, sigo con tu mensaje. [Acepto] [No acepto]',
+      '¿Aceptas los términos del servicio? Apenas aceptes, sigo con tu mensaje. [Acepto] [No acepto] [Hablar con soporte]',
     );
     out = show(await h.press('terms:yes'));
     expect(out[0]).toBe('✅ ¡Gracias! Quedó registrada tu aceptación de los términos.');
@@ -989,7 +1000,9 @@ describe('gestor: several people from one WhatsApp (ADR-042)', () => {
     await h.say('Ana María Pérez Gómez');
     const a = h.as(ana);
     const d = h.store.data.delegations![0]!;
-    await a.press(`dlg:yes:${d.id}`);
+    // Written instead of tapped, it also counts (no repeated question).
+    await a.say('Sí, autorizo');
+    expect(h.store.data.delegations![0]!.status).toBe('active');
     const anaUser = (await h.store.getUserByPhone(ana))!;
     await h.press(`who:${anaUser.id}`);
 

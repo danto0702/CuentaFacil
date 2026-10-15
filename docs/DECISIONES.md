@@ -201,3 +201,14 @@
 - **Contexto:** la configuración pedía «tu último informe… así copio tu forma de redactar», pero el informe solo se guardaba.
 - **Decisión:** cuando el contratista envía un informe que ya hizo (en la configuración, al elegir «Informe de actividades (uno que ya hiciste)» o con el comando *informe anterior*), el modelo intermedio lo lee una vez (los Word se pasan a PDF) y devuelve qué documento es, una guía de su estilo (persona, tiempo verbal, extensión, estructura) y hasta 3 párrafos de ejemplo. Pascal muestra qué leyó con *Sí, es ese* / *No es ese*; si no parece un informe de actividades no lo usa salvo que el contratista toque *Sí es mi informe*. *No es ese* o *Quitarlo* lo retiran y marcan el archivo como `DESCARTADO`. Al redactar, la guía y los ejemplos van en el prompt solo como estilo: los hechos salen únicamente de las notas del periodo.
 - **Consecuencias:** sin cambio de esquema: el estilo se guarda como `supports/<usuario>/estilo-redaccion.json`. Una lectura por documento (≈ US$0,02). Los informes enviados antes de este cambio no se leyeron; el contratista puede enviarlos de nuevo con *informe anterior*.
+
+## ADR-047 — Ninguna conversación sin salida (2026-10-15)
+- **Contexto:** varios flujos repetían la misma pregunta mientras el contratista no diera la respuesta exacta (la configuración, «Otra obligación», el tipo de documento, la firma, el municipio de la cédula), y un mensaje con dos botones iguales hacía fallar el envío.
+- **Decisión:**
+  1. **Regla general:** «menú», «cancelar» y los botones del menú salen de cualquier estado. Si Pascal está por repetir palabra por palabra su último mensaje con la misma pregunta abierta, agrega *Salir y ver menú* y *Hablar con soporte*. La configuración tiene su propia salida desde la segunda pregunta repetida.
+  2. **Escribir otra cosa en lugar de elegir** se atiende como un mensaje normal: al elegir contrato (si son 3 o más palabras), al elegir el tipo de documento (el archivo queda guardado sin clasificar), cuando se espera la foto de la firma, y en «generar sin planilla», que antes ignoraba el mensaje sin responder.
+  3. **Cada pregunta que se puede repetir trae cómo terminarla:** *✅ Listo* junto a *➕ Otra obligación*, y *🗑️ No era actividad* en la lista de obligaciones. «No», «listo», «gracias» solo cierran la pregunta.
+  4. **El municipio de expedición de la cédula** se pregunta como máximo una vez al día.
+  5. **Los términos** ofrecen *Hablar con soporte*; *soporte* y *borrar mis datos* (que ahora existe y abre una solicitud para el equipo) funcionan sin aceptarlos.
+  6. **La autorización de un gestor** se puede responder escribiendo («sí, autorizo», «no»).
+  7. **Botones repetidos:** se eliminan al armar el mensaje y otra vez antes de enviarlo a WhatsApp.

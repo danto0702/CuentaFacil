@@ -321,11 +321,16 @@ describe('missing profile data of contractors configured earlier', () => {
     expect(out.join('\n')).not.toMatch(/expedida tu cédula/);
     out = show(await h.press(`c:${DEMO_IDS.salud}`));
     expect(out.at(-1)).toMatch(/expedida tu cédula/);
-    // A daily note instead of the answer is handled as usual, and the question comes back after it.
+    // A daily note instead of the answer is handled as usual; the question does not come back the
+    // same day (never the same question after every message), only the next day.
     out = show(await h.say('Hoy capacité de nuevo al personal en la ruta de misión médica'));
     expect(out[0]).toMatch(/¿A cuál contrato corresponde\?/);
     out = show(await h.press(`c:${DEMO_IDS.salud}`));
     expect(out[0]).toMatch(/Anotado/);
+    expect(out.join('\n')).not.toMatch(/expedida tu cédula/);
+    const conv = h.store.data.conversations.find((x) => x.userId === maria.id)!;
+    conv.context = { ...conv.context, profileAskedOn: '2026-09-27' };
+    out = show(await h.press('note:done'));
     expect(out.at(-1)).toMatch(/expedida tu cédula/);
     out = show(await h.say('Ábrego, Norte de Santander'));
     expect(out[0]).toBe('¿Tu cédula fue expedida en *Ábrego, Norte de Santander*? [✅ Sí] [Corregir]');

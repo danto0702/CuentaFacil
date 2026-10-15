@@ -44,7 +44,16 @@ const PHOTO_RECENT_NOTES = 8;
 /** An earlier report not delivered yet counts as "being worked on" for this many days after it closes. */
 const OPEN_REPORT_DAYS = 62;
 /** Conversation context kept when the flow changes. */
-const STICKY_KEYS = ['working', 'checkedNotes', 'actingFor', 'dlgAsked', 'styleCandidate'] as const;
+const STICKY_KEYS = [
+  'working',
+  'checkedNotes',
+  'actingFor',
+  'dlgAsked',
+  'styleCandidate',
+  'loopCount',
+  'lastOut',
+  'profileAskedOn',
+] as const;
 const CONTRACT_ACTIVE =
   '🎉 ¡Tu contrato quedó activo! Desde ya cuéntame lo que haces cada día: texto, audio o fotos. Escribe *menú* para ver todas las opciones.';
 
@@ -251,7 +260,22 @@ export class Orchestrator {
     if (!user) {
       // A gestor asked this number for authorization: that question comes first.
       const pending = await store.pendingDelegationsFor(msg.from);
-      if (pending.length) return this.askDelegation(pending[0]!, msg.from);
+      if (pending.length) {
+        // Written instead of tapped: «sí, autorizo», «no».
+        const t =
+          msg.kind === 'text' && msg.text
+            ? normalize(msg.text)
+                .replace(/[^a-z ]/g, '')
+                .trim()
+            : '';
+        const answer = /^(si|sí|autorizo|si autorizo|claro|dale|de acuerdo|acepto)$/.test(t)
+          ? 'yes'
+          : /^(no|no autorizo|no acepto|no gracias)$/.test(t)
+            ? 'no'
+            : null;
+        if (answer) return this.onDelegationAnswer({ ...msg, replyId: `dlg:${answer}:${pending[0]!.id}` });
+        return this.askDelegation(pending[0]!, msg.from);
+      }
       // Unregistered numbers: nothing is stored until the person accepts the data policy.
       if (msg.kind === 'reply' && msg.replyId === 'consent:no') return this.setup.declined();
       if (
@@ -304,7 +328,10 @@ export class Orchestrator {
       // a gestor asked this contractor for authorization
     } else {
       await this.actAs(turn);
+      const before = `${turn.state.flow}:${turn.state.step}`;
+      const outBefore = turn.out.length;
       await this.dispatch(turn, msg);
+      this.loopGuard(turn, before, outBefore);
       await this.askMissingProfile(turn);
       this.markPerson(turn);
     }
@@ -317,6 +344,30 @@ export class Orchestrator {
   // Gestor (ADR-042): one WhatsApp number preparing the accounts of several people, each of whom
   // authorizes it from their own WhatsApp. The active person is kept in the conversation.
   // -------------------------------------------------------------------------
+
+  /**
+   * No dead ends (ADR-047): when the same question stays open and Pascal is about to repeat its last
+   * message word for word, it also offers the way out with buttons. The setup has its own guard.
+   */
+  private loopGuard(turn: Turn, before: string, outBefore: number): void {
+    const ctx = turn.state.context as { loopCount?: number; lastOut?: string };
+    const now = `${turn.state.flow}:${turn.state.step}`;
+    const said = JSON.stringify(
+      turn.out.slice(outBefore).map((o) => ('text' in o ? o.text.slice(0, 300) : o.type)),
+    );
+    // Stuck: the same question is still open and Pascal is about to say exactly what it said last time.
+    const stuck =
+      turn.state.flow !== 'idle' && turn.state.flow !== SETUP_FLOW && now === before && said === ctx.lastOut;
+    const loopCount = stuck ? (ctx.loopCount ?? 0) + 1 : 0;
+    turn.state.context = { ...turn.state.context, loopCount, lastOut: said };
+    if (!stuck) return;
+    turn.out.push(
+      buttons('¿Prefieres dejar esto para después? También puedes hablar con una persona del equipo.', [
+        { id: 'menu:menu', title: 'Salir y ver menú' },
+        { id: 'menu:support', title: 'Hablar con soporte' },
+      ]),
+    );
+  }
 
   /** Works the accounts of the active person, if the gestor still has their authorization. */
   private async actAs(turn: Turn): Promise<void> {
@@ -671,7 +722,11 @@ export class Orchestrator {
    */
   private async askMissingProfile(turn: Turn): Promise<void> {
     if (turn.state.flow !== 'idle' || turn.user.docIssuedIn.trim()) return;
+    // At most once a day: not answering it must never turn into the same question after every message.
+    const today = this.deps.clock.today();
+    if (turn.state.context.profileAskedOn === today) return;
     if ((await this.deps.store.listContracts(turn.user.id)).length === 0) return;
+    turn.state.context = { ...turn.state.context, profileAskedOn: today };
     this.setFlow(turn, 'profile_doc_issued_in', 'ask');
     const other = this.forOther(turn);
     turn.out.push(
@@ -1023,7 +1078,11 @@ export class Orchestrator {
         return this.onAmountWrite(turn, msg);
       case 'generate_no_pila': {
         const ctx = turn.state.context as { contractId: string; periodNumber: number; resend: boolean };
-        if (msg.replyId !== 'nopila:go') break;
+        if (msg.replyId !== 'nopila:go') {
+          // Anything else (the PILA itself arrives as a document and is handled above): carry on.
+          this.reset(turn);
+          return this.dispatch(turn, msg);
+        }
         const c = await this.deps.store.getContract(ctx.contractId);
         turn.state.context = { noPila: `${c.id}:${ctx.periodNumber}` };
         await this.startGenerate(turn, c, ctx.resend, ctx.periodNumber);
@@ -1041,10 +1100,16 @@ export class Orchestrator {
       case 'style_upload':
         return this.onStyleUpload(turn, msg);
       case 'signature_upload':
-        turn.out.push(
-          text('Envíame la firma como *foto* (imagen), no como documento. Para salir escribe *menú*.'),
-        );
-        return;
+        if (msg.kind === 'document') {
+          turn.out.push(
+            text('Envíame la firma como *foto* (imagen), no como documento. Para salir escribe *menú*.'),
+          );
+          return;
+        }
+        // Anything but the photo: leave the signature for later and handle the message.
+        this.reset(turn);
+        turn.out.push(text('Dejé la firma para después; cuando quieras, escribe *firma*.'));
+        return this.dispatch(turn, msg);
       case 'note_write': {
         const pendingEvidence = turn.state.context.pendingEvidence;
         this.reset(turn);
@@ -1179,6 +1244,15 @@ export class Orchestrator {
         return this.askSignature(turn);
       case 'style':
         return this.showStyle(turn);
+      case 'delete_data':
+        // Ley 1581: a person of the team handles it and confirms; it shows on the panel's start page.
+        await this.deps.store.openSupportTicket(turn.user.id, 'Solicitud de borrado de datos (Ley 1581)');
+        turn.out.push(
+          text(
+            '🗂️ Recibí tu solicitud de borrar tus datos. Una persona del equipo la atiende dentro de los plazos de la Ley 1581 y te confirma por aquí. Si cambias de opinión, escríbenos *soporte*.',
+          ),
+        );
+        return;
       case 'guide':
         return this.withContract(turn, 'guide_pick_contract', (cs) => this.startGuide(turn, cs[0]!));
       case 'my_data':
@@ -1307,6 +1381,11 @@ export class Orchestrator {
     const id = msg.replyId?.startsWith('c:') ? msg.replyId.slice(2) : null;
     const cs = await this.activeContracts(turn);
     const c = cs.find((x) => x.id === id) ?? this.matchContractByText(cs, msg.text);
+    if (!c && msg.kind === 'text' && msg.text && wordCount(msg.text) >= MIN_ACTIVITY_WORDS) {
+      // Wrote something else instead of choosing (an activity, a question): handle it normally.
+      this.reset(turn);
+      return this.dispatch(turn, msg);
+    }
     if (!c) {
       turn.out.push(
         choose(
@@ -2315,6 +2394,12 @@ export class Orchestrator {
       code = matchSupportRow(supportRows(types), msg.text);
     }
     if (!code) {
+      if (msg.kind === 'text' && msg.text) {
+        // Something else: the file stays saved without a type and the message is handled normally.
+        this.reset(turn);
+        turn.out.push(text('📎 Dejé guardado el documento sin clasificar.'));
+        return this.dispatch(turn, msg);
+      }
       turn.out.push(text('Elige el tipo de documento de la lista, o escribe *cancelar*.'));
       return;
     }
@@ -2937,6 +3022,9 @@ export class Orchestrator {
   private async termsGate(turn: Turn, msg: Inbound): Promise<boolean> {
     const accepted = await this.deps.store.acceptedVersion(turn.user.id, 'terms');
     if (accepted === TERMS_VERSION) return false;
+    // Support and data deletion never wait for the terms.
+    const cmd = msg.kind === 'text' && msg.text ? matchCommand(msg.text) : null;
+    if (cmd === 'support' || cmd === 'delete_data' || msg.replyId === 'menu:support') return false;
     const ctx = turn.state.context as { termsPending?: string };
     if (msg.replyId === 'terms:yes') {
       await this.deps.store.recordConsent({
@@ -2978,6 +3066,7 @@ export class Orchestrator {
         [
           { id: 'terms:yes', title: 'Acepto' },
           { id: 'terms:no', title: 'No acepto' },
+          { id: 'menu:support', title: 'Hablar con soporte' },
         ],
       ),
     );
