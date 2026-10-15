@@ -46,6 +46,11 @@ export interface PipelineDeps {
   conversation: Conversation;
   appSecret: string;
   log: Logger;
+  /**
+   * Runs before each turn: delivers what was held while the 24-hour window was closed (held.ts).
+   * True when the message only asked for that («Ver ahora») and needs no turn.
+   */
+  beforeTurn?: (from: string, replyId?: string) => Promise<boolean>;
   /** Retries for a single outgoing message (rate limits, 5xx). */
   sendAttempts?: number;
   sleep?: (ms: number) => Promise<void>;
@@ -92,6 +97,10 @@ export class InboundPipeline {
     if (!(await db.claimInbound(m))) return;
     messenger.markRead(m.wamid).catch(() => undefined);
     log.info('message.in', { wamid: m.wamid, kind: m.kind });
+    if (this.deps.beforeTurn && (await this.deps.beforeTurn(m.from, m.replyId))) {
+      await db.markInboundProcessed(m.wamid);
+      return;
+    }
 
     let replies: Outgoing[];
     if (m.kind === 'unsupported') {

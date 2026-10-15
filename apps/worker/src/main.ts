@@ -16,6 +16,7 @@ import { FieldCipher } from './crypto.js';
 import { AccountGenerator } from './generator.js';
 import { checkoutUrl, diagnoseKeys, verifyEvent } from './payments/wompi.js';
 import { loadConfig } from './runtime/config.js';
+import { type DeliverDeps, deliver, flushHeld, SHOW_HELD, SupabaseHeldStore } from './runtime/held.js';
 import { jsonLogger as log } from './runtime/log.js';
 import { InboundPipeline, type Messenger } from './runtime/pipeline.js';
 import { Queue } from './runtime/queue.js';
@@ -99,8 +100,8 @@ const orchestrator = new Orchestrator({
       .catch(() => undefined);
   },
   notify: async (to, out) => {
-    for (const o of out)
-      await pipelineDb.logOutbound(to, await outbound.send(to, o), o).catch(() => undefined);
+    const user = await store.getUserByPhone(to);
+    if (user) await deliver(deliverDeps, recipient(user), out, 'un mensaje sobre tus cuentas');
   },
   progress: async (to, out) => {
     if (currentAttempt <= 1) await messenger.send(to, out);
@@ -127,12 +128,38 @@ const outbound: Messenger = {
   markRead: (wamid) => messenger.markRead(wamid),
 };
 
+/** Messages Pascal sends on its own: held while the 24-hour window is closed (ADR-043). */
+const deliverDeps: DeliverDeps = {
+  held: new SupabaseHeldStore(sb),
+  send: async (to, out) => {
+    const wamid = await outbound.send(to, out);
+    await pipelineDb.logOutbound(to, wamid, out).catch(() => undefined);
+    return wamid;
+  },
+  sendTemplate: (to, t) => messenger.sendTemplate(to, t),
+  log,
+};
+const recipient = (u: { id: string; phone: string; fullName: string }) => ({
+  userId: u.id,
+  phone: u.phone,
+  name: u.fullName.split(' ')[0] || 'hola',
+});
+
 const pipeline = new InboundPipeline({
   db: new SupabasePipelineDb(sb),
   messenger: outbound,
   conversation: orchestrator,
   appSecret: cfg.WA_APP_SECRET,
   log,
+  beforeTurn: async (from, replyId) => {
+    const user = await store.getUserByPhone(from);
+    if (!user) return false;
+    const sent = await flushHeld(deliverDeps, user.id, from);
+    if (replyId !== SHOW_HELD) return false;
+    if (!sent)
+      await deliverDeps.send(from, { type: 'text', text: 'Ya te envié todo lo que tenía pendiente. 👍' });
+    return true;
+  },
 });
 
 /** Logs the sending number's status and subscribes the business account to the app if needed. */
@@ -256,21 +283,20 @@ async function processWompi(inboxId: number): Promise<void> {
     }
     if (charge.status === 'pending') {
       await store.settleCharge(charge.id, 'paid', 'wompi', tx.id);
-      const { to, out } = await orchestrator.chargePaid(charge.id);
-      for (const o of out) {
-        try {
-          await pipelineDb.logOutbound(to, await outbound.send(to, o), o);
-        } catch (e) {
-          log.error('wompi.send_failed', { inboxId, error: String(e) });
-        }
-      }
+      const { out } = await orchestrator.chargePaid(charge.id);
+      await deliver(
+        deliverDeps,
+        recipient(user),
+        out,
+        charge.product === 'report' ? 'los documentos de tu cuenta' : 'la confirmación de tu pago',
+      );
     }
   } else if (tx.status === 'DECLINED' || tx.status === 'ERROR' || tx.status === 'VOIDED') {
     const o = {
       type: 'text' as const,
       text: `❌ Tu pago de ${formatCOP(charge.amount)} no fue aprobado. Puedes intentarlo de nuevo con el mismo enlace o escribir *soporte*.`,
     };
-    await pipelineDb.logOutbound(user.phone, await outbound.send(user.phone, o), o).catch(() => undefined);
+    await deliver(deliverDeps, recipient(user), [o], 'una novedad sobre tu pago');
   }
   await pipelineDb.markInbox(inboxId, 'processed');
 }
@@ -331,7 +357,9 @@ async function loop(): Promise<void> {
 }
 
 for (const sig of ['SIGTERM', 'SIGINT'] as const) process.on(sig, () => (stopping = true));
-loop().catch((e) => {
-  log.error('worker.crashed', { error: String(e) });
-  process.exit(1);
-});
+loop()
+  .then(() => process.exit(0))
+  .catch((e) => {
+    log.error('worker.crashed', { error: String(e) });
+    process.exit(1);
+  });

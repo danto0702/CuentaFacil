@@ -45,4 +45,22 @@ export const AUTORIZAR_GESTOR: TemplateDefinition = {
   ],
 };
 
-export const TEMPLATES: TemplateDefinition[] = [FALTAN_SOPORTES, AUTORIZAR_GESTOR];
+/**
+ * Something Pascal could not send because the 24-hour window was closed (ADR-043). The quick reply
+ * (payload held:show) delivers it.
+ */
+export const AVISO_PENDIENTE: TemplateDefinition = {
+  name: 'aviso_pendiente',
+  language: 'es',
+  category: 'UTILITY',
+  components: [
+    {
+      type: 'BODY',
+      text: 'Hola {{1}}, tengo listo {{2}}. Toca Ver ahora y te lo envío por aquí.',
+      example: { body_text: [['María', 'los documentos de tu cuenta']] },
+    },
+    { type: 'BUTTONS', buttons: [{ type: 'QUICK_REPLY', text: 'Ver ahora' }] },
+  ],
+};
+
+export const TEMPLATES: TemplateDefinition[] = [FALTAN_SOPORTES, AUTORIZAR_GESTOR, AVISO_PENDIENTE];

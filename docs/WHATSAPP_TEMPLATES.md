@@ -15,7 +15,7 @@
 | `recordatorio_diario` | Hora elegida por el contratista (opcional) | Hola {{1}}, ¿qué hiciste hoy en tu contrato? Puedes mandarme un audio o fotos. | 1: nombre | Respuesta rápida: "No más recordatorios" |
 | `faltan_soportes` | 3 días antes del cierre, si falta algo (ADR-036) · **aprobada** | Hola {{1}}, para tu cuenta de {{2}} aún me faltan estos soportes: {{3}}. Envíamelos por aquí cuando los tengas. | 1: nombre · 2: mes (ej. «septiembre de 2026») · 3: lista de soportes | Respuesta rápida: "¿Qué me falta?" (payload `menu:status`: checklist con el botón *Guíame*) |
 | `aviso_fin_contrato` | 15 días antes del fin del contrato | Hola {{1}}, tu contrato {{2}} termina el {{3}}. Si firmaste un contrato nuevo, envíamelo para seguir con tus cuentas. | 1: nombre · 2: contrato · 3: fecha | Respuesta rápida: "Enviar contrato" |
-| `documentos_listos` | Generación terminada fuera de la ventana | Hola {{1}}, tus documentos de la cuenta {{2}} están listos. Responde para recibirlos. | 1: nombre · 2: contrato y periodo | Respuesta rápida: "Enviármelos" |
+| `aviso_pendiente` | Pascal no pudo enviar algo porque la ventana de 24 horas estaba cerrada: documentos tras un pago, avisos del gestor (ADR-043) · **registrada por el worker** | Hola {{1}}, tengo listo {{2}}. Toca Ver ahora y te lo envío por aquí. | 1: nombre · 2: qué está esperando (ej. «los documentos de tu cuenta») | Respuesta rápida: "Ver ahora" (payload `held:show`). Reemplaza a `documentos_listos`. |
 | `link_pago` (Fase 3) | Suscripción por vencer | Hola {{1}}, tu suscripción del contrato {{2}} vence el {{3}}. Puedes renovarla aquí. | 1: nombre · 2: contrato · 3: fecha | URL: link de pago Wompi |
 
 Reglas del bot:
