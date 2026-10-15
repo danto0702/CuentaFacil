@@ -1120,7 +1120,7 @@ export class Orchestrator {
   }
 
   /**
-   * « en tu contrato *0001 Salud Pública*», or the one being worked on, or all of them: with several
+   * « en el contrato *0385*», or the one being worked on, or all of them: with several
    * contracts the contractor knows where the activity goes (and Pascal asks if it is not clear).
    */
   private async menuContracts(turn: Turn): Promise<string> {
@@ -1128,10 +1128,11 @@ export class Orchestrator {
     if (!cs.length) return '';
     const working = turn.state.context.working as { contractId: string } | undefined;
     const open = cs.find((c) => c.id === working?.contractId);
-    if (open && cs.length > 1) return ` en el contrato *${open.shortLabel}*`;
-    if (cs.length === 1) return ` en tu contrato *${cs[0]!.shortLabel}*`;
-    const names = cs.map((c) => `*${c.shortLabel}*`);
-    return ` en tus contratos ${names.slice(0, -1).join(', ')} y ${names.at(-1)}`;
+    // The number after «CPS-» is how contractors name their contract («el 0385»).
+    if (open && cs.length > 1) return ` en el contrato *${open.number}*`;
+    if (cs.length === 1) return ` en el contrato *${cs[0]!.number}*`;
+    const names = cs.map((c) => `*${c.number}*`);
+    return ` en los contratos ${names.slice(0, -1).join(', ')} y ${names.at(-1)}`;
   }
 
   private async menu(turn: Turn, help: boolean): Promise<void> {
