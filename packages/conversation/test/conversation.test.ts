@@ -357,11 +357,16 @@ describe('other flows', () => {
     expect(out.join(' ')).not.toMatch(/Anotado/);
     out = show(await h.say('rehízolo'));
     expect(out.join(' ')).not.toMatch(/Anotado/);
-    out = show(await h.say('ok'));
-    expect(out[0]).toBe(
-      'No estoy seguro de qué quieres hacer con «ok». ¿Es una actividad que hiciste o quieres que haga algo? [Anotar actividad] [Ver menú]',
-    );
+    // Fewer than 3 words is never an activity: Pascal asks for it in a sentence.
+    const ask =
+      '📝 Si quieres anotar una actividad, cuéntame en una frase qué hiciste, por ejemplo: «Hoy hice la visita de seguimiento a la IPS de Ábrego». Si buscas otra cosa, abre el menú. [Ver menú]';
+    expect(show(await h.say('ok'))).toEqual([ask]);
+    expect(show(await h.say('·'))).toEqual([ask]);
     expect(h.store.data.notes.length).toBe(notes);
+    // The answer to that question is the activity.
+    out = show(await h.say('Hice la visita de seguimiento a la IPS de Ábrego'));
+    expect(out[0]).toBe('¿A cuál contrato corresponde? [0001 Salud Pública] [0002 EBS] [Ambos]');
+    await h.press('menu:menu');
     // A real activity, even a short one, is still recorded.
     await h.say('Reunión con el alcalde');
     await h.press(`c:${DEMO_IDS.salud}`);

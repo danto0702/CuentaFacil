@@ -62,6 +62,13 @@ const OPEN_WHILE_UNPAID: Command[] = [
 
 type Ctx = Record<string, unknown>;
 
+/** Fewer words than this are never saved as an activity («ok», «Actividad 2», «·»). */
+const MIN_ACTIVITY_WORDS = 3;
+
+function wordCount(text: string): number {
+  return text.split(/\s+/).filter((w) => /[\p{L}\p{N}]/u.test(w)).length;
+}
+
 /** Options of «¿Qué documento es?»: the period's supports, an activity evidence or a previous report. */
 function supportRows(types: Map<string, SupportType>): { id: string; title: string }[] {
   return [
@@ -997,10 +1004,22 @@ export class Orchestrator {
           text('Envíame la firma como *foto* (imagen), no como documento. Para salir escribe *menú*.'),
         );
         return;
+      case 'note_write': {
+        this.reset(turn);
+        if (msg.replyId?.startsWith('short:do:')) {
+          const [intent, month] = msg.replyId.slice(9).split(':');
+          return this.runIntent(turn, '', intent as MessageIntentKind, month ? Number(month) : null);
+        }
+        if (msg.kind !== 'text' || !msg.text) return this.dispatch(turn, msg);
+        // Asked for an activity: a sentence is saved as one; something short is asked again.
+        if (wordCount(msg.text) < MIN_ACTIVITY_WORDS) return this.freeText(turn, msg.text);
+        return this.startNote(turn, msg.text);
+      }
       case 'short_unclear': {
         const t = (turn.state.context as { noteText: string }).noteText;
         this.reset(turn);
-        if (msg.replyId === 'short:note') return this.startNote(turn, t);
+        if (msg.replyId === 'short:note')
+          return wordCount(t) < MIN_ACTIVITY_WORDS ? this.askActivityText(turn) : this.startNote(turn, t);
         if (msg.replyId?.startsWith('short:do:')) {
           const [intent, month] = msg.replyId.slice(9).split(':');
           return this.runIntent(turn, t, intent as MessageIntentKind, month ? Number(month) : null);
@@ -1505,11 +1524,17 @@ export class Orchestrator {
    */
   private async freeText(turn: Turn, text: string): Promise<void> {
     const today = this.deps.clock.today();
+    // «.», «ok», «6»: never an activity. With no letters at all there is nothing to interpret.
+    if (!/\p{L}/u.test(text)) return this.askActivityText(turn);
     const r = await this.deps.ai
       .interpretMessage(text, today)
       .catch(
         (): MessageIntent => ({ intent: 'activity', month: null, guess: null, question: null, date: null }),
       );
+    // Real activities take at least a few words; a short message is never saved as one (requests
+    // like «ver borrador» still work).
+    if ((r.intent === 'activity' || r.intent === 'unclear') && wordCount(text) < MIN_ACTIVITY_WORDS)
+      return this.askActivityText(turn, r.intent === 'unclear' ? r : undefined);
     if (r.intent === 'activity') {
       // The dates Pascal reads itself come first; the model covers "la semana pasada", "el lunes pasado"…
       const when = parseActivityWhen(text, today) ?? this.aiWhen(r, today);
@@ -1529,6 +1554,26 @@ export class Orchestrator {
         { id: 'short:note', title: 'Anotar actividad' },
         { id: 'menu:menu', title: 'Ver menú' },
       ]),
+    );
+  }
+
+  /**
+   * A message too short to be an activity: ask for it in a sentence. The answer is saved as the
+   * activity (flow note_write); a likely request from the AI is offered as a button.
+   */
+  private askActivityText(turn: Turn, r?: MessageIntent): void {
+    this.setFlow(turn, 'note_write', 'ask');
+    const guess = r?.guess && r.guess !== 'activity' && r.guess !== 'unclear' ? r.guess : null;
+    turn.out.push(
+      buttons(
+        '📝 Si quieres anotar una actividad, cuéntame en una frase qué hiciste, por ejemplo: «Hoy hice la visita de seguimiento a la IPS de Ábrego». Si buscas otra cosa, abre el menú.',
+        [
+          ...(guess
+            ? [{ id: `short:do:${guess}${r?.month ? `:${r.month}` : ''}`, title: INTENT_TITLES[guess] }]
+            : []),
+          { id: 'menu:menu', title: 'Ver menú' },
+        ],
+      ),
     );
   }
 
