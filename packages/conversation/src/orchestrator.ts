@@ -260,6 +260,11 @@ export class Orchestrator {
     return (u.fullName || fallback).split(/\s+/).slice(0, 3).join(' ') || 'la persona';
   }
 
+  /** A gestor working someone else's accounts (ADR-042). */
+  private forOther(turn: Turn): boolean {
+    return !!turn.actor && turn.actor.id !== turn.user.id;
+  }
+
   /** Short name of the person whose accounts are being worked. */
   private labelOf(turn: Turn): string {
     return this.personName(turn.user, turn.personLabel);
@@ -587,9 +592,12 @@ export class Orchestrator {
     if (turn.state.flow !== 'idle' || turn.user.docIssuedIn.trim()) return;
     if ((await this.deps.store.listContracts(turn.user.id)).length === 0) return;
     this.setFlow(turn, 'profile_doc_issued_in', 'ask');
+    const other = this.forOther(turn);
     turn.out.push(
       text(
-        '🪪 Me falta un dato para tus documentos: ¿en qué municipio fue *expedida tu cédula*? Escríbelo así: Ábrego, Norte de Santander',
+        other
+          ? `🪪 Me falta un dato para los documentos de ${this.labelOf(turn)}: ¿en qué municipio fue *expedida la cédula de ${this.labelOf(turn)}*? Escríbelo así: Ábrego, Norte de Santander`
+          : '🪪 Me falta un dato para tus documentos: ¿en qué municipio fue *expedida tu cédula*? Escríbelo así: Ábrego, Norte de Santander',
       ),
     );
   }
@@ -605,7 +613,8 @@ export class Orchestrator {
       await this.deps.store.saveUserProfile(user);
       turn.user = user;
       this.reset(turn);
-      turn.out.push(text(`✅ Listo, guardé que tu cédula fue expedida en *${candidate}*.`));
+      const whose = this.forOther(turn) ? `la cédula de ${this.labelOf(turn)}` : 'tu cédula';
+      turn.out.push(text(`✅ Listo, guardé que ${whose} fue expedida en *${candidate}*.`));
       return true;
     }
     if (msg.kind === 'reply' && msg.replyId === 'doc:no') {
@@ -2589,6 +2598,15 @@ export class Orchestrator {
   // Signature (optional): used only in the contractor's own documents
   // -------------------------------------------------------------------------
   private async askSignature(turn: Turn): Promise<void> {
+    if (this.forOther(turn)) {
+      // A signature is personal: only its owner sends it, from their own WhatsApp.
+      turn.out.push(
+        text(
+          `✍️ La firma de ${this.labelOf(turn)} solo la puede enviar esa persona desde su propio WhatsApp, escribiéndome *firma*. Por seguridad no recibo firmas de otra persona.`,
+        ),
+      );
+      return;
+    }
     const has = (await this.deps.store.listSupports(turn.user.id)).some((s) => s.code === 'FIRMA');
     this.setFlow(turn, 'signature_upload', 'wait');
     turn.out.push(
@@ -3279,7 +3297,6 @@ export class Orchestrator {
     return true;
   }
 
-  /** Online payment confirmed (Wompi): thank the contractor and deliver the report. */
   /**
    * Reminder before the period closes (ADR-036): what the contractor still lacks for the report in
    * course, or null when nothing is missing or they turned reminders off. `message` is the free-form
@@ -3350,6 +3367,7 @@ export class Orchestrator {
     };
   }
 
+  /** Online payment confirmed (Wompi): thank the contractor and deliver the report. */
   async chargePaid(chargeId: string): Promise<{ to: string; out: Outgoing[] }> {
     const { store } = this.deps;
     const charge = await store.getCharge(chargeId);

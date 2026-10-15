@@ -901,8 +901,12 @@ describe('gestor: several people from one WhatsApp (ADR-042)', () => {
     expect(out[0]).toMatch(/^👤 \*Ana María Pérez\*\n📄 Para empezar necesito configurar tu contrato\./);
     expect(out[1]).toMatch(/¿Con qué institución es tu contrato\?/);
 
-    // Back to her own accounts.
+    // A signature is never taken from the gestor.
     await h.say('cancelar');
+    out = show(await h.say('firma'));
+    expect(out.join('\n')).toMatch(/solo la puede enviar esa persona desde su propio WhatsApp/);
+
+    // Back to her own accounts.
     out = show(await h.press('who:me'));
     expect(out[0]).toBe('👥 Listo, volvimos a *tus* cuentas.');
     out = show(await h.say('¿Qué me falta?'));

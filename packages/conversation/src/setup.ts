@@ -1020,6 +1020,16 @@ export class SetupFlow {
   }
 
   private askSignature(turn: SetupTurn): void {
+    if (forOther(turn)) {
+      // A signature is personal: only its owner sends it, from their own WhatsApp (ADR-042).
+      turn.out.push(
+        buttons(
+          `✍️ La firma de ${firstName(turn.user)} solo la puede enviar ${firstName(turn.user)} desde su propio WhatsApp, escribiéndome *firma*. Mientras tanto los informes salen para firmar a mano.`,
+          [{ id: 'sig:skip', title: 'Continuar' }],
+        ),
+      );
+      return;
+    }
     turn.out.push(
       buttons(
         '✍️ ¿Quieres que tus informes vayan firmados? Envíame una *foto de tu firma* en una hoja blanca. Si prefieres firmarlos a mano, toca *Omitir*.',
@@ -1043,7 +1053,7 @@ export class SetupFlow {
       this.askSignature(turn);
       return;
     }
-    if (msg.kind === 'image' && msg.media) {
+    if (msg.kind === 'image' && msg.media && !forOther(turn)) {
       await this.deps.store.addSupport({
         id: this.deps.newId(),
         userId: turn.user.id,
@@ -1197,4 +1207,13 @@ export function contractFromSetup(
     contractorDuties: e.obligations.filter((o) => o.kind === 'general').map((o) => o.text),
     ...(e.schedule.length ? { schedule: e.schedule } : {}),
   };
+}
+
+/** A gestor configuring someone else's contract (ADR-042). */
+function forOther(turn: SetupTurn): boolean {
+  return !!turn.actor && turn.actor.id !== turn.user.id;
+}
+
+function firstName(u: { fullName: string }): string {
+  return u.fullName.split(/\s+/)[0] || 'la persona';
 }
