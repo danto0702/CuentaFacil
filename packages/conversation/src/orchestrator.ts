@@ -1377,7 +1377,8 @@ export class Orchestrator {
       return;
     }
     if (cs.length === 1 || allowAll) return run(cs);
-    this.setFlow(turn, pickFlow, 'pick');
+    // The answer is checked against these same contracts, even if the day changes before it.
+    this.setFlow(turn, pickFlow, 'pick', { contractIds: cs.map((c) => c.id) });
     turn.out.push(
       choose(
         '¿De cuál contrato?',
@@ -1388,7 +1389,19 @@ export class Orchestrator {
 
   private async onPickContract(turn: Turn, msg: Inbound, run: (c: Contract) => Promise<void>): Promise<void> {
     const id = msg.replyId?.startsWith('c:') ? msg.replyId.slice(2) : null;
-    const cs = await this.activeContracts(turn);
+    const offeredIds = turn.state.context.contractIds as string[] | undefined;
+    const offered = offeredIds
+      ? (await this.deps.store.listContracts(turn.user.id)).filter((x) => offeredIds.includes(x.id))
+      : [];
+    const cs = offered.length ? offered : await this.activeContracts(turn);
+    if (!cs.length) {
+      // Nothing to choose from any more: never an empty question.
+      this.reset(turn);
+      turn.out.push(
+        text('No encuentro contratos activos para eso. Escribe *mis contratos* para revisarlos.'),
+      );
+      return;
+    }
     const c = cs.find((x) => x.id === id) ?? this.matchContractByText(cs, msg.text);
     if (!c && msg.kind === 'text' && msg.text && wordCount(msg.text) >= MIN_ACTIVITY_WORDS) {
       // Wrote something else instead of choosing (an activity, a question): handle it normally.
