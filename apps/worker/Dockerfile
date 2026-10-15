@@ -22,4 +22,7 @@ RUN pnpm install --frozen-lockfile --filter @cuentasbot/worker... --filter cuent
 ENV NODE_ENV=production
 
 USER node
-CMD ["pnpm", "--filter", "@cuentasbot/worker", "start"]
+# Node runs directly (not through pnpm) so it receives Railway's SIGTERM and finishes the messages in
+# hand before stopping; RAILWAY_DEPLOYMENT_DRAINING_SECONDS gives it that time.
+WORKDIR /app/apps/worker
+CMD ["node", "--import", "tsx", "src/main.ts"]

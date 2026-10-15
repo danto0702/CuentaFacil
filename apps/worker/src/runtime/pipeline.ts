@@ -1,6 +1,7 @@
 import type { Inbound, Outgoing } from '@cuentasbot/conversation';
 import { parseWebhook, type RawMessage, type StatusUpdate } from '../whatsapp/parse.js';
 import { verifySignature } from '../whatsapp/signature.js';
+import { withTurnIds } from './turn-ids.js';
 
 export interface InboxItem {
   id: number;
@@ -112,11 +113,12 @@ export class InboundPipeline {
           ...(m.media.filename ? { filename: m.media.filename } : {}),
         };
       }
-      replies = await conversation.handle(inbound);
+      replies = await withTurnIds(m.wamid, () => conversation.handle(inbound));
     }
 
-    // The turn already ran (state saved): a reply that cannot be sent is logged and skipped. Re-running
-    // the message would repeat the whole turn, e.g. send every document of a report again.
+    // The turn already ran (state saved): from here the message is never run again, even if the worker
+    // stops while sending. Re-running it would repeat the whole turn, e.g. send every document again.
+    await db.markInboundProcessed(m.wamid);
     let lost = 0;
     for (const out of replies) {
       try {
@@ -128,7 +130,6 @@ export class InboundPipeline {
       }
     }
     if (lost) await this.sendWithRetry(m.from, { type: 'text', text: SEND_FAILED }).catch(() => undefined);
-    await db.markInboundProcessed(m.wamid);
   }
 
   private async sendWithRetry(to: string, out: Outgoing): Promise<string> {

@@ -23,6 +23,7 @@ import { processRegistryImports, queueRegistryUploads } from './runtime/registry
 import { parseRegistryWorkbook } from './runtime/registry-xlsx.js';
 import { SupabaseReminderDb, sendSupportReminders } from './runtime/reminders.js';
 import { SupabasePipelineDb } from './runtime/supabase-db.js';
+import { turnId } from './runtime/turn-ids.js';
 import { SupabaseStore } from './store/supabase-store.js';
 import { StorageTemplateProvider } from './templates.js';
 import { WhatsAppClient } from './whatsapp/client.js';
@@ -75,7 +76,7 @@ const orchestrator = new Orchestrator({
   stt: new OpenAISTT(new OpenAI({ apiKey: cfg.OPENAI_API_KEY }), cfg.STT_MODEL),
   clock,
   generator: new AccountGenerator({ store, clock, templates: new StorageTemplateProvider(sb) }),
-  newId: randomUUID,
+  newId: turnId,
   confidenceThreshold: cfg.AI_CONFIDENCE_THRESHOLD,
   // Interim "working on it" messages go out only on the first attempt, so retries don't repeat them.
   extractPages,

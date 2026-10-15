@@ -1144,7 +1144,8 @@ export class SupabaseStore implements Store {
   }
 
   async addNote(note: Note): Promise<void> {
-    must(await this.sb.from('activity_notes').insert(await this.noteRow(note)), 'addNote');
+    // Upsert: a retried message saves its note again with the same id (turn-ids.ts).
+    must(await this.sb.from('activity_notes').upsert(await this.noteRow(note)), 'addNote');
     await this.linkEvidence(note);
   }
 
@@ -1265,7 +1266,7 @@ export class SupabaseStore implements Store {
     const path = `${e.userId}/${e.id}.${extOf(e.mime)}`;
     await this.upload('evidences', path, e.data, e.mime);
     must(
-      await this.sb.from('evidences').insert({ id: e.id, user_id: e.userId, file_path: path }),
+      await this.sb.from('evidences').upsert({ id: e.id, user_id: e.userId, file_path: path }),
       'addEvidence',
     );
   }
@@ -1421,6 +1422,12 @@ export class SupabaseStore implements Store {
   }
 
   async saveSocialSecurity(ss: SocialSecurity, supportId: string): Promise<void> {
+    // Already saved for this file (a retried message): keep the first one.
+    const saved = must(
+      await this.sb.from('social_security_payments').select('id').eq('support_id', supportId).limit(1),
+      'saveSocialSecurity.lookup',
+    ) as Row[];
+    if (saved.length) return;
     must(
       await this.sb.from('social_security_payments').insert({
         user_id: ss.userId,

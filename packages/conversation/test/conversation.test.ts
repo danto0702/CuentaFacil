@@ -726,8 +726,11 @@ describe('billing (ADR-034)', () => {
     let out = show(await h.say('Hoy capacité a 30 personas en misión médica en El Carmen'));
     expect(out[0]).toMatch(/^💳 Para activar tu contrato .* el valor de la configuración es \*\$ 15\.000\*/);
     expect(h.store.data.notes.length).toBe(notes);
-    // Support is always available.
+    // Support is always available, also as a button next to the payment request.
+    expect(JSON.stringify(out)).toContain('Hablar con soporte');
     expect(show(await h.say('soporte'))[0]).toMatch(/soporte/);
+    expect(show(await h.press('menu:support'))[0]).toMatch(/soporte/);
+    expect(show(await h.say('no más recordatorios'))[0]).not.toMatch(/^💳/);
     await h.say('hola');
     await h.press('pay:code');
     out = show(await h.say('CONF-2222'));

@@ -46,6 +46,18 @@ const STICKY_KEYS = ['working', 'checkedNotes', 'actingFor', 'dlgAsked'] as cons
 const CONTRACT_ACTIVE =
   '🎉 ¡Tu contrato quedó activo! Desde ya cuéntame lo que haces cada día: texto, audio o fotos. Escribe *menú* para ver todas las opciones.';
 
+/** What still works while every contract waits for its configuration payment: never a dead end. */
+const OPEN_WHILE_UNPAID: Command[] = [
+  'support',
+  'about',
+  'help',
+  'add_contract',
+  'my_data',
+  'ally',
+  'stop_reminders',
+  'start_reminders',
+];
+
 type Ctx = Record<string, unknown>;
 
 /** Button titles (max 20 characters) for the likely meaning of an unclear message. */
@@ -700,9 +712,14 @@ export class Orchestrator {
 
     // Contracts whose configuration is not paid yet are not active (terms, section 5).
     if (!turn.state.flow.startsWith('pay_') && turn.state.flow !== SETUP_FLOW) {
-      const cmd = msg.kind === 'text' && msg.text ? matchCommand(msg.text) : null;
-      const open = cmd && ['support', 'about', 'help', 'add_contract', 'my_data', 'ally'].includes(cmd);
-      if (!open && msg.replyId !== 'menu:support' && (await this.setupGate(turn, false))) return;
+      const cmd =
+        msg.kind === 'text' && msg.text
+          ? matchCommand(msg.text)
+          : msg.replyId?.startsWith('menu:')
+            ? (msg.replyId.slice(5) as Command)
+            : null;
+      const open = cmd && OPEN_WHILE_UNPAID.includes(cmd);
+      if (!open && (await this.setupGate(turn, false))) return;
     }
 
     if (turn.state.flow === SETUP_FLOW) {
@@ -3137,7 +3154,10 @@ export class Orchestrator {
         url,
       });
       turn.out.push(
-        buttons('¿Pagaste en efectivo y tienes un código?', [{ id: 'pay:code', title: 'Tengo un código' }]),
+        buttons('¿Pagaste en efectivo y tienes un código? ¿O prefieres hablar con una persona?', [
+          { id: 'pay:code', title: 'Tengo un código' },
+          { id: 'menu:support', title: 'Hablar con soporte' },
+        ]),
       );
     } else {
       // No online payment configured: cash with a code, arranged with a person.
@@ -3147,6 +3167,7 @@ export class Orchestrator {
           [
             { id: 'pay:how', title: 'Cómo pagar' },
             { id: 'pay:code', title: 'Tengo un código' },
+            { id: 'menu:support', title: 'Hablar con soporte' },
           ],
         ),
       );
