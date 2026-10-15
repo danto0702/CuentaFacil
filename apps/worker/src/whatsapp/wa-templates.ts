@@ -24,6 +24,25 @@ export const FALTAN_SOPORTES: TemplateDefinition = {
   ],
 };
 
+/** The same reminder for a gestor, naming whose account it is (ADR-042). Payload who:<id>:status. */
+export const FALTAN_SOPORTES_GESTOR: TemplateDefinition = {
+  name: 'faltan_soportes_gestor',
+  language: 'es',
+  category: 'UTILITY',
+  components: [
+    {
+      type: 'BODY',
+      text: 'Hola {{1}}, para la cuenta de {{2}} de {{3}} aún faltan estos soportes: {{4}}. Envíamelos por aquí cuando los tengas.',
+      example: {
+        body_text: [
+          ['Danilo', 'Ana María Pérez', 'septiembre de 2026', 'Antecedentes Policía, Afiliación EPS'],
+        ],
+      },
+    },
+    { type: 'BUTTONS', buttons: [{ type: 'QUICK_REPLY', text: 'Ver sus soportes' }] },
+  ],
+};
+
 /** A gestor asks a person to authorize preparing their accounts (ADR-042). Payloads: dlg:yes|no:<id>. */
 export const AUTORIZAR_GESTOR: TemplateDefinition = {
   name: 'autorizar_gestor',
@@ -63,4 +82,9 @@ export const AVISO_PENDIENTE: TemplateDefinition = {
   ],
 };
 
-export const TEMPLATES: TemplateDefinition[] = [FALTAN_SOPORTES, AUTORIZAR_GESTOR, AVISO_PENDIENTE];
+export const TEMPLATES: TemplateDefinition[] = [
+  FALTAN_SOPORTES,
+  FALTAN_SOPORTES_GESTOR,
+  AUTORIZAR_GESTOR,
+  AVISO_PENDIENTE,
+];

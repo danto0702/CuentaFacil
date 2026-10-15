@@ -33,6 +33,7 @@ function setup(
     settings?: Partial<ReminderSettings>;
     lastActivity?: Date | null;
     failFree?: number;
+    gestorTemplatePending?: boolean;
     managers?: string[];
   } = {},
 ) {
@@ -59,7 +60,7 @@ function setup(
       db,
       reminder: async (_u, _c, recipientId) =>
         recipientId === 'g1'
-          ? { ...reminder, to: '+573009998877', month: 'septiembre de 2026 de María', reply: 'who:u1:status' }
+          ? { ...reminder, to: '+573009998877', person: 'María Pérez', reply: 'who:u1:status' }
           : reminder,
       managersOf: async () => opts.managers ?? [],
       send: async (_to, out) => {
@@ -68,6 +69,8 @@ function setup(
         return 'wamid-free';
       },
       sendTemplate: async (_to, t) => {
+        if (opts.gestorTemplatePending && t.name === 'faltan_soportes_gestor')
+          throw new Error('not approved');
         templates.push(t);
         return 'wamid-template';
       },
@@ -118,13 +121,27 @@ describe('missing-supports reminders', () => {
     expect(await s.run()).toBe(1);
     expect(s.templates).toEqual([
       {
-        name: 'faltan_soportes',
+        name: 'faltan_soportes_gestor',
         language: 'es',
-        body: ['María', 'septiembre de 2026 de María', 'Antecedentes Policía, Afiliación EPS (vencido)'],
+        body: [
+          'María',
+          'María Pérez',
+          'septiembre de 2026',
+          'Antecedentes Policía, Afiliación EPS (vencido)',
+        ],
         quickReplies: ['who:u1:status'],
       },
     ]);
     expect(s.finished['reminder:supports:c1:3:g1']).toEqual({ wamid: 'wamid-template' });
+  });
+
+  it('uses the general template for the gestor until theirs is approved', async () => {
+    const s = setup({ managers: ['g1'], gestorTemplatePending: true });
+    expect(await s.run()).toBe(1);
+    expect(s.templates[0]).toMatchObject({
+      name: 'faltan_soportes',
+      body: ['María', 'septiembre de 2026 de María Pérez', 'Antecedentes Policía, Afiliación EPS (vencido)'],
+    });
   });
 
   it('builds the template payload with a quick-reply payload and no line breaks', () => {

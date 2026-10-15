@@ -32,6 +32,8 @@ export interface Reminder {
   name: string;
   report: string;
   month: string;
+  /** For a gestor: whose account it is (ADR-042). */
+  person?: string;
   periodNumber: number;
   missing: string[];
   message: Outgoing;
@@ -64,6 +66,8 @@ export interface ReminderDeps {
   log: Logger;
 }
 
+/** Template for gestores: «para la cuenta de {{2}} de {{3}}…» (wa-templates.ts). */
+const GESTOR_TEMPLATE = 'faltan_soportes_gestor';
 const WINDOW_MS = 24 * 3600_000;
 /** WhatsApp: the 24-hour window is closed, a template is required. */
 const WINDOW_CLOSED = 131047;
@@ -105,15 +109,37 @@ async function sendOne(
     // Its button reads «¿Qué me falta?»: it opens the checklist (of that person, for a gestor).
     quickReplies: [r.reply],
   };
-  if (!(await d.db.claim(recipientId, key, open ? 'free' : 'template', open ? r.message : template)))
+  // A gestor gets the person's name apart; until Meta approves that template, the general one.
+  const gestor: TemplateMessage | null = r.person
+    ? {
+        name: GESTOR_TEMPLATE,
+        language: s.language,
+        body: [r.name, r.person, r.month, r.missing.join(', ')],
+        quickReplies: [r.reply],
+      }
+    : null;
+  const fallback = gestor
+    ? { ...template, body: [r.name, `${r.month} de ${r.person}`, r.missing.join(', ')] }
+    : template;
+  const sendTemplate = async () => {
+    if (!gestor) return d.sendTemplate(r.to, template);
+    try {
+      return await d.sendTemplate(r.to, gestor);
+    } catch {
+      return d.sendTemplate(r.to, fallback);
+    }
+  };
+  if (
+    !(await d.db.claim(recipientId, key, open ? 'free' : 'template', open ? r.message : (gestor ?? template)))
+  )
     return 0;
   try {
     let wamid: string;
     try {
-      wamid = open ? await d.send(r.to, r.message) : await d.sendTemplate(r.to, template);
+      wamid = open ? await d.send(r.to, r.message) : await sendTemplate();
     } catch (e) {
       if (!open || (e as { code?: number }).code !== WINDOW_CLOSED) throw e;
-      wamid = await d.sendTemplate(r.to, template);
+      wamid = await sendTemplate();
     }
     await d.db.finish(key, { wamid });
     return 1;

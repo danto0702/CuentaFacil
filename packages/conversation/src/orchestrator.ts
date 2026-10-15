@@ -3314,6 +3314,8 @@ export class Orchestrator {
     report: string;
     /** «septiembre de 2026»: the month of the account, for the template. */
     month: string;
+    /** For a gestor: whose account it is. */
+    person?: string;
     periodNumber: number;
     missing: string[];
     message: Outgoing;
@@ -3342,7 +3344,8 @@ export class Orchestrator {
         to: recipient.phone,
         name,
         report,
-        month: `${month} de ${person}`,
+        month,
+        person,
         periodNumber: p.number,
         missing: labels,
         reply: `who:${user.id}:status`,
