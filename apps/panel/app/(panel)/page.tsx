@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { adminAvailable, listInstitutionRequests } from '@/lib/admin';
 import { listOpenTickets } from '@/lib/billing';
 import { dataSource } from '@/lib/data';
+import { listRecentFailures } from '@/lib/failures';
 import { listSuspiciousNotes } from '@/lib/note-review';
 import { closeTicket } from './cobros/actions';
 
@@ -28,6 +29,7 @@ export default async function Dashboard() {
     : 0;
   const tickets = adminAvailable() ? await listOpenTickets() : [];
   const suspicious = adminAvailable() ? await listSuspiciousNotes().catch(() => []) : [];
+  const failures = adminAvailable() ? await listRecentFailures().catch(() => []) : [];
   const byStatus = Object.entries(
     accounts.reduce<Record<string, number>>((acc, a) => {
       acc[a.status] = (acc[a.status] ?? 0) + 1;
@@ -64,6 +66,27 @@ export default async function Dashboard() {
                       <button type="submit">Atendido</button>
                     </form>
                   </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+      {failures.length > 0 && (
+        <div className="card">
+          <h3>⚠️ Fallas de los últimos 7 días ({failures.length})</h3>
+          <p className="muted">
+            Lo que Pascal no pudo hacer o enviar. Si se repite, revisa los registros del worker en Railway.
+          </p>
+          <table>
+            <tbody>
+              {failures.map((f) => (
+                <tr key={f.id}>
+                  <td className="muted">
+                    {new Date(f.createdAt).toLocaleString('es-CO', { timeZone: 'America/Bogota' })}
+                  </td>
+                  <td>{f.kind}</td>
+                  <td>{f.error.length > 160 ? `${f.error.slice(0, 159)}…` : f.error}</td>
                 </tr>
               ))}
             </tbody>
@@ -129,7 +152,7 @@ export default async function Dashboard() {
           </tbody>
         </table>
         <p className="muted">
-          Ingresos, costos de IA y WhatsApp, y la cola de errores llegan en las fases 1 y 3.
+          Ingresos y costos de IA y WhatsApp llegan en la fase 3.
         </p>
       </div>
     </>

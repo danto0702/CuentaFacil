@@ -19,7 +19,7 @@ import { checkoutUrl, diagnoseKeys, verifyEvent } from './payments/wompi.js';
 import { loadConfig } from './runtime/config.js';
 import { type DeliverDeps, deliver, flushHeld, SHOW_HELD, SupabaseHeldStore } from './runtime/held.js';
 import { jsonLogger as log } from './runtime/log.js';
-import { InboundPipeline, type Messenger } from './runtime/pipeline.js';
+import { InboundPipeline, type Logger, type Messenger } from './runtime/pipeline.js';
 import { Queue } from './runtime/queue.js';
 import { processRegistryImports, queueRegistryUploads } from './runtime/registry-import.js';
 import { parseRegistryWorkbook } from './runtime/registry-xlsx.js';
@@ -34,6 +34,18 @@ import { TEMPLATES } from './whatsapp/wa-templates.js';
 
 const cfg = loadConfig();
 const sb = createClient(cfg.SUPABASE_URL, cfg.SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } });
+
+/** Logger whose errors also go to job_failures, so they show up in the panel's start page. */
+const alertLog: Logger = {
+  info: log.info,
+  error: (event, data = {}) => {
+    log.error(event, data);
+    void sb
+      .from('job_failures')
+      .insert({ queue: 'warning', payload: { event, ...data }, error: event, attempts: 0 })
+      .then(({ error }) => error && log.error('job_failures.insert_failed', { error: error.message }));
+  },
+};
 
 const cipher =
   cfg.ENCRYPTION_KEY && cfg.BLIND_INDEX_KEY ? new FieldCipher(cfg.ENCRYPTION_KEY, cfg.BLIND_INDEX_KEY) : null;
@@ -80,7 +92,7 @@ const orchestrator = new Orchestrator({
   generator: new AccountGenerator({ store, clock, templates: new StorageTemplateProvider(sb) }),
   newId: turnId,
   confidenceThreshold: cfg.AI_CONFIDENCE_THRESHOLD,
-  warn: (event, data) => log.error(event, data),
+  warn: (event, data) => alertLog.error(event, data),
   // Interim "working on it" messages go out only on the first attempt, so retries don't repeat them.
   extractPages,
   ...(wompi ? { payments: { checkoutUrl: (charge) => checkoutUrl(wompi, charge) } } : {}),
@@ -139,7 +151,7 @@ const deliverDeps: DeliverDeps = {
     return wamid;
   },
   sendTemplate: (to, t) => messenger.sendTemplate(to, t),
-  log,
+  log: alertLog,
 };
 const recipient = (u: { id: string; phone: string; fullName: string }) => ({
   userId: u.id,
@@ -152,7 +164,7 @@ const pipeline = new InboundPipeline({
   messenger: outbound,
   conversation: orchestrator,
   appSecret: cfg.WA_APP_SECRET,
-  log,
+  log: alertLog,
   beforeTurn: async (from, replyId) => {
     const user = await store.getUserByPhone(from);
     if (!user) return false;
@@ -238,7 +250,7 @@ async function supportReminders(): Promise<void> {
     now,
     today: clock.today(),
     hour: new Date(now.getTime() - 5 * 3600_000).getUTCHours(), // Bogotá, UTC-5 all year
-    log,
+    log: alertLog,
   });
 }
 
