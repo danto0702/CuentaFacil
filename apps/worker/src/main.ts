@@ -16,6 +16,7 @@ import { OpenAISTT } from './ai/openai-stt.js';
 import { FieldCipher } from './crypto.js';
 import { AccountGenerator } from './generator.js';
 import { checkoutUrl, diagnoseKeys, verifyEvent } from './payments/wompi.js';
+import { SupabaseAlertDb, sendDailyAlert } from './runtime/alerts.js';
 import { loadConfig } from './runtime/config.js';
 import { type DeliverDeps, deliver, flushHeld, SHOW_HELD, SupabaseHeldStore } from './runtime/held.js';
 import { jsonLogger as log } from './runtime/log.js';
@@ -254,6 +255,24 @@ async function supportReminders(): Promise<void> {
   });
 }
 
+/** Daily failure summary to the owner (ADR-045), checked with the reminders. */
+const alertDb = new SupabaseAlertDb(sb);
+
+async function dailyAlert(): Promise<void> {
+  const now = new Date();
+  await sendDailyAlert({
+    settings: () => alertDb.settings(),
+    failuresSince: (since) => alertDb.failuresSince(since),
+    claim: (userId, key) => alertDb.claim(userId, key),
+    send: async (userId, out) => {
+      await deliver(deliverDeps, recipient(await store.getUser(userId)), [out], 'un resumen de fallas');
+    },
+    now,
+    today: clock.today(),
+    hour: new Date(now.getTime() - 5 * 3600_000).getUTCHours(), // Bogotá, UTC-5 all year
+  });
+}
+
 /** How often the worker looks for new entity contract registry uploads. */
 const REGISTRY_CHECK_MS = 60_000;
 let stopping = false;
@@ -359,6 +378,7 @@ async function loop(): Promise<void> {
     if (Date.now() >= nextReminderCheck) {
       nextReminderCheck = Date.now() + REMINDER_CHECK_MS;
       await supportReminders().catch((e) => log.error('reminders.check_failed', { error: String(e) }));
+      await dailyAlert().catch((e) => log.error('alerts.check_failed', { error: String(e) }));
     }
     if (Date.now() >= nextAllyCheck) {
       nextAllyCheck = Date.now() + ALLY_CHECK_MS;

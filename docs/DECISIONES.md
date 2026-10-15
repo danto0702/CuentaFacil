@@ -192,3 +192,7 @@
 - **Decisión:** los ids de lo que guarda un turno (actividades, fotos, soportes) se derivan del id del mensaje de WhatsApp, y esas escrituras son idempotentes; si un turno falla a mitad y el mensaje se reintenta, se sobrescriben en lugar de duplicarse. El mensaje se marca procesado apenas el turno termina, antes de enviar las respuestas. El worker corre `node` directamente (recibe SIGTERM) y Railway le da 120 s para terminar (`RAILWAY_DEPLOYMENT_DRAINING_SECONDS`).
 - **Consecuencias:** si el worker se detiene justo mientras envía respuestas, alguna puede perderse, pero el turno no se repite.
 
+
+## ADR-045 — Resumen diario de fallas por WhatsApp (2026-10-15)
+- **Decisión:** los errores del worker quedan en `job_failures` (los mensajes no procesados y, como `warning`, las respuestas o avisos no enviados, los audios sin transcribir, los recordatorios fallidos y los pagos con valor distinto). El inicio del panel los lista (últimos 7 días) y, una vez al día desde las 7 a. m., si hubo fallas en las últimas 24 horas, Pascal le envía el resumen por WhatsApp al usuario configurado en `system_settings.alerts` (`enabled`, `userId`, `hour`). Fuera de la ventana de 24 horas va con la plantilla `aviso_pendiente` (ADR-043).
+- **Consecuencias:** sin la fila `alerts`, o con `enabled: false`, no se envía nada. Solo escribe cuando hubo fallas.
