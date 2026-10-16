@@ -17,3 +17,6 @@ out-*/
 .sim/
 next-env.d.ts
 *.tsbuildinfo
+
+# brag: intermediate files
+brag-output/work/
