@@ -49,7 +49,7 @@
   #k3 { top: 720px; font: 800 104px/1.06 var(--display); letter-spacing: -.035em; color: var(--on-night); }
   #k3 b { color: var(--amber); }
   #spot { position: absolute; inset: 0; overflow: hidden; }
-  #spot img { position: absolute; left: -810px; top: 122px; width: 2600px; }
+  #spot img { position: absolute; left: 40px; top: 300px; width: 1000px; }
   #k4a { top: 1560px; font: 800 88px/1.04 var(--display); letter-spacing: -.035em; color: var(--on-night); }
   #k4b { left: 50%; top: 1700px; display: inline-flex; align-items: center; gap: 18px; padding: 20px 38px; border-radius: 999px; background: var(--amber); color: var(--ink); font: 800 52px/1 var(--display); white-space: nowrap; }
   #k4b .i { font-size: 58px; }
@@ -86,7 +86,7 @@
   <!-- 3–4 -->
   <div class="panel" id="dark"></div>
   <h2 class="abs center" id="k3" data-in="11.0" data-out="13.5">¿Y si este fuera <b>tu último fin de mes así?</b></h2>
-  <div id="spot"><img src="assets/pascal-cuerpo.jpg" alt=""></div>
+  <div id="spot"><img src="assets/pascal-teaser.jpg" alt=""></div>
   <h2 class="abs center" id="k4a" data-in="14.4" data-out="19.1">Alguien llega a cambiarlo.</h2>
   <div class="abs" id="k4b" data-in="16.6" data-anim="popc" data-out="19.1"><svg class="i"><use href="assets/iconos.svg#whatsapp"/></svg>Llega por WhatsApp.</div>
 
@@ -147,12 +147,12 @@
     // Spotlight over Pascal
     const sp = $('spot'); const spOn = t >= 13.75 && t < 19.5; sp.style.display = spOn ? '' : 'none';
     if (spOn) {
-      const P = [[527, 596], [527, 901], [510, 1070], [527, 860]];
+      const P = [[678, 461], [548, 782], [509, 982], [540, 830]];
       let x, y, r;
       const k1 = p(t, 15.3, 0.6, inOut), k2 = p(t, 16.6, 0.6, inOut), k3 = p(t, 17.6, 0.8, inOut);
       x = lerp(lerp(lerp(P[0][0], P[1][0], k1), P[2][0], k2), P[3][0], k3);
       y = lerp(lerp(lerp(P[0][1], P[1][1], k1), P[2][1], k2), P[3][1], k3);
-      r = lerp(lerp(lerp(0, 230, p(t, 14.0, 0.6)), 230, k1), 520, k3);
+      r = lerp(lerp(lerp(0, 230, p(t, 14.0, 0.6)), 230, k1), 500, k3);
       const m = `radial-gradient(circle ${r}px at ${x}px ${y}px, #000 55%, transparent 100%)`;
       sp.style.webkitMaskImage = m; sp.style.maskImage = m;
       sp.style.opacity = 1 - p(t, 19.1, 0.3, inOut);
