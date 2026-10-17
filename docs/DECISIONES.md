@@ -212,3 +212,11 @@
   5. **Los términos** ofrecen *Hablar con soporte*; *soporte* y *borrar mis datos* (que ahora existe y abre una solicitud para el equipo) funcionan sin aceptarlos.
   6. **La autorización de un gestor** se puede responder escribiendo («sí, autorizo», «no»).
   7. **Botones repetidos:** se eliminan al armar el mensaje y otra vez antes de enviarlo a WhatsApp.
+
+## ADR-048 — Borrado de la firma y conservación de archivos (2026-10-17)
+- **Contexto:** la política de datos (versión 1.1) promete *borrar mi firma* (sección 4-A) y el borrado automático de los archivos a los 24 meses (sección 7); ninguno estaba implementado.
+- **Decisión:**
+  - **Borrar mi firma:** *borrar mi firma* (también «eliminar» o «quitar») pide confirmación y borra el archivo y su registro. Solo lo puede hacer el titular desde su número, no un gestor.
+  - **Borrado automático:** una vez al día, el worker borra los soportes y las fotos de evidencia con más de 24 meses. Antes suelta las referencias desde las planillas y las solicitudes de institución. La firma no se borra por tiempo, sino cuando el titular lo pide.
+  - **Copias de entrega:** los ZIP (con enlace de 7 días) y las copias de mensajes retenidos se borran a los 30 días. Si un mensaje retenido pierde su archivo, se marca `dropped`.
+- **Consecuencias:** sin cambio de esquema. Los consentimientos y los cobros no son archivos y se conservan por el término legal.

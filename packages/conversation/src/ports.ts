@@ -201,6 +201,8 @@ export interface Store {
 
   addSupport(s: SupportFile): Promise<void>;
   listSupports(userId: string): Promise<SupportFile[]>;
+  /** Deletes the user's files of a type (rows and storage), e.g. the signature on request. */
+  deleteSupports(userId: string, code: string): Promise<number>;
   /** The contractor's writing style (ADR-046); null removes it. */
   saveWritingStyle(userId: string, style: WritingStyle | null): Promise<void>;
   getWritingStyle(userId: string): Promise<WritingStyle | null>;

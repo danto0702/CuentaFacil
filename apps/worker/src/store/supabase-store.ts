@@ -1401,6 +1401,31 @@ export class SupabaseStore implements Store {
     );
   }
 
+  async deleteSupports(userId: string, code: string): Promise<number> {
+    const rows = must(
+      await this.sb
+        .from('supports')
+        .select('id, original_path, normalized_path')
+        .eq('user_id', userId)
+        .eq('code', code),
+      'deleteSupports.lookup',
+    ) as Row[];
+    if (!rows.length) return 0;
+    const paths = rows.flatMap((r) => [r.original_path, r.normalized_path].filter(Boolean) as string[]);
+    if (paths.length) await this.sb.storage.from('supports').remove(paths);
+    must(
+      await this.sb
+        .from('supports')
+        .delete()
+        .in(
+          'id',
+          rows.map((r) => str(r.id)),
+        ),
+      'deleteSupports',
+    );
+    return rows.length;
+  }
+
   // Writing style (ADR-046): a small JSON next to the contractor's supports; no table needed.
   private stylePath(userId: string): string {
     return `${userId}/estilo-redaccion.json`;

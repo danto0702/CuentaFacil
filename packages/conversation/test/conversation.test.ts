@@ -231,6 +231,20 @@ describe('other flows', () => {
     );
   });
 
+  it('deletes the signature when its owner asks (data policy 4-A)', async () => {
+    const h = harness();
+    expect(show(await h.say('borrar mi firma'))).toEqual(['No tengo guardada ninguna firma tuya.']);
+    await h.say('firma');
+    await h.photo();
+    const userId = h.store.data.users[0]!.id;
+    expect(h.store.data.supports.some((s) => s.userId === userId && s.code === 'FIRMA')).toBe(true);
+    expect(show(await h.say('borrar mi firma'))[0]).toBe(
+      '🗑️ ¿Borro tu firma? Tus próximos documentos saldrán para firmar a mano. [Sí, bórrala] [No]',
+    );
+    expect(show(await h.press('sigdel:yes'))[0]).toMatch(/^✅ Borré tu firma/);
+    expect(h.store.data.supports.some((s) => s.userId === userId && s.code === 'FIRMA')).toBe(false);
+  });
+
   it('takes the contract named in the text without asking', async () => {
     const h = harness();
     const out = show(await h.say('Hice seguimiento a las UPGD de Ábrego, esto es del contrato 0002'));

@@ -1079,7 +1079,7 @@ export class SetupFlow {
       });
       turn.out.push(
         text(
-          '✅ Guardé tu firma. La pondré solo en tus propios informes; puedes pedirme borrarla cuando quieras.',
+          '✅ Guardé tu firma. La pondré solo en tus propios informes; para borrarla cuando quieras, escribe *borrar mi firma*.',
         ),
       );
       return this.finish(turn);

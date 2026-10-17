@@ -25,6 +25,7 @@ import { Queue } from './runtime/queue.js';
 import { processRegistryImports, queueRegistryUploads } from './runtime/registry-import.js';
 import { parseRegistryWorkbook } from './runtime/registry-xlsx.js';
 import { SupabaseReminderDb, sendSupportReminders } from './runtime/reminders.js';
+import { purgeExpiredFiles } from './runtime/retention.js';
 import { SupabasePipelineDb } from './runtime/supabase-db.js';
 import { turnId } from './runtime/turn-ids.js';
 import { SupabaseStore } from './store/supabase-store.js';
@@ -277,6 +278,9 @@ async function dailyAlert(): Promise<void> {
   });
 }
 
+/** Retention purge (ADR-048): files past their term, checked once a day. */
+const RETENTION_CHECK_MS = 24 * 3600_000;
+
 /** How often the worker looks for new entity contract registry uploads. */
 const REGISTRY_CHECK_MS = 60_000;
 let stopping = false;
@@ -378,11 +382,18 @@ async function loop(): Promise<void> {
   let nextRegistryCheck = 0;
   let nextAllyCheck = 0;
   let nextReminderCheck = 0;
+  let nextRetentionCheck = 0;
   while (!stopping) {
     if (Date.now() >= nextReminderCheck) {
       nextReminderCheck = Date.now() + REMINDER_CHECK_MS;
       await supportReminders().catch((e) => log.error('reminders.check_failed', { error: String(e) }));
       await dailyAlert().catch((e) => log.error('alerts.check_failed', { error: String(e) }));
+    }
+    if (Date.now() >= nextRetentionCheck) {
+      nextRetentionCheck = Date.now() + RETENTION_CHECK_MS;
+      await purgeExpiredFiles(sb, new Date(), log).catch((e) =>
+        alertLog.error('retention.failed', { error: String(e) }),
+      );
     }
     if (Date.now() >= nextAllyCheck) {
       nextAllyCheck = Date.now() + ALLY_CHECK_MS;

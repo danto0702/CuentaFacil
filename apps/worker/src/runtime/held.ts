@@ -136,7 +136,11 @@ export class SupabaseHeldStore implements HeldStore {
       let msg: Outgoing;
       if (p.type === 'document') {
         const { data: blob, error: e } = await this.sb.storage.from(BUCKET).download(p.path);
-        if (e || !blob) throw new Error(`held download: ${e?.message}`);
+        if (e || !blob) {
+          // Removed by the retention purge (held more than 30 days): drop it instead of failing.
+          await this.sb.from('outbound_messages').update({ status: 'dropped' }).eq('id', r.id);
+          continue;
+        }
         msg = {
           type: 'document',
           filename: p.filename,

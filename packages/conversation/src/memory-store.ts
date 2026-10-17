@@ -214,6 +214,11 @@ export class MemoryStore implements Store {
   async listSupports(userId: string) {
     return this.data.supports.filter((s) => s.userId === userId);
   }
+  async deleteSupports(userId: string, code: string) {
+    const before = this.data.supports.length;
+    this.data.supports = this.data.supports.filter((s) => !(s.userId === userId && s.code === code));
+    return before - this.data.supports.length;
+  }
   async saveWritingStyle(userId: string, style: WritingStyle | null) {
     const all = { ...(this.data.writingStyles ?? {}) };
     if (style) all[userId] = style;

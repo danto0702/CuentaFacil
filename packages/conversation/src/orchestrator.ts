@@ -879,6 +879,22 @@ export class Orchestrator {
 
     // Answers about the previous report used as writing style work anywhere, also during the setup.
     if (msg.replyId?.startsWith('style:')) return this.onStyleReply(turn, msg.replyId);
+    if (msg.replyId === 'sigdel:yes' || msg.replyId === 'sigdel:no') {
+      this.reset(turn);
+      if (msg.replyId === 'sigdel:no' || this.forOther(turn)) {
+        turn.out.push(text('Listo, no borré nada.'));
+        return;
+      }
+      const n = await this.deps.store.deleteSupports(turn.user.id, 'FIRMA');
+      turn.out.push(
+        text(
+          n
+            ? '✅ Borré tu firma. Tus próximos documentos saldrán para firmar a mano; si quieres volver a cargarla, escribe *firma*.'
+            : 'No tengo guardada ninguna firma tuya.',
+        ),
+      );
+      return;
+    }
     if (msg.replyId?.startsWith('desc:')) {
       this.reset(turn);
       const c = (await this.deps.store.listContracts(turn.user.id)).find(
@@ -1286,6 +1302,27 @@ export class Orchestrator {
         return this.showStyle(turn);
       case 'payments':
         return this.showPayments(turn);
+      case 'delete_signature': {
+        // Data policy 4-A: the signature is deleted whenever its owner asks (only its owner).
+        if (this.forOther(turn)) {
+          turn.out.push(
+            text(`La firma de ${this.labelOf(turn)} solo la puede borrar esa persona desde su WhatsApp.`),
+          );
+          return;
+        }
+        const has = (await this.deps.store.listSupports(turn.user.id)).some((s) => s.code === 'FIRMA');
+        if (!has) {
+          turn.out.push(text('No tengo guardada ninguna firma tuya.'));
+          return;
+        }
+        turn.out.push(
+          buttons('🗑️ ¿Borro tu firma? Tus próximos documentos saldrán para firmar a mano.', [
+            { id: 'sigdel:yes', title: 'Sí, bórrala' },
+            { id: 'sigdel:no', title: 'No' },
+          ]),
+        );
+        return;
+      }
       case 'describe':
         return this.withContract(turn, 'describe_pick_contract', (cs) => this.askDescription(turn, cs[0]!));
       case 'delete_data':
