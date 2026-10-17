@@ -1,4 +1,4 @@
-# Teaser — "POV: Día 30" (expectativa, sin presentar el servicio)
+# Teaser — "Confiésalo: Día 30" (expectativa, sin presentar el servicio)
 
 Formato: vertical 1080×1920, 30 fps, **26,25 s**, para Reels, TikTok, Shorts y estados de WhatsApp. Música original a 96 BPM.
 
@@ -14,7 +14,7 @@ Formato: vertical 1080×1920, 30 fps, **26,25 s**, para Reels, TikTok, Shorts y 
 
 ### Por qué puede funcionar
 
-1. **Gancho en el primer segundo:** "POV: es día 30 y todavía no has hecho tu cuenta de cobro", con reloj a las 11:47 p. m. Quien lo vive se detiene.
+1. **Gancho en el primer segundo:** "Confiésalo: otra vez dejaste la cuenta de cobro para el día 30", con reloj a las 11:47 p. m. Quien lo vive se detiene.
 2. **Identificación:** cuatro dolores concretos y en ritmo rápido. Lo concreto ("unir 14 PDF a las 11:58 p. m.") es lo que hace reír y compartir.
 3. **Giro y bucle abierto:** "¿Y si este fuera tu último fin de mes así?" y fragmentos de alguien (gorra, gafas, sonrisa) sin mostrarlo completo ni nombrarlo.
 4. **Acción social:** "Etiqueta a ese compañero que siempre la hace el día 30." Cada etiqueta lleva el video a otro contratista.
@@ -32,7 +32,7 @@ Formato: vertical 1080×1920, 30 fps, **26,25 s**, para Reels, TikTok, Shorts y 
 
 | # | Tiempo | Escena | En pantalla | Sonido |
 |---|--------|--------|-------------|--------|
-| 1 | 0–3,1 | **POV** | "POV: es día 30 y todavía no has hecho tu cuenta de cobro." Reloj 11:47 p. m. que avanza | Tic-tac, dron grave |
+| 1 | 0–3,1 | **Confiésalo** | "Confiésalo: otra vez dejaste la cuenta de cobro para el día 30." Reloj 11:47 p. m. que avanza (antes "POV:", cambiado porque la expresión no es conocida en el nicho, 2026-10-17) | Tic-tac, dron grave |
 | 2 | 3,1–10,6 | **Dolores** | Cuatro tarjetas a pantalla completa, cortes en el pulso: "Reconstruir el mes de memoria." · "La planilla que no cuadra." · "Antecedentes vencidos… otra vez." · "Unir 14 PDF a las 11:58 p. m." El reloj avanza | Bombo en cada corte, tic-tac más rápido |
 | 3 | 10,6–13,75 | **Giro** | Corte a negro con interferencia: "¿Y si este fuera tu último fin de mes así?" | Silencio, golpe de ruido, pad |
 | 4 | 13,75–19,4 | **Misterio** | En la oscuridad, un foco recorre fragmentos de Pascal (gorra, gafas, sonrisa; imagen en alta del set de personaje entregado el 2026-10-17) y se abre hasta mostrar su cara, sin decir su nombre. "Alguien llega a cambiarlo." · "Llega por WhatsApp." | Pad que pasa de Re menor a Fa mayor, campanitas |
