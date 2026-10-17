@@ -1,6 +1,6 @@
 # Teaser — "POV: Día 30" (expectativa, sin presentar el servicio)
 
-Formato: vertical 1080×1920, 30 fps, **24,4 s**, para Reels, TikTok, Shorts y estados de WhatsApp. Música original a 96 BPM.
+Formato: vertical 1080×1920, 30 fps, **26,25 s**, para Reels, TikTok, Shorts y estados de WhatsApp. Música original a 96 BPM.
 
 ## Propuestas virales evaluadas
 
@@ -36,10 +36,10 @@ Formato: vertical 1080×1920, 30 fps, **24,4 s**, para Reels, TikTok, Shorts y e
 | 2 | 3,1–10,6 | **Dolores** | Cuatro tarjetas a pantalla completa, cortes en el pulso: "Reconstruir el mes de memoria." · "La planilla que no cuadra." · "Antecedentes vencidos… otra vez." · "Unir 14 PDF a las 11:58 p. m." El reloj avanza | Bombo en cada corte, tic-tac más rápido |
 | 3 | 10,6–13,75 | **Giro** | Corte a negro con interferencia: "¿Y si este fuera tu último fin de mes así?" | Silencio, golpe de ruido, pad |
 | 4 | 13,75–19,4 | **Misterio** | En la oscuridad, un foco recorre fragmentos de Pascal (gorra, gafas, sonrisa; imagen en alta del set de personaje entregado el 2026-10-17) y se abre hasta mostrar su cara, sin decir su nombre. "Alguien llega a cambiarlo." · "Llega por WhatsApp." | Pad que pasa de Re menor a Fa mayor, campanitas |
-| 5 | 19,4–24,4 | **Expectativa** | "Muy pronto." · "Etiqueta a ese compañero que siempre la hace el día 30." · "Comenta “DÍA 30” si te ha pasado." · Flor y nombre de PascalIA | Acorde final |
+| 5 | 19,4–26,25 | **Expectativa** | "Muy pronto." · **QR** a `https://pascalia.lat/pascal/` (flor de PascalIA al centro, "Escanéame: conoce a Pascal") · "Etiqueta a ese compañero que siempre la hace el día 30." · "Comenta “DÍA 30” si te ha pasado." · PascalIA | Campanitas; acorde final |
 
 ## Cuidados
 
-- Sin nombre del servicio, precios ni QR (pedido del dueño: no presentarlo oficialmente).
+- Sin precios ni botón de WhatsApp (pedido del dueño: no presentarlo oficialmente). El QR lleva a la página de expectativa `pascalia.lat/pascal/` (repositorio pascalia-web): sin menú, sin regreso y sin enlaces, `noindex`, con el set de imágenes de Pascal y "Muy pronto". **Funciona cuando esa página se publique en `main`.** QR verificado con OpenCV sobre el video final (10/10).
 - El humor es sobre la situación, nunca sobre entidades, supervisores o personas reales.
 - Sin cifras de resultados ni promesas; "Llega por WhatsApp" es cierto.
