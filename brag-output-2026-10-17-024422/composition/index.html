@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="es-CO">
+<head>
+<meta charset="utf-8">
+<title>CuentaFacil — Pascal</title>
+<link rel="stylesheet" href="assets/local.css">
+<style>
+  :root {
+    --bg: #FFFDF7; --cream: #FFF8E1; --ink: #1F1F1F; --ink-2: #55514B; --ink-3: #8C877E;
+    --amber: #FFC107; --amber-2: #F2B300; --amber-ink: #7D5B00; --amber-soft: #FFF1C2;
+    --night: #1F1F1F; --night-2: #2A2927; --on-night: #F4F1EA; --on-night-2: #C9C4BA;
+    --display: "Bricolage Grotesque", "Geist", system-ui, sans-serif;
+    --text: "Geist", system-ui, sans-serif;
+    --shadow: 0 2px 6px rgba(31,31,31,.06), 0 30px 60px -30px rgba(31,31,31,.45);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: var(--bg); }
+  body { font-family: var(--text); color: var(--ink); -webkit-font-smoothing: antialiased; }
+  #stage { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--bg); }
+  .abs { position: absolute; }
+  .panel { position: absolute; inset: 0; }
+  .i { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+  h1, h2, h3, p { margin: 0; }
+  .glow { position: absolute; border-radius: 50%; filter: blur(80px); }
+  .center { left: 70px; right: 70px; text-align: center; }
+  .hl { background: linear-gradient(transparent 60%, var(--amber) 60%); padding: 0 6px; }
+  .ink-hl { position: relative; display: inline-block; color: var(--amber); padding: 0 22px; }
+  .ink-hl::before { content: ""; position: absolute; inset: 6px 0 -2px; background: var(--ink); border-radius: 20px; z-index: -1; }
+
+  /* 1 */
+  .chip { position: absolute; display: inline-flex; align-items: center; gap: 14px; padding: 20px 28px; border-radius: 999px; background: #fff;
+    font: 600 34px/1 var(--text); color: var(--ink-2); white-space: nowrap; border: 2px solid #EFEAE0;
+    box-shadow: 0 1px 2px rgba(31,31,31,.06), 0 18px 40px -22px rgba(31,31,31,.35); }
+  .chip .i { font-size: 38px; color: var(--amber-ink); }
+  .chip.q { background: var(--ink); color: var(--amber); border-color: var(--ink); }
+  .chip.q .i { color: var(--amber); }
+  #k1a { top: 760px; font: 800 150px/1 var(--display); letter-spacing: -.045em; }
+  #k1b { top: 950px; font: 700 76px/1.08 var(--display); letter-spacing: -.025em; }
+
+  /* 2 */
+  #p2 { background: var(--amber); }
+  #k2a { top: 150px; font: 800 118px/1 var(--display); letter-spacing: -.04em; }
+  #k2b { left: 0; right: 0; top: 310px; display: flex; justify-content: center; }
+  .team { display: inline-flex; align-items: center; gap: 16px; padding: 18px 30px 18px 20px; border-radius: 999px; background: #fff; font: 650 40px/1 var(--text);
+    box-shadow: 0 24px 40px -26px rgba(80,55,0,.65); }
+  .team img { width: 58px; height: 58px; }
+  .team b { font-weight: 800; } .team em { font-style: normal; font-weight: 800; color: var(--amber-ink); }
+  #arch { left: 50%; top: 470px; width: 660px; height: 1330px; margin-left: -330px; border-radius: 330px 330px 60px 60px; overflow: hidden; background: #ECECEA;
+    border: 12px solid #fff; box-shadow: 0 60px 100px -50px rgba(80,55,0,.8); }
+  #arch img { position: absolute; left: 50%; bottom: 0; width: 640px; transform: translateX(-50%); }
+  #tag { left: 240px; top: 1640px; padding: 22px 30px; border-radius: 26px; background: var(--ink); color: var(--amber); font: 800 46px/1 var(--display); box-shadow: 0 30px 50px -24px rgba(0,0,0,.6); }
+  #tag small { display: block; margin-top: 8px; font: 500 26px/1 var(--text); color: var(--on-night-2); }
+
+  /* 3 */
+  #p3 { background: var(--bg); }
+  .avatar { border-radius: 50%; object-fit: cover; object-position: 50% 32%; border: 10px solid var(--amber); box-shadow: var(--shadow); }
+  #av3 { left: 50%; top: 260px; width: 300px; height: 300px; margin-left: -150px; }
+  #k3 { top: 640px; font: 700 66px/1 var(--display); color: var(--ink-2); }
+  .job { left: 90px; right: 60px; display: flex; align-items: center; gap: 34px; font: 800 96px/1 var(--display); letter-spacing: -.04em; }
+  .job .ico { display: grid; place-items: center; flex: none; width: 140px; height: 140px; border-radius: 42px; background: var(--amber); font-size: 76px; box-shadow: 0 24px 40px -24px rgba(80,55,0,.7); }
+
+  /* 4 */
+  #k4 { top: 250px; font: 800 104px/1 var(--display); letter-spacing: -.04em; }
+  .how { left: 80px; right: 80px; display: flex; align-items: center; gap: 32px; padding: 40px 42px; border-radius: 44px; background: #fff; box-shadow: var(--shadow); }
+  .how .n { display: grid; place-items: center; flex: none; width: 120px; height: 120px; border-radius: 36px; background: var(--amber); font-size: 64px; }
+  .how.me .n { background: var(--ink); color: var(--amber); }
+  .how strong { display: block; font: 750 52px/1.08 var(--display); letter-spacing: -.02em; }
+  .how small { display: block; margin-top: 10px; font: 500 34px/1.3 var(--text); color: var(--ink-2); }
+  .link { left: 538px; width: 6px; height: 70px; border-radius: 3px; background: repeating-linear-gradient(var(--amber) 0 12px, transparent 12px 22px); }
+
+  /* 5 */
+  #p5 { background: var(--amber); }
+  #k5a { top: 330px; font: 700 70px/1.08 var(--display); color: #4A3B00; }
+  #k5b { top: 520px; font: 800 106px/1.02 var(--display); letter-spacing: -.045em; }
+  .imp { left: 50%; display: inline-flex; align-items: center; gap: 26px; padding: 30px 50px 30px 32px; border-radius: 999px; background: #fff; font: 800 64px/1 var(--display);
+    letter-spacing: -.02em; white-space: nowrap; box-shadow: 0 26px 44px -26px rgba(80,55,0,.7); }
+  .imp .i { font-size: 72px; color: var(--amber-ink); }
+
+  /* 6–7 */
+  #p6b { background: var(--bg); }
+  #p7 { background: var(--night); }
+  #av6b { left: 50%; top: 170px; width: 300px; height: 300px; margin-left: -150px; }
+  #say { left: 70px; right: 70px; top: 560px; min-height: 590px; padding: 54px 56px; border-radius: 48px 48px 48px 14px; background: #fff; box-shadow: var(--shadow); }
+  #say::before { content: ""; position: absolute; left: 50%; top: -34px; margin-left: -30px; border: 30px solid transparent; border-top: 0; border-bottom: 36px solid #fff; }
+  #sayA { font: 800 76px/1.08 var(--display); letter-spacing: -.03em; }
+  #sayB { margin-top: 34px; font: 600 50px/1.28 var(--text); color: var(--ink-2); }
+  .back { left: 50%; display: inline-flex; align-items: center; gap: 24px; padding: 28px 46px 28px 30px; border-radius: 999px; background: var(--ink); color: var(--amber);
+    font: 800 58px/1 var(--display); letter-spacing: -.02em; white-space: nowrap; box-shadow: 0 26px 44px -26px rgba(0,0,0,.6); }
+  .back .i { font-size: 64px; }
+  #p6 { background: var(--night); }
+  #av6 { left: 50%; top: 360px; width: 340px; height: 340px; margin-left: -170px; }
+  #k6a { top: 800px; font: 700 80px/1.1 var(--display); color: var(--on-night); letter-spacing: -.025em; }
+  #k6b { top: 1070px; font: 800 132px/1 var(--display); color: var(--on-night); letter-spacing: -.045em; }
+  #k6b b { color: var(--amber); }
+  #av7 { left: 50%; top: 110px; width: 200px; height: 200px; margin-left: -100px; border-width: 8px; }
+  #k7 { top: 345px; font: 800 96px/1.02 var(--display); color: var(--on-night); letter-spacing: -.04em; }
+  #k7 b { color: var(--amber); }
+  #qr { left: 50%; top: 600px; width: 660px; margin-left: -330px; padding: 80px 80px 30px; border-radius: 64px; background: #fff; text-align: center;
+    box-shadow: 0 0 0 10px rgba(255,193,7,.25), 0 50px 90px -40px rgba(0,0,0,.8); }
+  .qr-code { position: relative; width: 500px; height: 500px; }
+  .qr-code > img:first-child { display: block; width: 100%; height: 100%; }
+  .qr-logo { position: absolute; left: 50%; top: 50%; width: 146px; height: 146px; margin: -73px 0 0 -73px; border-radius: 42px; box-shadow: 0 0 0 10px #fff; }
+  .qr-cap { margin-top: 56px; font: 700 34px/1 var(--display); }
+  #cta { left: 50%; top: 1420px; display: inline-flex; align-items: center; gap: 22px; padding: 38px 64px; border-radius: 999px; background: var(--amber); font: 700 50px/1 var(--text); white-space: nowrap; overflow: hidden; }
+  #cta .i { font-size: 60px; }
+  #shine { position: absolute; top: -20px; bottom: -20px; width: 120px; background: linear-gradient(90deg, transparent, rgba(255,255,255,.7), transparent); transform: skewX(-20deg); }
+  #url { left: 0; right: 0; top: 1620px; text-align: center; font: 600 42px/1 var(--text); color: var(--on-night-2); }
+  #brand { left: 0; right: 0; top: 1745px; display: flex; justify-content: center; align-items: center; gap: 18px; color: var(--on-night-2); font: 500 30px/1 var(--text); }
+  #brand img { width: 56px; height: 56px; border-radius: 14px; }
+  #brand b { color: var(--amber); font-weight: 700; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="glow" style="left:-220px;top:160px;width:700px;height:700px;background:#FFF1C2"></div>
+  <div class="glow" style="right:-260px;top:1250px;width:760px;height:760px;background:#FFF5D6"></div>
+
+  <!-- 1: stress -->
+  <div class="chip" data-chip="0.30" style="left:60px;top:200px;--r:-7deg"><svg class="i"><use href="assets/iconos.svg#file-check"/></svg>Planilla PILA</div>
+  <div class="chip" data-chip="0.50" style="left:560px;top:300px;--r:6deg"><svg class="i"><use href="assets/iconos.svg#shield"/></svg>Antecedentes</div>
+  <div class="chip" data-chip="0.70" style="left:150px;top:470px;--r:4deg"><svg class="i"><use href="assets/iconos.svg#doc"/></svg>Informe de actividades</div>
+  <div class="chip" data-chip="0.90" style="left:90px;top:1260px;--r:-5deg"><svg class="i"><use href="assets/iconos.svg#hash"/></svg>Valor en letras</div>
+  <div class="chip" data-chip="1.10" style="left:540px;top:1400px;--r:7deg"><svg class="i"><use href="assets/iconos.svg#folder"/></svg>PDF y carpetas</div>
+  <div class="chip q" data-chip="1.30" style="left:180px;top:1580px;--r:-3deg"><svg class="i"><use href="assets/iconos.svg#clock"/></svg>¿Qué hice el día 12?</div>
+  <h1 class="abs center" id="k1a" data-in="0.15" data-out="3.4">Fin de mes.</h1>
+  <p class="abs center" id="k1b" data-in="0.75" data-out="3.4">¿Otra vez el estrés de la cuenta de cobro?</p>
+
+  <!-- 2: Pascal introduces himself -->
+  <div class="panel" id="p2" data-up="3.4"></div>
+  <h2 class="abs center" id="k2a" data-in="3.95" data-out="8.4">¡Hola! Soy Pascal.</h2>
+  <div class="abs" id="k2b" data-in="4.6" data-out="8.4"><span class="team"><img src="assets/flower.svg" alt="">Soy parte del equipo de <b>Pascal<em>IA</em></b></span></div>
+  <div class="abs" id="arch" data-in="4.0" data-anim="riseBig" data-out="8.4"><img src="assets/pascal-cuerpo.jpg" alt=""></div>
+  <div class="abs" id="tag" data-in="5.4" data-anim="pop" data-out="8.4">Pascal<small>Asistente de CuentaFacil</small></div>
+
+  <!-- 3: his job -->
+  <div class="panel" id="p3" data-up="8.4"></div>
+  <img class="abs avatar" id="av3" src="assets/pascal-rostro.jpg" alt="" data-in="8.95" data-anim="pop" data-out="13.4">
+  <p class="abs center" id="k3" data-in="9.3" data-out="13.4">Mi trabajo es…</p>
+  <div class="abs job" style="top:820px" data-in="9.9" data-anim="left" data-out="13.4"><span class="ico"><svg class="i"><use href="assets/iconos.svg#heart"/></svg></span>Quitarte el estrés.</div>
+  <div class="abs job" style="top:1040px" data-in="10.85" data-anim="left" data-out="13.4"><span class="ico"><svg class="i"><use href="assets/iconos.svg#clock"/></svg></span>Ahorrarte tiempo.</div>
+  <div class="abs job" style="top:1260px" data-in="11.8" data-anim="left" data-out="13.4"><span class="ico"><svg class="i"><use href="assets/iconos.svg#sparkle"/></svg></span>Facilitarte la vida.</div>
+
+  <!-- 4: how -->
+  <h2 class="abs center" id="k4" data-in="13.8" data-out="19.65">¿Cómo lo hago?</h2>
+  <div class="abs how" style="top:540px" data-in="14.4"><span class="n"><svg class="i"><use href="assets/iconos.svg#mic"/></svg></span><span><strong>Tú me cuentas tu día</strong><small>Texto, nota de voz o foto.</small></span></div>
+  <div class="abs link" style="top:760px" data-in="15.4"></div>
+  <div class="abs how me" style="top:860px" data-in="15.6"><span class="n"><svg class="i"><use href="assets/iconos.svg#list-check"/></svg></span><span><strong>Yo organizo, reviso y calculo</strong><small>Obligaciones, PILA, soportes y valores.</small></span></div>
+  <div class="abs link" style="top:1110px" data-in="16.6"></div>
+  <div class="abs how" style="top:1200px" data-in="16.875"><span class="n"><svg class="i"><use href="assets/iconos.svg#check"/></svg></span><span><strong>Tú revisas y apruebas</strong><small>Y recibes tus documentos listos.</small></span></div>
+
+  <!-- 5: what matters -->
+  <div class="panel" id="p5" data-up="19.65"></div>
+  <p class="abs center" id="k5a" data-in="20.2" data-out="24.65">Para que seas más productivo…</p>
+  <h2 class="abs center" id="k5b" data-in="20.9" data-out="24.65">y te centres en lo que<br><span class="ink-hl">realmente importa.</span></h2>
+  <div class="abs imp" style="top:1080px" data-in="22.1" data-anim="popc" data-out="24.65"><svg class="i"><use href="assets/iconos.svg#briefcase"/></svg>Tu trabajo</div>
+  <div class="abs imp" style="top:1270px" data-in="22.5" data-anim="popc" data-out="24.65"><svg class="i"><use href="assets/iconos.svg#people"/></svg>Tu gente</div>
+  <div class="abs imp" style="top:1460px" data-in="22.9" data-anim="popc" data-out="24.65"><svg class="i"><use href="assets/iconos.svg#clock"/></svg>Tu tiempo</div>
+
+  <!-- 6: principle -->
+  <div class="panel" id="p6" data-up="24.65"></div>
+  <img class="abs avatar" id="av6" src="assets/pascal-rostro.jpg" alt="" data-in="25.15" data-anim="pop" data-out="28.4">
+  <p class="abs center" id="k6a" data-in="25.6" data-out="28.4">Nunca invento actividades.</p>
+  <h2 class="abs center" id="k6b" data-in="26.3" data-out="28.4">Tú firmas,<br><b>tú decides.</b></h2>
+
+  <!-- 6b: humble + backed by the team -->
+  <div class="panel" id="p6b" data-up="28.4"></div>
+  <img class="abs avatar" id="av6b" src="assets/pascal-rostro.jpg" alt="" data-in="28.95" data-anim="pop" data-out="34.65">
+  <div class="abs" id="say" data-in="29.25" data-anim="pop" data-out="34.65">
+    <p id="sayA">Yo puedo fallar, porque <span class="hl">siempre estoy aprendiendo.</span></p>
+    <p id="sayB" data-in="30.6" data-out="34.65">Pero siempre me respalda mi equipo técnico y una mesa de soporte.</p>
+  </div>
+  <div class="abs back" style="top:1330px" data-in="31.8" data-anim="popc" data-out="34.65"><svg class="i"><use href="assets/iconos.svg#code"/></svg>Equipo técnico</div>
+  <div class="abs back" style="top:1510px" data-in="32.15" data-anim="popc" data-out="34.65"><svg class="i"><use href="assets/iconos.svg#people"/></svg>Mesa de soporte</div>
+
+  <!-- 7: close -->
+  <div class="panel" id="p7" data-up="34.65"></div>
+  <img class="abs avatar" id="av7" src="assets/pascal-rostro.jpg" alt="" data-in="35.0" data-anim="pop">
+  <h2 class="abs center" id="k7" data-in="35.25">Escríbeme y<br><b>empecemos hoy.</b></h2>
+  <div class="abs" id="qr" data-in="35.75" data-anim="qr"><div class="qr-code"><img src="assets/qr.svg" alt=""><img class="qr-logo" src="assets/logo.webp" alt=""></div><p class="qr-cap">Escanéame y empieza</p></div>
+  <div class="abs" id="cta" data-in="36.35" data-anim="ctapop"><svg class="i"><use href="assets/iconos.svg#whatsapp"/></svg>Empezar por WhatsApp<span id="shine"></span></div>
+  <p class="abs" id="url" data-in="36.65">pascalia.lat/cuentafacil</p>
+  <div class="abs" id="brand" data-in="36.95"><img src="assets/logo.webp" alt=""><span>CuentaFacil · de Pascal<b>IA</b></span></div>
+</div>
+<script>
+  const DURATION = 41.25;
+  const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+  const outExpo = (x) => (x >= 1 ? 1 : 1 - Math.pow(2, -10 * x));
+  const inOut = (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+  const outBack = (x) => { const c = 1.5; return 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2); };
+  const p = (t, s, d, e = outExpo) => e(clamp((t - s) / d));
+
+  const items = [...document.querySelectorAll('[data-in]')];
+  const panels = [...document.querySelectorAll('[data-up]')];
+  const chips = [...document.querySelectorAll('[data-chip]')];
+
+  function render(t) {
+    for (const el of panels) {
+      const s = Number(el.dataset.up);
+      el.style.display = t >= s ? '' : 'none';
+      el.style.transform = `translateY(${(1 - p(t, s, 0.6, inOut)) * 1920}px)`;
+    }
+    for (const el of items) {
+      const s = Number(el.dataset.in), o = el.dataset.out ? Number(el.dataset.out) : Infinity;
+      const vis = t >= s && t < o + 0.4;
+      el.style.display = vis ? '' : 'none';
+      if (!vis) continue;
+      const q = p(t, s, 0.8), b = p(t, s, 0.7, outBack), out = p(t, o, 0.35, inOut);
+      const op = clamp((t - s) / 0.3) * (1 - out);
+      let tf;
+      switch (el.dataset.anim) {
+        case 'pop': tf = `scale(${0.6 + 0.4 * b})`; break;
+        case 'popc': tf = `translateX(-50%) scale(${0.7 + 0.3 * b})`; break;
+        case 'ctapop': tf = `translateX(-50%) scale(${0.85 + 0.15 * b})`; break;
+        case 'qr': tf = `scale(${0.7 + 0.3 * b}) rotate(${(1 - b) * -6}deg)`; break;
+        case 'left': tf = `translateX(${(1 - q) * -140}px)`; break;
+        case 'riseBig': tf = `translateY(${(1 - p(t, s, 1.1)) * 700}px)`; break;
+        default: tf = `translateY(${(1 - q) * 55}px)`;
+      }
+      el.style.opacity = op;
+      el.style.transform = tf + ` translateY(${-out * 50}px)`;
+    }
+    // Stress chips: pile in, jitter, then get swept away
+    chips.forEach((el, k) => {
+      const s = Number(el.dataset.chip), b = p(t, s, 0.7, outBack), out = p(t, 3.2 + k * 0.03, 0.4, inOut);
+      const shake = t > s + 0.6 ? Math.sin(t * 23 + k * 2) * 3 * (t / 3) : 0;
+      el.style.display = t >= s && t < 3.9 ? '' : 'none';
+      el.style.opacity = clamp((t - s) / 0.2) * (1 - out);
+      el.style.transform = `translate(${shake + out * (k % 2 ? 300 : -300)}px, ${(1 - b) * 50}px) rotate(var(--r)) scale(${0.8 + 0.2 * b})`;
+    });
+    const sh = document.getElementById('shine');
+    sh.style.left = (-200 + clamp((t - 37.15) / 0.9) * 1100) + 'px';
+  }
+  window.render = render;
+  window.DURATION = DURATION;
+  window.ready = Promise.all([document.fonts.ready, ...[...document.images].map((im) => im.decode().catch(() => {}))]);
+  render(Number(new URLSearchParams(location.search).get('t') || 0));
+</script>
+</body>
+</html>
