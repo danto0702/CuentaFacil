@@ -12,11 +12,15 @@ export const RETENTION_MONTHS = 24;
 const BATCH = 200;
 /** Delivery copies in the outputs bucket (packages, held messages). */
 export const OUTPUTS_DAYS = 30;
+/** Gestor requests not answered (data policy 4-D). */
+export const DELEGATION_DAYS = 30;
 
 export interface RetentionResult {
   supports: number;
   evidences: number;
   documents: number;
+  /** Gestor requests (delegations) declined or never answered. */
+  requests: number;
 }
 
 export function retentionCutoff(now: Date, months = RETENTION_MONTHS): Date {
@@ -31,7 +35,7 @@ export async function purgeExpiredFiles(
   log: Logger,
 ): Promise<RetentionResult> {
   const cutoff = retentionCutoff(now).toISOString();
-  const result: RetentionResult = { supports: 0, evidences: 0, documents: 0 };
+  const result: RetentionResult = { supports: 0, evidences: 0, documents: 0, requests: 0 };
 
   // Supports (except the signature): free the rows that point to them, remove the files, delete.
   const { data: supports, error: e1 } = await sb
@@ -92,7 +96,19 @@ export async function purgeExpiredFiles(
     }
   }
 
-  if (result.supports || result.evidences || result.documents)
+  // Gestor requests the person never accepted (data policy 4-D): the name and number the gestor gave
+  // are only for asking; declined requests, and pending ones after 30 days, are deleted.
+  const requestCutoff = new Date(now.getTime() - DELEGATION_DAYS * 86_400_000).toISOString();
+  const { data: declined } = await sb.from('delegations').delete().eq('status', 'declined').select('id');
+  const { data: expired } = await sb
+    .from('delegations')
+    .delete()
+    .eq('status', 'pending')
+    .lt('created_at', requestCutoff)
+    .select('id');
+  result.requests = (declined?.length ?? 0) + (expired?.length ?? 0);
+
+  if (result.supports || result.evidences || result.documents || result.requests)
     log.info('retention.purged', { ...result, cutoff });
   return result;
 }

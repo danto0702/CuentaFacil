@@ -15,7 +15,14 @@ function fakeSupabase(
     let op: 'select' | 'update' | 'delete' = 'select';
     let patch: Row = {};
     const q = {
-      select: () => q,
+      select: () => {
+        if (op === 'delete') tables[table] = (tables[table] ?? []).filter((r) => !rows.includes(r));
+        return q;
+      },
+      eq: (k: string, v: unknown) => {
+        rows = rows.filter((r) => r[k] === v);
+        return q;
+      },
       lt: (k: string, v: string) => {
         rows = rows.filter((r) => String(r[k]) < v);
         return q;
@@ -98,6 +105,12 @@ describe('retention purge (data policy, section 7)', () => {
         ],
         social_security_payments: [{ id: 'p1', support_id: 's-old' }],
         institution_requests: [],
+        delegations: [
+          { id: 'd-declined', status: 'declined', created_at: '2028-10-30' },
+          { id: 'd-old', status: 'pending', created_at: '2028-09-01' },
+          { id: 'd-new', status: 'pending', created_at: '2028-10-25' },
+          { id: 'd-active', status: 'active', created_at: '2027-01-01' },
+        ],
         evidences: [
           { id: 'e-old', file_path: 'u/e-old.jpg', created_at: '2026-09-30' },
           { id: 'e-new', file_path: 'u/e-new.jpg', created_at: '2028-10-30' },
@@ -110,7 +123,8 @@ describe('retention purge (data policy, section 7)', () => {
       },
     );
     const r = await purgeExpiredFiles(sb, now, log);
-    expect(r).toEqual({ supports: 1, evidences: 1, documents: 1 });
+    expect(r).toEqual({ supports: 1, evidences: 1, documents: 1, requests: 2 });
+    expect(tables.delegations!.map((d) => d.id)).toEqual(['d-new', 'd-active']);
     expect(removed).toEqual(['u/old.pdf', 'u/e-old.jpg', 'packages/abc/cuenta.zip']);
     expect(tables.supports!.map((s) => s.id)).toEqual(['s-sig', 's-new']);
     expect(tables.social_security_payments![0]!.support_id).toBeNull();

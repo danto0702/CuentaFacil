@@ -219,4 +219,5 @@
   - **Borrar mi firma:** *borrar mi firma* (también «eliminar» o «quitar») pide confirmación y borra el archivo y su registro. Solo lo puede hacer el titular desde su número, no un gestor.
   - **Borrado automático:** una vez al día, el worker borra los soportes y las fotos de evidencia con más de 24 meses. Antes suelta las referencias desde las planillas y las solicitudes de institución. La firma no se borra por tiempo, sino cuando el titular lo pide.
   - **Copias de entrega:** los ZIP (con enlace de 7 días) y las copias de mensajes retenidos se borran a los 30 días. Si un mensaje retenido pierde su archivo, se marca `dropped`.
-- **Consecuencias:** sin cambio de esquema. Los consentimientos y los cobros no son archivos y se conservan por el término legal.
+  - **Solicitudes de gestor sin autorizar:** las rechazadas, y las pendientes con más de 30 días, se borran con el nombre y el número que dio el gestor (política 1.2, sección 4-D).
+- **Consecuencias:** sin cambio de esquema. Los consentimientos y los cobros no son archivos y se conservan por el término legal. Los borradores 1.2 de los términos y de la política quedaron en `docs/legal/*_v1.2_borrador.md`, pendientes de revisión del abogado.
