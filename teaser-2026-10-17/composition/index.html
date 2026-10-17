@@ -63,13 +63,14 @@
   .qr-cap { margin-top: 40px; font: 800 34px/1 var(--display); white-space: nowrap; letter-spacing: -.01em; }
   #p5 { background: var(--amber); }
   #k5 { top: 130px; font: 800 170px/.95 var(--display); letter-spacing: -.055em; }
-  #k5b { top: 1070px; left: 90px; right: 90px; font: 700 66px/1.15 var(--display); letter-spacing: -.02em; color: #3A2E00; }
-  #k5b b { color: var(--ink); background: #fff; padding: 0 14px; border-radius: 14px; }
-  #k5c { top: 1310px; left: 50%; display: inline-flex; align-items: center; gap: 16px; padding: 22px 36px; border-radius: 999px; background: #fff; font: 700 46px/1 var(--text); white-space: nowrap;
+  #k5b { top: 1060px; left: 70px; right: 70px; font: 700 60px/1.18 var(--display); letter-spacing: -.02em; color: #3A2E00; }
+  #k5b b { color: var(--ink); background: #fff; padding: 0 14px; border-radius: 14px; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+  #k5d { top: 1300px; font: 800 72px/1 var(--display); letter-spacing: -.03em; }
+  #k5c { top: 1430px; left: 50%; display: inline-flex; align-items: center; gap: 16px; padding: 22px 36px; border-radius: 999px; background: #fff; font: 700 46px/1 var(--text); white-space: nowrap;
     box-shadow: 0 24px 40px -26px rgba(80,55,0,.65); }
   #k5c .i { font-size: 52px; color: var(--amber-ink); }
   #k5c b { font-weight: 800; }
-  #sig { left: 50%; top: 1490px; display: inline-flex; align-items: center; gap: 20px; padding: 22px 44px 22px 26px; border-radius: 999px; background: var(--ink); color: var(--on-night);
+  #sig { left: 50%; top: 1600px; display: inline-flex; align-items: center; gap: 20px; padding: 22px 44px 22px 26px; border-radius: 999px; background: var(--ink); color: var(--on-night);
     font: 800 60px/1 var(--display); letter-spacing: -.02em; white-space: nowrap; }
   #sig img { width: 80px; height: 80px; }
   #sig em { font-style: normal; color: var(--amber); }
@@ -100,9 +101,10 @@
   <div class="panel" id="p5"></div>
   <h2 class="abs center" id="k5" data-in="19.6" data-anim="pop">Muy pronto.</h2>
   <div class="abs" id="qr" data-in="20.1" data-anim="pop"><div class="qr-code"><img src="assets/qr-pascal.svg" alt=""><span class="qr-logo"><img src="assets/flower.svg" alt=""></span></div><p class="qr-cap">Escanéame: conoce a Pascal</p></div>
-  <p class="abs center" id="k5b" data-in="20.9">Etiqueta a ese compañero que <b>siempre la hace el día 30.</b></p>
-  <div class="abs" id="k5c" data-in="21.6" data-anim="popc"><svg class="i"><use href="assets/iconos.svg#chat"/></svg>Comenta <b>“DÍA 30”</b> si te ha pasado.</div>
-  <div class="abs" id="sig" data-in="22.2" data-anim="popc"><img src="assets/flower.svg" alt=""><span>Pascal<em>IA</em></span></div>
+  <p class="abs center" id="k5b" data-in="20.9">Etiqueta o envía a ese compañero que <b>siempre hace su cuenta el último día.</b></p>
+  <p class="abs center" id="k5d" data-in="22.0">O confiésalo, ¿eres tú?</p>
+  <div class="abs" id="k5c" data-in="22.6" data-anim="popc"><svg class="i"><use href="assets/iconos.svg#chat"/></svg>Comenta si te ha pasado.</div>
+  <div class="abs" id="sig" data-in="23.0" data-anim="popc"><img src="assets/flower.svg" alt=""><span>Pascal<em>IA</em></span></div>
 </div>
 <script>
   const DURATION = 26.25;

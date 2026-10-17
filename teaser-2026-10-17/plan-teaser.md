@@ -23,7 +23,7 @@ Formato: vertical 1080×1920, 30 fps, **26,25 s**, para Reels, TikTok, Shorts y 
 ## Cómo publicarlo
 
 - **Cuándo:** entre el 25 y el 30 del mes, en la noche (8–11 p. m.), cuando el dolor es real.
-- **Texto de la publicación:** ver `share-copy.txt`. Pide comentar **"DÍA 30"** si les ha pasado: genera comentarios sin prometer nada.
+- **Texto de la publicación:** ver `share-copy.txt`. Pide comentar si les ha pasado y etiquetar o enviar el video a un compañero: genera comentarios sin prometer nada.
 - **Responder comentarios** las primeras 2 horas, sin revelar el nombre: "Muy pronto te contamos 👀".
 - **En WhatsApp:** subirlo como estado y en grupos donde ya participa el equipo, sin enviarlo a desconocidos.
 - **Medir:** compartidos y guardados (más que "me gusta"), comentarios con "DÍA 30", seguidores nuevos.
@@ -36,7 +36,7 @@ Formato: vertical 1080×1920, 30 fps, **26,25 s**, para Reels, TikTok, Shorts y 
 | 2 | 3,1–10,6 | **Dolores** | Cuatro tarjetas a pantalla completa, cortes en el pulso: "Reconstruir el mes de memoria." · "La planilla que no cuadra." · "Antecedentes vencidos… otra vez." · "Unir 14 PDF a las 11:58 p. m." El reloj avanza | Bombo en cada corte, tic-tac más rápido |
 | 3 | 10,6–13,75 | **Giro** | Corte a negro con interferencia: "¿Y si este fuera tu último fin de mes así?" | Silencio, golpe de ruido, pad |
 | 4 | 13,75–19,4 | **Misterio** | En la oscuridad, un foco recorre fragmentos de Pascal (gorra, gafas, sonrisa; imagen en alta del set de personaje entregado el 2026-10-17) y se abre hasta mostrar su cara, sin decir su nombre. "Alguien llega a cambiarlo." · "Llega por WhatsApp." | Pad que pasa de Re menor a Fa mayor, campanitas |
-| 5 | 19,4–26,25 | **Expectativa** | "Muy pronto." · **QR** a `https://pascalia.lat/pascal/` (flor de PascalIA al centro, "Escanéame: conoce a Pascal") · "Etiqueta a ese compañero que siempre la hace el día 30." · "Comenta “DÍA 30” si te ha pasado." · PascalIA | Campanitas; acorde final |
+| 5 | 19,4–26,25 | **Expectativa** | "Muy pronto." · **QR** a `https://pascalia.lat/pascal/` (flor de PascalIA al centro, "Escanéame: conoce a Pascal") · "Etiqueta o envía a ese compañero que siempre hace su cuenta el último día." · "O confiésalo, ¿eres tú?" · "Comenta si te ha pasado." · PascalIA | Campanitas; acorde final |
 
 ## Cuidados
 
