@@ -1,7 +1,7 @@
 # Brag plan — CuentaFacil
 
 Invocación: `/brag --tone polished --format vertical` (ejecutado como *brag-slim*: el video se arma completo con las herramientas de la máquina).
-Formato: vertical 1080×1920, 30 fps, **22,5 s**. Música a 96 BPM (pulso = 0,625 s); los cortes caen en pulso.
+Formato: vertical 1080×1920, 30 fps, **26,25 s**. Música a 96 BPM (pulso = 0,625 s); los cortes caen en pulso.
 
 ## Respuestas de inspección
 
@@ -33,7 +33,9 @@ El fin de mes del contratista es siempre la misma carrera. El video la convierte
 | 3 | 7,5–16,25 s | **El producto en uso** | "Le cuentas por WhatsApp lo que hiciste." Teléfono con el chat real: nota de voz 0:42 → "Listo, la anoté en la obligación 3…" → "Sí, perfecto" → "Recibí tu planilla PILA…" → *Informe de actividades No. 03 de 06.pdf*. Tarjetas "Nunca inventa" y "Tú apruebas". Pie "Ejemplo ilustrativo" | El teléfono sube; indicador "escribiendo…" antes de cada respuesta; burbujas una por una en el pulso | "Pop" afinado por mensaje; campanita al llegar el PDF |
 | 4 | 16,25–22,5 s | **Cierre** | Fondo grafito. "Tú firmas, tú decides." Precios: **$15.000** configurar tu contrato · **$50.000** cada cuenta de cobro. Botón "Empezar por WhatsApp" y `pascalia.lat/cuentafacil` | Panel oscuro que sube; precios en cascada; botón con brillo | Acorde final que se abre y se apaga |
 
-Duraciones: 3,75 + 3,75 + 8,75 + 6,25 = **22,5 s**.
+Duraciones: 3,75 + 3,75 + 8,75 + 10 = **26,25 s**.
+
+**Actualización 2026-10-17:** al cierre, los precios salen a los 20,9 s y entra el **código QR** a `https://pascalia.lat/cuentafacil/` (21,25 s), el mismo del video "día a día": tarjeta blanca redondeada, puntos redondos y logo al centro, "Escanéame y empieza". El cierre se alargó para dar tiempo a escanear. Verificado con OpenCV sobre el video final (10/10 lecturas).
 
 ## Cuidados
 

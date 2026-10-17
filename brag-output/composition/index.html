@@ -91,6 +91,12 @@
   .price .amt { font: 800 92px/1 var(--display); letter-spacing: -.03em; color: var(--amber); min-width: 370px; }
   .price h3 { margin: 0; font: 700 40px/1.15 var(--display); color: var(--on-night); }
   .price p { margin: 6px 0 0; font: 500 28px/1.3 var(--text); color: var(--on-night-2); }
+  #s4 .qr { position: absolute; left: 50%; top: 640px; width: 660px; margin-left: -330px; padding: 80px 80px 30px; border-radius: 64px; background: #fff; text-align: center;
+    box-shadow: 0 0 0 10px rgba(255,193,7,.25), 0 50px 90px -40px rgba(0,0,0,.8); }
+  #s4 .qr-code { position: relative; width: 500px; height: 500px; }
+  #s4 .qr-code > img:first-child { display: block; width: 100%; height: 100%; }
+  #s4 .qr-logo { position: absolute; left: 50%; top: 50%; width: 146px; height: 146px; margin: -73px 0 0 -73px; border-radius: 42px; box-shadow: 0 0 0 10px #fff; }
+  #s4 .qr-cap { margin-top: 56px; font: 700 34px/1 var(--display); color: var(--ink); letter-spacing: -.01em; }
   #s4 .cta { position: absolute; left: 50%; top: 1420px; transform: translateX(-50%); display: inline-flex; align-items: center; gap: 22px; padding: 38px 64px;
     border-radius: 999px; background: var(--amber); color: var(--ink); font: 700 50px/1 var(--text); white-space: nowrap; overflow: hidden; }
   #s4 .cta .i { font-size: 60px; }
@@ -155,13 +161,14 @@
     <h2 class="k" id="k4">Tú firmas,<br><b>tú decides.</b></h2>
     <div class="price" id="p1" style="top:720px"><span class="amt">$15.000</span><span><h3>Configurar tu contrato</h3><p>Una sola vez por contrato</p></span></div>
     <div class="price" id="p2" style="top:1010px"><span class="amt">$50.000</span><span><h3>Cada cuenta de cobro</h3><p>Correcciones sin costo</p></span></div>
+    <div class="qr" id="qr"><div class="qr-code"><img src="assets/qr.svg" alt=""><img class="qr-logo" src="assets/logo.webp" alt=""></div><p class="qr-cap">Escanéame y empieza</p></div>
     <div class="cta" id="cta"><svg class="i"><use href="assets/iconos.svg#whatsapp"/></svg>Empezar por WhatsApp<span class="shine" id="shine"></span></div>
     <p class="url" id="url">pascalia.lat/cuentafacil</p>
     <div class="brand" id="brand"><img src="assets/logo.webp" alt=""><span>CuentaFacil · de Pascal<b>IA</b></span></div>
   </div>
 </div>
 <script>
-  const DURATION = 22.5;
+  const DURATION = 26.25;
   const $ = (id) => document.getElementById(id);
   const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
   const outExpo = (x) => (x >= 1 ? 1 : 1 - Math.pow(2, -10 * x));
@@ -257,8 +264,11 @@
       const pn = p(t, S4 - 0.35, 0.7, inOut);
       $('panel').style.transform = `translateY(${(1 - pn) * 1920}px)`;
       const k = p(t, S4 + 0.3, 0.8); set($('k4'), clamp((t - S4 - 0.3) / 0.35), `translateY(${(1 - k) * 60}px)`);
-      const a = p(t, 17.5, 0.8); set($('p1'), clamp((t - 17.5) / 0.3), `translateY(${(1 - a) * 70}px)`);
-      const b = p(t, 17.8, 0.8); set($('p2'), clamp((t - 17.8) / 0.3), `translateY(${(1 - b) * 70}px)`);
+      // Prices hold, then make room for the QR
+      const po = p(t, 20.9, 0.4, inOut);
+      const a = p(t, 17.5, 0.8); set($('p1'), clamp((t - 17.5) / 0.3) * (1 - po), `translateY(${(1 - a) * 70 - po * 60}px)`);
+      const b = p(t, 17.8, 0.8); set($('p2'), clamp((t - 17.8) / 0.3) * (1 - po), `translateY(${(1 - b) * 70 - po * 60}px)`);
+      const qq = p(t, 21.25, 0.8, outBack); set($('qr'), clamp((t - 21.25) / 0.2), `scale(${0.7 + 0.3 * qq}) rotate(${(1 - qq) * -6}deg)`);
       const c = p(t, 18.75, 0.8, outBack); set($('cta'), clamp((t - 18.75) / 0.25), `translateX(-50%) scale(${0.85 + 0.15 * c})`);
       $('shine').style.left = (-200 + clamp((t - 19.6) / 0.9) * 1100) + 'px';
       const u = p(t, 19.1, 0.7); set($('url'), clamp((t - 19.1) / 0.35), `translateY(${(1 - u) * 30}px)`);
