@@ -29,6 +29,9 @@ importers:
 
   apps/panel:
     dependencies:
+      '@anthropic-ai/sdk':
+        specifier: ^0.133.0
+        version: 0.133.0(zod@4.6.5)
       '@cuentasbot/conversation':
         specifier: workspace:*
         version: link:../../packages/conversation

@@ -221,3 +221,11 @@
   - **Copias de entrega:** los ZIP (con enlace de 7 días) y las copias de mensajes retenidos se borran a los 30 días. Si un mensaje retenido pierde su archivo, se marca `dropped`.
   - **Solicitudes de gestor sin autorizar:** las rechazadas, y las pendientes con más de 30 días, se borran con el nombre y el número que dio el gestor (política 1.2, sección 4-D).
 - **Consecuencias:** sin cambio de esquema. Los consentimientos y los cobros no son archivos y se conservan por el término legal. Los borradores 1.2 de los términos y de la política quedaron en `docs/legal/*_v1.2_borrador.md`, pendientes de revisión del abogado.
+
+## ADR-049 — PascalBot: chat informativo en la página web (2026-10-18)
+- **Contexto:** quienes visitan pascalia.lat preguntan qué hace CuentaFacil, cuánto cuesta y cómo empezar antes de escribirle a Pascal.
+- **Decisión:** un chat redondo, *PascalBot*, en la esquina de la página de inicio y de `/cuentafacil/`. Solo informa sobre el alcance del servicio: no identifica a nadie, no ve cuentas ni pagos y no recibe datos personales; para lo de cada cuenta envía a Pascal por WhatsApp.
+  - **Respuestas:** ruta `POST /api/pascalbot` del panel. Llama a Claude (Haiku, `PASCALBOT_MODEL`) con una base de conocimiento tomada solo de la página de CuentaFacil, los términos 1.1 y la política 1.1 (`apps/panel/lib/pascalbot-knowledge.ts`). Si algo no está en la base, lo dice y ofrece WhatsApp o el correo.
+  - **Límites:** solo acepta llamadas desde pascalia.lat (más `PASCALBOT_ORIGINS`). Cada mensaje tiene máximo 600 caracteres, se envían los últimos 10 turnos y la respuesta tiene máximo 450 tokens. Hay un tope de 20 mensajes cada 10 minutos por visitante y 1.500 al día para todo el sitio. Si falla o no hay clave, responde con el enlace de WhatsApp.
+  - **Widget:** `pascalbot/` en el repositorio de la página (JS y CSS sin dependencias, avatar en `pascalbot/avatar.svg`). La conversación se guarda solo en la pestaña (`sessionStorage`).
+- **Consecuencias:** sin tablas nuevas ni plantillas de Meta. El panel necesita `ANTHROPIC_API_KEY` (variable de referencia al worker). El uso se registra en los logs del panel (`pascalbot.reply`), no en `ai_usage`. Cuando cambien los términos o los precios, hay que actualizar la base de conocimiento.
