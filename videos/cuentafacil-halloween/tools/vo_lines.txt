@@ -1,9 +1,9 @@
-01|Los cinco terrores de todo contratista…
-02|Uno: la bruja del último día. ¡Entregar la cuenta tarde!
-03|Dos: el vampiro que te chupa las horas de trabajo.
-04|Tres: el ladrón que te roba el tiempo con tu familia y tus amigos.
-05|Cuatro: las momias del papeleo te envuelven en documentos.
-06|Y el peor: que tu cuenta no muestre todo tu trabajo.
+01|Los cinco… terrores… de todo contratista…
+02|Uno… la bruja del último día… ¡entregar la cuenta tarde!
+03|Dos… el vampiro… que te chupa las horas de trabajo.
+04|Tres… el ladrón que te roba el tiempo… con tu familia y tus amigos.
+05|Cuatro… las momias del papeleo… te envuelven en documentos.
+06|Y el peor de todos… que tu cuenta… no muestre todo tu trabajo.
 07|¡Tranquilo! Yo soy Pascal, el mago de tu cuenta de cobro.
 08|Me cuentas tu día por WhatsApp y, con un toque de magia, tu cuenta queda lista.
 09|Menos estrés: ya no corres el último día.
