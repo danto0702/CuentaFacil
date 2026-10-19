@@ -360,7 +360,7 @@ frames['09-estres'] = ('f09-estres', f'''
   <path d="M100 420 A300 300 0 0 1 233 171" stroke="#25D366" stroke-width="70" fill="none"/>
   <path d="M233 171 A300 300 0 0 1 567 171" stroke="#FFC107" stroke-width="70" fill="none"/>
   <path d="M567 171 A300 300 0 0 1 700 420" stroke="#E5484D" stroke-width="70" fill="none"/>
-  <g id="f09-needle" style="transform-origin:400px 420px;transform:rotate(-62deg)"><path d="M392 420 L400 160 L408 420 Z" fill="#FFF3E0"/></g>
+  <g id="f09-needle" transform="rotate(-62 400 420)"><path d="M392 420 L400 160 L408 420 Z" fill="#FFF3E0"/></g>
   <circle cx="400" cy="420" r="34" fill="#FFF3E0"/>
   <text x="110" y="452" font-family="Geist" font-weight="700" font-size="30" fill="#BFF5D3">calma</text>
   <text x="600" y="452" font-family="Geist" font-weight="700" font-size="30" fill="#FFC9CB">pánico</text>

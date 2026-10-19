@@ -57,6 +57,24 @@
 </div>
 <script>
 const tl = gsap.timeline({ paused: true });
+tl.to(".f04-st",{opacity:.12,duration:.7,yoyo:true,repeat:7,ease:"sine.inOut",stagger:{each:.18}},0);
+tl.from(`[id^="f04-web"]`,{opacity:0,duration:.6,ease:"power2.out",stagger:.08},0);
+tl.from("#f04-sp0",{y:-700,duration:1.1,ease:"bounce.out"},0.15);
+tl.to("#f04-sp0",{y:-60,duration:.9,yoyo:true,repeat:4,ease:"sine.inOut"},1.30);
+tl.fromTo("#f04-bat0",{x:-500},{x:500,y:-120,duration:6.08,ease:"none"},0);
+tl.to("#f04-bat0",{scaleY:.35,duration:.14,yoyo:true,repeat:42,ease:"sine.inOut"},0);
+tl.fromTo("#f04-fog",{x:-80},{x:80,duration:6.08,ease:"none"},0);
+tl.from("#f04-chip",{opacity:0,y:-40,duration:.4,ease:"back.out(2)"},0.1);
+tl.from("#f04-title",{opacity:0,scale:1.5,rotation:-4,duration:.5,ease:"back.out(1.6)"},0.25);
+
+tl.from("#f04-tbl",{y:300,opacity:0,duration:.6,ease:"power3.out"},0.3);
+tl.from("#f04-pirate",{x:-900,rotation:-15,duration:.7,ease:"power3.out"},0.7);
+tl.from("#f04-photo",{x:250,y:620,rotation:0,scale:.6,duration:.6,ease:"power2.inOut"},1.4);
+tl.to("#f04-pirate, #f04-photo",{y:"+=-30",duration:0.3,yoyo:true,repeat:11,ease:"sine.inOut"},2.0);
+
+tl.from("#f04-empty",{opacity:0,y:40,duration:.5},3.0);
+tl.to("#f04-pirate, #f04-photo",{x:"+=1100",rotation:12,duration:.8,ease:"power2.in"},4.98);
+tl.fromTo("#f04-glow",{opacity:1},{opacity:.35,duration:6.08,ease:"none"},0);
 
 window.__timelines["f04-ladron"] = tl;
 </script>

@@ -74,6 +74,20 @@
 </div>
 <script>
 const tl = gsap.timeline({ paused: true });
+tl.to(".f08-st",{opacity:.12,duration:.7,yoyo:true,repeat:7,ease:"sine.inOut",stagger:{each:.18}},0);
+tl.from(`[id^="f08-web"]`,{opacity:0,duration:.6,ease:"power2.out",stagger:.08},0);
+tl.from("#f08-chip",{opacity:0,y:-40,duration:.4,ease:"back.out(2)"},0.1);
+tl.from("#f08-title",{opacity:0,scale:1.5,rotation:-4,duration:.5,ease:"back.out(1.6)"},0.25);
+
+tl.from("#f08-wiz",{x:-600,duration:.6,ease:"power3.out"},0.3);
+tl.from("#f08-phone",{y:900,rotation:8,duration:.7,ease:"power3.out"},0.7);
+tl.from(`[id^="f08-k"]`,{scale:0,opacity:0,duration:.3,ease:"back.out(3)",stagger:.12},1.1);
+tl.to(`[id^="f08-k"]`,{x:"+=40",y:"-=60",scale:.5,duration:.4,yoyo:true,repeat:10,ease:"sine.inOut",stagger:.1},1.6);
+["#f08-m1","#f08-m2","#f08-m3","#f08-m4"].forEach((s,i)=>{tl.from(s,{opacity:0,scale:.6,y:30,duration:.4,ease:"back.out(2)",transformOrigin:i%2?"left bottom":"right bottom"},1.4+i*.6);});
+tl.from("#f08-folder",{scale:0,rotation:-10,duration:.55,ease:"back.out(2.2)"},4.0);
+tl.to("#f08-folder",{scale:1.06,duration:.3,yoyo:true,repeat:3,ease:"sine.inOut"},4.6);
+tl.to("#f08-wiz",{y:"+=-14",duration:0.5,yoyo:true,repeat:8,ease:"sine.inOut"},1.0);
+
 
 window.__timelines["f08-cuenta"] = tl;
 </script>
