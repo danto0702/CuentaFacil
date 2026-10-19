@@ -17,7 +17,7 @@ import { FieldCipher } from './crypto.js';
 import { AccountGenerator } from './generator.js';
 import { checkoutUrl, diagnoseKeys, verifyEvent } from './payments/wompi.js';
 import { SupabaseAlertDb, sendDailyAlert } from './runtime/alerts.js';
-import { loadConfig } from './runtime/config.js';
+import { loadConfig, sttSettings } from './runtime/config.js';
 import { type DeliverDeps, deliver, flushHeld, SHOW_HELD, SupabaseHeldStore } from './runtime/held.js';
 import { jsonLogger as log } from './runtime/log.js';
 import { InboundPipeline, type Logger, type Messenger } from './runtime/pipeline.js';
@@ -86,6 +86,10 @@ const wompi =
       }
     : null;
 
+// Voice notes: OpenAI or Groq, both through the OpenAI SDK (Groq's API is compatible).
+const stt = sttSettings(cfg);
+log.info('stt.provider', { provider: cfg.STT_PROVIDER, model: stt.model });
+
 const orchestrator = new Orchestrator({
   store,
   ai: new ClaudeAI(
@@ -93,7 +97,7 @@ const orchestrator = new Orchestrator({
     { fast: cfg.AI_MODEL_FAST, smart: cfg.AI_MODEL_SMART, setup: cfg.AI_MODEL_SETUP },
     (doc) => docxToPdf(doc),
   ),
-  stt: new OpenAISTT(new OpenAI({ apiKey: cfg.OPENAI_API_KEY }), cfg.STT_MODEL),
+  stt: new OpenAISTT(new OpenAI({ apiKey: stt.apiKey, baseURL: stt.baseURL }), stt.model),
   clock,
   generator: new AccountGenerator({ store, clock, templates: new StorageTemplateProvider(sb) }),
   newId: turnId,

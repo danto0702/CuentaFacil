@@ -14,6 +14,7 @@ const EXT: Record<string, string> = {
   'audio/amr': 'amr',
 };
 
+/** Transcribes with OpenAI or any OpenAI-compatible API (Groq's Whisper), chosen by the client's baseURL. */
 export class OpenAISTT implements STT {
   constructor(
     private readonly client: OpenAI,

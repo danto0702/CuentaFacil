@@ -273,3 +273,12 @@
   - *soporte* y *borrar mis datos* siguen sin esperar la aceptación.
   - Las páginas se generan del markdown con el mismo formato.
 - **Consecuencias:** filas 1.2 en `policy_versions` (también en `seed.sql`). La base de conocimiento de PascalBot se actualizó. El precio por niveles para gestores no se aprobó: el precio sigue igual por persona.
+
+## ADR-053 — Transcripción de notas de voz con Groq (2026-10-19)
+- **Contexto:** OpenAI se quedó sin créditos y no acepta las tarjetas del dueño; las notas de voz no se transcribían.
+- **Decisión:** `STT_PROVIDER` elige el proveedor: `openai` (por defecto) o `groq`.
+  - Groq usa Whisper (`whisper-large-v3`) con una API compatible con la de OpenAI. Se usa el mismo SDK y el mismo código, cambiando solo la dirección del servicio.
+  - Solo se exige la clave del proveedor elegido (`OPENAI_API_KEY` o `GROQ_API_KEY`).
+  - Si `STT_MODEL` es de otro proveedor, se usa el modelo por defecto del elegido.
+  - El worker registra `stt.provider` al arrancar.
+- **Consecuencias:** cambiar de proveedor es cambiar dos variables en Railway, sin desplegar código. Groq procesa el audio en EE. UU.; la política de datos (sección 4) nombra hoy a OpenAI para la transcripción, así que en la próxima versión hay que agregar a Groq como encargado.
