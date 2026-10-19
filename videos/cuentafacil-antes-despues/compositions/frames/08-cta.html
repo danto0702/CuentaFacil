@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="es-CO">
+<head><meta charset="UTF-8" /></head>
+<body>
+<template>
+<style>
+
+@font-face{font-family:"Bricolage Grotesque";font-style:normal;font-weight:500 800;src:url("assets/fonts/BricolageGrotesque-latin.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Bricolage Grotesque";font-style:normal;font-weight:500 800;src:url("assets/fonts/BricolageGrotesque-latin-ext.woff2") format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C4,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:"Geist";font-style:normal;font-weight:400 700;src:url("assets/fonts/Geist-latin.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Geist";font-style:normal;font-weight:400 700;src:url("assets/fonts/Geist-latin-ext.woff2") format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C4,U+2C60-2C7F,U+A720-A7FF}
+
+#root{position:absolute;inset:0;overflow:hidden}
+
+.i{width:1em;height:1em;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;display:inline-block;flex:none}
+.abs{position:absolute}
+.disp{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;letter-spacing:-.035em}
+.txt{font-family:"Geist",sans-serif}
+.center{left:70px;right:70px;text-align:center}
+.glow{position:absolute;border-radius:50%;filter:blur(90px)}
+.okbox{display:inline-grid;place-items:center;width:38px;height:38px;border-radius:9px;background:#25D366;vertical-align:-7px;margin-right:8px}
+.okbox svg{width:28px;height:28px;fill:none;stroke:#fff;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round}
+.ghost{position:absolute;font-family:"Bricolage Grotesque",sans-serif;font-weight:800;letter-spacing:-.05em;white-space:nowrap;line-height:1}
+
+
+#root{background:#1F1F1F;color:#F4F1EA}
+#f08-glow{left:140px;top:420px;width:800px;height:800px;background:rgba(255,193,7,.16)}
+#f08-av{left:50%;top:110px;width:220px;height:220px;margin-left:-110px;border-radius:50%;object-fit:cover;object-position:50% 30%;border:9px solid #FFC107}
+#f08-k{top:370px;font-size:100px;line-height:1.02}
+#f08-k b{color:#FFC107}
+#f08-qr{left:50%;top:640px;width:640px;margin-left:-320px;padding:70px 70px 30px;border-radius:60px;background:#fff;text-align:center;box-shadow:0 0 0 10px rgba(255,193,7,.25)}
+#f08-qrc{position:relative;width:500px;height:500px}
+#f08-qrc > img:first-child{display:block;width:100%;height:100%}
+#f08-qrlogo{position:absolute;left:50%;top:50%;width:146px;height:146px;margin:-73px 0 0 -73px;border-radius:42px;box-shadow:0 0 0 10px #fff}
+#f08-cap{margin-top:50px;font:800 34px/1 "Bricolage Grotesque",sans-serif;color:#1F1F1F}
+#f08-cta{left:50%;top:1420px;width:740px;margin-left:-370px;display:flex;align-items:center;justify-content:center;gap:22px;padding:36px 0;border-radius:999px;background:#FFC107;color:#1F1F1F;font:700 50px/1 "Geist",sans-serif}
+#f08-cta .i{font-size:60px}
+#f08-url{top:1610px;font:600 42px/1 "Geist",sans-serif;color:#C9C4BA}
+#f08-brand{left:0;right:0;top:1740px;display:flex;justify-content:center;align-items:center;gap:18px;color:#C9C4BA;font:500 30px/1 "Geist",sans-serif}
+#f08-brand img{width:56px;height:56px;border-radius:14px}
+#f08-brand b{color:#FFC107}
+
+</style>
+<div id="root" data-composition-id="f08-cta" data-width="1080" data-height="1920">
+
+<div id="f08-glow" class="glow"></div>
+<img id="f08-av" class="abs" src="assets/pascal/pascal-rostro.jpg" alt="">
+<h2 id="f08-k" class="abs disp center">Escríbeme y <b>empecemos hoy.</b></h2>
+<div id="f08-qr" class="abs"><div id="f08-qrc"><img src="assets/brand/qr.svg" alt=""><img id="f08-qrlogo" src="assets/brand/logo.webp" alt=""></div><p id="f08-cap">Escanéame y empieza</p></div>
+<div id="f08-cta" class="abs"><svg class="i"><use href="assets/brand/iconos.svg#whatsapp"></use></svg>Empezar por WhatsApp</div>
+<p id="f08-url" class="abs center">pascalia.lat/cuentafacil</p>
+<div id="f08-brand" class="abs"><img src="assets/brand/logo.webp" alt=""><span>CuentaFacil · de Pascal<b>IA</b></span></div>
+
+</div>
+<script>
+const tl = gsap.timeline({ paused: true });
+
+window.__timelines["f08-cta"] = tl;
+</script>
+</template>
+</body>
+</html>

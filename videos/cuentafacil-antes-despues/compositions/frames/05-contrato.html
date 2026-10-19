@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="es-CO">
+<head><meta charset="UTF-8" /></head>
+<body>
+<template>
+<style>
+
+@font-face{font-family:"Bricolage Grotesque";font-style:normal;font-weight:500 800;src:url("assets/fonts/BricolageGrotesque-latin.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Bricolage Grotesque";font-style:normal;font-weight:500 800;src:url("assets/fonts/BricolageGrotesque-latin-ext.woff2") format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C4,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:"Geist";font-style:normal;font-weight:400 700;src:url("assets/fonts/Geist-latin.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Geist";font-style:normal;font-weight:400 700;src:url("assets/fonts/Geist-latin-ext.woff2") format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C4,U+2C60-2C7F,U+A720-A7FF}
+
+#root{position:absolute;inset:0;overflow:hidden}
+
+.i{width:1em;height:1em;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;display:inline-block;flex:none}
+.abs{position:absolute}
+.disp{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;letter-spacing:-.035em}
+.txt{font-family:"Geist",sans-serif}
+.center{left:70px;right:70px;text-align:center}
+.glow{position:absolute;border-radius:50%;filter:blur(90px)}
+.okbox{display:inline-grid;place-items:center;width:38px;height:38px;border-radius:9px;background:#25D366;vertical-align:-7px;margin-right:8px}
+.okbox svg{width:28px;height:28px;fill:none;stroke:#fff;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round}
+.ghost{position:absolute;font-family:"Bricolage Grotesque",sans-serif;font-weight:800;letter-spacing:-.05em;white-space:nowrap;line-height:1}
+
+
+#root{background:#FFFDF7;color:#1F1F1F}
+#f05-glow{right:-200px;top:200px;width:800px;height:800px;background:rgba(255,193,7,.25)}
+#f05-head{top:110px;font-size:92px;line-height:1.02}
+#f05-card{left:70px;right:70px;top:380px;padding:44px 46px;border-radius:44px;background:#202C33;color:#E9EDEF;box-shadow:0 50px 90px -46px rgba(31,31,31,.7)}
+#f05-card h3{font:700 40px/1.2 "Geist",sans-serif;margin:0 0 22px}
+#f05-card li{list-style:none;font:400 32px/1.45 "Geist",sans-serif;color:#D1D7DB}
+#f05-card li b{color:#E9EDEF;font-weight:600}
+#f05-card ul{margin:0;padding:0}
+#f05-count{left:70px;top:1010px;display:flex;align-items:flex-end;gap:26px}
+#f05-num{font-size:300px;line-height:.82;color:#1F1F1F;font-variant-numeric:tabular-nums}
+#f05-num-l{font:700 52px/1.1 "Geist",sans-serif;color:#55514B;padding-bottom:20px}
+.f05-chk{left:70px;right:70px;display:flex;align-items:center;gap:26px;padding:28px 34px;border-radius:30px;background:#fff;box-shadow:0 24px 44px -26px rgba(31,31,31,.45);font:700 46px/1 "Bricolage Grotesque",sans-serif}
+.f05-chk .okbox{width:64px;height:64px;border-radius:18px;margin:0}
+.f05-chk .okbox svg{width:44px;height:44px}
+.f05-chk small{margin-left:auto;font:600 28px/1 "Geist",sans-serif;color:#1D8F4E}
+#f05-c1{top:1320px}#f05-c2{top:1480px}#f05-c3{top:1640px}
+
+</style>
+<div id="root" data-composition-id="f05-contrato" data-width="1080" data-height="1920">
+
+<div id="f05-glow" class="glow"></div>
+<h2 id="f05-head" class="abs disp center">Leo tu contrato. Reviso tus soportes.</h2>
+<div id="f05-card" class="abs">
+  <h3>📋 Esto es lo que leí de tus documentos:</h3>
+  <ul>
+    <li>• Contrato: <b>CPS-0456-2026</b></li>
+    <li>• Entidad: <b>ESE de ejemplo</b></li>
+    <li>• Objeto: <b>Servicios profesionales en salud pública</b></li>
+    <li>• Plazo: <b>1 mes, hasta el 31/10/2026</b></li>
+    <li>• Obligaciones específicas: <b>15</b></li>
+  </ul>
+</div>
+<div id="f05-count" class="abs"><span id="f05-num" class="disp">15</span><span id="f05-num-l"><span style="display:block">obligaciones</span><span style="display:block">organizadas</span></span></div>
+<div id="f05-c1" class="abs f05-chk"><span class="okbox"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>Planilla PILA<small>periodo e IBC</small></div>
+<div id="f05-c2" class="abs f05-chk"><span class="okbox"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>Antecedentes<small>vigentes</small></div>
+<div id="f05-c3" class="abs f05-chk"><span class="okbox"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>Afiliaciones<small>EPS · pensión · ARL</small></div>
+
+</div>
+<script>
+const tl = gsap.timeline({ paused: true });
+
+window.__timelines["f05-contrato"] = tl;
+</script>
+</template>
+</body>
+</html>

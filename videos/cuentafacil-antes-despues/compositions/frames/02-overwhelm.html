@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="es-CO">
+<head><meta charset="UTF-8" /></head>
+<body>
+<template>
+<style>
+
+@font-face{font-family:"Bricolage Grotesque";font-style:normal;font-weight:500 800;src:url("assets/fonts/BricolageGrotesque-latin.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Bricolage Grotesque";font-style:normal;font-weight:500 800;src:url("assets/fonts/BricolageGrotesque-latin-ext.woff2") format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C4,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:"Geist";font-style:normal;font-weight:400 700;src:url("assets/fonts/Geist-latin.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Geist";font-style:normal;font-weight:400 700;src:url("assets/fonts/Geist-latin-ext.woff2") format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C4,U+2C60-2C7F,U+A720-A7FF}
+
+#root{position:absolute;inset:0;overflow:hidden}
+
+.i{width:1em;height:1em;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;display:inline-block;flex:none}
+.abs{position:absolute}
+.disp{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;letter-spacing:-.035em}
+.txt{font-family:"Geist",sans-serif}
+.center{left:70px;right:70px;text-align:center}
+.glow{position:absolute;border-radius:50%;filter:blur(90px)}
+.okbox{display:inline-grid;place-items:center;width:38px;height:38px;border-radius:9px;background:#25D366;vertical-align:-7px;margin-right:8px}
+.okbox svg{width:28px;height:28px;fill:none;stroke:#fff;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round}
+.ghost{position:absolute;font-family:"Bricolage Grotesque",sans-serif;font-weight:800;letter-spacing:-.05em;white-space:nowrap;line-height:1}
+
+
+#root{background:#232327;color:#F1EFEA}
+#f02-glow{left:200px;top:700px;width:700px;height:700px;background:rgba(214,69,69,.18)}
+.win{border-radius:22px;background:#F4F2EE;color:#2A2A2E;box-shadow:0 30px 60px -24px rgba(0,0,0,.75);overflow:hidden}
+.wbar{display:flex;align-items:center;gap:10px;padding:14px 18px;background:#D9D6CF;font:600 24px/1 "Geist",sans-serif;color:#55514B;white-space:nowrap}
+.wbar i{width:16px;height:16px;border-radius:50%;background:#B5B1A8}
+.wbar span{margin-left:8px;overflow:hidden;text-overflow:ellipsis}
+.wbody{padding:22px 24px}
+.lines i{display:block;height:14px;border-radius:7px;background:#D2CEC6;margin:12px 0}
+.pdf{display:flex;align-items:center;gap:16px;padding:18px 24px;border-radius:20px;background:#F4F2EE;color:#2A2A2E;font:600 28px/1.1 "Geist",sans-serif;box-shadow:0 24px 50px -20px rgba(0,0,0,.7);white-space:nowrap}
+.pdfi{display:grid;place-items:center;width:64px;height:76px;border-radius:12px;background:#D64545;color:#fff;font:800 20px/1 "Geist",sans-serif}
+#f02-sticky{left:600px;top:250px;width:390px;padding:34px 30px;background:#FFE680;color:#3A3000;rotate:6deg;font:800 54px/1.05 "Bricolage Grotesque",sans-serif;box-shadow:0 30px 50px -24px rgba(0,0,0,.7)}
+.sheet td{border:2px solid #D2CEC6;padding:10px 14px;font:600 24px/1 "Geist",sans-serif}
+.sheet td.bad{background:#FFD9D9;color:#B32424}
+#f02-stamp{left:50%;top:820px;width:900px;margin-left:-450px;text-align:center;padding:30px 0;border:14px solid #E14B4B;border-radius:28px;color:#E14B4B;font:800 170px/1 "Bricolage Grotesque",sans-serif;letter-spacing:.02em;rotate:-12deg;background:rgba(35,35,39,.55)}
+#f02-q{left:70px;right:70px;top:1720px;text-align:center;font:700 52px/1.1 "Geist",sans-serif;color:#B9B6AE}
+
+</style>
+<div id="root" data-composition-id="f02-overwhelm" data-width="1080" data-height="1920">
+<div id="f02-glow" class="glow"></div><div id="f02-word" class="abs win" style="left:70px;top:140px;width:600px;rotate:-4deg"><div class="wbar"><i></i><i></i><i></i><span>Informe_final_v7_DEFINITIVO.docx</span></div><div class="wbody"><div class="lines"><i style="width:90%"></i><i style="width:70%"></i><i style="width:85%"></i><i style="width:60%"></i><i style="width:78%"></i></div></div></div><div id="f02-sticky" class="abs">¿Qué hice el día 12?</div><div id="f02-sheet" class="abs win" style="left:520px;top:560px;width:500px;rotate:5deg"><div class="wbar"><i></i><i></i><i></i><span>planilla_PILA.xlsx</span></div><div class="wbody"><table class="sheet"><tr><td>IBC</td><td class="bad">No cuadra</td></tr><tr><td>Periodo</td><td>09/2026</td></tr></table></div></div><div id="f02-doc" class="abs win" style="left:60px;top:640px;width:420px;rotate:-6deg"><div class="wbar"><i></i><i></i><i></i><span>certificado.jpg</span></div><div class="wbody"><img src="assets/real/documento-difuminado.jpg" style="display:block;width:100%;height:330px;object-fit:cover;border-radius:10px"></div></div><div id="f02-p1" class="abs pdf" style="left:90px;top:1240px;rotate:4deg"><span class="pdfi">PDF</span><span>antecedentes.pdf</span></div><div id="f02-p2" class="abs pdf" style="left:560px;top:1300px;rotate:-5deg"><span class="pdfi">PDF</span><span>afiliaciones.pdf</span></div><div id="f02-p3" class="abs pdf" style="left:140px;top:1460px;rotate:-3deg"><span class="pdfi">PDF</span><span>planilla.pdf</span></div><div id="f02-p4" class="abs pdf" style="left:600px;top:1500px;rotate:6deg"><span class="pdfi">PDF</span><span>informe_v8.pdf</span></div><div id="f02-stamp" class="abs">DEVUELTA</div><p id="f02-q" class="abs">Y la cuenta, devuelta otra vez.</p>
+</div>
+<script>
+const tl = gsap.timeline({ paused: true });
+
+window.__timelines["f02-overwhelm"] = tl;
+</script>
+</template>
+</body>
+</html>

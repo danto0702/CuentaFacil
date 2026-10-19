@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="es-CO">
+<head><meta charset="UTF-8" /></head>
+<body>
+<template>
+<style>
+
+@font-face{font-family:"Bricolage Grotesque";font-style:normal;font-weight:500 800;src:url("assets/fonts/BricolageGrotesque-latin.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Bricolage Grotesque";font-style:normal;font-weight:500 800;src:url("assets/fonts/BricolageGrotesque-latin-ext.woff2") format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C4,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:"Geist";font-style:normal;font-weight:400 700;src:url("assets/fonts/Geist-latin.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Geist";font-style:normal;font-weight:400 700;src:url("assets/fonts/Geist-latin-ext.woff2") format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C4,U+2C60-2C7F,U+A720-A7FF}
+
+#root{position:absolute;inset:0;overflow:hidden}
+
+.i{width:1em;height:1em;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;display:inline-block;flex:none}
+.abs{position:absolute}
+.disp{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;letter-spacing:-.035em}
+.txt{font-family:"Geist",sans-serif}
+.center{left:70px;right:70px;text-align:center}
+.glow{position:absolute;border-radius:50%;filter:blur(90px)}
+.okbox{display:inline-grid;place-items:center;width:38px;height:38px;border-radius:9px;background:#25D366;vertical-align:-7px;margin-right:8px}
+.okbox svg{width:28px;height:28px;fill:none;stroke:#fff;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round}
+.ghost{position:absolute;font-family:"Bricolage Grotesque",sans-serif;font-weight:800;letter-spacing:-.05em;white-space:nowrap;line-height:1}
+
+
+#root{background:#FFFDF7}
+#f06-top{left:0;right:0;top:0;height:960px;background:#232327;color:#F1EFEA;overflow:hidden}
+#f06-bot{left:0;right:0;top:960px;height:960px;background:#FFC107;color:#1F1F1F;overflow:hidden}
+.f06-label{left:70px;top:70px;padding:14px 28px;border-radius:999px;font:800 40px/1 "Geist",sans-serif;letter-spacing:.16em}
+#f06-lt{background:#3A3A40;color:#FF6B6B}
+#f06-lb{background:#1F1F1F;color:#FFC107}
+#f06-clock{right:70px;top:60px;font:800 96px/1 "Bricolage Grotesque",sans-serif;color:#FF6B6B;font-variant-numeric:tabular-nums}
+#f06-clock i{font-style:normal;font-size:40px;margin-left:8px;color:#B9B6AE}
+.f06-f{display:flex;align-items:center;gap:14px;padding:16px 22px;border-radius:18px;background:#F4F2EE;color:#2A2A2E;font:600 28px/1 "Geist",sans-serif;white-space:nowrap;box-shadow:0 20px 40px -20px rgba(0,0,0,.7)}
+.f06-f .pdfi{display:grid;place-items:center;width:52px;height:62px;border-radius:10px;background:#D64545;color:#fff;font:800 17px/1 "Geist",sans-serif}
+.f06-f .w{background:#2B579A}
+#f06-ht{left:70px;right:70px;top:740px;font-size:84px;line-height:1.02}
+#f06-hb{left:70px;right:70px;top:100px;font-size:84px;line-height:1.02;padding-top:90px}
+#f06-bubble{left:70px;top:420px;width:620px;padding:30px 34px;border-radius:30px 30px 8px 30px;background:#005C4B;color:#E9EDEF;font:500 48px/1.2 "Geist",sans-serif}
+#f06-btn{left:70px;top:470px;display:inline-flex;align-items:center;gap:18px;padding:30px 48px;border-radius:999px;background:#1F1F1F;color:#FFC107;font:800 60px/1 "Bricolage Grotesque",sans-serif;box-shadow:0 26px 40px -22px rgba(0,0,0,.6)}
+#f06-gen{left:70px;top:660px;font:600 36px/1.2 "Geist",sans-serif;color:#3A2E00}
+#f06-vs{left:50%;top:900px;width:120px;height:120px;margin-left:-60px;border-radius:50%;background:#FFFDF7;display:grid;place-items:center;font:800 44px/1 "Bricolage Grotesque",sans-serif;color:#1F1F1F;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+
+</style>
+<div id="root" data-composition-id="f06-split" data-width="1080" data-height="1920">
+
+<div id="f06-top" class="abs">
+  <div id="f06-lt" class="abs f06-label">ANTES</div>
+  <div id="f06-clock" class="abs">2:13<i>a. m.</i></div>
+  <div class="abs f06-f" style="left:70px;top:220px;rotate:-5deg"><span class="pdfi w">DOC</span>informe_v9.docx</div>
+  <div class="abs f06-f" style="left:560px;top:250px;rotate:4deg"><span class="pdfi">PDF</span>planilla.pdf</div>
+  <div class="abs f06-f" style="left:110px;top:400px;rotate:3deg"><span class="pdfi">PDF</span>antecedentes.pdf</div>
+  <div class="abs f06-f" style="left:600px;top:430px;rotate:-6deg"><span class="pdfi">PDF</span>afiliaciones.pdf</div>
+  <div class="abs f06-f" style="left:80px;top:570px;rotate:-2deg"><span class="pdfi">PDF</span>unido_final.pdf</div>
+  <div class="abs f06-f" style="left:560px;top:600px;rotate:5deg"><span class="pdfi">PDF</span>supervision.pdf</div>
+  <h3 id="f06-ht" class="abs disp">Toda la noche.</h3>
+</div>
+<div id="f06-bot" class="abs">
+  <div id="f06-lb" class="abs f06-label">CON PASCAL</div>
+  <h3 id="f06-hb" class="abs disp">Un mensaje.</h3>
+  <div id="f06-btn" class="abs"><svg class="i"><use href="assets/brand/iconos.svg#check"></use></svg>Hazlo ya</div>
+  <p id="f06-gen" class="abs">⏳ Estoy generando tus documentos…</p>
+</div>
+<div id="f06-vs" class="abs">VS</div>
+
+</div>
+<script>
+const tl = gsap.timeline({ paused: true });
+
+window.__timelines["f06-split"] = tl;
+</script>
+</template>
+</body>
+</html>

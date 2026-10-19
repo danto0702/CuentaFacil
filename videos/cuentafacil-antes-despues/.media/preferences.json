@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "preferences": {
+    "aspect": {
+      "value": "1080x1920",
+      "confirmed_in": [
+        "cuentafacil-antes-despues"
+      ],
+      "updated_at": "2026-10-19T03:15:56.006Z"
+    },
+    "language": {
+      "value": "es-CO",
+      "confirmed_in": [
+        "cuentafacil-antes-despues"
+      ],
+      "updated_at": "2026-10-19T03:16:12.173Z"
+    },
+    "flow": {
+      "value": "companion",
+      "confirmed_in": [
+        "cuentafacil-antes-despues"
+      ],
+      "updated_at": "2026-10-19T03:16:12.226Z"
+    },
+    "storyboard": {
+      "value": "yes",
+      "confirmed_in": [
+        "cuentafacil-antes-despues"
+      ],
+      "updated_at": "2026-10-19T03:16:12.292Z"
+    }
+  },
+  "sightings": {}
+}
