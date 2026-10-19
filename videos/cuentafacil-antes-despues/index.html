@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=1080, height=1920" />
-    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <script src="assets/vendor/gsap.min.js"></script>
     <style>
       * { margin: 0; padding: 0; box-sizing: border-box; }
       html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: #1F1F1F; }
@@ -11,15 +11,24 @@
     </style>
   </head>
   <body>
-    <div id="root" data-composition-id="main" data-start="0" data-duration="48" data-width="1080" data-height="1920">
-      <div id="f01-hook" class="clip" data-composition-id="f01-hook" data-composition-src="compositions/frames/01-hook.html" data-start="0" data-duration="5" data-track-index="1" data-width="1080" data-height="1920"></div>
-      <div id="f02-overwhelm" class="clip" data-composition-id="f02-overwhelm" data-composition-src="compositions/frames/02-overwhelm.html" data-start="5" data-duration="6" data-track-index="1" data-width="1080" data-height="1920"></div>
-      <div id="f03-pascal" class="clip" data-composition-id="f03-pascal" data-composition-src="compositions/frames/03-pascal.html" data-start="11" data-duration="5" data-track-index="1" data-width="1080" data-height="1920"></div>
-      <div id="f04-chat" class="clip" data-composition-id="f04-chat" data-composition-src="compositions/frames/04-chat.html" data-start="16" data-duration="9" data-track-index="1" data-width="1080" data-height="1920"></div>
-      <div id="f05-contrato" class="clip" data-composition-id="f05-contrato" data-composition-src="compositions/frames/05-contrato.html" data-start="25" data-duration="6" data-track-index="1" data-width="1080" data-height="1920"></div>
-      <div id="f06-split" class="clip" data-composition-id="f06-split" data-composition-src="compositions/frames/06-split.html" data-start="31" data-duration="6" data-track-index="1" data-width="1080" data-height="1920"></div>
-      <div id="f07-entrega" class="clip" data-composition-id="f07-entrega" data-composition-src="compositions/frames/07-entrega.html" data-start="37" data-duration="5" data-track-index="1" data-width="1080" data-height="1920"></div>
-      <div id="f08-cta" class="clip" data-composition-id="f08-cta" data-composition-src="compositions/frames/08-cta.html" data-start="42" data-duration="6" data-track-index="1" data-width="1080" data-height="1920"></div>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="49.2" data-width="1080" data-height="1920">
+      <div id="f01-hook" class="clip" data-composition-id="f01-hook" data-composition-src="compositions/frames/01-hook.html" data-start="0" data-duration="4.5" data-track-index="1" data-width="1080" data-height="1920"></div>
+      <div id="f02-overwhelm" class="clip" data-composition-id="f02-overwhelm" data-composition-src="compositions/frames/02-overwhelm.html" data-start="4.5" data-duration="7.2" data-track-index="1" data-width="1080" data-height="1920"></div>
+      <div id="f03-pascal" class="clip" data-composition-id="f03-pascal" data-composition-src="compositions/frames/03-pascal.html" data-start="11.7" data-duration="5" data-track-index="1" data-width="1080" data-height="1920"></div>
+      <div id="f04-chat" class="clip" data-composition-id="f04-chat" data-composition-src="compositions/frames/04-chat.html" data-start="16.7" data-duration="9" data-track-index="1" data-width="1080" data-height="1920"></div>
+      <div id="f05-contrato" class="clip" data-composition-id="f05-contrato" data-composition-src="compositions/frames/05-contrato.html" data-start="25.7" data-duration="6" data-track-index="1" data-width="1080" data-height="1920"></div>
+      <div id="f06-split" class="clip" data-composition-id="f06-split" data-composition-src="compositions/frames/06-split.html" data-start="31.7" data-duration="5.5" data-track-index="1" data-width="1080" data-height="1920"></div>
+      <div id="f07-entrega" class="clip" data-composition-id="f07-entrega" data-composition-src="compositions/frames/07-entrega.html" data-start="37.2" data-duration="5.5" data-track-index="1" data-width="1080" data-height="1920"></div>
+      <div id="f08-cta" class="clip" data-composition-id="f08-cta" data-composition-src="compositions/frames/08-cta.html" data-start="42.7" data-duration="6.5" data-track-index="1" data-width="1080" data-height="1920"></div>
+      <audio id="vo-01" src="assets/audio/vo/vo-01.wav" data-start="0.35" data-duration="1.984" data-track-index="3" data-volume="1"></audio>
+      <audio id="vo-02" src="assets/audio/vo/vo-02.wav" data-start="4.85" data-duration="5.995" data-track-index="3" data-volume="1"></audio>
+      <audio id="vo-03" src="assets/audio/vo/vo-03.wav" data-start="12.05" data-duration="3.861" data-track-index="3" data-volume="1"></audio>
+      <audio id="vo-04" src="assets/audio/vo/vo-04.wav" data-start="17.05" data-duration="5.952" data-track-index="3" data-volume="1"></audio>
+      <audio id="vo-05" src="assets/audio/vo/vo-05.wav" data-start="26.05" data-duration="4.16" data-track-index="3" data-volume="1"></audio>
+      <audio id="vo-06" src="assets/audio/vo/vo-06.wav" data-start="32.05" data-duration="2.944" data-track-index="3" data-volume="1"></audio>
+      <audio id="vo-07" src="assets/audio/vo/vo-07.wav" data-start="37.55" data-duration="4.053" data-track-index="3" data-volume="1"></audio>
+      <audio id="vo-08" src="assets/audio/vo/vo-08.wav" data-start="43.05" data-duration="1.984" data-track-index="3" data-volume="1"></audio>
+      <audio id="music" src="assets/audio/music.wav" data-start="0" data-duration="49.2" data-track-index="2" data-volume="0.55"></audio>
     </div>
     <script>
       const tl = gsap.timeline({ paused: true });

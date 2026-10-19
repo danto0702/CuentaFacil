@@ -1,6 +1,6 @@
 ---
 format: 1080x1920
-duration: 45s
+duration: 49.2s
 message: "Con Pascal, el fin de mes deja de ser una carrera: le cuentas tu día por WhatsApp y al cierre recibes tus documentos listos."
 arc: Antes (dolor) → Corte → Después (cómo funciona) → Comparación → Entrega → CTA
 audience: contratistas de prestación de servicios de entidades públicas colombianas
@@ -11,7 +11,7 @@ mode: collaborative
 - act: Antes
 - type: hook
 - duration: 5s
-- status: built
+- status: animated
 - src: compositions/frames/01-hook.html
 - blueprint: kinetic-type-beats
 - voiceover: "Así era antes el fin de mes."
@@ -21,7 +21,7 @@ mode: collaborative
 - act: Antes
 - type: pain_point
 - duration: 6s
-- status: built
+- status: animated
 - src: compositions/frames/02-overwhelm.html
 - blueprint: overwhelm-surround
 - voiceover: "Buscar soportes, unir PDF hasta la medianoche… y si algo no cuadraba, la cuenta volvía devuelta."
@@ -31,7 +31,7 @@ mode: collaborative
 - act: Corte
 - type: product_intro
 - duration: 5s
-- status: built
+- status: animated
 - src: compositions/frames/03-pascal.html
 - blueprint: ticker-takeover
 - voiceover: "Ahora es distinto. Soy Pascal, y trabajo contigo por WhatsApp."
@@ -41,7 +41,7 @@ mode: collaborative
 - act: Después
 - type: feature_showcase
 - duration: 9s
-- status: built
+- status: animated
 - src: compositions/frames/04-chat.html
 - blueprint: cursor-ui-demo
 - voiceover: "Me cuentas tu día con un texto, una foto o una nota de voz, y yo lo anoto en la obligación que corresponde."
@@ -51,7 +51,7 @@ mode: collaborative
 - act: Después
 - type: feature_showcase
 - duration: 6s
-- status: built
+- status: animated
 - src: compositions/frames/05-contrato.html
 - blueprint: dataviz-countup
 - voiceover: "Leo tu contrato, organizo tus obligaciones y reviso tus soportes."
@@ -61,7 +61,7 @@ mode: collaborative
 - act: Comparación
 - type: benefit_highlight
 - duration: 6s
-- status: built
+- status: animated
 - src: compositions/frames/06-split.html
 - blueprint: comparison-split
 - voiceover: "Al cierre, ya no corres. Solo me dices: hazlo ya."
@@ -71,7 +71,7 @@ mode: collaborative
 - act: Entrega
 - type: feature_showcase
 - duration: 5s
-- status: built
+- status: animated
 - src: compositions/frames/07-entrega.html
 - blueprint: agent-progress-theater
 - voiceover: "Te entrego tus documentos listos. Tú revisas, apruebas y firmas."
@@ -81,7 +81,7 @@ mode: collaborative
 - act: CTA
 - type: cta
 - duration: 6s
-- status: built
+- status: animated
 - src: compositions/frames/08-cta.html
 - blueprint: cta-morph-press
 - voiceover: "Escanea el código y empecemos."

@@ -32,7 +32,7 @@
 .wbody{padding:22px 24px}
 .lines i{display:block;height:14px;border-radius:7px;background:#D2CEC6;margin:12px 0}
 .pdf{display:flex;align-items:center;gap:16px;padding:18px 24px;border-radius:20px;background:#F4F2EE;color:#2A2A2E;font:600 28px/1.1 "Geist",sans-serif;box-shadow:0 24px 50px -20px rgba(0,0,0,.7);white-space:nowrap}
-.pdfi{display:grid;place-items:center;width:64px;height:76px;border-radius:12px;background:#D64545;color:#fff;font:800 20px/1 "Geist",sans-serif}
+.pdfi{display:grid;place-items:center;width:64px;height:76px;border-radius:12px;background:#C53030;color:#fff;font:800 20px/1 "Geist",sans-serif}
 #f02-sticky{left:600px;top:250px;width:390px;padding:34px 30px;background:#FFE680;color:#3A3000;rotate:6deg;font:800 54px/1.05 "Bricolage Grotesque",sans-serif;box-shadow:0 30px 50px -24px rgba(0,0,0,.7)}
 .sheet td{border:2px solid #D2CEC6;padding:10px 14px;font:600 24px/1 "Geist",sans-serif}
 .sheet td.bad{background:#FFD9D9;color:#B32424}
@@ -41,10 +41,18 @@
 
 </style>
 <div id="root" data-composition-id="f02-overwhelm" data-width="1080" data-height="1920">
-<div id="f02-glow" class="glow"></div><div id="f02-word" class="abs win" style="left:70px;top:140px;width:600px;rotate:-4deg"><div class="wbar"><i></i><i></i><i></i><span>Informe_final_v7_DEFINITIVO.docx</span></div><div class="wbody"><div class="lines"><i style="width:90%"></i><i style="width:70%"></i><i style="width:85%"></i><i style="width:60%"></i><i style="width:78%"></i></div></div></div><div id="f02-sticky" class="abs">¿Qué hice el día 12?</div><div id="f02-sheet" class="abs win" style="left:520px;top:560px;width:500px;rotate:5deg"><div class="wbar"><i></i><i></i><i></i><span>planilla_PILA.xlsx</span></div><div class="wbody"><table class="sheet"><tr><td>IBC</td><td class="bad">No cuadra</td></tr><tr><td>Periodo</td><td>09/2026</td></tr></table></div></div><div id="f02-doc" class="abs win" style="left:60px;top:640px;width:420px;rotate:-6deg"><div class="wbar"><i></i><i></i><i></i><span>certificado.jpg</span></div><div class="wbody"><img src="assets/real/documento-difuminado.jpg" style="display:block;width:100%;height:330px;object-fit:cover;border-radius:10px"></div></div><div id="f02-p1" class="abs pdf" style="left:90px;top:1240px;rotate:4deg"><span class="pdfi">PDF</span><span>antecedentes.pdf</span></div><div id="f02-p2" class="abs pdf" style="left:560px;top:1300px;rotate:-5deg"><span class="pdfi">PDF</span><span>afiliaciones.pdf</span></div><div id="f02-p3" class="abs pdf" style="left:140px;top:1460px;rotate:-3deg"><span class="pdfi">PDF</span><span>planilla.pdf</span></div><div id="f02-p4" class="abs pdf" style="left:600px;top:1500px;rotate:6deg"><span class="pdfi">PDF</span><span>informe_v8.pdf</span></div><div id="f02-stamp" class="abs">DEVUELTA</div><p id="f02-q" class="abs">Y la cuenta, devuelta otra vez.</p>
+<div id="f02-glow" class="glow" data-layout-allow-overflow></div><div id="f02-word" class="abs win" style="left:70px;top:140px;width:600px;rotate:-4deg"><div class="wbar"><i></i><i></i><i></i><span>Informe_final_v7_DEFINITIVO.docx</span></div><div class="wbody"><div class="lines"><i style="width:90%"></i><i style="width:70%"></i><i style="width:85%"></i><i style="width:60%"></i><i style="width:78%"></i></div></div></div><div id="f02-sticky" class="abs">¿Qué hice el día 12?</div><div id="f02-sheet" class="abs win" style="left:520px;top:560px;width:500px;rotate:5deg"><div class="wbar"><i></i><i></i><i></i><span>planilla_PILA.xlsx</span></div><div class="wbody"><table class="sheet"><tr><td>IBC</td><td class="bad">No cuadra</td></tr><tr><td>Periodo</td><td>09/2026</td></tr></table></div></div><div id="f02-doc" class="abs win" style="left:60px;top:640px;width:420px;rotate:-6deg"><div class="wbar"><i></i><i></i><i></i><span>certificado.jpg</span></div><div class="wbody"><img src="assets/real/documento-difuminado.jpg" style="display:block;width:100%;height:330px;object-fit:cover;border-radius:10px"></div></div><div id="f02-p1" class="abs pdf" style="left:90px;top:1240px;rotate:4deg"><span class="pdfi">PDF</span><span>antecedentes.pdf</span></div><div id="f02-p2" class="abs pdf" style="left:560px;top:1300px;rotate:-5deg"><span class="pdfi">PDF</span><span>afiliaciones.pdf</span></div><div id="f02-p3" class="abs pdf" style="left:140px;top:1460px;rotate:-3deg"><span class="pdfi">PDF</span><span>planilla.pdf</span></div><div id="f02-p4" class="abs pdf" style="left:600px;top:1500px;rotate:6deg"><span class="pdfi">PDF</span><span>informe_v8.pdf</span></div><div id="f02-stamp" class="abs">DEVUELTA</div><p id="f02-q" class="abs">Y la cuenta, devuelta otra vez.</p>
 </div>
 <script>
 const tl = gsap.timeline({ paused: true });
+
+const ins=[["#f02-word",-500,-200,-25],["#f02-sticky",300,-500,30],["#f02-sheet",600,0,25],["#f02-doc",-600,100,-30],["#f02-p1",-300,600,-20],["#f02-p2",300,700,20],["#f02-p3",-200,800,-25],["#f02-p4",400,800,25]];
+ins.forEach((a,i)=>{tl.from(a[0],{x:a[1],y:a[2],rotation:a[3],opacity:0,duration:.55,ease:"power3.out"},0.15+i*0.32);});
+ins.forEach((a,i)=>{tl.to(a[0],{x:(i%2?5:-5),y:(i%3?-4:4),duration:.07,repeat:30,yoyo:true,ease:"none"},2.9+i*0.02);});
+tl.from("#f02-stamp",{scale:2.4,opacity:0,duration:.35,ease:"power4.in"},4.3);
+tl.to("#f02-overwhelm .win, #f02-overwhelm .pdf, #f02-sticky",{x:"+=14",duration:.05,repeat:5,yoyo:true,ease:"none"},4.65);
+tl.from("#f02-q",{opacity:0,y:30,duration:.5},5.0);
+tl.fromTo("#f02-glow",{scale:.9},{scale:1.2,duration:3.6,yoyo:true,repeat:1,ease:"sine.inOut"},0);
 
 window.__timelines["f02-overwhelm"] = tl;
 </script>

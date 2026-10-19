@@ -43,17 +43,27 @@
 </style>
 <div id="root" data-composition-id="f08-cta" data-width="1080" data-height="1920">
 
-<div id="f08-glow" class="glow"></div>
+<div id="f08-glow" class="glow" data-layout-allow-overflow></div>
 <img id="f08-av" class="abs" src="assets/pascal/pascal-rostro.jpg" alt="">
 <h2 id="f08-k" class="abs disp center">Escríbeme y <b>empecemos hoy.</b></h2>
 <div id="f08-qr" class="abs"><div id="f08-qrc"><img src="assets/brand/qr.svg" alt=""><img id="f08-qrlogo" src="assets/brand/logo.webp" alt=""></div><p id="f08-cap">Escanéame y empieza</p></div>
 <div id="f08-cta" class="abs"><svg class="i"><use href="assets/brand/iconos.svg#whatsapp"></use></svg>Empezar por WhatsApp</div>
 <p id="f08-url" class="abs center">pascalia.lat/cuentafacil</p>
-<div id="f08-brand" class="abs"><img src="assets/brand/logo.webp" alt=""><span>CuentaFacil · de Pascal<b>IA</b></span></div>
+<div id="f08-brand" class="abs"><img src="assets/brand/flower.svg" alt=""><span>CuentaFacil · de Pascal<b>IA</b></span></div>
 
 </div>
 <script>
 const tl = gsap.timeline({ paused: true });
+
+tl.from("#f08-av",{opacity:0,scale:.5,duration:.5,ease:"back.out(2)"},0.1);
+tl.from("#f08-k",{opacity:0,y:40,duration:.5},0.4);
+tl.from("#f08-qr",{opacity:0,scale:.7,rotation:-6,duration:.6,ease:"back.out(1.8)"},0.8);
+tl.from("#f08-cta",{opacity:0,y:40,duration:.45},1.4);
+tl.from("#f08-url",{opacity:0,duration:.4},1.7);
+tl.from("#f08-brand",{opacity:0,duration:.4},1.9);
+tl.to("#f08-cta",{scale:.94,duration:.12,ease:"power2.in"},3.0);
+tl.to("#f08-cta",{scale:1,duration:.35,ease:"back.out(3)"},3.12);
+tl.fromTo("#f08-glow",{scale:.9,opacity:.6},{scale:1.15,opacity:1,duration:3.2,yoyo:true,repeat:1,ease:"sine.inOut"},0);
 
 window.__timelines["f08-cta"] = tl;
 </script>

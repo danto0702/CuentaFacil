@@ -66,8 +66,7 @@ frames['01-hook'] = ('f01-hook', '''
 #f01-l2{top:1200px;color:#FF6B6B}
 #f01-cursor{left:70px;top:1500px;width:8px;height:96px;background:#F1EFEA;opacity:.6}
 ''', '''
-<div id="f01-glow" class="glow"></div>
-<div id="f01-ghost" class="ghost">30</div>
+<div id="f01-glow" class="glow" data-layout-allow-overflow></div>
 <div id="f01-clock" class="abs"><small>DÍA 30</small><b>11:47<i>p. m.</i></b></div>
 <p id="f01-tag" class="abs">ASÍ ERA ANTES</p>
 <h1 id="f01-l1" class="abs disp f01-line">Reconstruir el mes de memoria.</h1>
@@ -88,14 +87,14 @@ frames['02-overwhelm'] = ('f02-overwhelm', '''
 .wbody{padding:22px 24px}
 .lines i{display:block;height:14px;border-radius:7px;background:#D2CEC6;margin:12px 0}
 .pdf{display:flex;align-items:center;gap:16px;padding:18px 24px;border-radius:20px;background:#F4F2EE;color:#2A2A2E;font:600 28px/1.1 "Geist",sans-serif;box-shadow:0 24px 50px -20px rgba(0,0,0,.7);white-space:nowrap}
-.pdfi{display:grid;place-items:center;width:64px;height:76px;border-radius:12px;background:#D64545;color:#fff;font:800 20px/1 "Geist",sans-serif}
+.pdfi{display:grid;place-items:center;width:64px;height:76px;border-radius:12px;background:#C53030;color:#fff;font:800 20px/1 "Geist",sans-serif}
 #f02-sticky{left:600px;top:250px;width:390px;padding:34px 30px;background:#FFE680;color:#3A3000;rotate:6deg;font:800 54px/1.05 "Bricolage Grotesque",sans-serif;box-shadow:0 30px 50px -24px rgba(0,0,0,.7)}
 .sheet td{border:2px solid #D2CEC6;padding:10px 14px;font:600 24px/1 "Geist",sans-serif}
 .sheet td.bad{background:#FFD9D9;color:#B32424}
 #f02-stamp{left:50%;top:820px;width:900px;margin-left:-450px;text-align:center;padding:30px 0;border:14px solid #E14B4B;border-radius:28px;color:#E14B4B;font:800 170px/1 "Bricolage Grotesque",sans-serif;letter-spacing:.02em;rotate:-12deg;background:rgba(35,35,39,.55)}
 #f02-q{left:70px;right:70px;top:1720px;text-align:center;font:700 52px/1.1 "Geist",sans-serif;color:#B9B6AE}
 ''', 
-'<div id="f02-glow" class="glow"></div>' +
+'<div id="f02-glow" class="glow" data-layout-allow-overflow></div>' +
 win('f02-word', 70, 140, 600, 'Informe_final_v7_DEFINITIVO.docx', '<div class="lines"><i style="width:90%"></i><i style="width:70%"></i><i style="width:85%"></i><i style="width:60%"></i><i style="width:78%"></i></div>', -4) +
 '<div id="f02-sticky" class="abs">¿Qué hice el día 12?</div>' +
 win('f02-sheet', 520, 560, 500, 'planilla_PILA.xlsx', '<table class="sheet"><tr><td>IBC</td><td class="bad">No cuadra</td></tr><tr><td>Periodo</td><td>09/2026</td></tr></table>', 5) +
@@ -122,8 +121,7 @@ frames['03-pascal'] = ('f03-pascal', '''
 #f03-j2{left:760px;top:140px;rotate:12deg}
 #f03-j3{left:-90px;top:1660px;rotate:9deg}
 ''', f'''
-<div id="f03-glow" class="glow"></div>
-<div id="f03-ghost" class="ghost">Ahora</div>
+<div id="f03-glow" class="glow" data-layout-allow-overflow></div>
 <div id="f03-j1" class="abs f03-junk">{ico('doc')}informe_v8.docx</div>
 <div id="f03-j2" class="abs f03-junk">{ico('alert')}IBC no cuadra</div>
 <div id="f03-j3" class="abs f03-junk">{ico('folder')}antecedentes.pdf</div>
@@ -144,7 +142,7 @@ PHONE = '''
 .chat{position:relative;overflow:hidden;background:#0B141A;padding:24px 26px;display:flex;flex-direction:column;gap:14px}
 .m{max-width:84%;padding:16px 20px 14px;border-radius:18px 18px 18px 6px;background:#202C33;color:#E9EDEF;font:400 31px/1.34 "Geist",sans-serif}
 .m.me{align-self:flex-end;border-radius:18px 18px 6px 18px;background:#005C4B}
-.m .t{display:block;text-align:right;font-size:20px;color:#8FA5A0;margin-top:4px}
+.m .t{display:block;text-align:right;font-size:20px;color:#B8C6C3;margin-top:4px}
 .m img{display:block;width:100%;height:220px;object-fit:cover;border-radius:12px;margin-bottom:10px}
 .btns{max-width:84%;margin-top:-12px;border-radius:0 0 18px 18px;background:#202C33;overflow:hidden}
 .btn{display:flex;align-items:center;justify-content:center;gap:12px;padding:20px;border-top:2px solid #2B3A43;color:#25D366;font:600 31px/1 "Geist",sans-serif;white-space:nowrap}
@@ -166,7 +164,7 @@ frames['04-chat'] = ('f04-chat', '''
 #f04-chat{height:1180px}
 #f04-tap{left:370px;top:1120px}
 ''' + PHONE, f'''
-<div id="f04-glow" class="glow"></div>
+<div id="f04-glow" class="glow" data-layout-allow-overflow></div>
 <h2 id="f04-head" class="abs disp center">Me cuentas tu día. <em>Yo lo anoto.</em></h2>
 <div id="f04-phone" class="phone">
   <div class="ptop"><img src="assets/brand/logo.webp" alt=""><div><b>Pascal · CuentaFacil</b><small>en línea</small></div></div>
@@ -200,7 +198,7 @@ frames['05-contrato'] = ('f05-contrato', '''
 .f05-chk small{margin-left:auto;font:600 28px/1 "Geist",sans-serif;color:#1D8F4E}
 #f05-c1{top:1320px}#f05-c2{top:1480px}#f05-c3{top:1640px}
 ''', f'''
-<div id="f05-glow" class="glow"></div>
+<div id="f05-glow" class="glow" data-layout-allow-overflow></div>
 <h2 id="f05-head" class="abs disp center">Leo tu contrato. Reviso tus soportes.</h2>
 <div id="f05-card" class="abs">
   <h3>📋 Esto es lo que leí de tus documentos:</h3>
@@ -229,7 +227,7 @@ frames['06-split'] = ('f06-split', '''
 #f06-clock{right:70px;top:60px;font:800 96px/1 "Bricolage Grotesque",sans-serif;color:#FF6B6B;font-variant-numeric:tabular-nums}
 #f06-clock i{font-style:normal;font-size:40px;margin-left:8px;color:#B9B6AE}
 .f06-f{display:flex;align-items:center;gap:14px;padding:16px 22px;border-radius:18px;background:#F4F2EE;color:#2A2A2E;font:600 28px/1 "Geist",sans-serif;white-space:nowrap;box-shadow:0 20px 40px -20px rgba(0,0,0,.7)}
-.f06-f .pdfi{display:grid;place-items:center;width:52px;height:62px;border-radius:10px;background:#D64545;color:#fff;font:800 17px/1 "Geist",sans-serif}
+.f06-f .pdfi{display:grid;place-items:center;width:52px;height:62px;border-radius:10px;background:#C53030;color:#fff;font:800 17px/1 "Geist",sans-serif}
 .f06-f .w{background:#2B579A}
 #f06-ht{left:70px;right:70px;top:740px;font-size:84px;line-height:1.02}
 #f06-hb{left:70px;right:70px;top:100px;font-size:84px;line-height:1.02;padding-top:90px}
@@ -268,7 +266,7 @@ frames['07-entrega'] = ('f07-entrega', '''
 #f07-gen{left:70px;right:70px;top:330px;padding:24px 30px;border-radius:22px;background:#202C33;font:500 36px/1.2 "Geist",sans-serif}
 #f07-list{left:70px;right:250px;top:460px;display:flex;flex-direction:column;gap:16px}
 .f07-file{display:flex;align-items:center;gap:22px;padding:22px 24px;border-radius:22px;background:#202C33}
-.fi{display:grid;place-items:center;flex:none;width:64px;height:76px;border-radius:12px;background:#E5484D;color:#fff;font:800 20px/1 "Geist",sans-serif}
+.fi{display:grid;place-items:center;flex:none;width:64px;height:76px;border-radius:12px;background:#C53030;color:#fff;font:800 20px/1 "Geist",sans-serif}
 .fi.w{background:#2B579A;font-size:34px}
 .fn{font:600 30px/1.2 "Geist",sans-serif}
 .fn small{display:block;font:400 24px/1.3 "Geist",sans-serif;color:#8696A0;margin-top:4px}
@@ -276,7 +274,7 @@ frames['07-entrega'] = ('f07-entrega', '''
 #f07-zip .i{font-size:80px}
 #f07-stamp{left:50%;top:1560px;width:900px;margin-left:-450px;padding:34px 0;border-radius:40px;background:#FFC107;color:#1F1F1F;text-align:center;font:800 92px/1 "Bricolage Grotesque",sans-serif;letter-spacing:-.03em;rotate:-3deg}
 ''', f'''
-<div id="f07-glow" class="glow"></div>
+<div id="f07-glow" class="glow" data-layout-allow-overflow></div>
 <h2 id="f07-head" class="abs disp center">Tus documentos, listos.</h2>
 <div id="f07-gen" class="abs">⏳ Estoy generando tus documentos, dame un momento…</div>
 <div id="f07-list" class="abs">{rows}</div>
@@ -303,15 +301,16 @@ frames['08-cta'] = ('f08-cta', '''
 #f08-brand img{width:56px;height:56px;border-radius:14px}
 #f08-brand b{color:#FFC107}
 ''', f'''
-<div id="f08-glow" class="glow"></div>
+<div id="f08-glow" class="glow" data-layout-allow-overflow></div>
 <img id="f08-av" class="abs" src="assets/pascal/pascal-rostro.jpg" alt="">
 <h2 id="f08-k" class="abs disp center">Escríbeme y <b>empecemos hoy.</b></h2>
 <div id="f08-qr" class="abs"><div id="f08-qrc"><img src="assets/brand/qr.svg" alt=""><img id="f08-qrlogo" src="assets/brand/logo.webp" alt=""></div><p id="f08-cap">Escanéame y empieza</p></div>
 <div id="f08-cta" class="abs">{ico('whatsapp')}Empezar por WhatsApp</div>
 <p id="f08-url" class="abs center">pascalia.lat/cuentafacil</p>
-<div id="f08-brand" class="abs"><img src="assets/brand/logo.webp" alt=""><span>CuentaFacil · de Pascal<b>IA</b></span></div>
+<div id="f08-brand" class="abs"><img src="assets/brand/flower.svg" alt=""><span>CuentaFacil · de Pascal<b>IA</b></span></div>
 ''')
 
+JS = json.load(open(os.path.join(ROOT, 'tools', 'motion.json')))
 for name,(cid,css,body) in frames.items():
-    open(os.path.join(OUT, name + '.html'), 'w').write(page(cid, css, body))
+    open(os.path.join(OUT, name + '.html'), 'w').write(page(cid, css, body, JS.get(name, '')))
 print('wrote', len(frames))

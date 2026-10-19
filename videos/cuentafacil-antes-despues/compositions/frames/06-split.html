@@ -32,7 +32,7 @@
 #f06-clock{right:70px;top:60px;font:800 96px/1 "Bricolage Grotesque",sans-serif;color:#FF6B6B;font-variant-numeric:tabular-nums}
 #f06-clock i{font-style:normal;font-size:40px;margin-left:8px;color:#B9B6AE}
 .f06-f{display:flex;align-items:center;gap:14px;padding:16px 22px;border-radius:18px;background:#F4F2EE;color:#2A2A2E;font:600 28px/1 "Geist",sans-serif;white-space:nowrap;box-shadow:0 20px 40px -20px rgba(0,0,0,.7)}
-.f06-f .pdfi{display:grid;place-items:center;width:52px;height:62px;border-radius:10px;background:#D64545;color:#fff;font:800 17px/1 "Geist",sans-serif}
+.f06-f .pdfi{display:grid;place-items:center;width:52px;height:62px;border-radius:10px;background:#C53030;color:#fff;font:800 17px/1 "Geist",sans-serif}
 .f06-f .w{background:#2B579A}
 #f06-ht{left:70px;right:70px;top:740px;font-size:84px;line-height:1.02}
 #f06-hb{left:70px;right:70px;top:100px;font-size:84px;line-height:1.02;padding-top:90px}
@@ -66,6 +66,19 @@
 </div>
 <script>
 const tl = gsap.timeline({ paused: true });
+
+tl.from("#f06-top",{y:-960,duration:.5,ease:"power3.out"},0);
+tl.from("#f06-bot",{y:960,duration:.5,ease:"power3.out"},0.1);
+tl.from("#f06-vs",{scale:0,rotation:-180,duration:.5,ease:"back.out(2)"},0.5);
+tl.from(".f06-label",{opacity:0,y:-20,duration:.35,stagger:.15},0.55);
+tl.from("#f06-top .f06-f",{opacity:0,scale:.6,duration:.3,stagger:.12,ease:"back.out(2)"},0.6);
+tl.to("#f06-top .f06-f",{x:4,duration:.06,repeat:40,yoyo:true,ease:"none"},1.5);
+tl.from("#f06-ht",{opacity:0,y:30,duration:.4},1.2);
+tl.from("#f06-hb",{opacity:0,y:30,duration:.4},1.5);
+tl.from("#f06-btn",{opacity:0,scale:.6,duration:.45,ease:"back.out(2.2)",transformOrigin:"left center"},1.9);
+tl.to("#f06-btn",{scale:.9,duration:.12,ease:"power2.in",transformOrigin:"left center"},3.1);
+tl.to("#f06-btn",{scale:1,duration:.3,ease:"back.out(3)",transformOrigin:"left center"},3.22);
+tl.from("#f06-gen",{opacity:0,y:20,duration:.4},3.4);
 
 window.__timelines["f06-split"] = tl;
 </script>

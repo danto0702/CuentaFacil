@@ -41,8 +41,7 @@
 </style>
 <div id="root" data-composition-id="f03-pascal" data-width="1080" data-height="1920">
 
-<div id="f03-glow" class="glow"></div>
-<div id="f03-ghost" class="ghost">Ahora</div>
+<div id="f03-glow" class="glow" data-layout-allow-overflow></div>
 <div id="f03-j1" class="abs f03-junk"><svg class="i"><use href="assets/brand/iconos.svg#doc"></use></svg>informe_v8.docx</div>
 <div id="f03-j2" class="abs f03-junk"><svg class="i"><use href="assets/brand/iconos.svg#alert"></use></svg>IBC no cuadra</div>
 <div id="f03-j3" class="abs f03-junk"><svg class="i"><use href="assets/brand/iconos.svg#folder"></use></svg>antecedentes.pdf</div>
@@ -55,6 +54,18 @@
 </div>
 <script>
 const tl = gsap.timeline({ paused: true });
+
+tl.from("#f03-pascal",{x:700,rotation:6,duration:.7,ease:"power4.out"},0.05);
+tl.to("#f03-j1",{x:-500,y:-200,rotation:-60,opacity:0,duration:.6,ease:"power2.in"},0.2);
+tl.to("#f03-j2",{x:500,y:-250,rotation:50,opacity:0,duration:.6,ease:"power2.in"},0.25);
+tl.to("#f03-j3",{x:-500,y:300,rotation:40,opacity:0,duration:.6,ease:"power2.in"},0.3);
+tl.from("#f03-small",{opacity:0,x:-40,duration:.4},0.6);
+tl.from("#f03-big",{opacity:0,scale:.6,duration:.6,ease:"back.out(2)",transformOrigin:"left center"},0.85);
+tl.from("#f03-sub",{opacity:0,y:30,duration:.5},1.5);
+tl.from("#f03-chip",{opacity:0,scale:.5,duration:.5,ease:"back.out(2.2)",transformOrigin:"left center"},2.0);
+tl.to("#f03-chip .i",{rotation:12,duration:.12,repeat:5,yoyo:true,ease:"sine.inOut"},2.6);
+tl.to("#f03-pascal",{y:-14,duration:1.1,repeat:3,yoyo:true,ease:"sine.inOut"},0.9);
+tl.fromTo("#f03-glow",{scale:.8,opacity:.5},{scale:1.1,opacity:1,duration:2.5,yoyo:true,repeat:1,ease:"sine.inOut"},0);
 
 window.__timelines["f03-pascal"] = tl;
 </script>

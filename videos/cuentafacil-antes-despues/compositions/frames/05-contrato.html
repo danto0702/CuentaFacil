@@ -43,7 +43,7 @@
 </style>
 <div id="root" data-composition-id="f05-contrato" data-width="1080" data-height="1920">
 
-<div id="f05-glow" class="glow"></div>
+<div id="f05-glow" class="glow" data-layout-allow-overflow></div>
 <h2 id="f05-head" class="abs disp center">Leo tu contrato. Reviso tus soportes.</h2>
 <div id="f05-card" class="abs">
   <h3>📋 Esto es lo que leí de tus documentos:</h3>
@@ -63,6 +63,16 @@
 </div>
 <script>
 const tl = gsap.timeline({ paused: true });
+
+tl.from("#f05-head",{opacity:0,y:40,duration:.5},0.1);
+tl.from("#f05-card",{y:200,opacity:0,duration:.6,ease:"power3.out"},0.3);
+tl.from("#f05-card li",{opacity:0,x:-30,duration:.35,stagger:.15},0.7);
+const n={v:0}; const el=document.getElementById("f05-num");
+tl.from("#f05-count",{opacity:0,y:40,duration:.4},1.6);
+tl.to(n,{v:15,duration:1.2,ease:"power2.out",onUpdate:()=>{el.textContent=Math.round(n.v);}},1.7);
+tl.from(".f05-chk",{opacity:0,x:120,duration:.45,stagger:.35,ease:"power3.out"},2.9);
+tl.from(".f05-chk .okbox",{scale:0,rotation:-90,duration:.4,stagger:.35,ease:"back.out(2.5)"},3.1);
+tl.fromTo("#f05-glow",{scale:.9},{scale:1.15,duration:3,yoyo:true,repeat:1,ease:"sine.inOut"},0);
 
 window.__timelines["f05-contrato"] = tl;
 </script>
