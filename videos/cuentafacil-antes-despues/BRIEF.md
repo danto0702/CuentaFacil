@@ -9,7 +9,7 @@ language: es-CO
 audience: contratistas de prestación de servicios de entidades públicas colombianas
 length: 45s
 angle: antes-y-despues
-voice: kokoro:em_alex
+voice: clone:chatterbox (antes kokoro:em_alex)
 ---
 
 ## Intent

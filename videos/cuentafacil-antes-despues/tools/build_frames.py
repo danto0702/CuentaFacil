@@ -144,6 +144,7 @@ PHONE = '''
 .m.me{align-self:flex-end;border-radius:18px 18px 6px 18px;background:#005C4B}
 .m .t{display:block;text-align:right;font-size:20px;color:#B8C6C3;margin-top:4px}
 .m img{display:block;width:100%;height:220px;object-fit:cover;border-radius:12px;margin-bottom:10px}
+.m img.doc{height:190px;object-fit:cover;object-position:50% 0}
 .btns{max-width:84%;margin-top:-12px;border-radius:0 0 18px 18px;background:#202C33;overflow:hidden}
 .btn{display:flex;align-items:center;justify-content:center;gap:12px;padding:20px;border-top:2px solid #2B3A43;color:#25D366;font:600 31px/1 "Geist",sans-serif;white-space:nowrap}
 .btn.dim{color:#7C8A91}
@@ -169,10 +170,10 @@ frames['04-chat'] = ('f04-chat', '''
 <div id="f04-phone" class="phone">
   <div class="ptop"><img src="assets/brand/logo.webp" alt=""><div><b>Pascal · CuentaFacil</b><small>en línea</small></div></div>
   <div id="f04-msgs" class="chat">
-    <div class="m me"><img src="assets/real/foto-reunion-difuminada.jpg" alt="">Se realizó capacitación sobre Misión Médica y DIH al personal sanitario durante el mes de octubre<span class="t">10:08 ✓✓</span></div>
-    <div class="m">¿A cuál contrato corresponde?<span class="t">10:08</span></div>
+    <div class="m me"><img class="doc" src="assets/real/correo-difuminado.jpg" alt="">En el mes de agosto se solicitaron 85 carnets de misión médica ante el CRUE.<span style="display:block">Se realizó capacitación en Misión Médica al personal de la ESE y EBS</span><span class="t">15:24 ✓✓</span></div>
+    <div class="m">¿A cuál contrato corresponde?<span class="t">15:24</span></div>
     <div class="btns"><div class="btn">0456 Salud Pública</div><div class="btn dim">0123 Equipos Básicos</div><div class="btn dim">Ambos</div></div>
-    <div class="m">{CHECK}Anotado en octubre de 2026 con 1 foto en la obligación 11: «Capacitación y seguimiento al personal sobre la ruta en Misión Médica.»<span style="display:block;margin-top:10px"><span class="cal">30</span>Informe 01 DE 01 (2 al 31 de octubre de 2026)</span><span class="t">10:08</span></div>
+    <div class="m">{CHECK}Anotado en agosto de 2026 con 1 foto en la obligación 11: «Capacitación y seguimiento al personal sobre la ruta en Misión Médica.»<span style="display:block;margin-top:10px"><span class="cal">30</span>Informe 01 DE 01 (1 al 31 de agosto de 2026)</span><span class="t">15:24</span></div>
   </div>
   <p class="pfoot">Ejemplo ilustrativo · datos ficticios</p>
 </div>

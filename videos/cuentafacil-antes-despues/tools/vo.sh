@@ -1,5 +1,5 @@
 #!/bin/bash
-# Pascal voice-over per scene (Kokoro em_alex, Spanish)
+# Pascal voice-over per scene (Kokoro em_alex, Spanish) — superseded by tools/vo_clone.py (cloned voice)
 cd "$(dirname "$0")/.."
 declare -a L=(
 "01|Así era antes el fin de mes."

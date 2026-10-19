@@ -120,7 +120,7 @@ sfx(whoosh(0.5), S[6] + 2.65, 0.08); sfx(bell(84, 2.0), S[6] + 3.35, 0.08)
 sfx(kick(), S[6] + 4.0, 0.5)                                                  # stamp
 sfx(bell(89, 2.2), S[7] + 0.8, 0.06); sfx(tick(False), S[7] + 3.0, 0.3)
 # ---- duck the music bed under the voice ----
-VO = {0: 1.984, 1: 5.995, 2: 3.861, 3: 5.952, 4: 4.16, 5: 2.944, 6: 4.053, 7: 1.984}
+VO = {0: 1.904, 1: 6.629, 2: 4.003, 3: 4.974, 4: 4.006, 5: 4.261, 6: 4.226, 7: 1.907}
 g = np.ones(N); ramp = int(0.15 * SR)
 for k, d in VO.items():
     a = int((S[k] + 0.35) * SR); z = min(N, int((S[k] + 0.35 + d + 0.1) * SR))
