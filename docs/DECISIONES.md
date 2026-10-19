@@ -229,3 +229,14 @@
   - **Límites:** solo acepta llamadas desde pascalia.lat (más `PASCALBOT_ORIGINS`). Cada mensaje tiene máximo 600 caracteres, se envían los últimos 10 turnos y la respuesta tiene máximo 450 tokens. Hay un tope de 20 mensajes cada 10 minutos por visitante y 1.500 al día para todo el sitio. Si falla o no hay clave, responde con el enlace de WhatsApp.
   - **Widget:** `pascalbot/` en el repositorio de la página (JS y CSS sin dependencias, avatar en `pascalbot/avatar.svg`). La conversación se guarda solo en la pestaña (`sessionStorage`).
 - **Consecuencias:** sin tablas nuevas ni plantillas de Meta. El panel necesita `ANTHROPIC_API_KEY` (variable de referencia al worker). El uso se registra en los logs del panel (`pascalbot.reply`), no en `ai_usage`. Cuando cambien los términos o los precios, hay que actualizar la base de conocimiento.
+
+## ADR-050 — Cuenta bancaria por WhatsApp (2026-10-19)
+- **Contexto:** la cuenta bancaria del informe (banco, tipo y número) sale del resumen del contrato de SECOP II. Si SECOP no la trae o el contratista cambia de cuenta, no había forma de corregirla por WhatsApp. La certificación bancaria estaba en la lista de soportes, pero no se leía.
+- **Decisión:**
+  - **Cambiarla:** *cambiar mi cuenta bancaria* (también «cuenta bancaria», «cambié de banco», «certificación bancaria»). El contratista envía la certificación bancaria en PDF o foto, que se lee con IA (modelo rápido) y solo copia lo impreso, o escribe los datos («Ahorros Bancolombia 123…»), que se leen sin IA. Si falta el tipo, se pregunta con botones (ahorros o corriente). Nada se guarda sin confirmar con «Sí, guardarla».
+  - **Advertencia de titular:** si la certificación está a nombre de otra cédula, se advierte; no se bloquea.
+  - **Pedirla si falta:**
+    - en la configuración, después del resumen, si SECOP no trae la cuenta: con certificación, escrita o «Después»;
+    - a quienes ya tienen contratos y les falta, una vez al día después de un mensaje, igual que el lugar de expedición. Esa pregunta no la pidió el contratista, así que una foto que no es certificación sigue como evidencia.
+  - **Gestor:** puede registrar la cuenta de la persona, y los textos la nombran.
+- **Consecuencias:** sin cambio de esquema. La certificación válida queda en los soportes con el código `CUENTA_BANCARIA`. *Mis datos* indica cómo cambiar la cuenta.

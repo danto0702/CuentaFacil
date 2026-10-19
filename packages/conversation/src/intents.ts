@@ -24,6 +24,7 @@ export type Command =
   | 'payments'
   | 'describe'
   | 'delete_signature'
+  | 'bank'
   | 'guide'
   | 'people'
   | 'add_person'
@@ -80,6 +81,23 @@ const COMMANDS: [Command, string[]][] = [
       'elimina mi firma',
       'quitar mi firma',
       'quita mi firma',
+    ],
+  ],
+  [
+    'bank',
+    [
+      'cuenta bancaria',
+      'mi cuenta bancaria',
+      'cambiar cuenta bancaria',
+      'cambiar mi cuenta bancaria',
+      'actualizar cuenta bancaria',
+      'actualizar mi cuenta bancaria',
+      'corregir cuenta bancaria',
+      'nueva cuenta bancaria',
+      'certificacion bancaria',
+      'cambiar banco',
+      'cambiar de banco',
+      'cambiar numero de cuenta',
     ],
   ],
   [
@@ -214,6 +232,11 @@ const PATTERNS: [Command, RegExp][] = [
   [
     'undo_note',
     /\b(borra|borrar|borrala|elimina|eliminar|eliminala|quita|quitar|quitala)\b.*\b(nota|actividad|registro|eso|esa|ultima)\b/,
+  ],
+  // «Quiero cambiar la cuenta bancaria», «cambié de banco»: before the report patterns («la cuenta»).
+  [
+    'bank',
+    /\b(cambi\w*|actualiz\w*|corrig\w*|corregir|nueva|otra|registr\w*|agreg\w*|pon\w*|envi\w*|mand\w*)\b.*\b(cuenta bancaria|cuenta de ahorros|cuenta corriente|banco|numero de cuenta|certificacion bancaria)\b/,
   ],
   ['resend', new RegExp(`\\b${REDO}\\b.*\\b${REPORT}\\b`)],
   ['draft', new RegExp(`\\b${ACTION}\\b.*\\b${REPORT}\\b`)],

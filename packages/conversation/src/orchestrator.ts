@@ -12,6 +12,7 @@ import {
   recutPeriods,
 } from '@cuentasbot/shared';
 import { allyStatusText, findAllyCode, levelUpText, NOT_ALLY_TEXT, referralText } from './ally.js';
+import { applyBank, type BankCandidate, bankAskText, bankQuestion, readBankMessage } from './bank.js';
 import { BRAND, SIGNATURE } from './brand.js';
 import type {
   Charge,
@@ -68,6 +69,7 @@ const OPEN_WHILE_UNPAID: Command[] = [
   'stop_reminders',
   'start_reminders',
   'payments',
+  'bank',
 ];
 
 type Ctx = Record<string, unknown>;
@@ -735,14 +737,27 @@ export class Orchestrator {
    * once, after their message is handled, so the documents never go out with that field empty.
    */
   private async askMissingProfile(turn: Turn): Promise<void> {
-    if (turn.state.flow !== 'idle' || turn.user.docIssuedIn.trim()) return;
+    const needsPlace = !turn.user.docIssuedIn.trim();
+    // The bank account comes from SECOP; when it was not there it is asked for (or a certificate).
+    const needsBank = !turn.user.accountNumber.trim();
+    if (turn.state.flow !== 'idle' || (!needsPlace && !needsBank)) return;
     // At most once a day: not answering it must never turn into the same question after every message.
     const today = this.deps.clock.today();
     if (turn.state.context.profileAskedOn === today) return;
     if ((await this.deps.store.listContracts(turn.user.id)).length === 0) return;
     turn.state.context = { ...turn.state.context, profileAskedOn: today };
-    this.setFlow(turn, 'profile_doc_issued_in', 'ask');
     const other = this.forOther(turn);
+    if (!needsPlace) {
+      // 'ask': not requested by the contractor, so a photo that is not a certificate stays an evidence.
+      this.setFlow(turn, 'bank_input', 'ask');
+      turn.out.push(
+        text(
+          `🏦 Me falta un dato para ${other ? `los documentos de ${this.labelOf(turn)}` : 'tus documentos'}: la cuenta bancaria donde ${other ? 'le' : 'te'} pagan los honorarios (no venía en SECOP).\n${bankAskText(this.bankWhose(turn))}`,
+        ),
+      );
+      return;
+    }
+    this.setFlow(turn, 'profile_doc_issued_in', 'ask');
     turn.out.push(
       text(
         other
@@ -879,6 +894,9 @@ export class Orchestrator {
 
     // Answers about the previous report used as writing style work anywhere, also during the setup.
     if (msg.replyId?.startsWith('style:')) return this.onStyleReply(turn, msg.replyId);
+    // Bank account (certificate, typed, or the buttons that confirm it) works while a contract is unpaid.
+    if (msg.replyId?.startsWith('bank:')) return this.onBankReply(turn, msg.replyId.slice(5));
+    if (turn.state.flow === 'bank_input' && (await this.onBankInput(turn, msg))) return;
     if (msg.replyId === 'sigdel:yes' || msg.replyId === 'sigdel:no') {
       this.reset(turn);
       if (msg.replyId === 'sigdel:no' || this.forOther(turn)) {
@@ -1323,6 +1341,8 @@ export class Orchestrator {
         );
         return;
       }
+      case 'bank':
+        return this.askBank(turn);
       case 'describe':
         return this.withContract(turn, 'describe_pick_contract', (cs) => this.askDescription(turn, cs[0]!));
       case 'delete_data':
@@ -1339,7 +1359,7 @@ export class Orchestrator {
       case 'my_data':
         turn.out.push(
           text(
-            `👤 ${turn.user.fullName}\nC.C. ****${turn.user.docNumber.slice(-4)} de ${turn.user.docIssuedIn}\nCuenta ${turn.user.accountType} ${turn.user.bankName} ****${turn.user.accountNumber.slice(-4)}\nRégimen ${turn.user.regime === 'comun' ? 'común' : 'simplificado'}`,
+            `👤 ${turn.user.fullName}\nC.C. ****${turn.user.docNumber.slice(-4)} de ${turn.user.docIssuedIn}\n${turn.user.accountNumber ? `Cuenta ${turn.user.accountType} ${turn.user.bankName} ****${turn.user.accountNumber.slice(-4)}` : 'Cuenta bancaria: no la tengo'}\nRégimen ${turn.user.regime === 'comun' ? 'común' : 'simplificado'}\n\nPara cambiar la cuenta escribe *cambiar mi cuenta bancaria*.`,
           ),
         );
         return;
@@ -1535,6 +1555,72 @@ export class Orchestrator {
     await this.deps.store.setContractLabel(c.id, label);
     this.reset(turn);
     turn.out.push(text(`✅ Listo: tu contrato *${c.fullNumber}* ahora aparece como *${label}*.`));
+  }
+
+  // -------------------------------------------------------------------------
+  // Bank account: from SECOP at setup; changed here with a certificate or written, always confirmed
+  // -------------------------------------------------------------------------
+  private bankWhose(turn: Turn): string {
+    return this.forOther(turn) ? `de la cuenta de ${this.labelOf(turn)}` : 'de tu cuenta';
+  }
+
+  private bankOwner(turn: Turn) {
+    const other = this.forOther(turn);
+    return {
+      name: other ? this.labelOf(turn) : 'ti',
+      doc: turn.user.docNumber,
+      whose: other ? `de ${this.labelOf(turn)}` : '',
+    };
+  }
+
+  private async askBank(turn: Turn): Promise<void> {
+    this.setFlow(turn, 'bank_input', 'wait');
+    const u = turn.user;
+    const now = u.accountNumber
+      ? `Hoy tengo: *${u.accountType === 'corriente' ? 'Corriente' : 'Ahorros'} ${u.bankName} ****${u.accountNumber.slice(-4)}*.\n`
+      : '';
+    turn.out.push(text(`${now}${bankAskText(this.bankWhose(turn))}\nPara salir escribe *menú*.`));
+  }
+
+  /** Message while waiting for the account; false when it is something else (handled normally). */
+  private async onBankInput(turn: Turn, msg: Inbound): Promise<boolean> {
+    const r = await readBankMessage(this.deps, turn.user.id, msg);
+    if (!r) {
+      this.reset(turn);
+      return false;
+    }
+    if ('retry' in r) {
+      if (r.notCertificate && turn.state.step === 'ask') {
+        this.reset(turn);
+        return false;
+      }
+      turn.out.push(text(r.retry));
+      return true;
+    }
+    this.setFlow(turn, 'bank_confirm', 'confirm', { bankCandidate: r.candidate });
+    turn.out.push(bankQuestion('bank', r.candidate, this.bankOwner(turn)));
+    return true;
+  }
+
+  private async onBankReply(turn: Turn, answer: string): Promise<void> {
+    const c = turn.state.context.bankCandidate as BankCandidate | undefined;
+    if (!c || answer === 'no') return this.askBank(turn);
+    if (answer === 'ahorros' || answer === 'corriente') {
+      const next = { ...c, accountType: answer } as BankCandidate;
+      this.setFlow(turn, 'bank_confirm', 'confirm', { bankCandidate: next });
+      turn.out.push(bankQuestion('bank', next, this.bankOwner(turn)));
+      return;
+    }
+    if (answer !== 'yes') return this.askBank(turn);
+    const user = applyBank(turn.user, c);
+    await this.deps.store.saveUserProfile(user);
+    turn.user = user;
+    this.reset(turn);
+    turn.out.push(
+      text(
+        `✅ Guardé la cuenta *${user.accountType === 'corriente' ? 'Corriente' : 'Ahorros'} ${user.bankName} ${user.accountNumber}*. Así sale en ${this.forOther(turn) ? `los próximos documentos de ${this.labelOf(turn)}` : 'tus próximos documentos'}.`,
+      ),
+    );
   }
 
   /** «¿Qué debo?»: configuration and report charges of each contract, with a button to pay. */

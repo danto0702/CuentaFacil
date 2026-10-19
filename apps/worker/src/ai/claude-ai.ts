@@ -1,5 +1,7 @@
+import type Anthropic from '@anthropic-ai/sdk';
 import type {
   AI,
+  BankReading,
   ClassifyResult,
   ContractExtraction,
   DocumentInput,
@@ -115,6 +117,33 @@ const draftSchema = z.object({
 });
 
 const rewriteSchema = z.object({ paragraphs: z.array(z.string()) });
+
+/** Image types the API reads; others are sent as JPEG (WhatsApp photos are JPEG). */
+const IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/gif', 'image/webp']);
+
+const bankCertificateSchema = z.object({
+  isBankCertificate: z
+    .boolean()
+    .describe(
+      'True only if the document certifies a bank or wallet account (certificación bancaria, or a statement / app screenshot showing the account)',
+    ),
+  summary: z
+    .string()
+    .describe(
+      'What the document is, in Colombian Spanish, a few words (e.g. "Certificación bancaria de Davivienda")',
+    ),
+  bankName: z
+    .string()
+    .nullable()
+    .describe('Bank or wallet name as printed, e.g. "BANCOLOMBIA", "BANCO DE BOGOTÁ", "NEQUI"'),
+  accountType: z
+    .enum(['ahorros', 'corriente'])
+    .nullable()
+    .describe('Savings (ahorros) or checking (corriente); null if not printed'),
+  accountNumber: z.string().nullable().describe('Account number exactly as printed, digits only'),
+  holderName: z.string().nullable().describe('Account holder name as printed'),
+  holderDoc: z.string().nullable().describe('Account holder ID number (cédula or NIT), digits only'),
+});
 
 const previousReportSchema = z.object({
   isActivityReport: z
@@ -287,6 +316,34 @@ export class ClaudeAI implements AI {
       schema: previousReportSchema,
     });
     return { ...r, examples: r.examples.slice(0, 3) };
+  }
+
+  async readBankCertificate(doc: DocumentInput): Promise<BankReading> {
+    const data = doc.data.toString('base64');
+    const file: Anthropic.Beta.BetaContentBlockParam = doc.mime.startsWith('image/')
+      ? {
+          type: 'image',
+          source: {
+            type: 'base64',
+            media_type: (IMAGE_TYPES.has(doc.mime) ? doc.mime : 'image/jpeg') as 'image/jpeg',
+            data,
+          },
+        }
+      : {
+          type: 'document',
+          title: doc.label,
+          source: { type: 'base64', media_type: 'application/pdf', data },
+        };
+    return this.llm.structured({
+      purpose: 'read_bank_certificate',
+      model: this.models.fast,
+      effort: 'low',
+      maxTokens: 800,
+      system:
+        'You read a document a Colombian contractor sent to register the bank account where their fees are paid. Copy only what is printed, never guess; a wrong digit means an unpaid account. If it is not a bank certificate or does not show an account number, isBankCertificate is false.',
+      content: [file, { type: 'text', text: 'What does this document say about the bank account?' }],
+      schema: bankCertificateSchema,
+    });
   }
 
   async extractSocialSecurity(doc: DocumentInput): Promise<Omit<SocialSecurity, 'userId'> | null> {

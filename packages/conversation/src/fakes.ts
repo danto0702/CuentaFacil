@@ -1,5 +1,6 @@
 import { addDays, type IsoDate } from '@cuentasbot/shared';
 import type {
+  BankReading,
   ContractExtraction,
   DocumentInput,
   Note,
@@ -219,6 +220,30 @@ export class FakeAI implements AI {
       guide: 'Frases cortas en pasado impersonal.',
       examples: ['Se realizó la visita de seguimiento a la IPS.'],
     };
+  }
+
+  /** «Certificación…» in the file name or text reads as a Bancolombia savings account of the fake user. */
+  async readBankCertificate(doc: DocumentInput): Promise<BankReading> {
+    const isBankCertificate = /certificaci/i.test(`${doc.label} ${doc.data.toString('utf8')}`);
+    return isBankCertificate
+      ? {
+          isBankCertificate,
+          summary: 'Certificación bancaria de Bancolombia',
+          bankName: 'BANCOLOMBIA',
+          accountType: 'ahorros',
+          accountNumber: '12345678901',
+          holderName: 'MARÍA FERNANDA PRUEBA FICTICIA',
+          holderDoc: '1000000001',
+        }
+      : {
+          isBankCertificate,
+          summary: 'Una factura de servicios públicos',
+          bankName: null,
+          accountType: null,
+          accountNumber: null,
+          holderName: null,
+          holderDoc: null,
+        };
   }
 
   async draftObligation(_o: Obligation, notes: Note[], style?: WritingStyle | null): Promise<DraftResult> {

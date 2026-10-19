@@ -1,6 +1,7 @@
 import type { IsoDate } from '@cuentasbot/shared';
 import type {
   AllyStatus,
+  BankReading,
   BillingSettings,
   CashCodeResult,
   Charge,
@@ -130,6 +131,8 @@ export interface AI {
   draftObligation(obligation: Obligation, notes: Note[], style?: WritingStyle | null): Promise<DraftResult>;
   /** Reads a report the contractor made before (PDF or Word): is it one, and how do they write? */
   readPreviousReport(doc: DocumentInput): Promise<PreviousReportReading>;
+  /** Reads a bank certificate (PDF or photo): bank, account type and number, holder. */
+  readBankCertificate(doc: DocumentInput): Promise<BankReading>;
   rewrite(paragraphs: string[], instruction: string, obligation: Obligation): Promise<string[]>;
   /** Reads the SECOP contract and the clauses (setup model). Never invents values: unknowns are null. */
   extractContract(docs: DocumentInput[]): Promise<ContractExtraction>;

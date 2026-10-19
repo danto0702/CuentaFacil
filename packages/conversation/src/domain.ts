@@ -308,6 +308,20 @@ export interface PreviousReportReading {
   examples: string[];
 }
 
+/** What a bank certificate says (or what the contractor wrote). Unknowns are null. */
+export interface BankReading {
+  isBankCertificate: boolean;
+  /** What the document is, in a few words («Certificación bancaria de Bancolombia»). */
+  summary: string;
+  bankName: string | null;
+  accountType: 'ahorros' | 'corriente' | null;
+  /** Digits only. */
+  accountNumber: string | null;
+  holderName: string | null;
+  /** Holder's ID number, digits only. */
+  holderDoc: string | null;
+}
+
 export interface DocumentInput {
   label: string;
   data: Buffer;

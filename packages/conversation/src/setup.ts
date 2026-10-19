@@ -8,6 +8,7 @@ import {
   toIso,
 } from '@cuentasbot/shared';
 import { allyWelcome } from './ally.js';
+import { type BankCandidate, bankAskText, bankQuestion, readBankMessage } from './bank.js';
 import { BRAND, SIGNATURE } from './brand.js';
 import type { ContractExtraction, ConversationState, Entity, Period, RegistryEntry, User } from './domain.js';
 import type { Deps, Inbound, InstitutionDocuments, Outgoing } from './ports.js';
@@ -45,6 +46,9 @@ interface SetupCtx {
   /** Where the start date came from: the entity contract registry or the contractor. */
   startFromRegistry?: boolean;
   docIssuedIn?: string;
+  /** Bank account sent when SECOP had none (certificate or written), until confirmed. */
+  bank?: BankCandidate;
+  bankAsked?: boolean;
   /** Version of applyEntityRules already applied to `extraction`. */
   rules?: number;
   otherName?: string;
@@ -670,6 +674,8 @@ export class SetupFlow {
         return this.onCorrection(turn, msg);
       case 'doc_issued_in':
         return this.onDocIssuedIn(turn, msg);
+      case 'bank':
+        return this.onBank(turn, msg);
       case 'start_date':
         return this.onStartDate(turn, msg);
       case 'end_date':
@@ -856,12 +862,83 @@ export class SetupFlow {
       );
       return;
     }
+    if (!e.contractor.accountNumber && !turn.user.accountNumber && !ctx.bankAsked) {
+      this.askBank(turn);
+      return;
+    }
     if (!e.startDate) {
       this.askStartDate(turn);
       return;
     }
     this.go(turn, 'mode', { startDate: e.startDate });
     this.afterDates(turn);
+  }
+
+  /** SECOP had no bank account: a certificate or the account written, or later (asked again before the documents). */
+  private askBank(turn: SetupTurn): void {
+    this.go(turn, 'bank', { bankAsked: true, bank: undefined });
+    const whose = forOther(turn) ? `de la cuenta de ${firstName(turn.user)}` : 'de tu cuenta';
+    turn.out.push(
+      buttons(
+        `🏦 En SECOP no encontré la cuenta bancaria donde ${forOther(turn) ? 'le' : 'te'} pagan los honorarios. ${bankAskText(whose)}\nSi no la tienes a mano, toca *Después*.`,
+        [{ id: 'sbank:later', title: 'Después' }],
+      ),
+    );
+  }
+
+  private async onBank(turn: SetupTurn, msg: Inbound): Promise<void> {
+    const ctx = this.ctx(turn);
+    const e = ctx.extraction!;
+    const owner = {
+      name: forOther(turn) ? firstName(turn.user) : 'ti',
+      doc: e.contractor.docNumber || turn.user.docNumber,
+      whose: forOther(turn) ? `de ${firstName(turn.user)}` : '',
+    };
+    const later = { id: 'sbank:later', title: 'Después' };
+    const answer = msg.replyId?.startsWith('sbank:') ? msg.replyId.slice(6) : null;
+    if (answer === 'later') {
+      turn.out.push(
+        text(
+          'Listo, te la vuelvo a pedir más adelante; cuando la tengas, escribe *cambiar mi cuenta bancaria*.',
+        ),
+      );
+      return this.afterConfirm(turn);
+    }
+    if (answer === 'no' || (answer && !ctx.bank)) return this.askBank(turn);
+    if (answer === 'ahorros' || answer === 'corriente') {
+      const bank = { ...ctx.bank!, accountType: answer } as BankCandidate;
+      this.go(turn, 'bank', { bank });
+      turn.out.push(bankQuestion('sbank', bank, owner, [later]));
+      return;
+    }
+    if (answer === 'yes') {
+      const c = ctx.bank!;
+      const extraction = {
+        ...e,
+        contractor: {
+          ...e.contractor,
+          bankName: c.bankName,
+          accountType: c.accountType,
+          accountNumber: c.accountNumber,
+        },
+      };
+      this.go(turn, 'bank', { extraction, bank: undefined });
+      turn.out.push(text('✅ Guardé la cuenta.'));
+      return this.afterConfirm(turn);
+    }
+    const r = await readBankMessage(this.deps, turn.user.id, msg);
+    if (!r || 'retry' in r) {
+      turn.out.push(
+        buttons(
+          r?.retry ??
+            bankAskText(forOther(turn) ? `de la cuenta de ${firstName(turn.user)}` : 'de tu cuenta'),
+          [later],
+        ),
+      );
+      return;
+    }
+    this.go(turn, 'bank', { bank: r.candidate });
+    turn.out.push(bankQuestion('sbank', r.candidate, owner, [later]));
   }
 
   private async onDocIssuedIn(turn: SetupTurn, msg: Inbound): Promise<void> {
