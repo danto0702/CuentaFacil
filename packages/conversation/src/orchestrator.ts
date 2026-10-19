@@ -3394,9 +3394,21 @@ ${lines.join('\n')}${due.length ? '' : '\n\nNo tienes nada pendiente. 👍'}`,
         accepted: true,
         wamid: msg.id,
       });
+      // The data policy changes with the terms (v1.2): the same «Acepto» covers the version in force.
+      if ((await this.deps.store.acceptedVersion(turn.user.id, 'privacy_policy')) !== POLICY_VERSION)
+        await this.deps.store.recordConsent({
+          userId: turn.user.id,
+          phone: turn.user.phone,
+          kind: 'privacy_policy',
+          policyVersion: POLICY_VERSION,
+          accepted: true,
+          wamid: msg.id,
+        });
       const pending = ctx.termsPending;
       delete ctx.termsPending;
-      turn.out.push(text('✅ ¡Gracias! Quedó registrada tu aceptación de los términos.'));
+      turn.out.push(
+        text('✅ ¡Gracias! Quedó registrada tu aceptación de los términos y de la política de datos.'),
+      );
       if (pending) await this.dispatch(turn, { ...msg, kind: 'text', text: pending, replyId: undefined });
       else await this.menu(turn, false);
       return true;
@@ -3415,13 +3427,13 @@ ${lines.join('\n')}${due.length ? '' : '\n\nNo tienes nada pendiente. 👍'}`,
       {
         type: 'cta_url',
         text: accepted
-          ? `📜 Actualizamos los términos del servicio de ${BRAND.service} (versión ${TERMS_VERSION}): se agregó el Programa de Aliados. Revísalos antes de continuar.`
+          ? `📜 Actualizamos los términos del servicio y la política de datos de ${BRAND.service} (versión ${TERMS_VERSION}): metas mensuales del contrato, cuenta bancaria, preparación de cuentas de otras personas (gestores), borrar tu firma y conservación de archivos. Revísalos antes de continuar.\nPolítica de datos: ${BRAND.privacyPolicy}`
           : `📜 Para seguir necesito que aceptes los términos del servicio de ${BRAND.service} (versión ${TERMS_VERSION}).`,
         button: 'Ver términos',
         url: BRAND.terms,
       },
       buttons(
-        `¿Aceptas los términos del servicio?${msg.kind === 'text' && msg.text ? ' Apenas aceptes, sigo con tu mensaje.' : ''}`,
+        `¿Aceptas los términos del servicio y la política de datos?${msg.kind === 'text' && msg.text ? ' Apenas aceptes, sigo con tu mensaje.' : ''}`,
         [
           { id: 'terms:yes', title: 'Acepto' },
           { id: 'terms:no', title: 'No acepto' },

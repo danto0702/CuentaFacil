@@ -1,6 +1,6 @@
 # Política de Tratamiento de Datos Personales — CuentaFacil de PascalIA
 
-> ✅ **Versión 1.1, aprobada por el abogado.** Vigente desde el 10 de octubre de 2026. Publicada en https://pascalia.lat/politica-de-datos/ (repo `danto0702/pascalia-web`). Reemplaza la 1.0 (9 de octubre de 2026).
+> ✅ **Versión 1.2, vigente desde el 20 de octubre de 2026.** Publicada en https://pascalia.lat/politica-de-datos/ (repo `danto0702/pascalia-web`). Reemplaza la 1.1 (10 de octubre de 2026). Los cambios y las preguntas para el abogado están en `docs/legal/CAMBIOS_v1.2.md`.
 
 > Marco normativo: Ley 1581 de 2012, Decreto 1377 de 2013 (compilado en el Decreto 1074 de 2015) y demás normas que los modifiquen o complementen.
 
@@ -17,14 +17,17 @@
 | Categoría | Ejemplos |
 |-----------|----------|
 | Identificación y contacto | Nombre, tipo y número de documento, lugar de expedición, número de WhatsApp |
-| Contractuales | Contrato publicado en SECOP II, clausulado, obligaciones, valores, plazo, fecha del acta de inicio, supervisor, periodos, informes anteriores y certificaciones de cumplimiento |
-| Financieros | Banco, tipo y número de cuenta para el pago de honorarios, régimen tributario |
-| Seguridad social | Planillas PILA, afiliaciones a EPS, ARL y fondo de pensiones |
+| Contractuales | Contrato publicado en SECOP II, clausulado, obligaciones, metas mensuales y las cantidades cumplidas que reporta el titular, documentos que pide el contrato, valores, plazo, fecha del acta de inicio, supervisor, periodos, informes anteriores y certificaciones de cumplimiento |
+| Financieros | Banco, tipo y número de cuenta para el pago de honorarios y, si la entrega, la certificación bancaria; régimen tributario |
+| Seguridad social | Planillas PILA, afiliaciones a EPS, ARL y fondo de pensiones, y si es pensionado (solo se pregunta cuando la planilla no tiene aporte a pensión) |
 | Certificados | Antecedentes de Policía, Medidas Correctivas, Procuraduría y Contraloría |
 | Actividades | Notas de texto, notas de voz y sus transcripciones, fotografías y documentos de evidencia |
 | Firma (opcional) | Imagen de la firma manuscrita del titular, solo si la entrega voluntariamente |
 | Pagos | Servicio pagado, valor, fecha, medio de pago, referencia de la transacción; en pagos en efectivo, nombre y documento de quien paga y el código usado |
 | Correcciones | Capturas de pantalla que el titular envía con los ajustes pedidos a sus documentos |
+| Modelo de redacción (opcional) | Un informe de actividades anterior que el titular entrega, y una guía de estilo con hasta 3 párrafos de ejemplo extraídos de él |
+| Gestor | Si otra persona prepara las cuentas del titular con su autorización: nombre y número de WhatsApp del gestor, y la fecha y el estado de la autorización |
+| Personas que aparecen en los informes | Nombre y cargo del supervisor y, en los contratos de Equipos Básicos de Salud, nombre y documento del coordinador del equipo, que nos entrega la entidad o el mismo coordinador solo para el borrador del informe de supervisión |
 | Técnicos | Registros de mensajes, fechas de envío y estado de entrega |
 
 Las fotografías de evidencia pueden contener imágenes de **terceros** (por ejemplo, asistentes a una capacitación). El titular se compromete a contar con la autorización de esas personas cuando la ley lo exija. Lo mismo aplica a las capturas de pantalla que contengan datos de terceros. No solicitamos datos sensibles distintos de los anteriores.
@@ -32,15 +35,18 @@ Las fotografías de evidencia pueden contener imágenes de **terceros** (por eje
 ## 3. Finalidades
 
 1. Configurar cada contrato del titular a partir de los documentos que él envía y de la información pública de contratación de la entidad (SECOP II).
-2. Organizar las actividades, evidencias y soportes del titular para preparar sus cuentas de cobro.
-3. Redactar borradores de informes con apoyo de inteligencia artificial, a partir **únicamente** de la información que el titular suministra, para su revisión y aprobación.
-4. Extraer datos de planillas y certificados y validar su coherencia.
-5. Generar y entregar por WhatsApp los documentos (informes, paquetes PDF, archivos comprimidos) e insertar en ellos la firma del titular, si la entregó.
-6. Corregir y regenerar los documentos cuando el titular lo pida.
-7. Enviar recordatorios relacionados con el servicio (el titular puede desactivarlos).
-8. Cobrar los servicios (configuración de contratos e informes) y verificar los pagos, incluidos los pagos en efectivo con código.
-9. Brindar atención personalizada por una persona cuando el titular lo pida o la generación automática no sea satisfactoria.
-10. Cumplir obligaciones legales, contables y de seguridad.
+2. Organizar las actividades, evidencias y soportes del titular para preparar sus cuentas de cobro, incluidos los documentos que pide cada contrato.
+3. Leer las metas mensuales del clausulado, pedir al titular las cantidades que cumplió y llevarlas a sus informes tal como las reporta.
+4. Redactar borradores de informes con apoyo de inteligencia artificial, a partir **únicamente** de la información que el titular suministra, para su revisión y aprobación.
+5. Si el titular entrega un informe anterior, analizarlo con inteligencia artificial para imitar su forma de redactar (tono, extensión y estructura). De ese informe **nunca** se toman actividades, fechas ni cifras. El titular puede cambiarlo o quitarlo escribiendo *informe anterior*.
+6. Extraer datos de planillas, certificados y certificaciones bancarias y validar su coherencia; preguntar una sola vez si el titular es pensionado cuando su planilla no tiene aporte a pensión.
+7. Generar y entregar por WhatsApp los documentos (informes, paquetes PDF, archivos comprimidos) e insertar en ellos la firma del titular, si la entregó.
+8. Corregir y regenerar los documentos cuando el titular lo pida.
+9. Enviar recordatorios relacionados con el servicio (el titular puede desactivarlos).
+10. Cobrar los servicios (configuración de contratos e informes) y verificar los pagos, incluidos los pagos en efectivo con código.
+11. Brindar atención personalizada por una persona cuando el titular lo pida o la generación automática no sea satisfactoria.
+12. Permitir que una persona autorizada por el titular (gestor) prepare sus cuentas, según la sección 4-D.
+13. Cumplir obligaciones legales, contables y de seguridad.
 
 **No** vendemos ni cedemos datos personales a terceros con fines comerciales. **No** compartimos información con la entidad contratante: el titular decide qué documentos entrega.
 
@@ -53,7 +59,7 @@ Para prestar el servicio, los datos se **almacenan y procesan fuera de Colombia,
 | Supabase Inc. | Base de datos y almacenamiento de archivos | Canadá (región ca-central-1, Montreal) | Todos los datos del servicio |
 | Railway Corp. | Servidores de procesamiento y panel administrativo | EE. UU. | Datos en tránsito durante el procesamiento |
 | Meta Platforms, Inc. (WhatsApp Business) | Canal de mensajería | EE. UU. y otros países donde opera Meta | Mensajes, archivos y número de WhatsApp |
-| Anthropic PBC | Inteligencia artificial (lectura de documentos y redacción) | EE. UU. | Solo el contenido necesario para cada tarea (notas, documentos, obligaciones) |
+| Anthropic PBC | Inteligencia artificial (lectura de documentos, redacción y chat de la página web) | EE. UU. | Solo el contenido necesario para cada tarea (notas, documentos, obligaciones, mensajes del chat de la página) |
 | OpenAI, L.L.C. | Transcripción de notas de voz | EE. UU. | Audio de las notas de voz |
 | Wompi (Bancolombia S.A.) | Pagos en línea | Colombia | Datos de la transacción de pago (los datos de tarjeta o cuenta los trata Wompi directamente) |
 
@@ -63,7 +69,7 @@ Los proveedores de inteligencia artificial reciben los datos **solo en la medida
 
 ## 4-A. Firma manuscrita
 
-La entrega de la imagen de la firma es **opcional**; sin ella, los documentos se entregan sin firma. Si el titular la entrega, autoriza de manera expresa que se use **únicamente** para insertarla en sus propios informes de actividades y en el espacio del contratista del borrador del informe de supervisión. Nunca se inserta en documentos de terceros, nunca se usa la firma del supervisor ni de otras personas, y se guarda cifrada. El titular puede pedir en cualquier momento que se borre, escribiendo *borrar mi firma*.
+La entrega de la imagen de la firma es **opcional**; sin ella, los documentos se entregan sin firma. Si el titular la entrega, autoriza de manera expresa que se use **únicamente** para insertarla en sus propios informes de actividades y en el espacio del contratista del borrador del informe de supervisión. Nunca se inserta en documentos de terceros, nunca se usa la firma del supervisor ni de otras personas, y se guarda cifrada. Solo el titular puede entregarla o borrarla, desde su propio número; un gestor nunca puede hacerlo. El titular puede borrarla en cualquier momento escribiendo *borrar mi firma*: Pascal pide confirmación y la elimina.
 
 ## 4-B. Datos obtenidos de fuentes públicas
 
@@ -73,6 +79,17 @@ Para precargar la configuración de los contratos usamos información de contrat
 
 Cuando el titular pide hablar con una persona, o cuando la generación automática no es satisfactoria, el responsable del tratamiento revisa la conversación, los documentos y los datos necesarios para resolver el caso. Solo accede a la información de ese titular y está obligado a mantener su confidencialidad.
 
+## 4-D. Gestores (cuentas preparadas por otra persona)
+
+- Una persona (el **gestor**) puede preparar las cuentas de cobro del titular solo si el titular lo autoriza **desde su propio número de WhatsApp**. Esa autorización incluye la aceptación de esta política y queda registrada con la fecha y la versión.
+- Para pedir la autorización, el gestor nos entrega el **nombre y el número de WhatsApp** del titular. Usamos esos datos **solo** para enviarle la solicitud. Si el titular no autoriza, o no responde en 30 días, los borramos.
+- Con la autorización, el gestor puede acceder a los contratos, actividades, soportes y documentos del titular, y recibe sus entregas. El gestor queda obligado a usarlos solo para preparar esas cuentas y a mantener su confidencialidad.
+- El titular puede revocar la autorización en cualquier momento escribiendo *revocar autorización*. Desde ese momento el gestor deja de acceder a sus datos. Lo que el gestor ya recibió (por ejemplo, documentos entregados) queda bajo su responsabilidad.
+
+## 4-E. Chat de la página web (PascalBot)
+
+En https://pascalia.lat, PascalBot responde preguntas generales sobre CuentaFacil. No pide datos personales ni tiene acceso a las cuentas de nadie; recomendamos no escribir en él datos personales. Los mensajes se envían a Anthropic para generar la respuesta. PascalIA no guarda el contenido de esas conversaciones: solo registros técnicos de uso (cantidad de mensajes y de texto procesado) y, de forma temporal y en memoria, la dirección IP para limitar el abuso del servicio. La conversación queda en el navegador del visitante hasta que cierra la pestaña.
+
 ## 5. Derechos del titular
 
 El titular puede, en cualquier momento y de forma gratuita: conocer, actualizar y rectificar sus datos; solicitar prueba de la autorización; ser informado sobre el uso dado a sus datos; presentar quejas ante la Superintendencia de Industria y Comercio; **revocar la autorización y solicitar la supresión** de sus datos cuando no exista un deber legal o contractual de conservarlos; y acceder gratuitamente a sus datos.
@@ -81,12 +98,12 @@ El titular puede, en cualquier momento y de forma gratuita: conocer, actualizar 
 
 - **Consultas:** se atienden en máximo **10 días hábiles** (prorrogables 5 días hábiles informando el motivo).
 - **Reclamos** (corrección, actualización, supresión, revocatoria): máximo **15 días hábiles** (prorrogables 8 días hábiles informando el motivo).
-- Canales: WhatsApp (comandos "mis datos", "soporte", "borrar mis datos") y el correo indicado en la sección 1.
+- Canales: WhatsApp (comandos "mis datos", "soporte", "borrar mis datos", "borrar mi firma", "revocar autorización") y el correo indicado en la sección 1. Estos comandos funcionan aunque el titular no haya aceptado una nueva versión de los términos.
 - Al pedir "borrar mis datos", el bot confirma la solicitud, la registra con fecha, y se eliminan o anonimizan los datos en el plazo anterior, conservando únicamente lo que la ley exija (p. ej. soportes contables de pagos).
 
 ## 7. Conservación
 
-Los archivos (documentos, evidencias, audios) se conservan por **24 meses** desde su carga, salvo solicitud de supresión previa, y luego se eliminan automáticamente. Los registros de consentimiento y los soportes contables (incluidos los de pagos en efectivo) se conservan por el término legal aplicable. La imagen de la firma se conserva mientras el titular use el servicio o hasta que pida borrarla.
+Los archivos (documentos, evidencias, audios) se conservan por **24 meses** desde su carga, salvo solicitud de supresión previa, y luego se eliminan automáticamente. Las copias temporales de entrega (paquetes ZIP con enlace de descarga y mensajes guardados porque no se pudieron enviar por WhatsApp) se eliminan a los **30 días**. El modelo de redacción se conserva mientras el titular no lo cambie o lo quite. Las cantidades de metas de cada cuenta y la respuesta sobre si es pensionado se conservan mientras el titular use el servicio y se borran con *borrar mis datos*. Los registros de consentimiento y los soportes contables (incluidos los de pagos en efectivo) se conservan por el término legal aplicable. La imagen de la firma se conserva mientras el titular use el servicio o hasta que pida borrarla.
 
 ## 8. Seguridad
 

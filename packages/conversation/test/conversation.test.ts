@@ -509,17 +509,22 @@ describe('other flows', () => {
     const h = harness();
     h.store.data.consents = (h.store.data.consents ?? []).map((c) => ({ ...c, policyVersion: '1.0' }));
     let out = show(await h.say('¿Qué me falta?'));
-    expect(out[0]).toMatch(/^📜 Actualizamos los términos del servicio de CuentaFacil \(versión 1\.1\)/);
+    expect(out[0]).toMatch(
+      /^📜 Actualizamos los términos del servicio y la política de datos de CuentaFacil \(versión 1\.2\)/,
+    );
     expect(out[1]).toBe(
-      '¿Aceptas los términos del servicio? Apenas aceptes, sigo con tu mensaje. [Acepto] [No acepto] [Hablar con soporte]',
+      '¿Aceptas los términos del servicio y la política de datos? Apenas aceptes, sigo con tu mensaje. [Acepto] [No acepto] [Hablar con soporte]',
     );
     out = show(await h.press('terms:yes'));
-    expect(out[0]).toBe('✅ ¡Gracias! Quedó registrada tu aceptación de los términos.');
+    expect(out[0]).toBe(
+      '✅ ¡Gracias! Quedó registrada tu aceptación de los términos y de la política de datos.',
+    );
     expect(out[1]).toContain('📄 *0001 Salud Pública*');
     // Accepted: not asked again.
     out = show(await h.say('menú'));
     expect(out[0]).toMatch(/^Hola María/);
-    expect(await h.store.acceptedVersion(h.store.data.users[0]!.id, 'terms')).toBe('1.1');
+    expect(await h.store.acceptedVersion(h.store.data.users[0]!.id, 'terms')).toBe('1.2');
+    expect(await h.store.acceptedVersion(h.store.data.users[0]!.id, 'privacy_policy')).toBe('1.2');
   });
 
   it('keeps asking while the new terms are not accepted', async () => {

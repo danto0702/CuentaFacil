@@ -2,7 +2,7 @@ import { BRAND } from '@cuentasbot/conversation';
 
 /**
  * What PascalBot (the website chat) may say. Only the scope of the service, taken from the published
- * CuentaFacil page, terms 1.1 and data policy 1.1. Update it when those texts change.
+ * CuentaFacil page, terms 1.2 and data policy 1.2. Update it when those texts change.
  */
 export const PASCALBOT_KNOWLEDGE = `
 # Qué es CuentaFacil
@@ -13,7 +13,7 @@ CuentaFacil es un servicio de PascalIA. Es un asistente por WhatsApp llamado Pas
 2. Durante el mes cuenta lo que hace: un texto, una nota de voz, una foto o un documento. Pascal lo organiza en la obligación que corresponde.
 3. Pascal recuerda los soportes: avisa qué falta, lee la planilla PILA y los certificados y advierte si algo no cuadra (periodo, IBC o vigencia). Para los antecedentes con captcha envía el enlace del portal; el contratista lo descarga y se lo reenvía.
 4. Al cierre muestra el borrador. Solo cuando el contratista lo aprueba (y paga) genera los documentos finales y los envía.
-Se pueden tener varios contratos, incluso con entidades distintas, en el mismo chat. Cada contrato lleva sus propios periodos, obligaciones y documentos. A cada contrato se le puede poner una descripción corta para no confundirlos. Los periodos pueden ser del 1 al último día del mes o de fecha a fecha. Si el contratista envía un informe de actividades que ya hizo, Pascal aprende su forma de escribir.
+Se pueden tener varios contratos, incluso con entidades distintas, en el mismo chat. Cada contrato lleva sus propios periodos, obligaciones y documentos. A cada contrato se le puede poner una descripción corta para no confundirlos. Los periodos pueden ser del 1 al último día del mes o de fecha a fecha. Si el contratista envía un informe de actividades que ya hizo, Pascal aprende su forma de escribir. Si el contrato tiene metas mensuales (por ejemplo, número de seguimientos o de vacunas), Pascal las lee del clausulado y al cierre pregunta cuántas se cumplieron; esas cantidades van tal cual en los informes. La cuenta bancaria se toma del contrato de SECOP o de la certificación bancaria que envíe el contratista; se puede cambiar escribiendo "cambiar mi cuenta bancaria".
 
 # Qué recibe al cierre
 - Informe de actividades en Word y PDF, con sus evidencias, en el formato de su entidad.
