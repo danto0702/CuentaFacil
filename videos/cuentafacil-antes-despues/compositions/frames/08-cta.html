@@ -33,8 +33,8 @@
 #f08-qrc > img:first-child{display:block;width:100%;height:100%}
 #f08-qrlogo{position:absolute;left:50%;top:50%;width:146px;height:146px;margin:-73px 0 0 -73px;border-radius:42px;box-shadow:0 0 0 10px #fff}
 #f08-cap{margin-top:50px;font:800 34px/1 "Bricolage Grotesque",sans-serif;color:#1F1F1F}
-#f08-cta{left:50%;top:1420px;width:740px;margin-left:-370px;display:flex;align-items:center;justify-content:center;gap:22px;padding:36px 0;border-radius:999px;background:#FFC107;color:#1F1F1F;font:700 50px/1 "Geist",sans-serif}
-#f08-cta .i{font-size:60px}
+#f08-btn{left:50%;top:1420px;width:740px;margin-left:-370px;display:flex;align-items:center;justify-content:center;gap:22px;padding:36px 0;border-radius:999px;background:#FFC107;color:#1F1F1F;font:700 50px/1 "Geist",sans-serif}
+#f08-btn .i{font-size:60px}
 #f08-url{top:1610px;font:600 42px/1 "Geist",sans-serif;color:#C9C4BA}
 #f08-brand{left:0;right:0;top:1740px;display:flex;justify-content:center;align-items:center;gap:18px;color:#C9C4BA;font:500 30px/1 "Geist",sans-serif}
 #f08-brand img{width:56px;height:56px;border-radius:14px}
@@ -47,7 +47,7 @@
 <img id="f08-av" class="abs" src="assets/pascal/pascal-rostro.jpg" alt="">
 <h2 id="f08-k" class="abs disp center">Escríbeme y <b>empecemos hoy.</b></h2>
 <div id="f08-qr" class="abs"><div id="f08-qrc"><img src="assets/brand/qr.svg" alt=""><img id="f08-qrlogo" src="assets/brand/logo.webp" alt=""></div><p id="f08-cap">Escanéame y empieza</p></div>
-<div id="f08-cta" class="abs"><svg class="i"><use href="assets/brand/iconos.svg#whatsapp"></use></svg>Empezar por WhatsApp</div>
+<div id="f08-btn" class="abs"><svg class="i"><use href="assets/brand/iconos.svg#whatsapp"></use></svg>Empezar por WhatsApp</div>
 <p id="f08-url" class="abs center">pascalia.lat/cuentafacil</p>
 <div id="f08-brand" class="abs"><img src="assets/brand/flower.svg" alt=""><span>CuentaFacil · de Pascal<b>IA</b></span></div>
 
@@ -58,11 +58,11 @@ const tl = gsap.timeline({ paused: true });
 tl.from("#f08-av",{opacity:0,scale:.5,duration:.5,ease:"back.out(2)"},0.1);
 tl.from("#f08-k",{opacity:0,y:40,duration:.5},0.4);
 tl.from("#f08-qr",{opacity:0,scale:.7,rotation:-6,duration:.6,ease:"back.out(1.8)"},0.8);
-tl.from("#f08-cta",{opacity:0,y:40,duration:.45},1.4);
+tl.from("#f08-btn",{opacity:0,y:40,duration:.45},1.4);
 tl.from("#f08-url",{opacity:0,duration:.4},1.7);
 tl.from("#f08-brand",{opacity:0,duration:.4},1.9);
-tl.to("#f08-cta",{scale:.94,duration:.12,ease:"power2.in"},3.0);
-tl.to("#f08-cta",{scale:1,duration:.35,ease:"back.out(3)"},3.12);
+tl.to("#f08-btn",{scale:.94,duration:.12,ease:"power2.in"},3.0);
+tl.to("#f08-btn",{scale:1,duration:.35,ease:"back.out(3)"},3.12);
 tl.fromTo("#f08-glow",{scale:.9,opacity:.6},{scale:1.15,opacity:1,duration:3.2,yoyo:true,repeat:1,ease:"sine.inOut"},0);
 
 window.__timelines["f08-cta"] = tl;

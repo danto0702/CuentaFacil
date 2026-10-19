@@ -19,7 +19,7 @@ tl.from("#f02-q",{opacity:0,y:30,duration:.5},5.0);
 tl.fromTo("#f02-glow",{scale:.9},{scale:1.2,duration:3.6,yoyo:true,repeat:1,ease:"sine.inOut"},0);
 '''
 M['03-pascal'] = '''
-tl.from("#f03-pascal",{x:700,rotation:6,duration:.7,ease:"power4.out"},0.05);
+tl.from("#f03-hero",{x:700,rotation:6,duration:.7,ease:"power4.out"},0.05);
 tl.to("#f03-j1",{x:-500,y:-200,rotation:-60,opacity:0,duration:.6,ease:"power2.in"},0.2);
 tl.to("#f03-j2",{x:500,y:-250,rotation:50,opacity:0,duration:.6,ease:"power2.in"},0.25);
 tl.to("#f03-j3",{x:-500,y:300,rotation:40,opacity:0,duration:.6,ease:"power2.in"},0.3);
@@ -28,19 +28,19 @@ tl.from("#f03-big",{opacity:0,scale:.6,duration:.6,ease:"back.out(2)",transformO
 tl.from("#f03-sub",{opacity:0,y:30,duration:.5},1.5);
 tl.from("#f03-chip",{opacity:0,scale:.5,duration:.5,ease:"back.out(2.2)",transformOrigin:"left center"},2.0);
 tl.to("#f03-chip .i",{rotation:12,duration:.12,repeat:5,yoyo:true,ease:"sine.inOut"},2.6);
-tl.to("#f03-pascal",{y:-14,duration:1.1,repeat:3,yoyo:true,ease:"sine.inOut"},0.9);
+tl.to("#f03-hero",{y:-14,duration:1.1,repeat:3,yoyo:true,ease:"sine.inOut"},0.9);
 tl.fromTo("#f03-glow",{scale:.8,opacity:.5},{scale:1.1,opacity:1,duration:2.5,yoyo:true,repeat:1,ease:"sine.inOut"},0);
 '''
 M['04-chat'] = '''
-const msgs=document.querySelectorAll("#f04-chat > *");
+const msgs=document.querySelectorAll("#f04-msgs > *");
 tl.from("#f04-head",{opacity:0,y:40,duration:.5},0.1);
 tl.from("#f04-phone",{y:500,opacity:0,duration:.8,ease:"power3.out"},0.2);
 const at=[1.1,2.7,3.1,5.3];
 msgs.forEach((m,i)=>{tl.from(m,{opacity:0,scale:.75,y:30,duration:.45,ease:"back.out(1.8)",transformOrigin:i==0?"right bottom":"left bottom"},at[i]);});
 tl.from("#f04-tap",{opacity:0,scale:.3,duration:.25,ease:"power2.out"},4.1);
 tl.to("#f04-tap",{scale:1.5,opacity:0,duration:.5,ease:"power2.out"},4.4);
-tl.to("#f04-chat .btn:first-child",{backgroundColor:"rgba(37,211,102,.22)",duration:.2},4.15);
-tl.to("#f04-chat .btn:first-child",{backgroundColor:"rgba(37,211,102,0)",duration:.6},4.7);
+tl.to("#f04-msgs .btn:first-child",{backgroundColor:"rgba(37,211,102,.22)",duration:.2},4.15);
+tl.to("#f04-msgs .btn:first-child",{backgroundColor:"rgba(37,211,102,0)",duration:.6},4.7);
 tl.fromTo("#f04-glow",{scale:.9},{scale:1.15,duration:4.5,yoyo:true,repeat:1,ease:"sine.inOut"},0);
 '''
 M['05-contrato'] = '''
@@ -83,11 +83,11 @@ M['08-cta'] = '''
 tl.from("#f08-av",{opacity:0,scale:.5,duration:.5,ease:"back.out(2)"},0.1);
 tl.from("#f08-k",{opacity:0,y:40,duration:.5},0.4);
 tl.from("#f08-qr",{opacity:0,scale:.7,rotation:-6,duration:.6,ease:"back.out(1.8)"},0.8);
-tl.from("#f08-cta",{opacity:0,y:40,duration:.45},1.4);
+tl.from("#f08-btn",{opacity:0,y:40,duration:.45},1.4);
 tl.from("#f08-url",{opacity:0,duration:.4},1.7);
 tl.from("#f08-brand",{opacity:0,duration:.4},1.9);
-tl.to("#f08-cta",{scale:.94,duration:.12,ease:"power2.in"},3.0);
-tl.to("#f08-cta",{scale:1,duration:.35,ease:"back.out(3)"},3.12);
+tl.to("#f08-btn",{scale:.94,duration:.12,ease:"power2.in"},3.0);
+tl.to("#f08-btn",{scale:1,duration:.35,ease:"back.out(3)"},3.12);
 tl.fromTo("#f08-glow",{scale:.9,opacity:.6},{scale:1.15,opacity:1,duration:3.2,yoyo:true,repeat:1,ease:"sine.inOut"},0);
 '''
 json.dump(M, open(os.path.join(os.path.dirname(__file__), 'motion.json'), 'w'), ensure_ascii=False, indent=1)

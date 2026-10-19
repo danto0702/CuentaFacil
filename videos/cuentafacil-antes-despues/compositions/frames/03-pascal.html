@@ -26,8 +26,8 @@
 #root{background:#FFC107;color:#1F1F1F}
 #f03-glow{left:420px;top:300px;width:800px;height:800px;background:rgba(255,248,225,.55)}
 #f03-ghost{left:-40px;top:1460px;font-size:360px;color:rgba(31,31,31,.06)}
-#f03-pascal{right:-30px;bottom:-20px;width:500px;filter:drop-shadow(0 40px 60px rgba(80,55,0,.45))}
-#f03-pascal img{display:block;width:100%;border-radius:40px}
+#f03-hero{right:-30px;bottom:-20px;width:500px;filter:drop-shadow(0 40px 60px rgba(80,55,0,.45))}
+#f03-hero img{display:block;width:100%;border-radius:40px}
 #f03-small{left:70px;top:330px;font:700 64px/1 "Geist",sans-serif;color:#4A3B00}
 #f03-big{left:62px;top:400px;font-size:178px;line-height:.92}
 #f03-sub{left:70px;top:640px;width:500px;font:600 50px/1.18 "Geist",sans-serif;color:#3A2E00}
@@ -49,13 +49,13 @@
 <h1 id="f03-big" class="abs disp">Pascal.</h1>
 <p id="f03-sub" class="abs">Tu asistente para la cuenta de cobro.</p>
 <div id="f03-chip" class="abs"><svg class="i"><use href="assets/brand/iconos.svg#whatsapp"></use></svg>Por WhatsApp</div>
-<div id="f03-pascal" class="abs"><img src="assets/pascal/pascal-cuerpo.jpg" alt=""></div>
+<div id="f03-hero" class="abs"><img src="assets/pascal/pascal-cuerpo.jpg" alt=""></div>
 
 </div>
 <script>
 const tl = gsap.timeline({ paused: true });
 
-tl.from("#f03-pascal",{x:700,rotation:6,duration:.7,ease:"power4.out"},0.05);
+tl.from("#f03-hero",{x:700,rotation:6,duration:.7,ease:"power4.out"},0.05);
 tl.to("#f03-j1",{x:-500,y:-200,rotation:-60,opacity:0,duration:.6,ease:"power2.in"},0.2);
 tl.to("#f03-j2",{x:500,y:-250,rotation:50,opacity:0,duration:.6,ease:"power2.in"},0.25);
 tl.to("#f03-j3",{x:-500,y:300,rotation:40,opacity:0,duration:.6,ease:"power2.in"},0.3);
@@ -64,7 +64,7 @@ tl.from("#f03-big",{opacity:0,scale:.6,duration:.6,ease:"back.out(2)",transformO
 tl.from("#f03-sub",{opacity:0,y:30,duration:.5},1.5);
 tl.from("#f03-chip",{opacity:0,scale:.5,duration:.5,ease:"back.out(2.2)",transformOrigin:"left center"},2.0);
 tl.to("#f03-chip .i",{rotation:12,duration:.12,repeat:5,yoyo:true,ease:"sine.inOut"},2.6);
-tl.to("#f03-pascal",{y:-14,duration:1.1,repeat:3,yoyo:true,ease:"sine.inOut"},0.9);
+tl.to("#f03-hero",{y:-14,duration:1.1,repeat:3,yoyo:true,ease:"sine.inOut"},0.9);
 tl.fromTo("#f03-glow",{scale:.8,opacity:.5},{scale:1.1,opacity:1,duration:2.5,yoyo:true,repeat:1,ease:"sine.inOut"},0);
 
 window.__timelines["f03-pascal"] = tl;

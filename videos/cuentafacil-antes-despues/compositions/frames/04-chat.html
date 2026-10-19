@@ -28,7 +28,7 @@
 #f04-head{top:110px;font-size:92px;line-height:1.02}
 #f04-head em{font-style:normal;background:linear-gradient(transparent 62%,#FFC107 62%);padding:0 6px}
 #f04-phone{top:390px}
-#f04-chat{height:1180px}
+#f04-msgs{height:1180px}
 #f04-tap{left:370px;top:1120px}
 
 .phone{position:absolute;left:50%;width:880px;margin-left:-440px;padding:16px;border-radius:72px;background:#111;box-shadow:0 60px 110px -50px rgba(31,31,31,.7)}
@@ -57,7 +57,7 @@
 <h2 id="f04-head" class="abs disp center">Me cuentas tu día. <em>Yo lo anoto.</em></h2>
 <div id="f04-phone" class="phone">
   <div class="ptop"><img src="assets/brand/logo.webp" alt=""><div><b>Pascal · CuentaFacil</b><small>en línea</small></div></div>
-  <div id="f04-chat" class="chat">
+  <div id="f04-msgs" class="chat">
     <div class="m me"><img src="assets/real/foto-reunion-difuminada.jpg" alt="">Se realizó capacitación sobre Misión Médica y DIH al personal sanitario durante el mes de octubre<span class="t">10:08 ✓✓</span></div>
     <div class="m">¿A cuál contrato corresponde?<span class="t">10:08</span></div>
     <div class="btns"><div class="btn">0456 Salud Pública</div><div class="btn dim">0123 Equipos Básicos</div><div class="btn dim">Ambos</div></div>
@@ -71,15 +71,15 @@
 <script>
 const tl = gsap.timeline({ paused: true });
 
-const msgs=document.querySelectorAll("#f04-chat > *");
+const msgs=document.querySelectorAll("#f04-msgs > *");
 tl.from("#f04-head",{opacity:0,y:40,duration:.5},0.1);
 tl.from("#f04-phone",{y:500,opacity:0,duration:.8,ease:"power3.out"},0.2);
 const at=[1.1,2.7,3.1,5.3];
 msgs.forEach((m,i)=>{tl.from(m,{opacity:0,scale:.75,y:30,duration:.45,ease:"back.out(1.8)",transformOrigin:i==0?"right bottom":"left bottom"},at[i]);});
 tl.from("#f04-tap",{opacity:0,scale:.3,duration:.25,ease:"power2.out"},4.1);
 tl.to("#f04-tap",{scale:1.5,opacity:0,duration:.5,ease:"power2.out"},4.4);
-tl.to("#f04-chat .btn:first-child",{backgroundColor:"rgba(37,211,102,.22)",duration:.2},4.15);
-tl.to("#f04-chat .btn:first-child",{backgroundColor:"rgba(37,211,102,0)",duration:.6},4.7);
+tl.to("#f04-msgs .btn:first-child",{backgroundColor:"rgba(37,211,102,.22)",duration:.2},4.15);
+tl.to("#f04-msgs .btn:first-child",{backgroundColor:"rgba(37,211,102,0)",duration:.6},4.7);
 tl.fromTo("#f04-glow",{scale:.9},{scale:1.15,duration:4.5,yoyo:true,repeat:1,ease:"sine.inOut"},0);
 
 window.__timelines["f04-chat"] = tl;

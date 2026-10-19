@@ -109,8 +109,8 @@ frames['03-pascal'] = ('f03-pascal', '''
 #root{background:#FFC107;color:#1F1F1F}
 #f03-glow{left:420px;top:300px;width:800px;height:800px;background:rgba(255,248,225,.55)}
 #f03-ghost{left:-40px;top:1460px;font-size:360px;color:rgba(31,31,31,.06)}
-#f03-pascal{right:-30px;bottom:-20px;width:500px;filter:drop-shadow(0 40px 60px rgba(80,55,0,.45))}
-#f03-pascal img{display:block;width:100%;border-radius:40px}
+#f03-hero{right:-30px;bottom:-20px;width:500px;filter:drop-shadow(0 40px 60px rgba(80,55,0,.45))}
+#f03-hero img{display:block;width:100%;border-radius:40px}
 #f03-small{left:70px;top:330px;font:700 64px/1 "Geist",sans-serif;color:#4A3B00}
 #f03-big{left:62px;top:400px;font-size:178px;line-height:.92}
 #f03-sub{left:70px;top:640px;width:500px;font:600 50px/1.18 "Geist",sans-serif;color:#3A2E00}
@@ -129,7 +129,7 @@ frames['03-pascal'] = ('f03-pascal', '''
 <h1 id="f03-big" class="abs disp">Pascal.</h1>
 <p id="f03-sub" class="abs">Tu asistente para la cuenta de cobro.</p>
 <div id="f03-chip" class="abs">{ico('whatsapp')}Por WhatsApp</div>
-<div id="f03-pascal" class="abs"><img src="assets/pascal/pascal-cuerpo.jpg" alt=""></div>
+<div id="f03-hero" class="abs"><img src="assets/pascal/pascal-cuerpo.jpg" alt=""></div>
 ''')
 
 # ---------- WhatsApp phone shared CSS ----------
@@ -161,14 +161,14 @@ frames['04-chat'] = ('f04-chat', '''
 #f04-head{top:110px;font-size:92px;line-height:1.02}
 #f04-head em{font-style:normal;background:linear-gradient(transparent 62%,#FFC107 62%);padding:0 6px}
 #f04-phone{top:390px}
-#f04-chat{height:1180px}
+#f04-msgs{height:1180px}
 #f04-tap{left:370px;top:1120px}
 ''' + PHONE, f'''
 <div id="f04-glow" class="glow" data-layout-allow-overflow></div>
 <h2 id="f04-head" class="abs disp center">Me cuentas tu día. <em>Yo lo anoto.</em></h2>
 <div id="f04-phone" class="phone">
   <div class="ptop"><img src="assets/brand/logo.webp" alt=""><div><b>Pascal · CuentaFacil</b><small>en línea</small></div></div>
-  <div id="f04-chat" class="chat">
+  <div id="f04-msgs" class="chat">
     <div class="m me"><img src="assets/real/foto-reunion-difuminada.jpg" alt="">Se realizó capacitación sobre Misión Médica y DIH al personal sanitario durante el mes de octubre<span class="t">10:08 ✓✓</span></div>
     <div class="m">¿A cuál contrato corresponde?<span class="t">10:08</span></div>
     <div class="btns"><div class="btn">0456 Salud Pública</div><div class="btn dim">0123 Equipos Básicos</div><div class="btn dim">Ambos</div></div>
@@ -294,8 +294,8 @@ frames['08-cta'] = ('f08-cta', '''
 #f08-qrc > img:first-child{display:block;width:100%;height:100%}
 #f08-qrlogo{position:absolute;left:50%;top:50%;width:146px;height:146px;margin:-73px 0 0 -73px;border-radius:42px;box-shadow:0 0 0 10px #fff}
 #f08-cap{margin-top:50px;font:800 34px/1 "Bricolage Grotesque",sans-serif;color:#1F1F1F}
-#f08-cta{left:50%;top:1420px;width:740px;margin-left:-370px;display:flex;align-items:center;justify-content:center;gap:22px;padding:36px 0;border-radius:999px;background:#FFC107;color:#1F1F1F;font:700 50px/1 "Geist",sans-serif}
-#f08-cta .i{font-size:60px}
+#f08-btn{left:50%;top:1420px;width:740px;margin-left:-370px;display:flex;align-items:center;justify-content:center;gap:22px;padding:36px 0;border-radius:999px;background:#FFC107;color:#1F1F1F;font:700 50px/1 "Geist",sans-serif}
+#f08-btn .i{font-size:60px}
 #f08-url{top:1610px;font:600 42px/1 "Geist",sans-serif;color:#C9C4BA}
 #f08-brand{left:0;right:0;top:1740px;display:flex;justify-content:center;align-items:center;gap:18px;color:#C9C4BA;font:500 30px/1 "Geist",sans-serif}
 #f08-brand img{width:56px;height:56px;border-radius:14px}
@@ -305,7 +305,7 @@ frames['08-cta'] = ('f08-cta', '''
 <img id="f08-av" class="abs" src="assets/pascal/pascal-rostro.jpg" alt="">
 <h2 id="f08-k" class="abs disp center">Escríbeme y <b>empecemos hoy.</b></h2>
 <div id="f08-qr" class="abs"><div id="f08-qrc"><img src="assets/brand/qr.svg" alt=""><img id="f08-qrlogo" src="assets/brand/logo.webp" alt=""></div><p id="f08-cap">Escanéame y empieza</p></div>
-<div id="f08-cta" class="abs">{ico('whatsapp')}Empezar por WhatsApp</div>
+<div id="f08-btn" class="abs">{ico('whatsapp')}Empezar por WhatsApp</div>
 <p id="f08-url" class="abs center">pascalia.lat/cuentafacil</p>
 <div id="f08-brand" class="abs"><img src="assets/brand/flower.svg" alt=""><span>CuentaFacil · de Pascal<b>IA</b></span></div>
 ''')
