@@ -93,6 +93,45 @@ describe('bank account', () => {
   });
 });
 
+describe('bank account before generating', () => {
+  async function withoutAccount() {
+    const h = harness();
+    const u = await h.store.getUser(DEMO_IDS.maria);
+    await h.store.saveUserProfile({ ...u, bankName: '', accountNumber: '' });
+    h.store.data.socialSecurity = [];
+    const ps = await h.store.listPeriods(DEMO_IDS.ebs);
+    await h.store.savePeriods(
+      DEMO_IDS.ebs,
+      ps.map((p) => (p.number === 1 ? { ...p, status: 'delivered' } : p)),
+    );
+    return h;
+  }
+
+  it('warns that the account is missing, and generates without it on request', async () => {
+    const h = await withoutAccount();
+    let out = show(await h.press(`redo:${DEMO_IDS.ebs}:1`));
+    expect(out[0]).toMatch(
+      /^🏦 No tengo la cuenta bancaria donde te pagan: en tu informe 01-05 .* quedaría en blanco/,
+    );
+    expect(out[0]).toMatch(/\[🏦 Enviar cuenta\] \[Generar sin cuenta\]$/);
+    // Then the PILA question, and the bank warning is not asked again.
+    out = show(await h.press('nobank:go'));
+    expect(out[0]).toMatch(/^🧾 Para llenar la tabla de seguridad social/);
+    out = show(await h.press('nopila:go'));
+    expect(out[0]).toBe('⏳ Estoy generando tus documentos, dame un momento…');
+  });
+
+  it('takes the account from the warning, and then generates', async () => {
+    const h = await withoutAccount();
+    await h.press(`redo:${DEMO_IDS.ebs}:1`);
+    expect(show(await h.press('nobank:send'))[0]).toContain('*certificación bancaria* de tu cuenta');
+    await h.say('Ahorros Bancolombia 12345678');
+    await h.press('bank:yes');
+    const out = show(await h.press(`redo:${DEMO_IDS.ebs}:1`));
+    expect(out[0]).toMatch(/^🧾 Para llenar la tabla de seguridad social/);
+  });
+});
+
 describe('bank account during the setup', () => {
   it('asks for it when SECOP has none, and can be left for later', async () => {
     const e = sampleExtraction();
@@ -144,7 +183,7 @@ describe('bank account during the setup', () => {
     await h.document('clausulado.pdf');
     await h.press('setup:ok');
     const out = show(await h.press('sbank:later'));
-    expect(out[0]).toMatch(/te la vuelvo a pedir más adelante/);
+    expect(out[0]).toMatch(/te la recuerdo antes de generar los documentos/);
     expect(out[1]).toMatch(/fecha del \*acta de inicio\*/);
   });
 });

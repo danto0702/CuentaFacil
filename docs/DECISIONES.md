@@ -239,4 +239,5 @@
     - en la configuración, después del resumen, si SECOP no trae la cuenta: con certificación, escrita o «Después»;
     - a quienes ya tienen contratos y les falta, una vez al día después de un mensaje, igual que el lugar de expedición. Esa pregunta no la pidió el contratista, así que una foto que no es certificación sigue como evidencia.
   - **Gestor:** puede registrar la cuenta de la persona, y los textos la nombran.
+  - **Antes de generar:** si falta la cuenta, Pascal avisa que saldría en blanco y ofrece «🏦 Enviar cuenta» o «Generar sin cuenta». Elegir generar sin cuenta vale para esa cuenta de cobro, y luego sigue la pregunta de la PILA si falta.
 - **Consecuencias:** sin cambio de esquema. La certificación válida queda en los soportes con el código `CUENTA_BANCARIA`. *Mis datos* indica cómo cambiar la cuenta.

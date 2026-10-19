@@ -899,7 +899,7 @@ export class SetupFlow {
     if (answer === 'later') {
       turn.out.push(
         text(
-          'Listo, te la vuelvo a pedir más adelante; cuando la tengas, escribe *cambiar mi cuenta bancaria*.',
+          'Listo, te la recuerdo antes de generar los documentos; cuando la tengas, escribe *cambiar mi cuenta bancaria*.',
         ),
       );
       return this.afterConfirm(turn);

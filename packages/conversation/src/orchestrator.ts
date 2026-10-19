@@ -1146,15 +1146,34 @@ export class Orchestrator {
         return this.onAmountChoice(turn, msg);
       case 'amount_write':
         return this.onAmountWrite(turn, msg);
-      case 'generate_no_pila': {
+      case 'generate_no_bank': {
         const ctx = turn.state.context as { contractId: string; periodNumber: number; resend: boolean };
+        if (msg.replyId === 'nobank:send') return this.askBank(turn);
+        if (msg.replyId !== 'nobank:go') {
+          // Anything else (a certificate or the account written is handled above): carry on.
+          this.reset(turn);
+          return this.dispatch(turn, msg);
+        }
+        const c = await this.deps.store.getContract(ctx.contractId);
+        turn.state.context = { noBank: `${c.id}:${ctx.periodNumber}` };
+        await this.startGenerate(turn, c, ctx.resend, ctx.periodNumber);
+        if (turn.state.flow === 'generate_no_bank') this.reset(turn);
+        return;
+      }
+      case 'generate_no_pila': {
+        const ctx = turn.state.context as {
+          contractId: string;
+          periodNumber: number;
+          resend: boolean;
+          noBank?: string;
+        };
         if (msg.replyId !== 'nopila:go') {
           // Anything else (the PILA itself arrives as a document and is handled above): carry on.
           this.reset(turn);
           return this.dispatch(turn, msg);
         }
         const c = await this.deps.store.getContract(ctx.contractId);
-        turn.state.context = { noPila: `${c.id}:${ctx.periodNumber}` };
+        turn.state.context = { noPila: `${c.id}:${ctx.periodNumber}`, noBank: ctx.noBank };
         await this.startGenerate(turn, c, ctx.resend, ctx.periodNumber);
         this.reset(turn);
         return;
@@ -3744,14 +3763,34 @@ ${lines.join('\n')}${due.length ? '' : '\n\nNo tienes nada pendiente. 👍'}`,
     // The values of the contract's reports do not add up to its total: the contractor confirms this one.
     if (!resend && !(await this.amountSettled(c, p))) return this.askAmount(turn, c, p);
 
+    // Without the bank account the payment details go out blank: offer to send it first (ADR-050).
+    const flags = (turn.state.context ?? {}) as { noPila?: string; noBank?: string };
+    const key = `${c.id}:${p.number}`;
+    const again = resend ? `*rehacer ${monthNameEs(p.from).toLowerCase()}*` : '*generar*';
+    if (!turn.user.accountNumber.trim() && flags.noBank !== key) {
+      this.setFlow(turn, 'generate_no_bank', 'ask', { contractId: c.id, periodNumber: p.number, resend });
+      turn.out.push(
+        buttons(
+          `🏦 No tengo la cuenta bancaria ${this.forOther(turn) ? `de ${this.labelOf(turn)}` : 'donde te pagan'}: en tu ${this.reportLabel(c, p)} quedaría en blanco. Envíame la certificación bancaria o los datos y luego escribe ${again}.`,
+          [
+            { id: 'nobank:send', title: '🏦 Enviar cuenta' },
+            { id: 'nobank:go', title: 'Generar sin cuenta' },
+          ],
+        ),
+      );
+      return;
+    }
+
     // Without the PILA of the right month the social security tables go out empty: ask for it first.
     const pilaMonth = pilaMonthFor((await this.deps.store.getEntity(c.entityId)).settings, p.to);
-    const noPilaOk =
-      turn.state.context && (turn.state.context as { noPila?: string }).noPila === `${c.id}:${p.number}`;
-    if (!noPilaOk && !(await this.deps.store.getSocialSecurity(turn.user.id, pilaMonth))) {
+    if (flags.noPila !== key && !(await this.deps.store.getSocialSecurity(turn.user.id, pilaMonth))) {
       const month = `${monthNameEs(pilaMonth).toLowerCase()} de ${pilaMonth.slice(0, 4)}`;
-      const again = resend ? `*rehacer ${monthNameEs(p.from).toLowerCase()}*` : '*generar*';
-      this.setFlow(turn, 'generate_no_pila', 'ask', { contractId: c.id, periodNumber: p.number, resend });
+      this.setFlow(turn, 'generate_no_pila', 'ask', {
+        contractId: c.id,
+        periodNumber: p.number,
+        resend,
+        noBank: flags.noBank,
+      });
       turn.out.push(
         buttons(
           `🧾 Para llenar la tabla de seguridad social de tu ${this.reportLabel(c, p)} necesito la planilla PILA de *${month}* y no la tengo. Envíamela en PDF (o una foto) y luego escribe ${again}.`,
