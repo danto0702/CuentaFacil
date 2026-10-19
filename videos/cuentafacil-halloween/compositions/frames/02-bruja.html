@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="es-CO">
+<head><meta charset="UTF-8" /></head>
+<body>
+<template>
+<style>
+
+@font-face{font-family:"Creepster";font-style:normal;font-weight:400;src:url("assets/fonts/Creepster-latin.woff2") format("woff2")}
+@font-face{font-family:"Bricolage Grotesque";font-style:normal;font-weight:500 800;src:url("assets/fonts/BricolageGrotesque-latin.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Bricolage Grotesque";font-style:normal;font-weight:500 800;src:url("assets/fonts/BricolageGrotesque-latin-ext.woff2") format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C4,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:"Geist";font-style:normal;font-weight:400 700;src:url("assets/fonts/Geist-latin.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Geist";font-style:normal;font-weight:400 700;src:url("assets/fonts/Geist-latin-ext.woff2") format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C4,U+2C60-2C7F,U+A720-A7FF}
+
+#root{position:absolute;inset:0;overflow:hidden}
+
+#root{background:radial-gradient(120% 80% at 50% 18%,#3A1D5E 0%,#22113A 45%,#120820 100%);color:#FFF3E0}
+.abs{position:absolute}
+.creep{font-family:"Creepster",cursive;font-weight:400;letter-spacing:.02em;line-height:.95}
+.disp{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;letter-spacing:-.035em}
+.txt{font-family:"Geist",sans-serif}
+.center{left:60px;right:60px;text-align:center}
+.glow{position:absolute;border-radius:50%;filter:blur(90px)}
+.char{position:absolute;filter:drop-shadow(0 30px 40px rgba(0,0,0,.55))}
+.chip{display:inline-block;padding:14px 30px;border-radius:999px;font:700 34px/1 "Geist",sans-serif;letter-spacing:.2em;text-transform:uppercase}
+.chip.t{background:#FF7A1A;color:#1A0B05}
+.chip.h{background:#FFC107;color:#1F1405}
+.moon{position:absolute;border-radius:50%;background:radial-gradient(circle at 38% 36%,#FFF8DC 0%,#FFE8A3 55%,#F2C866 100%);box-shadow:0 0 120px 40px rgba(255,220,130,.28)}
+.moon i{position:absolute;border-radius:50%;background:rgba(200,160,80,.28)}
+.star{position:absolute;width:6px;height:6px;border-radius:50%;background:#FFF3E0}
+.web{position:absolute;width:360px;height:360px;opacity:.85}
+.web path{fill:none;stroke:rgba(235,225,255,.55);stroke-width:2}
+.spider{position:absolute;top:0;width:90px}
+.spider line{stroke:rgba(235,225,255,.6);stroke-width:2}
+.bat{position:absolute;width:120px;fill:#0B0612}
+.fog{position:absolute;left:-200px;right:-200px;height:260px;border-radius:50%;background:rgba(190,170,230,.16);filter:blur(40px)}
+.ok{display:inline-grid;place-items:center;width:44px;height:44px;border-radius:12px;background:#25D366;vertical-align:-8px;margin-right:12px}
+.ok svg{width:32px;height:32px;fill:none;stroke:#fff;stroke-width:3.4;stroke-linecap:round;stroke-linejoin:round}
+.spark{position:absolute;width:60px;height:60px}
+.spark path{fill:#FFE27A}
+
+
+#f02-glow{left:180px;top:700px;width:720px;height:720px;background:rgba(229,72,77,.25)}
+#f02-cal{left:90px;top:860px;width:430px;border-radius:30px;background:#FFF3E0;color:#2A1208;text-align:center;overflow:visible;box-shadow:0 30px 60px -20px rgba(0,0,0,.7)}
+#f02-cal .top{background:#E5484D;color:#fff;border-radius:30px 30px 0 0;padding:22px 0;font:700 40px/1 "Geist",sans-serif;letter-spacing:.14em}
+#f02-cal .d{font:800 120px/1 "Bricolage Grotesque",sans-serif;padding:30px 0 6px;letter-spacing:-.04em}
+#f02-cal .s{font:600 34px/1 "Geist",sans-serif;padding-bottom:34px;color:#7A3A20}
+.f02-fl{position:absolute;width:110px}
+.f02-fl path{fill:#FF7A1A}
+.f02-fl path+path{fill:#FFC107}
+#f02-clock{left:110px;top:1430px;padding:22px 40px;border-radius:24px;background:#120820;border:3px solid #E5484D;font:800 78px/1 "Bricolage Grotesque",sans-serif;color:#FF6B6B;letter-spacing:-.02em}
+#f02-clock small{font-size:40px;margin-left:10px}
+#f02-witch{left:520px;top:720px;width:540px}
+
+</style>
+<div id="root" data-composition-id="f02-bruja" data-width="1080" data-height="1920">
+<i class="star f02-st" style="left:80px;top:120px;opacity:0.35"></i><i class="star f02-st" style="left:210px;top:260px;opacity:0.55"></i><i class="star f02-st" style="left:330px;top:90px;opacity:0.75"></i><i class="star f02-st" style="left:520px;top:180px;opacity:0.35"></i><i class="star f02-st" style="left:700px;top:70px;opacity:0.55"></i><i class="star f02-st" style="left:860px;top:230px;opacity:0.75"></i><i class="star f02-st" style="left:990px;top:140px;opacity:0.35"></i><i class="star f02-st" style="left:150px;top:420px;opacity:0.55"></i><i class="star f02-st" style="left:940px;top:420px;opacity:0.75"></i><i class="star f02-st" style="left:600px;top:330px;opacity:0.35"></i><i class="star f02-st" style="left:420px;top:40px;opacity:0.55"></i><i class="star f02-st" style="left:1020px;top:300px;opacity:0.75"></i><div id="f02-moon" class="moon" style="left:760px;top:400px;width:220px;height:220px"><i style="left:22%;top:30%;width:18%;height:18%"></i><i style="left:58%;top:52%;width:12%;height:12%"></i><i style="left:46%;top:18%;width:8%;height:8%"></i></div><svg id="f02-webtl" class="web" style="left:-6px;top:-6px" viewBox="0 0 360 360" data-layout-allow-overflow><path d="M0 0 L360.0 0.0 M0 0 L347.7 93.2 M0 0 L311.8 180.0 M0 0 L254.6 254.6 M0 0 L180.0 311.8 M0 0 L93.2 347.7 M0 0 L0.0 360.0 M60.0 0.0 Q50.7 6.7 58.0 15.5 Q47.3 19.6 52.0 30.0 Q40.6 31.1 42.4 42.4 Q31.1 40.6 30.0 52.0 Q19.6 47.3 15.5 58.0 Q6.7 50.7 0.0 60.0 M120.0 0.0 Q101.4 13.4 115.9 31.1 Q94.5 39.2 103.9 60.0 Q81.2 62.3 84.9 84.9 Q62.3 81.2 60.0 103.9 Q39.2 94.5 31.1 115.9 Q13.4 101.4 0.0 120.0 M185.0 0.0 Q156.4 20.6 178.7 47.9 Q145.7 60.4 160.2 92.5 Q125.1 96.0 130.8 130.8 Q96.0 125.1 92.5 160.2 Q60.4 145.7 47.9 178.7 Q20.6 156.4 0.0 185.0 M255.0 0.0 Q215.6 28.4 246.3 66.0 Q200.9 83.2 220.8 127.5 Q172.5 132.4 180.3 180.3 Q132.4 172.5 127.5 220.8 Q83.2 200.9 66.0 246.3 Q28.4 215.6 0.0 255.0 M330.0 0.0 Q279.0 36.7 318.8 85.4 Q260.0 107.7 285.8 165.0 Q223.2 171.3 233.3 233.3 Q171.3 223.2 165.0 285.8 Q107.7 260.0 85.4 318.8 Q36.7 279.0 0.0 330.0"/></svg><svg id="f02-webtr" class="web" style="right:-6px;top:-6px;transform:scaleX(-1)" viewBox="0 0 360 360" data-layout-allow-overflow><path d="M0 0 L360.0 0.0 M0 0 L347.7 93.2 M0 0 L311.8 180.0 M0 0 L254.6 254.6 M0 0 L180.0 311.8 M0 0 L93.2 347.7 M0 0 L0.0 360.0 M60.0 0.0 Q50.7 6.7 58.0 15.5 Q47.3 19.6 52.0 30.0 Q40.6 31.1 42.4 42.4 Q31.1 40.6 30.0 52.0 Q19.6 47.3 15.5 58.0 Q6.7 50.7 0.0 60.0 M120.0 0.0 Q101.4 13.4 115.9 31.1 Q94.5 39.2 103.9 60.0 Q81.2 62.3 84.9 84.9 Q62.3 81.2 60.0 103.9 Q39.2 94.5 31.1 115.9 Q13.4 101.4 0.0 120.0 M185.0 0.0 Q156.4 20.6 178.7 47.9 Q145.7 60.4 160.2 92.5 Q125.1 96.0 130.8 130.8 Q96.0 125.1 92.5 160.2 Q60.4 145.7 47.9 178.7 Q20.6 156.4 0.0 185.0 M255.0 0.0 Q215.6 28.4 246.3 66.0 Q200.9 83.2 220.8 127.5 Q172.5 132.4 180.3 180.3 Q132.4 172.5 127.5 220.8 Q83.2 200.9 66.0 246.3 Q28.4 215.6 0.0 255.0 M330.0 0.0 Q279.0 36.7 318.8 85.4 Q260.0 107.7 285.8 165.0 Q223.2 171.3 233.3 233.3 Q171.3 223.2 165.0 285.8 Q107.7 260.0 85.4 318.8 Q36.7 279.0 0.0 330.0"/></svg><svg id="f02-sp0" class="spider" style="left:900px;width:90px" viewBox="0 0 90 190" data-layout-allow-overflow><line x1="45" y1="0" x2="45" y2="140"/><path d="M33 150 Q11 134.4 5 132" stroke="#0B0612" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M33 157 Q7 145.8 1 154" stroke="#0B0612" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M33 164 Q9 157.2 3 176" stroke="#0B0612" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M33 170 Q17 166.8 11 194" stroke="#0B0612" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M57 150 Q79 134.4 85 132" stroke="#0B0612" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M57 157 Q83 145.8 89 154" stroke="#0B0612" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M57 164 Q81 157.2 87 176" stroke="#0B0612" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M57 170 Q73 166.8 79 194" stroke="#0B0612" stroke-width="5" fill="none" stroke-linecap="round"/><ellipse cx="45" cy="164" rx="20" ry="24" fill="#0B0612"/><circle cx="45" cy="142" r="13" fill="#0B0612"/><circle cx="40" cy="141" r="4" fill="#FF7A1A"/><circle cx="50" cy="141" r="4" fill="#FF7A1A"/></svg><svg id="f02-bat0" class="bat" style="left:80px;top:560px;width:130px;transform:rotate(-8deg)" viewBox="0 0 120 56"><path d="M60 30 C52 18 40 12 26 14 C32 20 32 26 28 30 C20 26 10 28 2 34 C14 36 22 42 26 50 C32 44 40 42 46 46 C50 40 54 38 60 40 C66 38 70 40 74 46 C80 42 88 44 94 50 C98 42 106 36 118 34 C110 28 100 26 92 30 C88 26 88 20 94 14 C80 12 68 18 60 30 Z"/></svg><svg id="f02-bat1" class="bat" style="left:820px;top:1450px;width:110px;transform:rotate(10deg)" viewBox="0 0 120 56"><path d="M60 30 C52 18 40 12 26 14 C32 20 32 26 28 30 C20 26 10 28 2 34 C14 36 22 42 26 50 C32 44 40 42 46 46 C50 40 54 38 60 40 C66 38 70 40 74 46 C80 42 88 44 94 50 C98 42 106 36 118 34 C110 28 100 26 92 30 C88 26 88 20 94 14 C80 12 68 18 60 30 Z"/></svg><div id="f02-fog" class="fog" style="bottom:-120px" data-layout-allow-overflow></div><div id="f02-chip" class="abs center" style="top:150px"><span class="chip t">Terror 1</span></div><h2 id="f02-title" class="abs center creep" style="top:230px;font-size:118px;color:#FF7A1A;text-shadow:0 6px 0 #4A1A00">La bruja del<br>último día</h2>
+<div id="f02-glow" class="glow" data-layout-allow-overflow></div>
+<div id="f02-cal" class="abs" data-layout-allow-overflow>
+  <div class="top">FECHA LÍMITE</div><div class="d">¡HOY!</div><div class="s">último día para entregar</div>
+  <svg class="f02-fl" style="left:-40px;top:-118px" viewBox="0 0 100 120"><path d="M50 120 C10 100 8 60 30 30 C32 50 42 56 48 50 C40 30 52 10 70 0 C66 24 92 40 92 72 C92 100 74 120 50 120 Z"/><path d="M50 120 C10 100 8 60 30 30 C32 50 42 56 48 50 C40 30 52 10 70 0 C66 24 92 40 92 72 C92 100 74 120 50 120 Z" transform="translate(20 34) scale(.6)"/></svg>
+  <svg class="f02-fl" style="left:150px;top:-150px;width:130px" viewBox="0 0 100 120"><path d="M50 120 C10 100 8 60 30 30 C32 50 42 56 48 50 C40 30 52 10 70 0 C66 24 92 40 92 72 C92 100 74 120 50 120 Z"/><path d="M50 120 C10 100 8 60 30 30 C32 50 42 56 48 50 C40 30 52 10 70 0 C66 24 92 40 92 72 C92 100 74 120 50 120 Z" transform="translate(20 34) scale(.6)"/></svg>
+  <svg class="f02-fl" style="left:350px;top:-112px" viewBox="0 0 100 120"><path d="M50 120 C10 100 8 60 30 30 C32 50 42 56 48 50 C40 30 52 10 70 0 C66 24 92 40 92 72 C92 100 74 120 50 120 Z"/><path d="M50 120 C10 100 8 60 30 30 C32 50 42 56 48 50 C40 30 52 10 70 0 C66 24 92 40 92 72 C92 100 74 120 50 120 Z" transform="translate(20 34) scale(.6)"/></svg>
+</div>
+<div id="f02-clock" class="abs">11:59<small>p. m.</small></div>
+<img id="f02-witch" class="char" src="assets/chars/bruja.webp" alt="">
+
+</div>
+<script>
+const tl = gsap.timeline({ paused: true });
+
+window.__timelines["f02-bruja"] = tl;
+</script>
+</template>
+</body>
+</html>

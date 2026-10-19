@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="es-CO">
+<head><meta charset="UTF-8" /></head>
+<body>
+<template>
+<style>
+
+@font-face{font-family:"Creepster";font-style:normal;font-weight:400;src:url("assets/fonts/Creepster-latin.woff2") format("woff2")}
+@font-face{font-family:"Bricolage Grotesque";font-style:normal;font-weight:500 800;src:url("assets/fonts/BricolageGrotesque-latin.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Bricolage Grotesque";font-style:normal;font-weight:500 800;src:url("assets/fonts/BricolageGrotesque-latin-ext.woff2") format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C4,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:"Geist";font-style:normal;font-weight:400 700;src:url("assets/fonts/Geist-latin.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Geist";font-style:normal;font-weight:400 700;src:url("assets/fonts/Geist-latin-ext.woff2") format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C4,U+2C60-2C7F,U+A720-A7FF}
+
+#root{position:absolute;inset:0;overflow:hidden}
+
+#root{background:radial-gradient(120% 80% at 50% 18%,#3A1D5E 0%,#22113A 45%,#120820 100%);color:#FFF3E0}
+.abs{position:absolute}
+.creep{font-family:"Creepster",cursive;font-weight:400;letter-spacing:.02em;line-height:.95}
+.disp{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;letter-spacing:-.035em}
+.txt{font-family:"Geist",sans-serif}
+.center{left:60px;right:60px;text-align:center}
+.glow{position:absolute;border-radius:50%;filter:blur(90px)}
+.char{position:absolute;filter:drop-shadow(0 30px 40px rgba(0,0,0,.55))}
+.chip{display:inline-block;padding:14px 30px;border-radius:999px;font:700 34px/1 "Geist",sans-serif;letter-spacing:.2em;text-transform:uppercase}
+.chip.t{background:#FF7A1A;color:#1A0B05}
+.chip.h{background:#FFC107;color:#1F1405}
+.moon{position:absolute;border-radius:50%;background:radial-gradient(circle at 38% 36%,#FFF8DC 0%,#FFE8A3 55%,#F2C866 100%);box-shadow:0 0 120px 40px rgba(255,220,130,.28)}
+.moon i{position:absolute;border-radius:50%;background:rgba(200,160,80,.28)}
+.star{position:absolute;width:6px;height:6px;border-radius:50%;background:#FFF3E0}
+.web{position:absolute;width:360px;height:360px;opacity:.85}
+.web path{fill:none;stroke:rgba(235,225,255,.55);stroke-width:2}
+.spider{position:absolute;top:0;width:90px}
+.spider line{stroke:rgba(235,225,255,.6);stroke-width:2}
+.bat{position:absolute;width:120px;fill:#0B0612}
+.fog{position:absolute;left:-200px;right:-200px;height:260px;border-radius:50%;background:rgba(190,170,230,.16);filter:blur(40px)}
+.ok{display:inline-grid;place-items:center;width:44px;height:44px;border-radius:12px;background:#25D366;vertical-align:-8px;margin-right:12px}
+.ok svg{width:32px;height:32px;fill:none;stroke:#fff;stroke-width:3.4;stroke-linecap:round;stroke-linejoin:round}
+.spark{position:absolute;width:60px;height:60px}
+.spark path{fill:#FFE27A}
+
+
+#f04-glow{left:120px;top:640px;width:840px;height:600px;background:rgba(255,122,26,.18)}
+#f04-pirate{left:430px;top:560px;width:560px}
+#f04-photo{left:110px;top:640px;width:420px;transform:rotate(-10deg)}
+#f04-tbl{left:60px;top:1230px;width:960px}
+#f04-empty{top:1770px;font:600 44px/1 "Geist",sans-serif;color:#FFDCC8}
+
+</style>
+<div id="root" data-composition-id="f04-ladron" data-width="1080" data-height="1920">
+<i class="star f04-st" style="left:80px;top:120px;opacity:0.35"></i><i class="star f04-st" style="left:210px;top:260px;opacity:0.55"></i><i class="star f04-st" style="left:330px;top:90px;opacity:0.75"></i><i class="star f04-st" style="left:520px;top:180px;opacity:0.35"></i><i class="star f04-st" style="left:700px;top:70px;opacity:0.55"></i><i class="star f04-st" style="left:860px;top:230px;opacity:0.75"></i><i class="star f04-st" style="left:990px;top:140px;opacity:0.35"></i><i class="star f04-st" style="left:150px;top:420px;opacity:0.55"></i><i class="star f04-st" style="left:940px;top:420px;opacity:0.75"></i><i class="star f04-st" style="left:600px;top:330px;opacity:0.35"></i><i class="star f04-st" style="left:420px;top:40px;opacity:0.55"></i><i class="star f04-st" style="left:1020px;top:300px;opacity:0.75"></i><svg id="f04-webtl" class="web" style="left:-6px;top:-6px" viewBox="0 0 360 360" data-layout-allow-overflow><path d="M0 0 L360.0 0.0 M0 0 L347.7 93.2 M0 0 L311.8 180.0 M0 0 L254.6 254.6 M0 0 L180.0 311.8 M0 0 L93.2 347.7 M0 0 L0.0 360.0 M60.0 0.0 Q50.7 6.7 58.0 15.5 Q47.3 19.6 52.0 30.0 Q40.6 31.1 42.4 42.4 Q31.1 40.6 30.0 52.0 Q19.6 47.3 15.5 58.0 Q6.7 50.7 0.0 60.0 M120.0 0.0 Q101.4 13.4 115.9 31.1 Q94.5 39.2 103.9 60.0 Q81.2 62.3 84.9 84.9 Q62.3 81.2 60.0 103.9 Q39.2 94.5 31.1 115.9 Q13.4 101.4 0.0 120.0 M185.0 0.0 Q156.4 20.6 178.7 47.9 Q145.7 60.4 160.2 92.5 Q125.1 96.0 130.8 130.8 Q96.0 125.1 92.5 160.2 Q60.4 145.7 47.9 178.7 Q20.6 156.4 0.0 185.0 M255.0 0.0 Q215.6 28.4 246.3 66.0 Q200.9 83.2 220.8 127.5 Q172.5 132.4 180.3 180.3 Q132.4 172.5 127.5 220.8 Q83.2 200.9 66.0 246.3 Q28.4 215.6 0.0 255.0 M330.0 0.0 Q279.0 36.7 318.8 85.4 Q260.0 107.7 285.8 165.0 Q223.2 171.3 233.3 233.3 Q171.3 223.2 165.0 285.8 Q107.7 260.0 85.4 318.8 Q36.7 279.0 0.0 330.0"/></svg><svg id="f04-webtr" class="web" style="right:-6px;top:-6px;transform:scaleX(-1)" viewBox="0 0 360 360" data-layout-allow-overflow><path d="M0 0 L360.0 0.0 M0 0 L347.7 93.2 M0 0 L311.8 180.0 M0 0 L254.6 254.6 M0 0 L180.0 311.8 M0 0 L93.2 347.7 M0 0 L0.0 360.0 M60.0 0.0 Q50.7 6.7 58.0 15.5 Q47.3 19.6 52.0 30.0 Q40.6 31.1 42.4 42.4 Q31.1 40.6 30.0 52.0 Q19.6 47.3 15.5 58.0 Q6.7 50.7 0.0 60.0 M120.0 0.0 Q101.4 13.4 115.9 31.1 Q94.5 39.2 103.9 60.0 Q81.2 62.3 84.9 84.9 Q62.3 81.2 60.0 103.9 Q39.2 94.5 31.1 115.9 Q13.4 101.4 0.0 120.0 M185.0 0.0 Q156.4 20.6 178.7 47.9 Q145.7 60.4 160.2 92.5 Q125.1 96.0 130.8 130.8 Q96.0 125.1 92.5 160.2 Q60.4 145.7 47.9 178.7 Q20.6 156.4 0.0 185.0 M255.0 0.0 Q215.6 28.4 246.3 66.0 Q200.9 83.2 220.8 127.5 Q172.5 132.4 180.3 180.3 Q132.4 172.5 127.5 220.8 Q83.2 200.9 66.0 246.3 Q28.4 215.6 0.0 255.0 M330.0 0.0 Q279.0 36.7 318.8 85.4 Q260.0 107.7 285.8 165.0 Q223.2 171.3 233.3 233.3 Q171.3 223.2 165.0 285.8 Q107.7 260.0 85.4 318.8 Q36.7 279.0 0.0 330.0"/></svg><svg id="f04-sp0" class="spider" style="left:880px;width:90px" viewBox="0 0 90 270" data-layout-allow-overflow><line x1="45" y1="0" x2="45" y2="220"/><path d="M33 230 Q11 214.4 5 212" stroke="#0B0612" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M33 237 Q7 225.8 1 234" stroke="#0B0612" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M33 244 Q9 237.2 3 256" stroke="#0B0612" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M33 250 Q17 246.8 11 274" stroke="#0B0612" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M57 230 Q79 214.4 85 212" stroke="#0B0612" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M57 237 Q83 225.8 89 234" stroke="#0B0612" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M57 244 Q81 237.2 87 256" stroke="#0B0612" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M57 250 Q73 246.8 79 274" stroke="#0B0612" stroke-width="5" fill="none" stroke-linecap="round"/><ellipse cx="45" cy="244" rx="20" ry="24" fill="#0B0612"/><circle cx="45" cy="222" r="13" fill="#0B0612"/><circle cx="40" cy="221" r="4" fill="#FF7A1A"/><circle cx="50" cy="221" r="4" fill="#FF7A1A"/></svg><svg id="f04-bat0" class="bat" style="left:100px;top:520px;width:110px;transform:rotate(-6deg)" viewBox="0 0 120 56"><path d="M60 30 C52 18 40 12 26 14 C32 20 32 26 28 30 C20 26 10 28 2 34 C14 36 22 42 26 50 C32 44 40 42 46 46 C50 40 54 38 60 40 C66 38 70 40 74 46 C80 42 88 44 94 50 C98 42 106 36 118 34 C110 28 100 26 92 30 C88 26 88 20 94 14 C80 12 68 18 60 30 Z"/></svg><div id="f04-fog" class="fog" style="bottom:-120px" data-layout-allow-overflow></div><div id="f04-chip" class="abs center" style="top:150px"><span class="chip t">Terror 3</span></div><h2 id="f04-title" class="abs center creep" style="top:230px;font-size:118px;color:#FF7A1A;text-shadow:0 6px 0 #4A1A00">El ladrón<br>del domingo</h2>
+<div id="f04-glow" class="glow" data-layout-allow-overflow></div>
+<svg id="f04-tbl" class="abs" style="" viewBox="0 0 960 520"><rect x="110" y="150" width="100" height="200" rx="16" fill="#5B3A1E"/><rect x="270" y="150" width="100" height="200" rx="16" fill="#5B3A1E"/><rect x="430" y="150" width="100" height="200" rx="16" fill="#5B3A1E"/><rect x="590" y="150" width="100" height="200" rx="16" fill="#5B3A1E"/><rect x="750" y="150" width="100" height="200" rx="16" fill="#5B3A1E"/><rect x="20" y="320" width="920" height="46" rx="14" fill="#8B5A2B"/><rect x="60" y="366" width="34" height="150" fill="#6B4320"/><rect x="866" y="366" width="34" height="150" fill="#6B4320"/><ellipse cx="300" cy="316" rx="70" ry="16" fill="#FFF3E0"/><circle cx="300" cy="298" r="26" fill="#FF7A1A"/><rect x="520" y="276" width="34" height="42" rx="6" fill="#FFF3E0"/><rect x="640" y="282" width="30" height="36" rx="6" fill="#FFC107"/><ellipse cx="760" cy="316" rx="60" ry="14" fill="#FFF3E0"/><path d="M720 312 Q760 270 800 312Z" fill="#E5484D"/></svg>
+<svg id="f04-photo" class="abs" style="" viewBox="0 0 440 300"><rect x="6" y="6" width="428" height="288" rx="18" fill="#FFF3E0" stroke="#8B5A2B" stroke-width="12"/><rect x="22" y="22" width="396" height="256" rx="8" fill="#FFD9A0"/><circle cx="360" cy="70" r="30" fill="#FFF0B3"/><rect x="40" y="164" width="59" height="86" rx="23" fill="#FF7A1A"/><circle cx="70" cy="125" r="27" fill="#8D5524"/><path d="M43 121 Q70 82 97 121 Q70 106 43 121Z" fill="#2B1A10"/><circle cx="61" cy="123" r="3.1" fill="#1B0F0A"/><circle cx="79" cy="123" r="3.1" fill="#1B0F0A"/><path d="M63 133 Q70 141 77 133" stroke="#3B1F0E" stroke-width="2.3" fill="none" stroke-linecap="round"/><rect x="118" y="182" width="47" height="68" rx="19" fill="#7C4DFF"/><circle cx="142" cy="151" r="21" fill="#E0AC69"/><path d="M121 148 Q142 117 163 148 Q142 135 121 148Z" fill="#2B1A10"/><circle cx="135" cy="149" r="2.5" fill="#1B0F0A"/><circle cx="149" cy="149" r="2.5" fill="#1B0F0A"/><path d="M136 157 Q142 163 148 157" stroke="#3B1F0E" stroke-width="1.9" fill="none" stroke-linecap="round"/><rect x="184" y="164" width="59" height="86" rx="23" fill="#25D366"/><circle cx="214" cy="125" r="27" fill="#C68642"/><path d="M187 121 Q214 82 241 121 Q214 106 187 121Z" fill="#2B1A10"/><circle cx="205" cy="123" r="3.1" fill="#1B0F0A"/><circle cx="223" cy="123" r="3.1" fill="#1B0F0A"/><path d="M207 133 Q214 141 221 133" stroke="#3B1F0E" stroke-width="2.3" fill="none" stroke-linecap="round"/><rect x="262" y="182" width="47" height="68" rx="19" fill="#E5484D"/><circle cx="286" cy="151" r="21" fill="#F1C27D"/><path d="M265 148 Q286 117 307 148 Q286 135 265 148Z" fill="#2B1A10"/><circle cx="279" cy="149" r="2.5" fill="#1B0F0A"/><circle cx="293" cy="149" r="2.5" fill="#1B0F0A"/><path d="M280 157 Q286 163 292 157" stroke="#3B1F0E" stroke-width="1.9" fill="none" stroke-linecap="round"/><rect x="328" y="164" width="59" height="86" rx="23" fill="#FFC107"/><circle cx="358" cy="125" r="27" fill="#A0522D"/><path d="M331 121 Q358 82 385 121 Q358 106 331 121Z" fill="#2B1A10"/><circle cx="349" cy="123" r="3.1" fill="#1B0F0A"/><circle cx="367" cy="123" r="3.1" fill="#1B0F0A"/><path d="M351 133 Q358 141 365 133" stroke="#3B1F0E" stroke-width="2.3" fill="none" stroke-linecap="round"/></svg>
+<img id="f04-pirate" class="char" src="assets/chars/pirata.webp" alt="">
+<p id="f04-empty" class="abs center">Sin tiempo para tu familia ni tus amigos</p>
+
+</div>
+<script>
+const tl = gsap.timeline({ paused: true });
+
+window.__timelines["f04-ladron"] = tl;
+</script>
+</template>
+</body>
+</html>

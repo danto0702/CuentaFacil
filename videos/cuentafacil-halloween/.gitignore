@@ -1,0 +1,4 @@
+assets/real/captura-*.jpg
+renders/
+.hyperframes/
+node_modules/

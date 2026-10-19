@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="es-CO">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="assets/vendor/gsap.min.js"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: #120820; }
+      #root { position: relative; width: 100%; height: 100%; overflow: hidden; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="60" data-width="1080" data-height="1920">
+      <div id="f01-noche" class="clip" data-composition-id="f01-noche" data-composition-src="compositions/frames/01-noche.html" data-start="0" data-duration="4" data-track-index="1" data-width="1080" data-height="1920"></div>
+      <div id="f02-bruja" class="clip" data-composition-id="f02-bruja" data-composition-src="compositions/frames/02-bruja.html" data-start="4" data-duration="5" data-track-index="1" data-width="1080" data-height="1920"></div>
+      <div id="f03-vampiro" class="clip" data-composition-id="f03-vampiro" data-composition-src="compositions/frames/03-vampiro.html" data-start="9" data-duration="5" data-track-index="1" data-width="1080" data-height="1920"></div>
+      <div id="f04-ladron" class="clip" data-composition-id="f04-ladron" data-composition-src="compositions/frames/04-ladron.html" data-start="14" data-duration="5" data-track-index="1" data-width="1080" data-height="1920"></div>
+      <div id="f05-momias" class="clip" data-composition-id="f05-momias" data-composition-src="compositions/frames/05-momias.html" data-start="19" data-duration="5" data-track-index="1" data-width="1080" data-height="1920"></div>
+      <div id="f06-fantasma" class="clip" data-composition-id="f06-fantasma" data-composition-src="compositions/frames/06-fantasma.html" data-start="24" data-duration="6" data-track-index="1" data-width="1080" data-height="1920"></div>
+      <div id="f07-pascal" class="clip" data-composition-id="f07-pascal" data-composition-src="compositions/frames/07-pascal.html" data-start="30" data-duration="5" data-track-index="1" data-width="1080" data-height="1920"></div>
+      <div id="f08-cuenta" class="clip" data-composition-id="f08-cuenta" data-composition-src="compositions/frames/08-cuenta.html" data-start="35" data-duration="6" data-track-index="1" data-width="1080" data-height="1920"></div>
+      <div id="f09-estres" class="clip" data-composition-id="f09-estres" data-composition-src="compositions/frames/09-estres.html" data-start="41" data-duration="6" data-track-index="1" data-width="1080" data-height="1920"></div>
+      <div id="f10-familia" class="clip" data-composition-id="f10-familia" data-composition-src="compositions/frames/10-familia.html" data-start="47" data-duration="6" data-track-index="1" data-width="1080" data-height="1920"></div>
+      <div id="f11-cierre" class="clip" data-composition-id="f11-cierre" data-composition-src="compositions/frames/11-cierre.html" data-start="53" data-duration="7" data-track-index="1" data-width="1080" data-height="1920"></div>
+    </div>
+    <script>
+      window.__timelines = window.__timelines || {};
+      window.__timelines["main"] = gsap.timeline({ paused: true });
+    </script>
+  </body>
+</html>
