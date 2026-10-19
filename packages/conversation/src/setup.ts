@@ -748,7 +748,11 @@ export class SetupFlow {
         text('⏳ Recibí el clausulado. Estoy leyendo tus documentos; esto puede tardar uno o dos minutos…'),
       )
       .catch(() => undefined);
-    const extraction = await this.deps.ai.extractContract(docs);
+    // The entity checklist, so the AI says which documents only this contract asks for (ADR-051).
+    const checklist = ctx.entityId
+      ? (await this.deps.store.listSupportTypes(ctx.entityId)).filter((t) => t.required).map((t) => t.label)
+      : [];
+    const extraction = await this.deps.ai.extractContract(docs, checklist);
     const entity = ctx.entityId
       ? await this.deps.store.getEntity(ctx.entityId)
       : await this.deps.store.findEntity(extraction.entity.nit, extraction.entity.name);
@@ -815,6 +819,25 @@ export class SetupFlow {
       chunk += line;
     }
     if (chunk.trim()) turn.out.push(text(chunk.trim()));
+    if (e.extraDocuments?.length)
+      turn.out.push(
+        text(
+          `📎 *Tu contrato también pide estos documentos* (además de los de la entidad; te los pediré en cada cuenta):\n${e.extraDocuments.map((x) => `• ${x}`).join('\n')}`,
+        ),
+      );
+    // Monthly goals of the tables (ADR-051): confirmed here, asked for at the close of each account.
+    if (e.goals?.length) {
+      let g = '🎯 *Metas mensuales (al cierre de cada cuenta te pregunto cuántas hiciste):*';
+      for (const goal of e.goals) {
+        const line = `\n• Obl. ${goal.obligation} – ${goal.label}: ${goalMonths(goal.monthly)}`;
+        if (g.length + line.length > 3500) {
+          turn.out.push(text(g));
+          g = '';
+        }
+        g += line;
+      }
+      turn.out.push(text(g.trim()));
+    }
     turn.out.push(
       buttons('¿Está todo bien?', [
         { id: 'setup:ok', title: '✅ Todo bien' },
@@ -1297,7 +1320,15 @@ export function contractFromSetup(
     obligations,
     contractorDuties: e.obligations.filter((o) => o.kind === 'general').map((o) => o.text),
     ...(e.schedule.length ? { schedule: e.schedule } : {}),
+    ...(e.goals?.length ? { goals: e.goals } : {}),
+    ...(e.extraDocuments?.length ? { extraSupports: e.extraDocuments } : {}),
   };
+}
+
+/** «80 cada mes» or «mes 1: 4 · mes 2: 4 · mes 3: 0». */
+export function goalMonths(monthly: number[]): string {
+  if (monthly.length === 1 || monthly.every((n) => n === monthly[0])) return `${monthly[0]} cada mes`;
+  return monthly.map((n, i) => `mes ${i + 1}: ${n}`).join(' · ');
 }
 
 /** A gestor configuring someone else's contract (ADR-042). */

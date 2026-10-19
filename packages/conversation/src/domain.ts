@@ -32,6 +32,23 @@ export interface EntitySettings {
   emptyObligationText: string;
   /** Values that are the same for every contractor of the entity; they win over what the AI reads. */
   contractDefaults: { supervisor: { name: string; title: string } | null };
+  /**
+   * Budget execution of the supervision report: 'by_count' = 100 % ÷ number of reports × current report
+   * (HRNO, owner 2026-10-19); 'by_value' = paid and accrued ÷ contract value.
+   */
+  budgetExecution: 'by_count' | 'by_value';
+  /** Fixed general obligations rated in the supervision report; empty = those of each contract. */
+  supervisionDuties: string[];
+  /** EBS coordinator who attends the supervision meeting of EBS contractors, by municipality. */
+  ebsCoordinators: EbsCoordinator[];
+}
+
+export interface EbsCoordinator {
+  /** Municipalities as written in the contract object («ABREGO», «EL CARMEN»). */
+  municipalities: string[];
+  name: string;
+  docNumber: string;
+  docIssuedIn: string;
 }
 
 export interface User {
@@ -86,6 +103,9 @@ export interface Contract {
   obligations: Obligation[];
   contractorDuties: string[];
   schedule?: ScheduledPayment[];
+  goals?: ContractGoal[];
+  /** Supports only this contract asks for (labels), besides the entity checklist. */
+  extraSupports?: string[];
 }
 
 export type PeriodStatus =
@@ -261,8 +281,41 @@ export interface ContractExtraction {
   /** Literal text, in the clauses' order. */
   obligations: { kind: 'specific' | 'general'; number: number; text: string }[];
   schedule: ScheduledPayment[];
+  /** Monthly quantitative goals of the clauses' tables (ADR-051); missing in older extractions. */
+  goals?: ContractGoal[];
+  /**
+   * Documents the payment clause asks for that the entity checklist does not have (ADR-051), e.g.
+   * «Certificado de ejecución por el Supervisor del Municipio». Asked for like the entity's supports.
+   */
+  extraDocuments?: string[];
   /** Anything the AI could not confirm, in Colombian Spanish, for the summary. */
   warnings: string[];
+}
+
+/**
+ * A monthly goal of a specific obligation, from the clauses' tables («Seguimiento: 80 por mes», «Polio
+ * inyectable 1ra dosis: meta 9»). The contractor confirms them at setup and says how many they did at the
+ * close of each account; the counts go into both reports as they are (ADR-051).
+ */
+export interface ContractGoal {
+  /** Number of the specific obligation the goal belongs to. */
+  obligation: number;
+  label: string;
+  /** Goal for month 1, 2… of the contract (report 1 = month 1); one value = the same every month. */
+  monthly: number[];
+}
+
+/** Facts asked once and kept (no column of their own): undefined = not asked yet. */
+export interface ProfileFlags {
+  /** Pensioners do not contribute to pension: their PILA has no pension and no AFP certificate is asked. */
+  pensioner?: boolean;
+}
+
+/** Goal of one account, with what the contractor did (null until asked). */
+export interface PeriodGoal extends ContractGoal {
+  index: number;
+  target: number;
+  done: number | null;
 }
 
 /** Programa de Aliados (ADR-032): the first contractor of a new institution and their referrals. */

@@ -3,6 +3,7 @@ export * from './brand.js';
 export * from './demo.js';
 export * from './domain.js';
 export * from './fakes.js';
+export * from './goals.js';
 export * from './intents.js';
 export * from './memory-store.js';
 export * from './note-check.js';

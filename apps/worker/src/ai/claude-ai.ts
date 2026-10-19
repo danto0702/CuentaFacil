@@ -214,6 +214,26 @@ const extractionSchema = z.object({
       items: z.array(z.object({ concept: z.string(), amount: z.number().int(), countsForIbc: z.boolean() })),
     }),
   ),
+  goals: z
+    .array(
+      z.object({
+        obligation: z.number().int().describe('Number of the specific obligation the goal table belongs to'),
+        label: z
+          .string()
+          .describe(
+            'Row name as written, with its group if any, e.g. "Polio Inyectable 1ra Dosis (2 meses)"',
+          ),
+        monthly: z
+          .array(z.number().int())
+          .describe('Goal of MES 1, MES 2… in order; a single value when the table gives one monthly meta'),
+      }),
+    )
+    .describe('Monthly quantitative goals from the clauses tables; empty when there are none'),
+  extraDocuments: z
+    .array(z.string())
+    .describe(
+      'Documents of the payment clause that the given entity checklist does not cover; empty if none',
+    ),
   warnings: z.array(z.string()),
 });
 
@@ -225,6 +245,9 @@ Rules:
 - monthlyValue: the regular monthly payment from the payment clause. schedule: only when the clauses give different values per payment (e.g. a prorated first month, or fees + transport); mark transport allowance items countsForIbc=false. Otherwise leave schedule empty.
 - startDate only if an explicit start date is written (SECOP often shows "-": then null). Never infer dates.
 - contractor data and bank account from the SECOP "Proveedor" and "Cuenta bancaria" sections.
+- goals: the quantitative monthly targets in the tables of the activities (columns "MES 1… MES N", or a "Meta" per month as in vaccination tables). One entry per row, linked to the specific obligation the table follows (by the obligations' numbering). Copy the numbers exactly; skip percentages ("25%"), values in pesos, total columns ("META" of the whole contract) and design columns ("E. DISEÑADAS", "REPLICAS"). If a table's columns are misaligned and you cannot tell which number is which month, leave that row out and say so in warnings.
+- extraDocuments: from the list of documents the contractor must present each month ("El contratista presentará los siguientes documentos"), only those that no item of the entity's checklist covers by meaning (e.g. "Planilla de seguridad social" is covered by "Planilla PILA"; a certificate issued by a different person, such as "Certificado de ejecución por el Supervisor del Municipio" when the checklist has "Certificado de ejecución EBS", is NOT covered). Never include the reports the contractor writes (informe de actividades, informe de supervisión). Use the clause's wording, short. Empty when no checklist is given.
+- If the payments of the payment clause do not add up to the total value, say so in warnings with both numbers.
 - Use null for anything not present. Put every doubt or inconsistency in warnings, in Colombian Spanish, short.`;
 
 const obligationList = (obligations: Obligation[]) =>
@@ -316,6 +339,25 @@ export class ClaudeAI implements AI {
       schema: previousReportSchema,
     });
     return { ...r, examples: r.examples.slice(0, 3) };
+  }
+
+  async readGoalCounts(goals: { label: string; target: number }[], text: string): Promise<(number | null)[]> {
+    const r = await this.llm.structured({
+      purpose: 'read_goal_counts',
+      model: this.models.fast,
+      effort: 'low',
+      maxTokens: 1000,
+      system:
+        'A Colombian contractor says how many of each monthly goal they did. Return one count per goal, in the same order. "todas cumplidas" or "igual a la meta" means the goal number; a goal they do not mention after giving a list in order is null. Never guess a number that is not said or implied.',
+      content: [
+        {
+          type: 'text',
+          text: `Goals (number. label: monthly goal):\n${goals.map((g, i) => `${i + 1}. ${g.label}: ${g.target}`).join('\n')}\n\nMessage:\n${text}`,
+        },
+      ],
+      schema: z.object({ counts: z.array(z.number().int().min(0).nullable()) }),
+    });
+    return goals.map((_, i) => r.counts[i] ?? null);
   }
 
   async readBankCertificate(doc: DocumentInput): Promise<BankReading> {
@@ -429,7 +471,7 @@ export class ClaudeAI implements AI {
     }));
   }
 
-  async extractContract(docs: DocumentInput[]): Promise<ContractExtraction> {
+  async extractContract(docs: DocumentInput[], checklist: string[] = []): Promise<ContractExtraction> {
     const r = await this.llm.structured({
       purpose: 'extract_contract',
       model: this.models.setup,
@@ -446,7 +488,14 @@ export class ClaudeAI implements AI {
             data: d.data.toString('base64'),
           },
         })),
-        { type: 'text', text: 'Extract the contract configuration from these documents.' },
+        {
+          type: 'text',
+          text: `Extract the contract configuration from these documents.${
+            checklist.length
+              ? `\nThe entity's checklist of supports (for extraDocuments):\n${checklist.map((l) => `- ${l}`).join('\n')}`
+              : ''
+          }`,
+        },
       ],
       schema: extractionSchema,
     });
@@ -560,6 +609,8 @@ function normalizeExtraction(r: z.infer<typeof extractionSchema>): ContractExtra
   return {
     ...r,
     contractor: { ...r.contractor, docNumber: r.contractor.docNumber.replace(/\D/g, '') },
+    extraDocuments: r.extraDocuments.map((x) => x.trim()).filter(Boolean),
+    goals: r.goals.filter((g) => g.label.trim() && g.monthly.length && g.monthly.every((n) => n >= 0)),
     schedule: r.schedule.map((p) => ({
       paymentNumber: p.paymentNumber,
       amount: p.amount,

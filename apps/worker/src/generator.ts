@@ -9,7 +9,7 @@ import type {
   SupportFile,
   SupportType,
 } from '@cuentasbot/conversation';
-import { noteSupports, pilaMonthFor } from '@cuentasbot/conversation';
+import { contractSupportTypes, noteSupports, periodGoals, pilaMonthFor } from '@cuentasbot/conversation';
 import {
   buildTemplateContext,
   buildZips,
@@ -78,8 +78,15 @@ export class AccountGenerator implements Generator {
     const notes = await store.listNotes(contractId, period.from, period.to);
     const maxEv = this.opts.maxEvidencePerObligation ?? 3;
 
+    // Monthly goals with what the contractor said at the close (ADR-051), under their obligation.
+    const goals = periodGoals(
+      contract,
+      periodNumber,
+      await store.getGoalCounts(contract.userId, contractId, periodNumber),
+    ).filter((g) => g.done != null);
     const obligations: ObligationInput[] = [];
     for (const o of contract.obligations) {
+      const mine = o.kind === 'specific' ? goals.filter((x) => x.obligation === o.number) : [];
       const d = drafts.find((x) => x.obligationKey === o.key);
       const evIds = notes
         .filter((n) => noteSupports(n, o.key))
@@ -94,7 +101,10 @@ export class AccountGenerator implements Generator {
         text: o.text,
         activities: d?.paragraphs ?? [],
         evidences,
-        ...(d?.status === 'not_applicable' && entity.settings.emptyObligations === 'omit'
+        ...(mine.length
+          ? { goals: mine.map((x) => ({ label: x.label, target: x.target, done: x.done! })) }
+          : {}),
+        ...(d?.status === 'not_applicable' && entity.settings.emptyObligations === 'omit' && !mine.length
           ? { omit: true }
           : {}),
       });
@@ -102,7 +112,7 @@ export class AccountGenerator implements Generator {
 
     const ss = await store.getSocialSecurity(user.id, pilaMonthFor(entity.settings, period.to));
     const supports = await store.listSupports(user.id);
-    const types = await store.listSupportTypes(entity.id);
+    const types = [...(await store.listSupportTypes(entity.id)), ...contractSupportTypes(contract)];
     // Payments before this report: the vouchers registered for them, or else each delivered report with
     // its value ("Cuenta No. 01 – julio"), so the balance shows what was already billed.
     const vouchers = (await store.listPriorPayments(contractId)).filter((p) => p.periodNumber < periodNumber);
@@ -133,6 +143,9 @@ export class AccountGenerator implements Generator {
         meeting: entity.settings.meeting,
         defaultActivityText: entity.settings.defaultActivityText,
         backgroundCheckDate: entity.settings.backgroundCheckDate,
+        budgetExecution: entity.settings.budgetExecution,
+        supervisionDuties: entity.settings.supervisionDuties,
+        ebsCoordinators: entity.settings.ebsCoordinators,
       },
       contractor: {
         fullName: user.fullName,

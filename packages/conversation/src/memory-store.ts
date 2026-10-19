@@ -15,6 +15,7 @@ import type {
   Note,
   Period,
   PriorPaymentRecord,
+  ProfileFlags,
   RegistryEntry,
   SocialSecurity,
   SupportFile,
@@ -228,6 +229,28 @@ export class MemoryStore implements Store {
   async getWritingStyle(userId: string) {
     return this.data.writingStyles?.[userId] ?? null;
   }
+  private profileFlags = new Map<string, ProfileFlags>();
+
+  async getProfileFlags(userId: string): Promise<ProfileFlags> {
+    return { ...(this.profileFlags.get(userId) ?? {}) };
+  }
+
+  async saveProfileFlags(userId: string, flags: ProfileFlags) {
+    this.profileFlags.set(userId, { ...flags });
+  }
+
+  private goalCounts = new Map<string, number[]>();
+
+  async saveGoalCounts(_userId: string, contractId: string, periodNumber: number, counts: number[] | null) {
+    const k = `${contractId}:${periodNumber}`;
+    if (counts) this.goalCounts.set(k, [...counts]);
+    else this.goalCounts.delete(k);
+  }
+
+  async getGoalCounts(_userId: string, contractId: string, periodNumber: number) {
+    return this.goalCounts.get(`${contractId}:${periodNumber}`) ?? null;
+  }
+
   async saveSocialSecurity(ss: SocialSecurity, _supportId: string) {
     this.data.socialSecurity = [
       ...this.data.socialSecurity.filter(

@@ -30,6 +30,7 @@ import type {
   WritingStyle,
 } from './domain.js';
 import { noteSupports, pilaMonthFor } from './domain.js';
+import { contractSupportTypes, GOAL_ALERT, goalLine, periodGoals } from './goals.js';
 import { type Command, forcedNote, isNoteRequest, matchCommand, matchMonthRequest } from './intents.js';
 import { type NoteSuspicion, PHOTO_RECORD_PREFIX, suspectNote } from './note-check.js';
 import type { Deps, Inbound, ListRow, MessageIntent, MessageIntentKind, Outgoing } from './ports.js';
@@ -920,6 +921,8 @@ export class Orchestrator {
       );
       if (c) return this.askDescription(turn, c);
     }
+    if (msg.replyId === 'pens:yes' || msg.replyId === 'pens:no')
+      return this.onPensioner(turn, msg.replyId === 'pens:yes');
     if (msg.replyId?.startsWith('payc:')) {
       this.reset(turn);
       return this.payCharge(turn, msg.replyId.slice(5));
@@ -1243,7 +1246,15 @@ export class Orchestrator {
       case 'draft_missing_text':
         return this.onDraftMissingText(turn, msg);
       case 'review':
+        if (msg.replyId === 'rev:goals') {
+          const { c, p } = await this.loadDraftCtx(turn);
+          await this.deps.store.saveGoalCounts(c.userId, c.id, p.number, null);
+          return this.askGoalCounts(turn, c, p);
+        }
         return this.onReview(turn, msg);
+      case 'goal_counts':
+      case 'goal_confirm':
+        return this.onGoalCounts(turn, msg);
       case 'edit_pick':
         return this.onEditPick(turn, msg);
       case 'edit_text':
@@ -2608,6 +2619,7 @@ ${lines.join('\n')}${due.length ? '' : '\n\nNo tienes nada pendiente. 👍'}`,
       maxAge = (await this.deps.store.getEntity(e)).settings.certificateMaxAgeDays;
       for (const t of await this.deps.store.listSupportTypes(e)) types.set(t.code, t);
     }
+    for (const c of cs) for (const t of contractSupportTypes(c)) types.set(t.code, t);
     const media = msg.media!;
     const filename = media.filename ?? 'documento.pdf';
     const isPdf = media.mime.split(';')[0]?.trim() === 'application/pdf';
@@ -2627,6 +2639,7 @@ ${lines.join('\n')}${due.length ? '' : '\n\nNo tienes nada pendiente. 👍'}`,
     if (!known.length) return this.askSupportType(turn, msg, types, guide);
 
     const today = this.deps.clock.today();
+    let noPension = false;
     const lines: string[] = [];
     const old: { type: SupportType; supportId: string }[] = [];
     for (const g of known) {
@@ -2655,6 +2668,7 @@ ${lines.join('\n')}${due.length ? '' : '\n\nNo tienes nada pendiente. 👍'}`,
         if (ss) {
           await this.deps.store.saveSocialSecurity({ ...ss, userId: turn.user.id }, supportId);
           ssNote = ` · ${monthNameEs(ss.contributionMonth).toLowerCase()} ${ss.contributionMonth.slice(0, 4)}, total ${formatCOP(ss.total)}`;
+          if (!ss.afpValue) noPension = true;
         } else ssNote = ' · no pude leer los valores; los reviso con una persona';
       }
       const pages = g.fromPage === g.toPage ? `pág. ${g.fromPage}` : `págs. ${g.fromPage}-${g.toPage}`;
@@ -2675,6 +2689,7 @@ ${lines.join('\n')}${due.length ? '' : '\n\nNo tienes nada pendiente. 👍'}`,
         `❓ No reconocí ${unknown.map((g) => (g.fromPage === g.toPage ? `la pág. ${g.fromPage}` : `las págs. ${g.fromPage}-${g.toPage}`)).join(', ')}.`,
       );
     turn.out.push(text(`📎 *${filename}*\n${lines.join('\n')}`));
+    if (noPension) await this.askPensioner(turn);
     // Inside the guide an expired document is simply asked for again in the next step.
     if (guide) return;
     if (old.length) await this.askExpired(turn, old);
@@ -2713,7 +2728,8 @@ ${lines.join('\n')}${due.length ? '' : '\n\nNo tienes nada pendiente. 👍'}`,
       const cs = await this.activeContracts(turn);
       const types = new Map<string, SupportType>();
       for (const c of cs)
-        for (const t of await this.deps.store.listSupportTypes(c.entityId)) types.set(t.code, t);
+        for (const t of [...(await this.deps.store.listSupportTypes(c.entityId)), ...contractSupportTypes(c)])
+          types.set(t.code, t);
       turn.out.push(choose('¿Qué documento es?', supportRows(types), page, 'smore'));
       return;
     }
@@ -2723,7 +2739,8 @@ ${lines.join('\n')}${due.length ? '' : '\n\nNo tienes nada pendiente. 👍'}`,
       const cs = await this.activeContracts(turn);
       const types = new Map<string, SupportType>();
       for (const c of cs)
-        for (const t of await this.deps.store.listSupportTypes(c.entityId)) types.set(t.code, t);
+        for (const t of [...(await this.deps.store.listSupportTypes(c.entityId)), ...contractSupportTypes(c)])
+          types.set(t.code, t);
       code = matchSupportRow(supportRows(types), msg.text);
     }
     if (!code) {
@@ -2878,13 +2895,19 @@ ${lines.join('\n')}${due.length ? '' : '\n\nNo tienes nada pendiente. 👍'}`,
     missing: SupportType[];
     expired: { type: SupportType; supportId: string }[];
   }> {
-    const types = (await this.deps.store.listSupportTypes(c.entityId)).filter(
+    const pensioner = (await this.deps.store.getProfileFlags(turn.user.id)).pensioner === true;
+    const types = [
+      ...(await this.deps.store.listSupportTypes(c.entityId)),
+      ...contractSupportTypes(c),
+    ].filter(
       (t) =>
         t.required &&
         t.frequency === 'every_period' &&
         (!t.profiles || (c.profile && t.profiles.includes(c.profile))) &&
         // The compliance certificate only for contracts whose accounts ask for it.
-        !(t.code === 'CERT_CUMPLIMIENTO' && c.requiresCertification === false),
+        !(t.code === 'CERT_CUMPLIMIENTO' && c.requiresCertification === false) &&
+        // Pensioners do not contribute to pension: no pension affiliation certificate.
+        !(t.code === 'AFP' && pensioner),
     );
     const supports = await this.deps.store.listSupports(turn.user.id);
     const today = this.deps.clock.today();
@@ -3004,6 +3027,9 @@ ${lines.join('\n')}${due.length ? '' : '\n\nNo tienes nada pendiente. 👍'}`,
         return why ? [{ id: n.id, why }] : [];
       });
     if (queue.length) return this.askNoteCheck(turn, c, p, queue);
+    // Monthly goals (ADR-051): how many of each, before drafting; they go into both reports as said.
+    const goals = periodGoals(c, p.number, await this.deps.store.getGoalCounts(c.userId, c.id, p.number));
+    if (goals.some((g) => g.done == null)) return this.askGoalCounts(turn, c, p);
     const existing = await this.deps.store.listDrafts(c.id, p.number);
     const missing: string[] = [];
     turn.out.push(text('✍️ Estoy redactando tu informe con lo que me contaste…'));
@@ -3598,6 +3624,7 @@ ${lines.join('\n')}${due.length ? '' : '\n\nNo tienes nada pendiente. 👍'}`,
     const omit = (await this.deps.store.getEntity(c.entityId)).settings.emptyObligations === 'omit';
     const blocks: string[] = [];
     const omitted: number[] = [];
+    const goals = periodGoals(c, p.number, await this.deps.store.getGoalCounts(c.userId, c.id, p.number));
     for (const o of c.obligations) {
       if (onlyKey && o.key !== onlyKey) continue;
       const d = drafts.find((x) => x.obligationKey === o.key);
@@ -3605,7 +3632,10 @@ ${lines.join('\n')}${due.length ? '' : '\n\nNo tienes nada pendiente. 👍'}`,
         omitted.push(o.number);
         continue;
       }
-      blocks.push(`*${o.number}.* ${clip(o.text, 140)}\n→ ${(d?.paragraphs ?? []).join('\n→ ')}`);
+      const mine = goals.filter((g) => g.obligation === o.number);
+      blocks.push(
+        `*${o.number}.* ${clip(o.text, 140)}\n→ ${(d?.paragraphs ?? []).join('\n→ ')}${mine.map((g) => `\n🎯 ${goalLine(g)}`).join('')}`,
+      );
     }
     if (omitted.length)
       blocks.push(
@@ -3628,7 +3658,126 @@ ${lines.join('\n')}${due.length ? '' : '\n\nNo tienes nada pendiente. 👍'}`,
       buttons('¿Lo apruebas?', [
         { id: 'rev:approve', title: '✅ Aprobar todo' },
         { id: 'rev:edit', title: '✏️ Editar una' },
+        ...(goals.length ? [{ id: 'rev:goals', title: '🎯 Cambiar metas' }] : []),
       ]),
+    );
+  }
+
+  /**
+   * A PILA without pension: pensioners do not contribute. Asked once and kept; whoever is not a
+   * pensioner is told each time, because the entity can reject the account.
+   */
+  private async askPensioner(turn: Turn): Promise<void> {
+    const { pensioner } = await this.deps.store.getProfileFlags(turn.user.id);
+    if (pensioner === true) return;
+    if (pensioner === false) {
+      turn.out.push(
+        text(
+          `⚠️ La planilla no tiene aporte a pensión y ${this.forOther(turn) ? `${this.labelOf(turn)} no es` : 'no eres'} pensionado(a): la entidad puede rechazar la cuenta. Revisa la planilla antes de generar.`,
+        ),
+      );
+      return;
+    }
+    turn.out.push(
+      buttons(
+        `🧾 La planilla no tiene aporte a pensión. ¿${this.forOther(turn) ? `${this.labelOf(turn)} es` : 'Eres'} pensionado(a)? Te lo pregunto una sola vez.`,
+        [
+          { id: 'pens:yes', title: 'Sí, pensionado(a)' },
+          { id: 'pens:no', title: 'No' },
+        ],
+      ),
+    );
+  }
+
+  private async onPensioner(turn: Turn, yes: boolean): Promise<void> {
+    const flags = await this.deps.store.getProfileFlags(turn.user.id);
+    await this.deps.store.saveProfileFlags(turn.user.id, { ...flags, pensioner: yes });
+    turn.out.push(
+      text(
+        yes
+          ? '✅ Listo, lo guardé: no te pediré aporte ni certificado de pensión.'
+          : '⚠️ Entonces la planilla debe tener el aporte a pensión, o la entidad puede rechazar la cuenta. Revísala con tu operador (Aportes en Línea, SOI, Mi Planilla…) y envíamela de nuevo.',
+      ),
+    );
+  }
+
+  // -------------------------------------------------------------------------
+  // Monthly goals (ADR-051): read from the clauses at setup; at the close, how many of each
+  // -------------------------------------------------------------------------
+  private async askGoalCounts(turn: Turn, c: Contract, p: Period): Promise<void> {
+    const goals = periodGoals(c, p.number);
+    this.setFlow(turn, 'goal_counts', 'ask', { contractId: c.id, periodNumber: p.number });
+    let chunk = `🎯 Antes de redactar tu ${this.reportLabel(c, p)}: ¿cuántas hiciste de cada meta este mes?`;
+    goals.forEach((g, i) => {
+      const line = `\n${i + 1}. ${g.label} (obl. ${g.obligation}) – meta ${g.target}`;
+      if (chunk.length + line.length > 3500) {
+        turn.out.push(text(chunk));
+        chunk = '';
+      }
+      chunk += line;
+    });
+    turn.out.push(text(chunk.trim()));
+    turn.out.push(
+      buttons(
+        'Escríbeme las cantidades en el mismo orden (por ejemplo: *80, 100, 4*), o dime solo las que no cumpliste (por ejemplo: *todas, menos la 3 que fueron 60*).',
+        [{ id: 'goal:all', title: '✅ Cumplí todas' }],
+      ),
+    );
+  }
+
+  private async onGoalCounts(turn: Turn, msg: Inbound): Promise<void> {
+    const ctx = turn.state.context as { contractId: string; periodNumber: number; counts?: number[] };
+    const c = await this.deps.store.getContract(ctx.contractId);
+    const p = (await this.deps.store.listPeriods(c.id)).find((x) => x.number === ctx.periodNumber)!;
+    const goals = periodGoals(c, p.number);
+    if (turn.state.flow === 'goal_confirm') {
+      if (msg.replyId === 'goal:ok' && ctx.counts) {
+        await this.deps.store.saveGoalCounts(c.userId, c.id, p.number, ctx.counts);
+        this.reset(turn);
+        return this.startDraft(turn, c, p);
+      }
+      if (msg.replyId === 'goal:fix') return this.askGoalCounts(turn, c, p);
+    }
+    let said: (number | null)[];
+    if (msg.replyId === 'goal:all') said = goals.map((g) => g.target);
+    else if (msg.kind === 'text' && msg.text?.trim())
+      said = await this.deps.ai.readGoalCounts(
+        goals.map((g) => ({ label: g.label, target: g.target })),
+        msg.text,
+      );
+    else return this.askGoalCounts(turn, c, p);
+    const unknown = goals.filter((_, i) => said[i] == null);
+    if (unknown.length) {
+      turn.out.push(
+        text(
+          `No entendí cuántas hiciste de: ${unknown.map((g) => `*${g.label}*`).join(', ')}. Escríbeme todas las cantidades en orden, separadas por comas.`,
+        ),
+      );
+      return;
+    }
+    // One count per goal of the contract, in its order (goals of other months stay 0).
+    const counts = (c.goals ?? []).map(() => 0);
+    goals.forEach((g, i) => {
+      counts[g.index] = said[i]!;
+    });
+    const result = periodGoals(c, p.number, counts);
+    const low = result.filter((g) => (g.done ?? 0) < g.target * GOAL_ALERT);
+    this.setFlow(turn, 'goal_confirm', 'confirm', { contractId: c.id, periodNumber: p.number, counts });
+    turn.out.push(
+      text(
+        `🎯 Así quedan las metas de tu ${this.reportLabel(c, p)}:\n${result.map((g) => `• ${goalLine(g)}${(g.done ?? 0) < g.target * GOAL_ALERT ? ' ⚠️' : ''}`).join('\n')}`,
+      ),
+    );
+    turn.out.push(
+      buttons(
+        low.length
+          ? `⚠️ ${low.length === 1 ? 'Una meta quedó' : `${low.length} metas quedaron`} por debajo del 70 %. El contrato dice que, si no se supera el 70 % de las metas del mes, la entidad puede terminarlo. ¿Las cantidades están bien?`
+          : '¿Las cantidades están bien?',
+        [
+          { id: 'goal:ok', title: '✅ Sí, redactar' },
+          { id: 'goal:fix', title: '✏️ Corregir' },
+        ],
+      ),
     );
   }
 

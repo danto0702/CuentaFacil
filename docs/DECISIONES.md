@@ -241,3 +241,26 @@
   - **Gestor:** puede registrar la cuenta de la persona, y los textos la nombran.
   - **Antes de generar:** si falta la cuenta, Pascal avisa que saldría en blanco y ofrece «🏦 Enviar cuenta» o «Generar sin cuenta». Elegir generar sin cuenta vale para esa cuenta de cobro, y luego sigue la pregunta de la PILA si falta.
 - **Consecuencias:** sin cambio de esquema. La certificación válida queda en los soportes con el código `CUENTA_BANCARIA`. *Mis datos* indica cómo cambiar la cuenta.
+
+## ADR-051 — Informes según los aprobados por el supervisor de HRNO (2026-10-19)
+- **Contexto:** se revisaron clausulados de equipos básicos (EBS), vacunación y administrativos, y los informes de actividades y de supervisión que el supervisor aprobó. Las respuestas del dueño fijan las reglas.
+- **Decisión:**
+  - **Ejecución presupuestal:** 100 % ÷ número de cuentas × número de la cuenta actual (1 de 5 = 20 %). Es el ajuste `budget_execution` de la entidad: `by_count` (por defecto) o `by_value`.
+  - **Obligaciones generales en la supervisión:** las 4 fijas del formato (`supervision_duties`), no las del contrato.
+  - **Coordinador EBS en la reunión:** solo cuando el objeto del contrato es de un Equipo Básico de Salud, con el coordinador del municipio del objeto (`ebs_coordinators`). Ábrego y El Carmen tienen uno; Convención y Teorama, otro. En los demás contratos no sale esa fila, y se quitó la fila «Otros asistentes: NO HUBO».
+  - **Metas mensuales:**
+    - La IA lee las tablas del clausulado al configurar (por obligación y por mes; la cuenta 1 es el mes 1) y el contratista las confirma en el resumen.
+    - Antes de redactar cada cuenta, Pascal pregunta cuántas hizo de cada una («Cumplí todas», o las cantidades en orden) y pide confirmar. Avisa si alguna queda por debajo del 70 % (cláusula de cumplimiento).
+    - Las cantidades van tal cual, sin pasar por la IA de redacción, en el informe de actividades (dentro de la obligación) y en el borrador de supervisión (el supervisor las corrige si no está de acuerdo).
+    - En el borrador hay un botón «🎯 Cambiar metas».
+  - **Pensionado:** si la planilla no tiene aporte a pensión, se pregunta una vez si es pensionado(a) y se guarda.
+    - Si lo es, no se pide certificado de afiliación a pensión.
+    - Si no lo es, se advierte en cada planilla sin pensión.
+  - **Valor que no cuadra:** la IA lo avisa en el resumen de configuración y, al generar, Pascal pregunta qué valor cobrar (ya existía).
+  - **Soportes:** la lista de la entidad más los documentos que solo pide ese contrato (cláusula de pago). La IA los compara con la lista de la entidad al configurar. Se piden, se reconocen y se empacan como los demás (código `X<contrato>-<n>`).
+  - Las fotos con GPS Map Camera no se exigen. «Ahorro a la mano» (Nequi) es una cuenta de ahorros.
+- **Consecuencias:** sin cambio de esquema.
+  - Las metas y los documentos extra del contrato quedan en `contracts.extracted`.
+  - Las cantidades de cada cuenta y la respuesta de pensionado quedan en Storage (`supports/<usuario>/metas/…` y `perfil.json`), como el estilo de redacción.
+  - Los contratos configurados antes no tienen metas: se leen si se vuelve a configurar el contrato.
+  - Los ajustes de HRNO están en `seed.sql`; en producción se aplican con el mismo `update`.

@@ -93,6 +93,9 @@ export function sampleExtraction(): ContractExtraction {
 }
 
 export class FakeAI implements AI {
+  /** The next PILAs read have no pension contribution (a pensioner's sheet). */
+  pilaWithoutPension = false;
+
   constructor(private readonly extraction: ContractExtraction = sampleExtraction()) {}
 
   async extractSocialSecurity(_doc: DocumentInput): Promise<Omit<SocialSecurity, 'userId'> | null> {
@@ -106,8 +109,8 @@ export class FakeAI implements AI {
       ibc: 5_000_000,
       eps: 'EPS DE PRUEBA',
       epsValue: 625_000,
-      afp: 'AFP DE PRUEBA',
-      afpValue: 800_000,
+      afp: this.pilaWithoutPension ? '' : 'AFP DE PRUEBA',
+      afpValue: this.pilaWithoutPension ? 0 : 800_000,
       fspValue: 0,
       afcValue: 0,
       arl: 'ARL DE PRUEBA',
@@ -138,7 +141,7 @@ export class FakeAI implements AI {
     return [seg(null, 1)];
   }
 
-  async extractContract(_docs: DocumentInput[]): Promise<ContractExtraction> {
+  async extractContract(_docs: DocumentInput[], _checklist?: string[]): Promise<ContractExtraction> {
     return structuredClone(this.extraction);
   }
 
@@ -220,6 +223,13 @@ export class FakeAI implements AI {
       guide: 'Frases cortas en pasado impersonal.',
       examples: ['Se realizó la visita de seguimiento a la IPS.'],
     };
+  }
+
+  /** «todas» = every goal met; otherwise the numbers in order. */
+  async readGoalCounts(goals: { label: string; target: number }[], text: string): Promise<(number | null)[]> {
+    if (/\btodas\b/i.test(text)) return goals.map((g) => g.target);
+    const n = (text.match(/\d+/g) ?? []).map(Number);
+    return goals.map((_, i) => n[i] ?? null);
   }
 
   /** «Certificación…» in the file name or text reads as a Bancolombia savings account of the fake user. */

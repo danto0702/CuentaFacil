@@ -20,6 +20,7 @@ import type {
   Period,
   PreviousReportReading,
   PriorPaymentRecord,
+  ProfileFlags,
   ReferralResult,
   RegistryEntry,
   SocialSecurity,
@@ -131,11 +132,13 @@ export interface AI {
   draftObligation(obligation: Obligation, notes: Note[], style?: WritingStyle | null): Promise<DraftResult>;
   /** Reads a report the contractor made before (PDF or Word): is it one, and how do they write? */
   readPreviousReport(doc: DocumentInput): Promise<PreviousReportReading>;
+  /** Reads the quantities the contractor wrote for each goal («80, 100, 4…», «todas menos VPH que fueron 4»). */
+  readGoalCounts(goals: { label: string; target: number }[], text: string): Promise<(number | null)[]>;
   /** Reads a bank certificate (PDF or photo): bank, account type and number, holder. */
   readBankCertificate(doc: DocumentInput): Promise<BankReading>;
   rewrite(paragraphs: string[], instruction: string, obligation: Obligation): Promise<string[]>;
   /** Reads the SECOP contract and the clauses (setup model). Never invents values: unknowns are null. */
-  extractContract(docs: DocumentInput[]): Promise<ContractExtraction>;
+  extractContract(docs: DocumentInput[], checklist?: string[]): Promise<ContractExtraction>;
   /** Applies the contractor's correction ("el valor mensual es 4.000.000") to an extraction. */
   correctExtraction(extraction: ContractExtraction, instruction: string): Promise<ContractExtraction>;
   /** Reads a social-security payment sheet (PILA): operator, entities, values, PIN… Null if unreadable. */
@@ -209,6 +212,17 @@ export interface Store {
   /** The contractor's writing style (ADR-046); null removes it. */
   saveWritingStyle(userId: string, style: WritingStyle | null): Promise<void>;
   getWritingStyle(userId: string): Promise<WritingStyle | null>;
+  /** Answers about the person kept once (e.g. pensioner: their PILA has no pension contribution). */
+  getProfileFlags(userId: string): Promise<ProfileFlags>;
+  saveProfileFlags(userId: string, flags: ProfileFlags): Promise<void>;
+  /** How many of each monthly goal the contractor did in an account (ADR-051), in the contract's goal order. */
+  saveGoalCounts(
+    userId: string,
+    contractId: string,
+    periodNumber: number,
+    counts: number[] | null,
+  ): Promise<void>;
+  getGoalCounts(userId: string, contractId: string, periodNumber: number): Promise<number[] | null>;
   /** The contractor generates with these expired supports anyway (their responsibility). */
   acceptExpiredSupports(ids: string[]): Promise<void>;
   /** Asks a person of the team to write to the contractor (shown in the panel). */

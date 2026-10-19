@@ -43,6 +43,9 @@ export const ObligationSchema = z.object({
   x_na: x('Calificación NO APLICA.'),
   observations: s('Observaciones del supervisor.'),
   omitted: b('Sin actividades este periodo y la entidad las omite del informe de actividades.'),
+  goals: z
+    .array(z.object({ text: s('«Seguimientos: meta 80 · realizadas 80».') }))
+    .describe('Metas del mes de la obligación con lo realizado (vacío si no tiene metas).'),
 });
 
 export const DutySchema = ObligationSchema.pick({
@@ -161,11 +164,16 @@ export const TemplateContextSchema = z.object({
 
   // Supervisión
   physical_execution: s('% de ejecución física ("100%").'),
-  budget_execution: s('% de ejecución presupuestal acumulada ("66,66%").'),
+  budget_execution: s(
+    '% de ejecución presupuestal ("66,66%"): por número de cuenta o por valor, según la entidad.',
+  ),
   meeting_place: s('Lugar de la reunión de supervisión.'),
   meeting_start: s('Hora de inicio ("09:00 am").'),
   meeting_end: s('Hora de fin ("10:30 am").'),
   other_attendees: s('Otros asistentes ("NO HUBO").'),
+  ebs_coordinator: s(
+    'Coordinador(a) EBS que asiste a la reunión, con su cédula; vacío si el contrato no es de un Equipo Básico de Salud.',
+  ),
   x_deficient_performance_yes: x('¿Desempeño deficiente? SI.'),
   x_deficient_performance_no: x('¿Desempeño deficiente? NO.'),
   overall_rating: ObligationSchema.pick({

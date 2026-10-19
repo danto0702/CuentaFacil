@@ -99,11 +99,12 @@
 | `procuraduria_date` | texto | Fecha del certificado de Procuraduría. |
 | `contraloria_date` | texto | Fecha del certificado de Contraloría. |
 | `physical_execution` | texto | % de ejecución física ("100%"). |
-| `budget_execution` | texto | % de ejecución presupuestal acumulada ("66,66%"). |
+| `budget_execution` | texto | % de ejecución presupuestal ("66,66%"): por número de cuenta o por valor, según la entidad. |
 | `meeting_place` | texto | Lugar de la reunión de supervisión. |
 | `meeting_start` | texto | Hora de inicio ("09:00 am"). |
 | `meeting_end` | texto | Hora de fin ("10:30 am"). |
 | `other_attendees` | texto | Otros asistentes ("NO HUBO"). |
+| `ebs_coordinator` | texto | Coordinador(a) EBS que asiste a la reunión, con su cédula; vacío si el contrato no es de un Equipo Básico de Salud. |
 | `x_deficient_performance_yes` | texto | "X" o vacío. ¿Desempeño deficiente? SI. |
 | `x_deficient_performance_no` | texto | "X" o vacío. ¿Desempeño deficiente? NO. |
 | `overall_rating` | objeto | Concepto general del cumplimiento de obligaciones generales. |
@@ -148,6 +149,9 @@
 | `obligations[].x_na` | texto | "X" o vacío. Calificación NO APLICA. |
 | `obligations[].observations` | texto | Observaciones del supervisor. |
 | `obligations[].omitted` | sí/no | Sin actividades este periodo y la entidad las omite del informe de actividades. |
+| `obligations[].goals[]` | lista | Metas del mes de la obligación con lo realizado (vacío si no tiene metas). |
+| `obligations[].goals[]` | objeto |  |
+| `obligations[].goals[].text` | texto | «Seguimientos: meta 80 · realizadas 80». |
 | `specific_obligations[]` | lista | Solo obligaciones específicas. |
 | `specific_obligations[]` | objeto |  |
 | `specific_obligations[].number` | texto | Número de la obligación ("1", "14"). |
@@ -169,6 +173,9 @@
 | `specific_obligations[].x_na` | texto | "X" o vacío. Calificación NO APLICA. |
 | `specific_obligations[].observations` | texto | Observaciones del supervisor. |
 | `specific_obligations[].omitted` | sí/no | Sin actividades este periodo y la entidad las omite del informe de actividades. |
+| `specific_obligations[].goals[]` | lista | Metas del mes de la obligación con lo realizado (vacío si no tiene metas). |
+| `specific_obligations[].goals[]` | objeto |  |
+| `specific_obligations[].goals[].text` | texto | «Seguimientos: meta 80 · realizadas 80». |
 | `general_obligations[]` | lista | Solo obligaciones generales. |
 | `general_obligations[]` | objeto |  |
 | `general_obligations[].number` | texto | Número de la obligación ("1", "14"). |
@@ -190,6 +197,9 @@
 | `general_obligations[].x_na` | texto | "X" o vacío. Calificación NO APLICA. |
 | `general_obligations[].observations` | texto | Observaciones del supervisor. |
 | `general_obligations[].omitted` | sí/no | Sin actividades este periodo y la entidad las omite del informe de actividades. |
+| `general_obligations[].goals[]` | lista | Metas del mes de la obligación con lo realizado (vacío si no tiene metas). |
+| `general_obligations[].goals[]` | objeto |  |
+| `general_obligations[].goals[].text` | texto | «Seguimientos: meta 80 · realizadas 80». |
 | `supervision_activities[]` | lista | Obligaciones específicas con actividades en el periodo (tabla 2.3 del informe de supervisión). |
 | `supervision_activities[]` | objeto |  |
 | `supervision_activities[].number` | texto | Número de la obligación ("1", "14"). |
@@ -211,6 +221,9 @@
 | `supervision_activities[].x_na` | texto | "X" o vacío. Calificación NO APLICA. |
 | `supervision_activities[].observations` | texto | Observaciones del supervisor. |
 | `supervision_activities[].omitted` | sí/no | Sin actividades este periodo y la entidad las omite del informe de actividades. |
+| `supervision_activities[].goals[]` | lista | Metas del mes de la obligación con lo realizado (vacío si no tiene metas). |
+| `supervision_activities[].goals[]` | objeto |  |
+| `supervision_activities[].goals[].text` | texto | «Seguimientos: meta 80 · realizadas 80». |
 | `evidence_obligations[]` | lista | Obligaciones que tienen evidencias (para el anexo). |
 | `evidence_obligations[]` | objeto |  |
 | `evidence_obligations[].number` | texto | Número de la obligación ("1", "14"). |
@@ -232,6 +245,9 @@
 | `evidence_obligations[].x_na` | texto | "X" o vacío. Calificación NO APLICA. |
 | `evidence_obligations[].observations` | texto | Observaciones del supervisor. |
 | `evidence_obligations[].omitted` | sí/no | Sin actividades este periodo y la entidad las omite del informe de actividades. |
+| `evidence_obligations[].goals[]` | lista | Metas del mes de la obligación con lo realizado (vacío si no tiene metas). |
+| `evidence_obligations[].goals[]` | objeto |  |
+| `evidence_obligations[].goals[].text` | texto | «Seguimientos: meta 80 · realizadas 80». |
 | `has_contractor_signature` | sí/no | El contratista compartió la foto de su firma. |
 | `contractor_signature` | texto | Firma del contratista (solo si la compartió). |
 | `contractor_duties[]` | lista | Obligaciones generales del contratista según la cláusula del contrato (tabla 1.2 del informe de supervisión). |

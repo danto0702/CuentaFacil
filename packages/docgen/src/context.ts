@@ -13,6 +13,7 @@ import {
   type PriorPayment,
   parseIso,
   type ReportNumberFormat,
+  truncatePct,
 } from '@cuentasbot/shared';
 import sharp from 'sharp';
 import type { ObligationCtx, TemplateContext } from './catalog.js';
@@ -37,6 +38,8 @@ export interface ObligationInput {
   evidences: ImageInput[];
   rating?: 'deficient' | 'improve' | 'satisfactory' | 'outstanding' | 'na';
   observations?: string;
+  /** Monthly goals of the obligation and what was done (ADR-051). */
+  goals?: { label: string; target: number; done: number }[];
 }
 
 export interface SocialSecurityInput {
@@ -68,6 +71,12 @@ export interface CuentaInput {
     defaultActivityText: string;
     /** Which date goes in the background-check section of the supervision report. */
     backgroundCheckDate: 'report_date' | 'issue_date';
+    /** 'by_count': 100 % ÷ reports × current report; 'by_value' (default): executed ÷ contract value. */
+    budgetExecution?: 'by_count' | 'by_value';
+    /** Fixed general obligations of the supervision report; empty or missing = the contract's. */
+    supervisionDuties?: string[];
+    /** EBS coordinators by municipality: one attends the meeting when the contract is of an EBS. */
+    ebsCoordinators?: { municipalities: string[]; name: string; docNumber: string; docIssuedIn: string }[];
   };
   contractor: {
     fullName: string;
@@ -192,6 +201,7 @@ export async function buildTemplateContext(input: CuentaInput): Promise<Template
       ...ratingFlags(o.rating),
       observations: o.observations ?? '',
       omitted: Boolean(o.omit),
+      goals: (o.goals ?? []).map((g) => ({ text: `${g.label}: meta ${g.target} · realizadas ${g.done}` })),
     });
   }
 
@@ -290,7 +300,12 @@ export async function buildTemplateContext(input: CuentaInput): Promise<Template
     contraloria_date: checkDate(input.certificates.contraloria),
 
     physical_execution: '100%',
-    budget_execution: formatPercent(balance.budgetExecutionPct),
+    budget_execution: formatPercent(
+      entity.budgetExecution === 'by_count'
+        ? truncatePct(period.number, contract.paymentsCount)
+        : balance.budgetExecutionPct,
+    ),
+    ebs_coordinator: ebsCoordinatorText(contract.object, entity.ebsCoordinators ?? []),
     meeting_place: entity.meeting.place,
     meeting_start: entity.meeting.start,
     meeting_end: entity.meeting.end,
@@ -329,7 +344,10 @@ export async function buildTemplateContext(input: CuentaInput): Promise<Template
         ).image
       : null,
     supervision_activities: obligations.filter((o) => o.kind === 'specific' && !o.omitted),
-    contractor_duties: contract.contractorDuties.map((d, i) => ({
+    contractor_duties: (entity.supervisionDuties?.length
+      ? entity.supervisionDuties.map((text) => ({ text }))
+      : contract.contractorDuties
+    ).map((d: { text: string; rating?: ObligationInput['rating']; observations?: string }, i) => ({
       number: String(i + 1),
       text: d.text,
       ...ratingFlags(d.rating),
@@ -341,6 +359,31 @@ export async function buildTemplateContext(input: CuentaInput): Promise<Template
 }
 
 export { RATING_KEYS };
+
+/**
+ * «Coordinador (a) EBS» row of the supervision meeting: only contracts of a Basic Health Team (EBS), with
+ * the coordinator of the municipality named in the object. Empty otherwise (the row is left out).
+ */
+export function ebsCoordinatorText(
+  object: string,
+  coordinators: NonNullable<CuentaInput['entity']['ebsCoordinators']>,
+): string {
+  const o = plain(object);
+  if (!/\bEQUIPOS? BASICOS?\b/.test(o)) return '';
+  const c = coordinators.find((x) => x.municipalities.some((m) => new RegExp(`\\b${plain(m)}\\b`).test(o)));
+  if (!c) return '';
+  const doc = c.docNumber
+    ? `, identificado(a) con cédula de ciudadanía número ${formatDocNumber(c.docNumber)}${c.docIssuedIn ? ` de ${c.docIssuedIn}` : ''}`
+    : '';
+  return `${c.name}${doc}`;
+}
+
+const plain = (s: string) =>
+  s
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toUpperCase()
+    .replace(/\s+/g, ' ');
 
 /** Rows of the balance table: one payment per row; when there are more payments than rows, the last row lists the rest. */
 export const BALANCE_ROWS = 7;

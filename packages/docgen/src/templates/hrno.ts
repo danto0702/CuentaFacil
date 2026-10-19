@@ -114,6 +114,13 @@ function obligationsTable(): string {
             cmd('FOR a IN $o.activities', F),
             p('{{$a.text}}', { ...F, align: 'both', spacingAfter: 120 }),
             cmd('END-FOR a', F),
+            // Monthly goals of the obligation, as the contractor confirmed them (ADR-051).
+            cmd('IF $o.goals.length > 0', F),
+            p('Cumplimiento de metas del mes:', { ...F, bold: true }),
+            cmd('FOR g IN $o.goals', F),
+            p('{{$g.text}}', { ...F, align: 'left' }),
+            cmd('END-FOR g', F),
+            cmd('END-IF', F),
           ],
           {
             width: half,
@@ -418,7 +425,10 @@ function attendeesTable(): string {
           ', identificado con cédula de ciudadanía número {{contractor_cedula}} de {{contractor_city}}',
         ]),
       ]),
-      row([l('Otros asistentes:'), v('{{other_attendees}}')]),
+      // Only EBS contractors: the coordinator of their municipality attends (owner, 2026-10-19).
+      cmdRow('IF ebs_coordinator', W, 4),
+      row([l('Coordinador (a) EBS'), v('{{ebs_coordinator}}')]),
+      cmdRow('END-IF', W, 4),
       row([l('Lugar donde se realiza la reunión'), v({ text: '{{meeting_place}}', opts: { bold: true } })]),
       row([
         l('Hora de inicio (a.m./p.m.)'),
@@ -566,7 +576,19 @@ function activitiesApprovalTable(): string {
     cmdRow('FOR o IN supervision_activities', W, 3),
     row([
       cell(p('Actividad {{$o.number}}', { ...SUPB, align: 'center' }), { width: cols[0]!, vAlign: 'top' }),
-      cell(p('{{$o.text}}', { ...SUP, align: 'both' }), { width: cols[1]! }),
+      cell(
+        [
+          p('{{$o.text}}', { ...SUP, align: 'both' }),
+          // The same counts as the activity report; the supervisor corrects them if needed.
+          cmd('IF $o.goals.length > 0', SUP),
+          p('Metas del mes:', { ...SUP, bold: true }),
+          cmd('FOR g IN $o.goals', SUP),
+          p('{{$g.text}}', { ...SUP, align: 'left' }),
+          cmd('END-FOR g', SUP),
+          cmd('END-IF', SUP),
+        ],
+        { width: cols[1]! },
+      ),
       cell(p('', { ...SUP, bold: true, align: 'center' }), { width: cols[2]! }),
     ]),
     cmdRow('END-FOR o', W, 3),

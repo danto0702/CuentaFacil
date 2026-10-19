@@ -102,7 +102,8 @@ describe.skipIf(!hasSoffice)('AccountGenerator (end to end with LibreOffice)', (
     );
     expect(sup).toContain('DESDE: 20/08/2026 HASTA: 31/08/2026');
     expect(sup).toContain('TRES MILLONES SEISCIENTOS OCHO MIL PESOS M/CTE ($3.608.000)');
-    expect(sup).toContain('9,09%');
+    // Budget execution by report number (owner, 2026-10-19): report 1 of 5 = 20 %, not 9,09 % by value.
+    expect(sup).toContain('100% 20%');
     expect(sup).toContain('Valor no ejecutado $ 36.080.000');
     const act = text(
       await docxPlainText(

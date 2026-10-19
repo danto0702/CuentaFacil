@@ -6,6 +6,7 @@ import type {
   Charge,
   ChargeMethod,
   Contract,
+  ContractGoal,
   ConversationState,
   Delegation,
   Draft,
@@ -18,6 +19,7 @@ import type {
   Obligation,
   Period,
   PriorPaymentRecord,
+  ProfileFlags,
   ReferralResult,
   RegistryEntry,
   SocialSecurity,
@@ -75,7 +77,42 @@ export function entitySettingsFromDb(s: Row): EntitySettings {
     contractDefaults: {
       supervisor: supervisor?.name ? { name: str(supervisor.name), title: str(supervisor.title) } : null,
     },
+    budgetExecution: s.budget_execution === 'by_value' ? 'by_value' : 'by_count',
+    supervisionDuties: Array.isArray(s.supervision_duties)
+      ? (s.supervision_duties as unknown[]).map((d) => str(d))
+      : [],
+    ebsCoordinators: Array.isArray(s.ebs_coordinators)
+      ? (s.ebs_coordinators as Row[]).map((c) => ({
+          municipalities: Array.isArray(c.municipalities)
+            ? (c.municipalities as unknown[]).map((m) => str(m))
+            : [],
+          name: str(c.name),
+          docNumber: str(c.doc_number),
+          docIssuedIn: str(c.doc_issued_in),
+        }))
+      : [],
   };
+}
+
+/** Monthly goals kept in the contract's extraction (ADR-051): `contracts.extracted.goals`. */
+function goalsOf(extracted: unknown): { goals?: ContractGoal[] } {
+  const raw = (extracted as { goals?: unknown } | null)?.goals;
+  if (!Array.isArray(raw)) return {};
+  const goals = (raw as Row[])
+    .filter((g) => typeof g.label === 'string' && Array.isArray(g.monthly))
+    .map((g) => ({
+      obligation: num(g.obligation),
+      label: str(g.label),
+      monthly: (g.monthly as unknown[]).map((n) => num(n)),
+    }));
+  return goals.length ? { goals } : {};
+}
+
+/** Documents only this contract asks for (ADR-051): `contracts.extracted.extraDocuments`. */
+function extraSupportsOf(extracted: unknown): { extraSupports?: string[] } {
+  const raw = (extracted as { extraDocuments?: unknown } | null)?.extraDocuments;
+  const list = Array.isArray(raw) ? raw.filter((x): x is string => typeof x === 'string' && !!x.trim()) : [];
+  return list.length ? { extraSupports: list } : {};
 }
 
 // No 0/O/1/I to avoid confusion when people type the code.
@@ -997,6 +1034,8 @@ export class SupabaseStore implements Store {
       obligations: obls,
       contractorDuties: (must(duties, 'contractor_duties') as Row[]).map((d) => str(d.text)),
       ...(sched.length ? { schedule: sched } : {}),
+      ...goalsOf(r.extracted),
+      ...extraSupportsOf(r.extracted),
     };
   }
 
@@ -1449,6 +1488,52 @@ export class SupabaseStore implements Store {
     if (error || !data) return null;
     try {
       return JSON.parse(await data.text()) as WritingStyle;
+    } catch {
+      return null;
+    }
+  }
+
+  async getProfileFlags(userId: string): Promise<ProfileFlags> {
+    const { data, error } = await this.sb.storage.from('supports').download(`${userId}/perfil.json`);
+    if (error || !data) return {};
+    try {
+      const v = JSON.parse(await data.text()) as ProfileFlags;
+      return typeof v.pensioner === 'boolean' ? { pensioner: v.pensioner } : {};
+    } catch {
+      return {};
+    }
+  }
+
+  async saveProfileFlags(userId: string, flags: ProfileFlags): Promise<void> {
+    await this.upload(
+      'supports',
+      `${userId}/perfil.json`,
+      Buffer.from(JSON.stringify(flags)),
+      'application/json',
+    );
+  }
+
+  private goalsPath(userId: string, contractId: string, periodNumber: number): string {
+    return `${userId}/metas/${contractId}-${periodNumber}.json`;
+  }
+
+  async saveGoalCounts(userId: string, contractId: string, periodNumber: number, counts: number[] | null) {
+    const path = this.goalsPath(userId, contractId, periodNumber);
+    if (!counts) {
+      await this.sb.storage.from('supports').remove([path]);
+      return;
+    }
+    await this.upload('supports', path, Buffer.from(JSON.stringify(counts)), 'application/json');
+  }
+
+  async getGoalCounts(userId: string, contractId: string, periodNumber: number): Promise<number[] | null> {
+    const { data, error } = await this.sb.storage
+      .from('supports')
+      .download(this.goalsPath(userId, contractId, periodNumber));
+    if (error || !data) return null;
+    try {
+      const v = JSON.parse(await data.text()) as unknown;
+      return Array.isArray(v) ? v.map((n) => Number(n) || 0) : null;
     } catch {
       return null;
     }

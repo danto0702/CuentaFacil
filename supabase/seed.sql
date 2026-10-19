@@ -43,6 +43,27 @@ update entities
 set settings = settings || '{"contract_defaults": {"supervisor": {"name": "CARLOS EDUARDO BONILLA DIAZ", "title": "Subgerente"}}, "empty_obligations": "omit"}'::jsonb
 where id = '00000000-0000-4000-8000-000000000001';
 
+-- Supervision report as approved by the HRNO supervisor (owner, 2026-10-19): budget execution by report
+-- number, the same 4 general obligations for everyone, and the EBS coordinator of each municipality in the
+-- meeting of EBS contractors.
+update entities
+set settings = settings || jsonb_build_object(
+  'budget_execution', 'by_count',
+  'supervision_duties', jsonb_build_array(
+    'Actuar con plena eficiencia y responsabilidad desarrollando y/o ejecutando aquellas actividades que sean compatibles con el objeto del contrato',
+    'En general cumplir con los objetivos, actos, obligaciones orientaciones y prioridades que vayan estableciéndose durante la ejecución del contrato',
+    'El contratista asumirá por cuenta propia los valores de los gastos por concepto de estampillas, Impuestos Tributarios',
+    'El contratista estará obligado afiliarse al Sistema General de Seguridad Social y presentar dichas certificaciones para su respectivo pago; y demás gastos que conlleve el cumplimiento del presente contrato'
+  ),
+  'ebs_coordinators', jsonb_build_array(
+    jsonb_build_object('municipalities', jsonb_build_array('ABREGO', 'EL CARMEN'),
+      'name', 'Danilo Orlando Torrado Blanco', 'doc_number', '1090453097', 'doc_issued_in', 'Cúcuta'),
+    jsonb_build_object('municipalities', jsonb_build_array('CONVENCION', 'TEORAMA'),
+      'name', 'Melisa Barrero Navaro', 'doc_number', '', 'doc_issued_in', '')
+  )
+)
+where id = '00000000-0000-4000-8000-000000000001';
+
 insert into entity_variables (entity_id, key, label, type, scope, source, default_value) values
   ('00000000-0000-4000-8000-000000000001', 'codigo_formato_supervision', 'Código del formato de supervisión', 'text', 'entity', 'admin', '"MA-GH-IS-03"'),
   ('00000000-0000-4000-8000-000000000001', 'version_formato_supervision', 'Versión del formato de supervisión', 'text', 'entity', 'admin', '"4.0"')
