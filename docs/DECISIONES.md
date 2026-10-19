@@ -265,7 +265,7 @@
   - Los contratos configurados antes no tienen metas: se leen si se vuelve a configurar el contrato.
   - Los ajustes de HRNO están en `seed.sql`; en producción se aplican con el mismo `update`.
 
-## ADR-052 — Términos y política de datos 1.2 (2026-10-20)
+## ADR-052 — Términos y política de datos 1.2 (2026-10-19)
 - **Contexto:** desde la 1.1 se agregaron gestores, el informe anterior como modelo, *borrar mi firma*, la conservación automática, la cuenta bancaria por WhatsApp, las metas mensuales, la pregunta de pensionado, los documentos propios de cada contrato, el formato de supervisión de la entidad (coordinador EBS) y el chat PascalBot de la página.
 - **Decisión:** versión 1.2 de los dos documentos, publicada en pascalia.lat.
   - Los textos están en `docs/legal/terminos.md` y `docs/legal/politica_tratamiento.md`; los cambios y las preguntas para el abogado, en `docs/legal/CAMBIOS_v1.2.md`.

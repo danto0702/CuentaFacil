@@ -1,6 +1,6 @@
 # Términos y Condiciones del Servicio — CuentaFacil de PascalIA
 
-> ✅ **Versión 1.2, vigente desde el 20 de octubre de 2026.** Publicada en https://pascalia.lat/terminos/ (repo `danto0702/pascalia-web`). Reemplaza la 1.1 (11 de octubre de 2026). Los cambios y las preguntas para el abogado están en `docs/legal/CAMBIOS_v1.2.md`.
+> ✅ **Versión 1.2, vigente desde el 19 de octubre de 2026.** Publicada en https://pascalia.lat/terminos/ (repo `danto0702/pascalia-web`). Reemplaza la 1.1 (11 de octubre de 2026). Los cambios y las preguntas para el abogado están en `docs/legal/CAMBIOS_v1.2.md`.
 
 ## 1. Quién presta el servicio
 

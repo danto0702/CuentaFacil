@@ -1,6 +1,6 @@
 # Política de Tratamiento de Datos Personales — CuentaFacil de PascalIA
 
-> ✅ **Versión 1.2, vigente desde el 20 de octubre de 2026.** Publicada en https://pascalia.lat/politica-de-datos/ (repo `danto0702/pascalia-web`). Reemplaza la 1.1 (10 de octubre de 2026). Los cambios y las preguntas para el abogado están en `docs/legal/CAMBIOS_v1.2.md`.
+> ✅ **Versión 1.2, vigente desde el 19 de octubre de 2026.** Publicada en https://pascalia.lat/politica-de-datos/ (repo `danto0702/pascalia-web`). Reemplaza la 1.1 (10 de octubre de 2026). Los cambios y las preguntas para el abogado están en `docs/legal/CAMBIOS_v1.2.md`.
 
 > Marco normativo: Ley 1581 de 2012, Decreto 1377 de 2013 (compilado en el Decreto 1074 de 2015) y demás normas que los modifiquen o complementen.
 
