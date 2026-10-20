@@ -15,7 +15,8 @@ insert into policy_versions (kind, version, url) values
   ('terms', '1.1', 'https://pascalia.lat/terminos/'),
   ('privacy_policy', '1.2', 'https://pascalia.lat/politica-de-datos/'),
   ('terms', '1.2', 'https://pascalia.lat/terminos/'),
-  ('privacy_policy', '1.3', 'https://pascalia.lat/politica-de-datos/')
+  ('privacy_policy', '1.3', 'https://pascalia.lat/politica-de-datos/'),
+  ('terms', '1.3', 'https://pascalia.lat/terminos/')
 on conflict (kind, version) do nothing;
 
 insert into entities (id, name, short_name, nit, municipality, department, settings) values (

@@ -301,3 +301,11 @@
   - En los dos casos cierra la solicitud.
   - El QR Bancolombia es un medio más del enlace de Wompi: se activa en el panel de Wompi, sin código. El texto del pago ahora dice «tarjeta, PSE, Nequi, QR o botón Bancolombia».
 - **Consecuencias:** migración `20261020000001_transfer_payments.sql`: `transfer` en `charges.method` y en `webhook_inbox.provider`, y la función `transfer_review`. Mientras el comprobante está en verificación, pedir el informe muestra «ya recibí tu comprobante» y no un cobro nuevo. Los términos (sección 6, medios de pago) deben nombrar la transferencia.
+
+## ADR-056 — Términos 1.3: transferencia y QR Bancolombia (2026-10-20)
+- **Contexto:** con ADR-055 hay dos medios de pago nuevos que la sección 6 de los términos 1.2 no nombraba.
+- **Decisión:** términos 1.3, publicados en pascalia.lat.
+  - La sección 6 agrega el QR Bancolombia en el enlace de Wompi y la transferencia bancaria: referencia del cobro, comprobante por WhatsApp, confirmación de PascalIA y costos bancarios a cargo del usuario.
+  - La política de datos sigue en la 1.3.
+  - Si solo cambiaron los términos, Pascal lo dice así («ahora también puedes pagar por transferencia bancaria… o con QR Bancolombia»), con el botón «Ver términos». El «Acepto» registra solo los términos.
+- **Consecuencias:** fila `terms 1.3` en `policy_versions` (también en `seed.sql`). PascalBot conoce los nuevos medios de pago. Queda para el abogado si el comprobante de transferencia debe nombrarse en la política de datos (`CAMBIOS_v1.2.md`).

@@ -3392,6 +3392,8 @@ ${lines.join('\n')}${due.length ? '' : '\n\nNo tienes nada pendiente. 👍'}`,
     if (accepted === TERMS_VERSION && policy === POLICY_VERSION) return false;
     // Only the data policy changed (e.g. 1.3, a new provider): asked as such, with its own link.
     const policyOnly = accepted === TERMS_VERSION;
+    // Only the terms changed (e.g. 1.3, new payment methods).
+    const termsOnly = Boolean(accepted) && policy === POLICY_VERSION;
     // Support and data deletion never wait for the terms.
     const cmd = msg.kind === 'text' && msg.text ? matchCommand(msg.text) : null;
     if (cmd === 'support' || cmd === 'delete_data' || msg.replyId === 'menu:support') return false;
@@ -3422,7 +3424,9 @@ ${lines.join('\n')}${due.length ? '' : '\n\nNo tienes nada pendiente. 👍'}`,
         text(
           policyOnly
             ? '✅ ¡Gracias! Quedó registrada tu aceptación de la política de datos.'
-            : '✅ ¡Gracias! Quedó registrada tu aceptación de los términos y de la política de datos.',
+            : termsOnly
+              ? '✅ ¡Gracias! Quedó registrada tu aceptación de los términos del servicio.'
+              : '✅ ¡Gracias! Quedó registrada tu aceptación de los términos y de la política de datos.',
         ),
       );
       if (pending) await this.dispatch(turn, { ...msg, kind: 'text', text: pending, replyId: undefined });
@@ -3458,11 +3462,30 @@ ${lines.join('\n')}${due.length ? '' : '\n\nNo tienes nada pendiente. 👍'}`,
       );
       return true;
     }
+    if (termsOnly) {
+      turn.out.push(
+        {
+          type: 'cta_url',
+          text: `📜 Actualizamos los términos del servicio de ${BRAND.service} (versión ${TERMS_VERSION}): ahora también puedes pagar por *transferencia bancaria* (envías el comprobante y lo confirmamos) o con *QR Bancolombia* en el enlace de pago. Lo demás no cambia. Revísalos antes de continuar.`,
+          button: 'Ver términos',
+          url: BRAND.terms,
+        },
+        buttons(
+          `¿Aceptas los términos del servicio?${msg.kind === 'text' && msg.text ? ' Apenas aceptes, sigo con tu mensaje.' : ''}`,
+          [
+            { id: 'terms:yes', title: 'Acepto' },
+            { id: 'terms:no', title: 'No acepto' },
+            { id: 'menu:support', title: 'Hablar con soporte' },
+          ],
+        ),
+      );
+      return true;
+    }
     turn.out.push(
       {
         type: 'cta_url',
         text: accepted
-          ? `📜 Actualizamos los términos del servicio y la política de datos de ${BRAND.service} (versión ${TERMS_VERSION}): metas mensuales del contrato, cuenta bancaria, preparación de cuentas de otras personas (gestores), borrar tu firma y conservación de archivos. Revísalos antes de continuar.\nPolítica de datos: ${BRAND.privacyPolicy}`
+          ? `📜 Actualizamos los términos del servicio y la política de datos de ${BRAND.service} (versión ${TERMS_VERSION}): metas mensuales del contrato, cuenta bancaria, preparación de cuentas de otras personas (gestores), borrar tu firma, conservación de archivos y pago por transferencia o QR Bancolombia. Revísalos antes de continuar.\nPolítica de datos: ${BRAND.privacyPolicy}`
           : `📜 Para seguir necesito que aceptes los términos del servicio de ${BRAND.service} (versión ${TERMS_VERSION}).`,
         button: 'Ver términos',
         url: BRAND.terms,

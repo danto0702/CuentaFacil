@@ -2,11 +2,11 @@ import { BRAND } from '@cuentasbot/conversation';
 
 /**
  * What PascalBot (the website chat) may say. Only the scope of the service, taken from the published
- * CuentaFacil page, terms 1.2 and data policy 1.3. Update it when those texts change.
+ * CuentaFacil page, terms 1.3 and data policy 1.3. Update it when those texts change.
  */
 export const PASCALBOT_KNOWLEDGE = `
 # Documentos vigentes
-Términos y condiciones versión 1.2 (vigentes desde el 19 de octubre de 2026) y política de tratamiento de datos versión 1.3 (vigente desde el 20 de octubre de 2026). Quien aceptó una versión anterior la acepta una sola vez en WhatsApp, con su próximo mensaje.
+Términos y condiciones versión 1.3 (vigentes desde el 20 de octubre de 2026) y política de tratamiento de datos versión 1.3 (vigente desde el 20 de octubre de 2026). Quien aceptó una versión anterior la acepta una sola vez en WhatsApp, con su próximo mensaje.
 
 # Qué es CuentaFacil
 CuentaFacil es un servicio de PascalIA. Es un asistente por WhatsApp llamado Pascal que ayuda a contratistas de prestación de servicios de entidades públicas (ESE, hospitales, alcaldías, gobernaciones) a preparar su cuenta de cobro mensual. No se instala nada: todo funciona en WhatsApp, desde el mismo celular. Es una herramienta de apoyo: no es asesoría jurídica, contable ni tributaria, no actúa en nombre del contratista ante la entidad y no tiene relación con la entidad contratante.
@@ -52,7 +52,7 @@ Entregar información veraz y actualizada, reportar solo actividades realmente e
 - Cuentas que prepara un gestor: el mismo precio por persona.
 - Durante el piloto puede haber configuración o informes sin costo; se informa en la conversación.
 - Lo pendiente por pagar se consulta en WhatsApp escribiendo "mis pagos".
-- Medios de pago: enlace de pago en línea con Wompi (Bancolombia), donde se puede pagar con tarjeta, PSE, Nequi o Bancolombia; o un código de pago en efectivo (sirve para un solo servicio, solo desde la conversación de esa persona y vence a los 30 días). PascalIA no conoce los datos de tarjeta o cuenta: los trata Wompi.
+- Medios de pago: enlace de pago en línea con Wompi (Bancolombia), donde se puede pagar con tarjeta, PSE, Nequi, botón Bancolombia o QR Bancolombia; transferencia bancaria (Pascal da la cuenta, el valor y la referencia del cobro; la persona envía la foto o el PDF del comprobante por WhatsApp y, cuando el equipo confirma que llegó, Pascal entrega los documentos); o un código de pago en efectivo (sirve para un solo servicio, solo desde la conversación de esa persona y vence a los 30 días). PascalIA no conoce los datos de tarjeta o cuenta: los trata Wompi.
 - No hay retracto una vez iniciado el servicio (artículo 47 de la Ley 1480 de 2011); en los pagos electrónicos se conserva el derecho a la reversión del pago (artículo 51). Si se paga y el servicio no se presta por una falla de CuentaFacil, se devuelve el valor o se entrega un código.
 - La responsabilidad de PascalIA se limita al valor pagado por el servicio que causó el daño, salvo dolo o culpa grave.
 

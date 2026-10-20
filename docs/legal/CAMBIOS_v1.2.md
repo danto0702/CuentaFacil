@@ -71,3 +71,9 @@ No se publica. Resume qué cambió frente a la 1.1 y qué queda para revisión d
 
 - **Sección 4, encargados:** Groq, Inc. (EE. UU.) reemplaza a OpenAI en la transcripción de notas de voz, porque OpenAI no aceptó el pago (ADR-053). Mismo país y misma finalidad.
 - Se pide aceptarla de nuevo por WhatsApp (decisión del dueño). Los términos siguen en la 1.2.
+
+## Términos 1.3 (20 de octubre de 2026)
+
+- **Sección 6, medios de pago:** se agregan la **transferencia bancaria** (con referencia del cobro y comprobante por WhatsApp, confirmada por PascalIA) y el **QR Bancolombia** dentro del enlace de Wompi (ADR-055).
+- Se pide aceptarlos de nuevo por WhatsApp. La política de datos sigue en la 1.3.
+- **Pregunta para el abogado:** el comprobante de transferencia (nombre, banco y a veces parte del número de cuenta del pagador) se conserva como soporte del pago. ¿Basta con la finalidad de cobro de la política, o hay que nombrarlo en la sección de datos en la próxima versión?

@@ -510,7 +510,7 @@ describe('other flows', () => {
     h.store.data.consents = (h.store.data.consents ?? []).map((c) => ({ ...c, policyVersion: '1.0' }));
     let out = show(await h.say('¿Qué me falta?'));
     expect(out[0]).toMatch(
-      /^📜 Actualizamos los términos del servicio y la política de datos de CuentaFacil \(versión 1\.2\)/,
+      /^📜 Actualizamos los términos del servicio y la política de datos de CuentaFacil \(versión 1\.3\)/,
     );
     expect(out[1]).toBe(
       '¿Aceptas los términos del servicio y la política de datos? Apenas aceptes, sigo con tu mensaje. [Acepto] [No acepto] [Hablar con soporte]',
@@ -523,15 +523,18 @@ describe('other flows', () => {
     // Accepted: not asked again.
     out = show(await h.say('menú'));
     expect(out[0]).toMatch(/^Hola María/);
-    expect(await h.store.acceptedVersion(h.store.data.users[0]!.id, 'terms')).toBe('1.2');
+    expect(await h.store.acceptedVersion(h.store.data.users[0]!.id, 'terms')).toBe('1.3');
     expect(await h.store.acceptedVersion(h.store.data.users[0]!.id, 'privacy_policy')).toBe('1.3');
   });
 
   it('asks only for the new data policy when the terms did not change', async () => {
     const h = harness();
     const userId = h.store.data.users[0]!.id;
-    // Accepted terms 1.2 and policy 1.2; the policy in force is 1.3.
-    h.store.data.consents = (h.store.data.consents ?? []).map((c) => ({ ...c, policyVersion: '1.2' }));
+    // Accepted terms 1.3 and policy 1.2; the policy in force is 1.3.
+    h.store.data.consents = (h.store.data.consents ?? []).map((c) => ({
+      ...c,
+      policyVersion: c.kind === 'terms' ? '1.3' : '1.2',
+    }));
     let out = show(await h.say('menú'));
     expect(out[0]).toMatch(
       /^📜 Actualizamos la política de tratamiento de datos de CuentaFacil \(versión 1\.3\): ahora las notas de voz las transcribe Groq/,
@@ -540,7 +543,26 @@ describe('other flows', () => {
     out = show(await h.press('terms:yes'));
     expect(out[0]).toBe('✅ ¡Gracias! Quedó registrada tu aceptación de la política de datos.');
     expect(await h.store.acceptedVersion(userId, 'privacy_policy')).toBe('1.3');
-    expect(await h.store.acceptedVersion(userId, 'terms')).toBe('1.2');
+    expect(await h.store.acceptedVersion(userId, 'terms')).toBe('1.3');
+    expect(show(await h.say('menú'))[0]).toMatch(/^Hola María/);
+  });
+
+  it('asks only for the new terms when the data policy did not change', async () => {
+    const h = harness();
+    const userId = h.store.data.users[0]!.id;
+    // Accepted terms 1.2 and policy 1.3; the terms in force are 1.3 (transfer, QR Bancolombia).
+    h.store.data.consents = (h.store.data.consents ?? []).map((c) => ({
+      ...c,
+      policyVersion: c.kind === 'terms' ? '1.2' : '1.3',
+    }));
+    let out = show(await h.say('menú'));
+    expect(out[0]).toMatch(
+      /^📜 Actualizamos los términos del servicio de CuentaFacil \(versión 1\.3\): ahora también puedes pagar por \*transferencia bancaria\*/,
+    );
+    expect(out[1]).toMatch(/^¿Aceptas los términos del servicio\?.*\[Acepto\]/);
+    out = show(await h.press('terms:yes'));
+    expect(out[0]).toBe('✅ ¡Gracias! Quedó registrada tu aceptación de los términos del servicio.');
+    expect(await h.store.acceptedVersion(userId, 'terms')).toBe('1.3');
     expect(show(await h.say('menú'))[0]).toMatch(/^Hola María/);
   });
 

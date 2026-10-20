@@ -1,6 +1,6 @@
 # Términos y Condiciones del Servicio — CuentaFacil de PascalIA
 
-> ✅ **Versión 1.2, vigente desde el 19 de octubre de 2026.** Publicada en https://pascalia.lat/terminos/ (repo `danto0702/pascalia-web`). Reemplaza la 1.1 (11 de octubre de 2026). Los cambios y las preguntas para el abogado están en `docs/legal/CAMBIOS_v1.2.md`.
+> ✅ **Versión 1.3, vigente desde el 20 de octubre de 2026.** Publicada en https://pascalia.lat/terminos/ (repo `danto0702/pascalia-web`). Reemplaza la 1.2 (19 de octubre de 2026). Los cambios y las preguntas para el abogado están en `docs/legal/CAMBIOS_v1.2.md`.
 
 ## 1. Quién presta el servicio
 
@@ -59,7 +59,8 @@ El usuario se compromete a:
 
 ## 6. Medios de pago
 
-- **Pago en línea con Wompi** (Bancolombia S.A.): Pascal envía un enlace de pago. Los datos de tarjeta o cuenta los trata Wompi directamente; PascalIA no los conoce.
+- **Pago en línea con Wompi** (Bancolombia S.A.): Pascal envía un enlace de pago, donde se puede pagar con tarjeta, PSE, Nequi, botón Bancolombia o **QR Bancolombia**. Los datos de tarjeta o cuenta los trata Wompi directamente; PascalIA no los conoce.
+- **Transferencia bancaria:** Pascal indica la cuenta de PascalIA, el valor y la **referencia del cobro**, que el usuario escribe en la descripción de la transferencia. El usuario envía por WhatsApp la foto o el PDF del comprobante, que se conserva como soporte del pago. El pago queda confirmado cuando PascalIA verifica que el dinero llegó a su cuenta; si no lo encuentra, se le informa al usuario para que revise el comprobante o pague por otro medio. Los costos que cobre el banco del usuario por la transferencia corren por su cuenta.
 - **Código de pago en efectivo:** el usuario paga en efectivo a PascalIA y recibe un código. El código está **atado al documento del usuario** (solo funciona desde su conversación), sirve para **un solo servicio** (una configuración o un informe, por el valor indicado) y **vence a los 30 días** de generado. Un código vencido o usado no se puede volver a usar; si vence sin usarse, el usuario puede pedir un código nuevo por el mismo valor escribiendo a la atención.
 - El servicio se activa o se entrega cuando el pago queda confirmado.
 
