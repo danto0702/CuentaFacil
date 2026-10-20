@@ -1,7 +1,14 @@
 import { formatCOP } from '@cuentasbot/shared';
 import { adminAvailable } from '@/lib/admin';
-import { billingSettings, contractorOptions, listCashCodes, listCharges, showCode } from '@/lib/billing';
-import { setBillingMode } from './actions';
+import {
+  billingSettings,
+  contractorOptions,
+  listCashCodes,
+  listCharges,
+  listPendingTransfers,
+  showCode,
+} from '@/lib/billing';
+import { reviewTransfer, setBillingMode, setTransferAccount } from './actions';
 import { CashCodeForm } from './code-form';
 
 const STATUS: Record<string, string> = {
@@ -16,27 +23,96 @@ const METHOD: Record<string, string> = {
   cash_code: 'Código en efectivo',
   free_grant: 'Cuenta gratis',
   pilot: 'Piloto',
+  transfer: 'Transferencia',
 };
 const day = (iso: string) => new Date(iso).toLocaleDateString('es-CO', { timeZone: 'America/Bogota' });
+const moment = (iso: string) =>
+  new Date(iso).toLocaleString('es-CO', {
+    timeZone: 'America/Bogota',
+    dateStyle: 'short',
+    timeStyle: 'short',
+  });
 
 export default async function BillingPage() {
   if (!adminAvailable()) return <p className="muted">Disponible con Supabase configurado.</p>;
-  const [settings, charges, codes, contractors] = await Promise.all([
+  const [settings, charges, codes, contractors, transfers] = await Promise.all([
     billingSettings(),
     listCharges(),
     listCashCodes(),
     contractorOptions(),
+    listPendingTransfers(),
   ]);
+  const t = settings.transfer;
   return (
     <>
       <h2>Cobros</h2>
+
+      {transfers.length > 0 && (
+        <div className="card">
+          <h3>Transferencias por confirmar</h3>
+          <p className="muted">
+            Revisa en el banco que llegó el valor con la referencia. Al confirmar, Pascal entrega los
+            documentos (o activa el contrato); al rechazar, le pide al contratista revisar el comprobante.
+          </p>
+          <table>
+            <thead>
+              <tr>
+                <th>Enviado</th>
+                <th>Contratista</th>
+                <th>Concepto</th>
+                <th>Valor</th>
+                <th>Referencia</th>
+                <th>Comprobante</th>
+                <th />
+              </tr>
+            </thead>
+            <tbody>
+              {transfers.map((x) => (
+                <tr key={x.chargeId}>
+                  <td>{moment(x.sentAt)}</td>
+                  <td>
+                    {x.contractor}
+                    <br />
+                    <span className="muted">{x.phone}</span>
+                  </td>
+                  <td>{x.concept}</td>
+                  <td>{formatCOP(x.amount)}</td>
+                  <td>
+                    <code>{x.reference}</code>
+                  </td>
+                  <td>
+                    {x.receiptUrl ? (
+                      <a href={x.receiptUrl} target="_blank" rel="noopener">
+                        Ver
+                      </a>
+                    ) : (
+                      '—'
+                    )}
+                  </td>
+                  <td>
+                    <form action={reviewTransfer} className="inline">
+                      <input type="hidden" name="chargeId" value={x.chargeId} />
+                      <button type="submit" name="action" value="confirm">
+                        Confirmar
+                      </button>
+                      <button type="submit" name="action" value="reject" className="secondary">
+                        Rechazar
+                      </button>
+                    </form>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       <div className="card">
         <h3>Modo de cobro</h3>
         <p className="muted">
           En <strong>piloto</strong> no se cobra nada. En <strong>cobro</strong>, antes de entregar cada
-          informe Pascal usa una cuenta gratis del Aliado, un código en efectivo o el enlace de pago de Wompi;
-          Cada contrato nuevo se activa cuando se paga su configuración.
+          informe Pascal usa una cuenta gratis del Aliado, un código en efectivo, una transferencia o el
+          enlace de pago de Wompi. Cada contrato nuevo se activa cuando se paga su configuración.
         </p>
         <form action={setBillingMode} className="inline">
           <label>
@@ -72,6 +148,40 @@ export default async function BillingPage() {
           <span className={`pill ${settings.mode === 'live' ? 'delivered' : ''}`}>
             {settings.mode === 'live' ? 'Cobro' : 'Piloto'}
           </span>
+        </p>
+      </div>
+
+      <div className="card">
+        <h3>Cuenta para transferencias</h3>
+        <p className="muted">
+          Pascal le da estos datos al contratista con el valor y la referencia del cobro, y le pide el
+          comprobante. Deja el número vacío para dejar de ofrecer transferencias.
+        </p>
+        <form action={setTransferAccount} className="inline">
+          <label>
+            Banco <input name="bank" defaultValue={t?.bank ?? ''} placeholder="Bancolombia" />
+          </label>
+          <label>
+            Tipo{' '}
+            <select name="accountType" defaultValue={t?.accountType ?? 'ahorros'}>
+              <option value="ahorros">Ahorros</option>
+              <option value="corriente">Corriente</option>
+            </select>
+          </label>
+          <label>
+            Número <input name="accountNumber" defaultValue={t?.accountNumber ?? ''} />
+          </label>
+          <label>
+            Titular <input name="holder" defaultValue={t?.holder ?? ''} />
+          </label>
+          <label>
+            Documento <input name="holderDoc" defaultValue={t?.holderDoc ?? ''} placeholder="C.C. o NIT" />
+          </label>
+          <button type="submit">Guardar</button>
+        </form>
+        <p>
+          Transferencias:{' '}
+          <span className={`pill ${t ? 'delivered' : ''}`}>{t ? 'Se ofrecen' : 'No se ofrecen'}</span>
         </p>
       </div>
 

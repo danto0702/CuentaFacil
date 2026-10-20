@@ -451,6 +451,11 @@ export class MemoryStore implements Store {
     this.data.charges = [...(this.data.charges ?? []).filter((c) => c.id !== charge.id), charge];
     return clone(charge);
   }
+  async markTransfer(chargeId: string, transfer: { supportId: string; sentAt: string } | null) {
+    this.data.charges = (this.data.charges ?? []).map((x) =>
+      x.id === chargeId && x.status === 'pending' ? { ...x, transfer } : x,
+    );
+  }
   async settleCharge(
     id: string,
     status: 'paid' | 'free' | 'pilot',

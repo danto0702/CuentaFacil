@@ -975,6 +975,81 @@ describe('billing (ADR-034)', () => {
   });
 });
 
+describe('bank transfer (ADR-055)', () => {
+  const transfer = {
+    bank: 'BANCOLOMBIA',
+    accountType: 'ahorros' as const,
+    accountNumber: '00000000000',
+    holder: 'PASCALIA PRUEBA S.A.S.',
+    holderDoc: 'NIT 900000000',
+  };
+  async function waitingPayment() {
+    const h = harness();
+    await h.say('Asistí a la reunión del comité en Ábrego');
+    await h.press(`c:${DEMO_IDS.ebs}`);
+    await h.say('ver borrador');
+    let out = show(await h.press(`c:${DEMO_IDS.ebs}`));
+    while (out.some((x) => x.startsWith('Para la obligación'))) out = show(await h.press('mis:default'));
+    await h.press('rev:approve');
+    await h.document('certificado.pdf');
+    await h.press('s:CERT_EJECUCION_EBS');
+    h.store.data.billing = { mode: 'live', prices: { setup: 15_000, report: 50_000 }, transfer };
+    await h.say('generar');
+    out = show(await h.press(`c:${DEMO_IDS.ebs}`));
+    const p = (await h.store.listPeriods(DEMO_IDS.ebs)).find((x) => x.status === 'approved')!;
+    const charge = (await h.store.findCharge(DEMO_IDS.ebs, 'report', p.number))!;
+    return { h, out, charge };
+  }
+
+  it('offers the transfer, gives the account and reference, and keeps the receipt', async () => {
+    const { h, out, charge } = await waitingPayment();
+    expect(out[0]).toMatch(/^💳 Tu informe .* el valor es \*\$ 50\.000\*\./);
+    expect(out[0]).toMatch(/\[Transferencia\] \[Tengo un código\] \[Hablar con soporte\]$/);
+    let r = show(await h.press('pay:transfer'));
+    expect(r[0]).toContain('• Cuenta de ahorros: *00000000000*');
+    expect(r[0]).toContain(`• Referencia: *${charge.reference}*`);
+    expect(r[0]).toContain('• Valor: *$ 50.000*');
+    r = show(await h.photo());
+    expect(r[0]).toMatch(/^🧾 Recibí tu comprobante por \*\$ 50\.000\*/);
+    const pending = await h.store.getCharge(charge.id);
+    expect(pending.status).toBe('pending');
+    expect(pending.transfer?.supportId).toBeTruthy();
+    expect(
+      h.store.data.supports.some(
+        (s) => s.id === pending.transfer?.supportId && s.code === 'COMPROBANTE_PAGO',
+      ),
+    ).toBe(true);
+    // Asking again while it is verified: no new payment request.
+    await h.say('generar');
+    r = show(await h.press(`c:${DEMO_IDS.ebs}`));
+    expect(r[0]).toMatch(/^🧾 Ya recibí tu comprobante de transferencia/);
+    // Confirmed in the panel: the worker settles it and delivers.
+    await h.store.settleCharge(charge.id, 'paid', 'transfer');
+    const { out: done } = await h.orchestrator.chargePaid(charge.id);
+    expect(show(done)[1]).toBe('⏳ Estoy generando tus documentos, dame un momento…');
+  });
+
+  it('asks again for the receipt when the transfer is not found', async () => {
+    const { h, charge } = await waitingPayment();
+    await h.press('pay:transfer');
+    await h.document('comprobante.pdf');
+    const { to, out } = await h.orchestrator.transferRejected(charge.id);
+    expect(to).toBe(h.store.data.users[0]!.phone);
+    expect(show(out)[0]).toMatch(/^❌ No encontramos tu transferencia por \$ 50\.000/);
+    expect((await h.store.getCharge(charge.id)).transfer).toBeNull();
+    await h.press('pay:transfer');
+    expect(show(await h.photo())[0]).toMatch(/^🧾 Recibí tu comprobante/);
+  });
+
+  it('is not offered without a transfer account', async () => {
+    const { h } = await waitingPayment();
+    h.store.data.billing = { mode: 'live', prices: { setup: 15_000, report: 50_000 } };
+    await h.say('generar');
+    const out = show(await h.press(`c:${DEMO_IDS.ebs}`));
+    expect(out.join('\n')).not.toContain('[Transferencia]');
+  });
+});
+
 describe('certificates guide', () => {
   const withoutBackgroundChecks = () => {
     const h = harness();

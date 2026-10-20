@@ -56,6 +56,10 @@ const STICKY_KEYS = [
   'lastOut',
   'profileAskedOn',
 ] as const;
+/** Transfer receipts among the supports, and the request the owner sees while one waits (ADR-055). */
+export const PAYMENT_RECEIPT = 'COMPROBANTE_PAGO';
+export const TRANSFER_TICKET = 'Transferencia por confirmar';
+
 const CONTRACT_ACTIVE =
   '🎉 ¡Tu contrato quedó activo! Desde ya cuéntame lo que haces cada día: texto, audio o fotos. Escribe *menú* para ver todas las opciones.';
 
@@ -898,6 +902,9 @@ export class Orchestrator {
     // Bank account (certificate, typed, or the buttons that confirm it) works while a contract is unpaid.
     if (msg.replyId?.startsWith('bank:')) return this.onBankReply(turn, msg.replyId.slice(5));
     if (turn.state.flow === 'bank_input' && (await this.onBankInput(turn, msg))) return;
+    // The transfer receipt, before photos are taken as evidence of an activity.
+    if (turn.state.flow === 'pay_transfer' && (msg.kind === 'image' || msg.kind === 'document'))
+      return this.onPayment(turn, msg);
     if (msg.replyId === 'sigdel:yes' || msg.replyId === 'sigdel:no') {
       this.reset(turn);
       if (msg.replyId === 'sigdel:no' || this.forOther(turn)) {
@@ -1139,6 +1146,7 @@ export class Orchestrator {
         return this.onPickContract(turn, msg, (c) => this.startDraft(turn, c));
       case 'pay_wait':
       case 'pay_code':
+      case 'pay_transfer':
         return this.onPayment(turn, msg);
       case 'expired_ask':
         return this.onExpired(turn, msg);
@@ -4102,23 +4110,53 @@ ${lines.join('\n')}${due.length ? '' : '\n\nNo tienes nada pendiente. 👍'}`,
       contractId: c.id,
       periodNumber: p?.number ?? null,
     });
+    const after = p ? 'te envío los documentos' : 'te aviso';
+    if (charge.transfer) {
+      turn.out.push(
+        buttons(
+          `🧾 Ya recibí tu comprobante de transferencia por *${formatCOP(charge.amount)}*. Lo estamos verificando y ${after} apenas se confirme.`,
+          [
+            { id: 'pay:transfer', title: 'Ver datos de pago' },
+            { id: 'menu:support', title: 'Hablar con soporte' },
+          ],
+        ),
+      );
+      return null;
+    }
     const intro = p
       ? `💳 Tu ${this.reportLabel(c, p)} está listo. Para entregártelo el valor es *${formatCOP(charge.amount)}*.`
       : `💳 Para activar tu contrato *${c.fullNumber}* el valor de la configuración es *${formatCOP(charge.amount)}*. Cuando se confirme el pago empezamos a registrar tus actividades.`;
-    const after = p ? 'te envío los documentos' : 'te aviso';
+    const transfer = Boolean((await this.deps.store.getBillingSettings()).transfer);
     const url = this.deps.payments?.checkoutUrl(charge, actorOf(turn).phone);
     if (url) {
       turn.out.push({
         type: 'cta_url',
-        text: `${intro}\n\nPaga en línea (tarjeta, PSE, Nequi o Bancolombia) y ${after} apenas se confirme.`,
+        text: `${intro}\n\nPaga en línea (tarjeta, PSE, Nequi, QR o botón Bancolombia) y ${after} apenas se confirme.`,
         button: 'Pagar en línea',
         url,
       });
       turn.out.push(
-        buttons('¿Pagaste en efectivo y tienes un código? ¿O prefieres hablar con una persona?', [
-          { id: 'pay:code', title: 'Tengo un código' },
-          { id: 'menu:support', title: 'Hablar con soporte' },
-        ]),
+        transfer
+          ? buttons('¿Prefieres pagar por transferencia? ¿O pagaste en efectivo y tienes un código?', [
+              { id: 'pay:transfer', title: 'Transferencia' },
+              { id: 'pay:code', title: 'Tengo un código' },
+              { id: 'menu:support', title: 'Hablar con soporte' },
+            ])
+          : buttons('¿Pagaste en efectivo y tienes un código? ¿O prefieres hablar con una persona?', [
+              { id: 'pay:code', title: 'Tengo un código' },
+              { id: 'menu:support', title: 'Hablar con soporte' },
+            ]),
+      );
+    } else if (transfer) {
+      turn.out.push(
+        buttons(
+          `${intro}\n\nPuedes pagar por *transferencia*: toca *Transferencia* y te doy los datos de la cuenta. Si pagaste en efectivo y tienes un código, toca *Tengo un código*.`,
+          [
+            { id: 'pay:transfer', title: 'Transferencia' },
+            { id: 'pay:code', title: 'Tengo un código' },
+            { id: 'menu:support', title: 'Hablar con soporte' },
+          ],
+        ),
       );
     } else {
       // No online payment configured: cash with a code, arranged with a person.
@@ -4136,8 +4174,73 @@ ${lines.join('\n')}${due.length ? '' : '\n\nNo tienes nada pendiente. 👍'}`,
     return null;
   }
 
+  /** Bank transfer (ADR-055): the account, the amount and the reference; then the receipt is asked for. */
+  private async showTransfer(turn: Turn, ctx: Ctx, charge: Charge): Promise<void> {
+    const t = (await this.deps.store.getBillingSettings()).transfer;
+    if (!t) {
+      turn.out.push(
+        text('En este momento no recibimos transferencias. Escribe *pagar* para ver las otras opciones.'),
+      );
+      return;
+    }
+    this.setFlow(turn, 'pay_transfer', 'wait', { ...ctx });
+    turn.out.push(
+      text(
+        [
+          '🏦 *Pago por transferencia*',
+          `• Banco: *${t.bank}*`,
+          `• Cuenta de ${t.accountType}: *${t.accountNumber}*`,
+          `• A nombre de: *${t.holder}*${t.holderDoc ? ` (${t.holderDoc})` : ''}`,
+          `• Valor: *${formatCOP(charge.amount)}*`,
+          `• Referencia: *${charge.reference}* (escríbela en la descripción de la transferencia)`,
+          '',
+          `Cuando transfieras, envíame aquí la *foto o el PDF del comprobante*. Lo verificamos y ${
+            charge.product === 'report' ? 'te envío los documentos' : 'activamos tu contrato'
+          } apenas se confirme.`,
+        ].join('\n'),
+      ),
+    );
+  }
+
+  /** The transfer receipt: kept with the supports and left for the owner to confirm in the panel. */
+  private async onTransferReceipt(turn: Turn, msg: Inbound, charge: Charge): Promise<void> {
+    const media = msg.kind === 'document' || msg.kind === 'image' ? msg.media : undefined;
+    if (!media || !(media.mime === 'application/pdf' || media.mime.startsWith('image/'))) {
+      turn.out.push(text('Envíame el comprobante como *foto* o en *PDF*.'));
+      return;
+    }
+    const { store } = this.deps;
+    const now = this.deps.clock.now().toISOString();
+    const supportId = this.deps.newId();
+    await store.addSupport({
+      id: supportId,
+      userId: charge.userId,
+      code: PAYMENT_RECEIPT,
+      data: media.data,
+      mime: media.mime,
+      filename: media.filename ?? (msg.kind === 'image' ? 'comprobante.jpg' : 'comprobante.pdf'),
+      receivedAt: now,
+    });
+    await store.markTransfer(charge.id, { supportId, sentAt: now });
+    await store.openSupportTicket(charge.userId, TRANSFER_TICKET);
+    this.reset(turn);
+    turn.out.push(
+      text(
+        `🧾 Recibí tu comprobante por *${formatCOP(charge.amount)}*. Lo verificamos y ${
+          charge.product === 'report' ? 'te envío los documentos' : 'activamos tu contrato'
+        } apenas se confirme. Mientras tanto puedes seguir usándome normalmente.`,
+      ),
+    );
+  }
+
   private async onPayment(turn: Turn, msg: Inbound): Promise<void> {
     const ctx = turn.state.context as { chargeId: string; contractId: string; periodNumber: number };
+    if (msg.replyId === 'pay:transfer')
+      return this.showTransfer(turn, ctx, await this.deps.store.getCharge(ctx.chargeId));
+    if (turn.state.flow === 'pay_transfer' && (msg.kind === 'image' || msg.kind === 'document')) {
+      const charge = await this.deps.store.getCharge(ctx.chargeId);
+      if (charge.status === 'pending') return this.onTransferReceipt(turn, msg, charge);
+    }
     if (msg.replyId === 'pay:code') {
       this.setFlow(turn, 'pay_code', 'write', { ...ctx });
       turn.out.push(text('Escríbeme tu código de pago, por ejemplo *K7M4-Q2P9*.'));
@@ -4165,7 +4268,7 @@ ${lines.join('\n')}${due.length ? '' : '\n\nNo tienes nada pendiente. 👍'}`,
       return;
     }
     const looksLikeCode = /^[A-Za-z0-9]{4}-?[A-Za-z0-9]{4}$/.test(raw);
-    if (!raw || (turn.state.flow === 'pay_wait' && !looksLikeCode)) {
+    if (!raw || (turn.state.flow !== 'pay_code' && !looksLikeCode)) {
       // Anything else: leave the payment pending and handle the message normally.
       this.reset(turn);
       return this.dispatch(turn, msg);
@@ -4299,7 +4402,42 @@ ${lines.join('\n')}${due.length ? '' : '\n\nNo tienes nada pendiente. 👍'}`,
     };
   }
 
-  /** Online payment confirmed (Wompi): thank the contractor and deliver the report. */
+  /**
+   * Transfer the owner could not find in the bank (ADR-055): the receipt is set aside and the contractor
+   * is asked to check it or pay another way.
+   */
+  async transferRejected(chargeId: string): Promise<{ to: string; out: Outgoing[] }> {
+    const { store } = this.deps;
+    const charge = await store.getCharge(chargeId);
+    await store.markTransfer(charge.id, null);
+    const user = await store.getUser(charge.userId);
+    const actor =
+      charge.requestedBy && charge.requestedBy !== user.id
+        ? await store.getUser(charge.requestedBy)
+        : undefined;
+    const owner = actor ?? user;
+    const state = (await store.getConversation(owner.id)) ?? this.idle(owner.id);
+    const turn: Turn = { user, ...(actor ? { actor } : {}), state, out: [] };
+    this.setFlow(turn, 'pay_wait', 'wait', {
+      chargeId: charge.id,
+      contractId: charge.contractId,
+      periodNumber: charge.periodNumber,
+    });
+    turn.out.push(
+      buttons(
+        `❌ No encontramos tu transferencia por ${formatCOP(charge.amount)} (referencia *${charge.reference}*). Revisa que se haya hecho a la cuenta correcta y envíame de nuevo el comprobante, o escribe *pagar* para ver las otras opciones.`,
+        [
+          { id: 'pay:transfer', title: 'Ver datos de pago' },
+          { id: 'menu:support', title: 'Hablar con soporte' },
+        ],
+      ),
+    );
+    turn.state.updatedAt = this.deps.clock.now().toISOString();
+    await store.saveConversation(turn.state);
+    return { to: owner.phone, out: turn.out };
+  }
+
+  /** Online payment confirmed (Wompi) or transfer confirmed in the panel: thank and deliver the report. */
   async chargePaid(chargeId: string): Promise<{ to: string; out: Outgoing[] }> {
     const { store } = this.deps;
     const charge = await store.getCharge(chargeId);
@@ -4312,7 +4450,7 @@ ${lines.join('\n')}${due.length ? '' : '\n\nNo tienes nada pendiente. 👍'}`,
     const owner = actor ?? user;
     const state = (await store.getConversation(owner.id)) ?? this.idle(owner.id);
     const turn: Turn = { user, ...(actor ? { actor } : {}), state, out: [] };
-    if (turn.state.flow === 'pay_wait' || turn.state.flow === 'pay_code') this.reset(turn);
+    if (['pay_wait', 'pay_code', 'pay_transfer'].includes(turn.state.flow)) this.reset(turn);
     turn.out.push(text(`✅ Recibí tu pago de ${formatCOP(charge.amount)}. ¡Gracias!`));
     if (charge.product === 'report')
       await this.startGenerate(turn, await store.getContract(charge.contractId));

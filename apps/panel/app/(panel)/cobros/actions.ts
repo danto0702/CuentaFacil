@@ -1,7 +1,7 @@
 'use server';
 import { randomInt } from 'node:crypto';
 import { revalidatePath } from 'next/cache';
-import { billingSettings } from '@/lib/billing';
+import { type BillingSettingsRow, billingSettings } from '@/lib/billing';
 import { supabaseServer } from '@/lib/supabase';
 
 const s = (form: FormData, k: string) => String(form.get(k) ?? '').trim();
@@ -13,11 +13,41 @@ export async function setBillingMode(form: FormData): Promise<void> {
   const setup = Number(s(form, 'setup'));
   const report = Number(s(form, 'report'));
   if (!(setup > 0 && report > 0)) throw new Error('Los precios deben ser mayores que cero.');
+  const { transfer } = await billingSettings();
+  await saveBilling({ mode, prices: { setup, report }, transfer });
+}
+
+async function saveBilling(value: BillingSettingsRow): Promise<void> {
   const sb = await supabaseServer();
-  const { error } = await sb
-    .from('system_settings')
-    .upsert({ key: 'billing', value: { mode, prices: { setup, report } } }, { onConflict: 'key' });
+  const { error } = await sb.from('system_settings').upsert({ key: 'billing', value }, { onConflict: 'key' });
   if (error) throw new Error(`No pude guardar: ${error.message}`);
+  revalidatePath('/cobros');
+}
+
+/** Account that receives transfers (ADR-055); empty number: transfers are no longer offered. */
+export async function setTransferAccount(form: FormData): Promise<void> {
+  const accountNumber = s(form, 'accountNumber').replace(/[\s.-]/g, '');
+  const current = await billingSettings();
+  const transfer = accountNumber
+    ? {
+        bank: s(form, 'bank').toUpperCase(),
+        accountType: s(form, 'accountType') === 'corriente' ? ('corriente' as const) : ('ahorros' as const),
+        accountNumber,
+        holder: s(form, 'holder'),
+        holderDoc: s(form, 'holderDoc'),
+      }
+    : null;
+  if (transfer && !(transfer.bank && transfer.holder))
+    throw new Error('Escribe el banco y el titular de la cuenta.');
+  await saveBilling({ ...current, transfer });
+}
+
+/** Transfer found (confirm) or not (reject) in the bank: the worker delivers or tells the contractor. */
+export async function reviewTransfer(form: FormData): Promise<void> {
+  const action = s(form, 'action') === 'confirm' ? 'confirm' : 'reject';
+  const sb = await supabaseServer();
+  const { error } = await sb.rpc('transfer_review', { p_charge: s(form, 'chargeId'), p_action: action });
+  if (error) throw new Error(`No pude registrar la decisión: ${error.message}`);
   revalidatePath('/cobros');
 }
 

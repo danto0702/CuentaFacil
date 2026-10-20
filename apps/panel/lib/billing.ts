@@ -1,9 +1,32 @@
 import 'server-only';
 import { supabaseServer } from './supabase';
 
+export interface TransferAccountRow {
+  bank: string;
+  accountType: 'ahorros' | 'corriente';
+  accountNumber: string;
+  holder: string;
+  holderDoc: string;
+}
+
 export interface BillingSettingsRow {
   mode: 'pilot' | 'live';
   prices: { setup: number; report: number };
+  /** Account that receives transfers (ADR-055); null: Pascal does not offer them. */
+  transfer: TransferAccountRow | null;
+}
+
+/** Transfer receipt waiting for the owner (ADR-055). */
+export interface PendingTransferRow {
+  chargeId: string;
+  contractor: string;
+  phone: string;
+  concept: string;
+  amount: number;
+  reference: string;
+  sentAt: string;
+  /** Signed link to the receipt, valid 10 minutes. */
+  receiptUrl: string | null;
 }
 
 export interface ChargeRow {
@@ -40,10 +63,64 @@ export async function billingSettings(): Promise<BillingSettingsRow> {
   const sb = await supabaseServer();
   const { data } = await sb.from('system_settings').select('value').eq('key', 'billing').maybeSingle();
   const v = (data?.value ?? {}) as Partial<BillingSettingsRow>;
+  const t = v.transfer;
   return {
     mode: v.mode === 'live' ? 'live' : 'pilot',
     prices: { setup: Number(v.prices?.setup ?? 15_000), report: Number(v.prices?.report ?? 50_000) },
+    transfer:
+      t?.bank && t.accountNumber && t.holder
+        ? {
+            bank: t.bank,
+            accountType: t.accountType === 'corriente' ? 'corriente' : 'ahorros',
+            accountNumber: t.accountNumber,
+            holder: t.holder,
+            holderDoc: t.holderDoc ?? '',
+          }
+        : null,
   };
+}
+
+/** Pending charges with a transfer receipt, oldest first. */
+export async function listPendingTransfers(): Promise<PendingTransferRow[]> {
+  const sb = await supabaseServer();
+  const { data, error } = await sb
+    .from('charges')
+    .select(
+      'id, product, amount, reference, raw, users(full_name, phone_e164), contracts(number_full), periods(report_number)',
+    )
+    .eq('status', 'pending')
+    .not('raw->transfer', 'is', null);
+  if (error) throw error;
+  const rows = await Promise.all(
+    (data ?? []).map(async (c) => {
+      const t = (c.raw as { transfer?: { support_id: string; sent_at: string } } | null)?.transfer;
+      if (!t) return null;
+      const u = one(c.users as One<{ full_name: string | null; phone_e164: string }>);
+      const report = one(c.periods as One<{ report_number: number }>)?.report_number;
+      const contract = one(c.contracts as One<{ number_full: string }>)?.number_full ?? '—';
+      const { data: s } = await sb
+        .from('supports')
+        .select('original_path')
+        .eq('id', t.support_id)
+        .maybeSingle();
+      const signed = s?.original_path
+        ? (await sb.storage.from('supports').createSignedUrl(s.original_path, 600)).data
+        : null;
+      return {
+        chargeId: c.id,
+        contractor: u?.full_name || 'Sin nombre aún',
+        phone: u?.phone_e164 ?? '',
+        concept: `${c.product === 'setup' ? 'Configuración' : `Informe ${report ?? ''}`} · ${contract}`,
+        amount: Number(c.amount),
+        reference: c.reference,
+        sentAt: t.sent_at,
+        receiptUrl: signed?.signedUrl ?? null,
+      };
+    }),
+  );
+  return rows
+    .filter((r): r is PendingTransferRow => r !== null)
+    .sort((a, b) => a.sentAt.localeCompare(b.sentAt));
 }
 
 export async function listCharges(): Promise<ChargeRow[]> {

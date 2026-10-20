@@ -249,6 +249,8 @@ export interface Store {
     method: ChargeMethod,
     providerTx?: string,
   ): Promise<void>;
+  /** Records the transfer receipt (a support) of a pending charge, or clears it (null) when rejected. */
+  markTransfer(chargeId: string, transfer: { supportId: string; sentAt: string } | null): Promise<void>;
   /** Uses one unexpired free report of the user for this charge; false if none. */
   useFreeGrant(userId: string, chargeId: string): Promise<boolean>;
   /** Validates and uses a cash code for this charge (same user, same amount, unused, unexpired). */

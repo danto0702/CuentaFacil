@@ -26,6 +26,7 @@ import type {
   Store,
   SupportFile,
   SupportType,
+  TransferAccount,
   User,
   WritingStyle,
 } from '@cuentasbot/conversation';
@@ -35,6 +36,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { type FieldCipher, last4 } from '../crypto.js';
 
 type Row = Record<string, unknown>;
+type ChargeRaw = { requested_by?: string; transfer?: { support_id: string; sent_at: string } };
 
 function must<T>(res: { data: T; error: { message: string } | null }, what: string): T {
   if (res.error) throw new Error(`${what}: ${res.error.message}`);
@@ -241,15 +243,31 @@ export class SupabaseStore implements Store {
       await this.sb.from('system_settings').select('value').eq('key', 'billing').maybeSingle(),
       'getBillingSettings',
     ) as Row | null;
-    const v = (row?.value ?? {}) as { mode?: string; prices?: { setup?: number; report?: number } };
+    const v = (row?.value ?? {}) as {
+      mode?: string;
+      prices?: { setup?: number; report?: number };
+      transfer?: Partial<TransferAccount> | null;
+    };
+    const t = v.transfer;
     return {
       mode: v.mode === 'live' ? 'live' : 'pilot',
       prices: { setup: num(v.prices?.setup ?? 15_000), report: num(v.prices?.report ?? 50_000) },
+      transfer:
+        t?.bank && t.accountNumber && t.holder
+          ? {
+              bank: t.bank,
+              accountType: t.accountType === 'corriente' ? 'corriente' : 'ahorros',
+              accountNumber: t.accountNumber,
+              holder: t.holder,
+              holderDoc: t.holderDoc ?? '',
+            }
+          : null,
     };
   }
 
   private toCharge(r: Row): Charge {
     const period = r.periods as Row | null;
+    const raw = (r.raw ?? {}) as ChargeRaw;
     return {
       id: str(r.id),
       userId: str(r.user_id),
@@ -261,8 +279,30 @@ export class SupabaseStore implements Store {
       status: r.status as Charge['status'],
       method: (r.method ?? null) as ChargeMethod | null,
       reference: str(r.reference),
-      requestedBy: ((r.raw as { requested_by?: string } | null)?.requested_by as string | undefined) ?? null,
+      requestedBy: raw.requested_by ?? null,
+      transfer: raw.transfer ? { supportId: raw.transfer.support_id, sentAt: raw.transfer.sent_at } : null,
     };
+  }
+
+  /** charges.raw: who asked for the charge and the transfer receipt waiting for confirmation. */
+  private static chargeRaw(c: Pick<Charge, 'requestedBy' | 'transfer'>): ChargeRaw | null {
+    const raw: ChargeRaw = {
+      ...(c.requestedBy ? { requested_by: c.requestedBy } : {}),
+      ...(c.transfer ? { transfer: { support_id: c.transfer.supportId, sent_at: c.transfer.sentAt } } : {}),
+    };
+    return Object.keys(raw).length ? raw : null;
+  }
+
+  async markTransfer(chargeId: string, transfer: { supportId: string; sentAt: string } | null) {
+    const c = await this.getCharge(chargeId);
+    must(
+      await this.sb
+        .from('charges')
+        .update({ raw: SupabaseStore.chargeRaw({ ...c, transfer }) })
+        .eq('id', chargeId)
+        .eq('status', 'pending'),
+      'markTransfer',
+    );
   }
 
   private static readonly CHARGE_COLS = '*, periods(report_number)';
@@ -314,7 +354,7 @@ export class SupabaseStore implements Store {
           .update({
             amount: input.amount,
             covers_setup: input.coversSetup,
-            raw: input.requestedBy ? { requested_by: input.requestedBy } : null,
+            raw: SupabaseStore.chargeRaw({ requestedBy: input.requestedBy, transfer: existing.transfer }),
           })
           .eq('id', existing.id),
         'openCharge.update',

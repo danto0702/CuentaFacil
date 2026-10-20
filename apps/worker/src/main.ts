@@ -5,7 +5,7 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
 import { randomUUID } from 'node:crypto';
 import Anthropic from '@anthropic-ai/sdk';
-import { BogotaClock, BRAND, Orchestrator } from '@cuentasbot/conversation';
+import { BogotaClock, BRAND, Orchestrator, TRANSFER_TICKET } from '@cuentasbot/conversation';
 import { docxToPdf, extractPages } from '@cuentasbot/docgen';
 import { formatCOP } from '@cuentasbot/shared';
 import { createClient } from '@supabase/supabase-js';
@@ -349,6 +349,39 @@ async function processWompi(inboxId: number): Promise<void> {
   await pipelineDb.markInbox(inboxId, 'processed');
 }
 
+/** Transfer confirmed or rejected by the owner in the panel (ADR-055). */
+async function processTransfer(inboxId: number): Promise<void> {
+  const item = await pipelineDb.getInbox(inboxId);
+  if (!item || item.status !== 'pending') return;
+  const { charge_id: chargeId, action } = JSON.parse(item.body) as { charge_id: string; action: string };
+  const charge = await store.getCharge(chargeId);
+  if (charge.status !== 'pending' || !charge.transfer) {
+    await pipelineDb.markInbox(inboxId, 'rejected', 'no pending transfer');
+    return;
+  }
+  const user = await store.getUser(charge.requestedBy ?? charge.userId);
+  if (action === 'confirm') {
+    await store.settleCharge(charge.id, 'paid', 'transfer');
+    const { out } = await orchestrator.chargePaid(charge.id);
+    await deliver(
+      deliverDeps,
+      recipient(user),
+      out,
+      charge.product === 'report' ? 'los documentos de tu cuenta' : 'la confirmación de tu pago',
+    );
+  } else {
+    const { out } = await orchestrator.transferRejected(charge.id);
+    await deliver(deliverDeps, recipient(user), out, 'una novedad sobre tu pago');
+  }
+  await sb
+    .from('support_tickets')
+    .update({ status: 'closed', closed_at: new Date().toISOString() })
+    .eq('user_id', charge.userId)
+    .eq('subject', TRANSFER_TICKET)
+    .eq('status', 'open');
+  await pipelineDb.markInbox(inboxId, 'processed');
+}
+
 type InboundItem = Awaited<ReturnType<typeof inbound.read>>[number];
 
 /** Who sent a stored webhook delivery, to keep each person's messages in order. */
@@ -363,6 +396,7 @@ async function processQueued(m: InboundItem): Promise<void> {
     await attemptScope.run(m.readCount, async () => {
       if (m.message.provider === 'whatsapp') await pipeline.processInbox(m.message.inbox_id);
       else if (m.message.provider === 'wompi') await processWompi(m.message.inbox_id);
+      else if (m.message.provider === 'transfer') await processTransfer(m.message.inbox_id);
     });
     await inbound.delete(m.msgId);
   } catch (e) {

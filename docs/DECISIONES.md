@@ -289,3 +289,15 @@
   - El control de aceptación ahora revisa las dos versiones. Si solo cambió la política, Pascal lo dice así («Actualizamos la política de tratamiento de datos… ahora las notas de voz las transcribe Groq»), con el botón «Ver política». El «Acepto» registra solo lo que falta.
   - *soporte* y *borrar mis datos* siguen sin esperar.
 - **Consecuencias:** fila `privacy_policy 1.3` en `policy_versions` (también en `seed.sql`). PascalBot ya nombra a Groq. Los usuarios de prueba tienen aceptadas las dos versiones vigentes.
+
+## ADR-055 — Pago por transferencia y QR Bancolombia (2026-10-20)
+- **Contexto:** algunos contratistas prefieren transferir o pagar con QR. Wompi solo cubría tarjeta, PSE, Nequi y botón Bancolombia, y los pagos en efectivo dependían de un código.
+- **Decisión:** el dueño confirma las transferencias en el panel.
+  - La cuenta que recibe va en `system_settings.billing.transfer` y se edita en /cobros. Sin cuenta, Pascal no ofrece transferencias.
+  - Al pedir el pago, Pascal agrega el botón *Transferencia*. Con él da banco, tipo, número, titular, valor y la referencia del cobro, y pide la foto o PDF del comprobante.
+  - El comprobante se guarda entre los soportes (código `COMPROBANTE_PAGO`). Su id y la hora quedan en `charges.raw.transfer`. Se abre la solicitud «Transferencia por confirmar» para que el dueño la vea en el inicio del panel.
+  - En /cobros, *Transferencias por confirmar* muestra el comprobante con *Confirmar* y *Rechazar*. La función `transfer_review` (solo superadmin) deja la decisión en la cola `inbound` como un evento `transfer`.
+  - El worker procesa ese evento. Al confirmar, marca el cobro pagado (`method = 'transfer'`) y entrega como con Wompi. Al rechazar, borra el comprobante del cobro y le pide al contratista revisarlo o pagar de otra forma.
+  - En los dos casos cierra la solicitud.
+  - El QR Bancolombia es un medio más del enlace de Wompi: se activa en el panel de Wompi, sin código. El texto del pago ahora dice «tarjeta, PSE, Nequi, QR o botón Bancolombia».
+- **Consecuencias:** migración `20261020000001_transfer_payments.sql`: `transfer` en `charges.method` y en `webhook_inbox.provider`, y la función `transfer_review`. Mientras el comprobante está en verificación, pedir el informe muestra «ya recibí tu comprobante» y no un cobro nuevo. Los términos (sección 6, medios de pago) deben nombrar la transferencia.

@@ -399,10 +399,20 @@ export interface BillingSettings {
   /** 'pilot': nothing is charged. 'live': configuration and reports are paid before delivery. */
   mode: 'pilot' | 'live';
   prices: { setup: number; report: number };
+  /** Account that receives bank transfers (ADR-055); without it Pascal does not offer them. */
+  transfer?: TransferAccount | null;
+}
+
+export interface TransferAccount {
+  bank: string;
+  accountType: 'ahorros' | 'corriente';
+  accountNumber: string;
+  holder: string;
+  holderDoc: string;
 }
 
 export type ChargeStatus = 'pending' | 'paid' | 'free' | 'pilot' | 'cancelled';
-export type ChargeMethod = 'wompi' | 'cash_code' | 'free_grant' | 'pilot';
+export type ChargeMethod = 'wompi' | 'cash_code' | 'free_grant' | 'pilot' | 'transfer';
 
 export interface Charge {
   id: string;
@@ -418,6 +428,8 @@ export interface Charge {
   reference: string;
   /** Who asked for it when a gestor works for the contractor (ADR-042): receives the documents. */
   requestedBy?: string | null;
+  /** Transfer receipt sent by the contractor, waiting for the owner to confirm it in the panel (ADR-055). */
+  transfer?: { supportId: string; sentAt: string } | null;
 }
 
 /**
