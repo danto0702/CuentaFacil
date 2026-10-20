@@ -28,9 +28,10 @@ describe('registration and contract setup by documents', () => {
     expect(out[0]).toMatch(/Envíame el \*PDF del contrato\*/);
     const user = await h.store.getUserByPhone(NEW_PHONE);
     expect(user).not.toBeNull();
-    expect(h.store.data.consents?.[0]).toMatchObject({ policyVersion: '1.2', accepted: true });
+    const mine = (h.store.data.consents ?? []).filter((c) => c.userId === user!.id);
+    expect(mine[0]).toMatchObject({ policyVersion: '1.3', accepted: true });
     // The same 'Acepto' covers the terms of service in force.
-    expect(h.store.data.consents?.[1]).toMatchObject({ kind: 'terms', policyVersion: '1.2', accepted: true });
+    expect(mine[1]).toMatchObject({ kind: 'terms', policyVersion: '1.2', accepted: true });
 
     // A photo instead of the PDF → asks again.
     expect(show(await h.photo())[0]).toMatch(/Necesito el contrato en \*PDF\*/);

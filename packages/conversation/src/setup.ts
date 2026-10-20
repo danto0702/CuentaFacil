@@ -17,7 +17,7 @@ import { clip } from './text.js';
 
 /** Conversation flow name for contract setup (plan v5 §2.1). */
 export const SETUP_FLOW = 'setup';
-export const POLICY_VERSION = '1.2';
+export const POLICY_VERSION = '1.3';
 /** Terms of service in force; users who accepted an older version are asked again (section 15). */
 export const TERMS_VERSION = '1.2';
 

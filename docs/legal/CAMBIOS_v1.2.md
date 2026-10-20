@@ -1,4 +1,4 @@
-# Cambios de la versión 1.2 (términos y política de datos)
+# Cambios de las versiones 1.2 y 1.3 (términos y política de datos)
 
 No se publica. Resume qué cambió frente a la 1.1 y qué queda para revisión del abogado.
 
@@ -66,3 +66,8 @@ No se publica. Resume qué cambió frente a la 1.1 y qué queda para revisión d
 7. **Piloto.** Durante el piloto la configuración y los informes pueden no tener costo. Quedó cubierto en la sección 5.
 8. **Responsabilidad del contratista sobre lo que firma (secciones 3 y 9).** Los informes van a una entidad pública. Queremos dejar muy claro que el servicio redacta solo con lo que el usuario reporta, que no inventa actividades y que el usuario revisa y firma bajo su responsabilidad.
 
+
+## Política 1.3 (20 de octubre de 2026)
+
+- **Sección 4, encargados:** Groq, Inc. (EE. UU.) reemplaza a OpenAI en la transcripción de notas de voz, porque OpenAI no aceptó el pago (ADR-053). Mismo país y misma finalidad.
+- Se pide aceptarla de nuevo por WhatsApp (decisión del dueño). Los términos siguen en la 1.2.

@@ -282,3 +282,10 @@
   - Si `STT_MODEL` es de otro proveedor, se usa el modelo por defecto del elegido.
   - El worker registra `stt.provider` al arrancar.
 - **Consecuencias:** cambiar de proveedor es cambiar dos variables en Railway, sin desplegar código. Groq procesa el audio en EE. UU.; la política de datos (sección 4) nombra hoy a OpenAI para la transcripción, así que en la próxima versión hay que agregar a Groq como encargado.
+
+## ADR-054 — Política de datos 1.3: Groq en la transcripción (2026-10-20)
+- **Contexto:** desde ADR-053 las notas de voz las transcribe Groq, pero la política 1.2 nombraba a OpenAI como encargado.
+- **Decisión:** política 1.3, con Groq, Inc. (EE. UU.) en la tabla de encargados. Se publicó en pascalia.lat. Los términos siguen en la 1.2.
+  - El control de aceptación ahora revisa las dos versiones. Si solo cambió la política, Pascal lo dice así («Actualizamos la política de tratamiento de datos… ahora las notas de voz las transcribe Groq»), con el botón «Ver política». El «Acepto» registra solo lo que falta.
+  - *soporte* y *borrar mis datos* siguen sin esperar.
+- **Consecuencias:** fila `privacy_policy 1.3` en `policy_versions` (también en `seed.sql`). PascalBot ya nombra a Groq. Los usuarios de prueba tienen aceptadas las dos versiones vigentes.

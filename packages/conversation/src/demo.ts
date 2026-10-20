@@ -5,7 +5,7 @@
 import { buildPeriods, type IsoDate, resolvePeriodAmount, type ScheduledPayment } from '@cuentasbot/shared';
 import type { Contract, Entity, Period, SupportType } from './domain.js';
 import { emptyData, type MemoryData } from './memory-store.js';
-import { TERMS_VERSION } from './setup.js';
+import { POLICY_VERSION, TERMS_VERSION } from './setup.js';
 
 /** A one-page PDF with a line of text (no dependencies). */
 export function tinyPdf(title: string): Buffer {
@@ -410,14 +410,21 @@ export function demoData(opts: { supportsIssuedOn?: IsoDate } = {}): MemoryData 
 
   // One PILA covers both of María's contracts (IBC = 40 % × (4.000.000 + 8.400.000) = 4.960.000).
   // Demo contractors already accepted the terms in force.
-  d.consents = d.users.map((u) => ({
-    userId: u.id,
-    phone: u.phone,
-    kind: 'terms' as const,
-    policyVersion: TERMS_VERSION,
-    accepted: true,
-    wamid: 'demo',
-  }));
+  d.consents = d.users.flatMap((u) =>
+    (
+      [
+        ['terms', TERMS_VERSION],
+        ['privacy_policy', POLICY_VERSION],
+      ] as const
+    ).map(([kind, policyVersion]) => ({
+      userId: u.id,
+      phone: u.phone,
+      kind,
+      policyVersion,
+      accepted: true,
+      wamid: 'demo',
+    })),
+  );
   d.socialSecurity = [
     {
       // August: only the EBS contract was in force for the full month's fees (40 % × 8.400.000).

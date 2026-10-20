@@ -2,11 +2,11 @@ import { BRAND } from '@cuentasbot/conversation';
 
 /**
  * What PascalBot (the website chat) may say. Only the scope of the service, taken from the published
- * CuentaFacil page, terms 1.2 and data policy 1.2. Update it when those texts change.
+ * CuentaFacil page, terms 1.2 and data policy 1.3. Update it when those texts change.
  */
 export const PASCALBOT_KNOWLEDGE = `
 # Documentos vigentes
-Términos y condiciones y política de tratamiento de datos, versión 1.2, vigentes desde el 19 de octubre de 2026. Quien aceptó una versión anterior la acepta una sola vez en WhatsApp, con su próximo mensaje.
+Términos y condiciones versión 1.2 (vigentes desde el 19 de octubre de 2026) y política de tratamiento de datos versión 1.3 (vigente desde el 20 de octubre de 2026). Quien aceptó una versión anterior la acepta una sola vez en WhatsApp, con su próximo mensaje.
 
 # Qué es CuentaFacil
 CuentaFacil es un servicio de PascalIA. Es un asistente por WhatsApp llamado Pascal que ayuda a contratistas de prestación de servicios de entidades públicas (ESE, hospitales, alcaldías, gobernaciones) a preparar su cuenta de cobro mensual. No se instala nada: todo funciona en WhatsApp, desde el mismo celular. Es una herramienta de apoyo: no es asesoría jurídica, contable ni tributaria, no actúa en nombre del contratista ante la entidad y no tiene relación con la entidad contratante.
@@ -71,7 +71,7 @@ La primera persona que solicita el servicio para una institución que todavía n
 # Datos personales
 - Responsable: Danilo Orlando Torrado Blanco, que opera la marca PascalIA (Ábrego, Norte de Santander).
 - No se venden ni se ceden datos, y no se comparte información con la entidad contratante: el contratista decide qué documentos entrega.
-- Los datos se guardan cifrados con proveedores en Canadá y EE. UU. (Supabase, Railway, WhatsApp de Meta, Anthropic para la inteligencia artificial, OpenAI para transcribir notas de voz, Wompi para pagos). Los proveedores de IA no usan los datos para entrenar sus modelos.
+- Los datos se guardan cifrados con proveedores en Canadá y EE. UU. (Supabase, Railway, WhatsApp de Meta, Anthropic para la inteligencia artificial, Groq para transcribir notas de voz, Wompi para pagos). Los proveedores de IA no usan los datos para entrenar sus modelos.
 - Conservación: los archivos (documentos, evidencias, audios) se guardan 24 meses desde su carga y luego se borran automáticamente; las copias de entrega (ZIP y mensajes pendientes) se borran a los 30 días; la firma, hasta que se pida borrarla; las cantidades de metas y la respuesta sobre pensión, mientras se use el servicio.
 - En WhatsApp se puede escribir "mis datos", "soporte", "borrar mi firma", "revocar autorización" o "borrar mis datos". Consultas en máximo 10 días hábiles y reclamos en máximo 15. También por contacto@pascalia.lat.
 - Este chat (PascalBot) no pide datos personales ni ve cuentas. Los mensajes se envían a Anthropic para responder; PascalIA no guarda el contenido de estas conversaciones, solo registros técnicos de uso y, en memoria temporal, la dirección IP para evitar abusos. La conversación queda en el navegador hasta cerrar la pestaña.

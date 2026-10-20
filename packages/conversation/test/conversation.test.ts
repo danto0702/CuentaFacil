@@ -524,7 +524,24 @@ describe('other flows', () => {
     out = show(await h.say('menú'));
     expect(out[0]).toMatch(/^Hola María/);
     expect(await h.store.acceptedVersion(h.store.data.users[0]!.id, 'terms')).toBe('1.2');
-    expect(await h.store.acceptedVersion(h.store.data.users[0]!.id, 'privacy_policy')).toBe('1.2');
+    expect(await h.store.acceptedVersion(h.store.data.users[0]!.id, 'privacy_policy')).toBe('1.3');
+  });
+
+  it('asks only for the new data policy when the terms did not change', async () => {
+    const h = harness();
+    const userId = h.store.data.users[0]!.id;
+    // Accepted terms 1.2 and policy 1.2; the policy in force is 1.3.
+    h.store.data.consents = (h.store.data.consents ?? []).map((c) => ({ ...c, policyVersion: '1.2' }));
+    let out = show(await h.say('menú'));
+    expect(out[0]).toMatch(
+      /^📜 Actualizamos la política de tratamiento de datos de CuentaFacil \(versión 1\.3\): ahora las notas de voz las transcribe Groq/,
+    );
+    expect(out[1]).toMatch(/^¿Aceptas la política de datos\?/);
+    out = show(await h.press('terms:yes'));
+    expect(out[0]).toBe('✅ ¡Gracias! Quedó registrada tu aceptación de la política de datos.');
+    expect(await h.store.acceptedVersion(userId, 'privacy_policy')).toBe('1.3');
+    expect(await h.store.acceptedVersion(userId, 'terms')).toBe('1.2');
+    expect(show(await h.say('menú'))[0]).toMatch(/^Hola María/);
   });
 
   it('keeps asking while the new terms are not accepted', async () => {

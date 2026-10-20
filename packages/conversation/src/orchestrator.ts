@@ -3380,22 +3380,26 @@ ${lines.join('\n')}${due.length ? '' : '\n\nNo tienes nada pendiente. 👍'}`,
    */
   private async termsGate(turn: Turn, msg: Inbound): Promise<boolean> {
     const accepted = await this.deps.store.acceptedVersion(turn.user.id, 'terms');
-    if (accepted === TERMS_VERSION) return false;
+    const policy = await this.deps.store.acceptedVersion(turn.user.id, 'privacy_policy');
+    if (accepted === TERMS_VERSION && policy === POLICY_VERSION) return false;
+    // Only the data policy changed (e.g. 1.3, a new provider): asked as such, with its own link.
+    const policyOnly = accepted === TERMS_VERSION;
     // Support and data deletion never wait for the terms.
     const cmd = msg.kind === 'text' && msg.text ? matchCommand(msg.text) : null;
     if (cmd === 'support' || cmd === 'delete_data' || msg.replyId === 'menu:support') return false;
     const ctx = turn.state.context as { termsPending?: string };
     if (msg.replyId === 'terms:yes') {
-      await this.deps.store.recordConsent({
-        userId: turn.user.id,
-        phone: turn.user.phone,
-        kind: 'terms',
-        policyVersion: TERMS_VERSION,
-        accepted: true,
-        wamid: msg.id,
-      });
-      // The data policy changes with the terms (v1.2): the same «Acepto» covers the version in force.
-      if ((await this.deps.store.acceptedVersion(turn.user.id, 'privacy_policy')) !== POLICY_VERSION)
+      if (!policyOnly)
+        await this.deps.store.recordConsent({
+          userId: turn.user.id,
+          phone: turn.user.phone,
+          kind: 'terms',
+          policyVersion: TERMS_VERSION,
+          accepted: true,
+          wamid: msg.id,
+        });
+      // The same «Acepto» covers the data policy in force.
+      if (policy !== POLICY_VERSION)
         await this.deps.store.recordConsent({
           userId: turn.user.id,
           phone: turn.user.phone,
@@ -3407,7 +3411,11 @@ ${lines.join('\n')}${due.length ? '' : '\n\nNo tienes nada pendiente. 👍'}`,
       const pending = ctx.termsPending;
       delete ctx.termsPending;
       turn.out.push(
-        text('✅ ¡Gracias! Quedó registrada tu aceptación de los términos y de la política de datos.'),
+        text(
+          policyOnly
+            ? '✅ ¡Gracias! Quedó registrada tu aceptación de la política de datos.'
+            : '✅ ¡Gracias! Quedó registrada tu aceptación de los términos y de la política de datos.',
+        ),
       );
       if (pending) await this.dispatch(turn, { ...msg, kind: 'text', text: pending, replyId: undefined });
       else await this.menu(turn, false);
@@ -3423,6 +3431,25 @@ ${lines.join('\n')}${due.length ? '' : '\n\nNo tienes nada pendiente. 👍'}`,
       return true;
     }
     if (msg.kind === 'text' && msg.text) ctx.termsPending = msg.text;
+    if (policyOnly) {
+      turn.out.push(
+        {
+          type: 'cta_url',
+          text: `📜 Actualizamos la política de tratamiento de datos de ${BRAND.service} (versión ${POLICY_VERSION}): ahora las notas de voz las transcribe Groq, en lugar de OpenAI. Lo demás no cambia. Revísala antes de continuar.`,
+          button: 'Ver política',
+          url: BRAND.privacyPolicy,
+        },
+        buttons(
+          `¿Aceptas la política de datos?${msg.kind === 'text' && msg.text ? ' Apenas aceptes, sigo con tu mensaje.' : ''}`,
+          [
+            { id: 'terms:yes', title: 'Acepto' },
+            { id: 'terms:no', title: 'No acepto' },
+            { id: 'menu:support', title: 'Hablar con soporte' },
+          ],
+        ),
+      );
+      return true;
+    }
     turn.out.push(
       {
         type: 'cta_url',

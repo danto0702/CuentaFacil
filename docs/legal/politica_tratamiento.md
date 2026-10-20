@@ -1,6 +1,6 @@
 # Política de Tratamiento de Datos Personales — CuentaFacil de PascalIA
 
-> ✅ **Versión 1.2, vigente desde el 19 de octubre de 2026.** Publicada en https://pascalia.lat/politica-de-datos/ (repo `danto0702/pascalia-web`). Reemplaza la 1.1 (10 de octubre de 2026). Los cambios y las preguntas para el abogado están en `docs/legal/CAMBIOS_v1.2.md`.
+> ✅ **Versión 1.3, vigente desde el 20 de octubre de 2026.** Publicada en https://pascalia.lat/politica-de-datos/ (repo `danto0702/pascalia-web`). Reemplaza la 1.2 (19 de octubre de 2026): la transcripción de notas de voz pasa de OpenAI a Groq (sección 4, ADR-053). Los demás cambios y las preguntas para el abogado están en `docs/legal/CAMBIOS_v1.2.md`.
 
 > Marco normativo: Ley 1581 de 2012, Decreto 1377 de 2013 (compilado en el Decreto 1074 de 2015) y demás normas que los modifiquen o complementen.
 
@@ -60,7 +60,7 @@ Para prestar el servicio, los datos se **almacenan y procesan fuera de Colombia,
 | Railway Corp. | Servidores de procesamiento y panel administrativo | EE. UU. | Datos en tránsito durante el procesamiento |
 | Meta Platforms, Inc. (WhatsApp Business) | Canal de mensajería | EE. UU. y otros países donde opera Meta | Mensajes, archivos y número de WhatsApp |
 | Anthropic PBC | Inteligencia artificial (lectura de documentos, redacción y chat de la página web) | EE. UU. | Solo el contenido necesario para cada tarea (notas, documentos, obligaciones, mensajes del chat de la página) |
-| OpenAI, L.L.C. | Transcripción de notas de voz | EE. UU. | Audio de las notas de voz |
+| Groq, Inc. | Transcripción de notas de voz | EE. UU. | Audio de las notas de voz |
 | Wompi (Bancolombia S.A.) | Pagos en línea | Colombia | Datos de la transacción de pago (los datos de tarjeta o cuenta los trata Wompi directamente) |
 
 Al aceptar esta política, el titular **autoriza de manera previa, expresa e informada la transmisión y transferencia internacional** de sus datos a estos proveedores y países para las finalidades descritas.
