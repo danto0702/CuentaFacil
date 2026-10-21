@@ -7,7 +7,7 @@ SaaS que acompaña por WhatsApp a contratistas de prestación de servicios de en
 
 **Principio rector:** el contratista es responsable de lo que firma. El bot organiza, calcula, redacta borradores y valida; **nunca inventa actividades** y siempre pide aprobación antes de generar documentos finales.
 
-Requisitos completos: `docs/PROMPT_INICIAL.md`. Plan vigente: `docs/PLAN.md` (arquitectura, Fase 0) y `docs/PLAN_V5.md` (modelo de servicio y fases siguientes). Difusión: `docs/PLAN_DIFUSION.md` (propuesta). Decisiones: `docs/DECISIONES.md`.
+Requisitos completos: `docs/PROMPT_INICIAL.md`. Plan vigente: `docs/PLAN.md` (arquitectura, Fase 0) y `docs/PLAN_V5.md` (modelo de servicio y fases siguientes). Difusión: `docs/PLAN_DIFUSION.md` (propuesta) y campaña en la entidad piloto `docs/CAMPANA_HRNO_ULTIMO_DIA.md`. Decisiones: `docs/DECISIONES.md`.
 
 ## Estado
 Fase 0 terminada (ver `docs/FASE0_CIERRE.md`), pendiente de aprobación del dueño. **No adelantar fases** (ver `docs/PLAN_V5.md` §9).
