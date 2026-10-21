@@ -2,7 +2,7 @@
 <html lang="es-CO">
 <head>
 <meta charset="UTF-8">
-<title>Tarjeta · 20 configuraciones gratis</title>
+<title>Tarjeta · Configuraciones gratis</title>
 <style>
 @font-face{font-family:"Creepster";src:url("assets/Creepster-latin.woff2") format("woff2")}
 @font-face{font-family:"Bricolage Grotesque";font-weight:500 800;src:url("assets/BricolageGrotesque-latin.woff2") format("woff2");unicode-range:U+0000-00FF,U+2000-206F}
@@ -74,13 +74,13 @@ const steps = `<div class="abs steps" style="__POS__">
 const qr = (x,y,w) => `<div class="abs qr" style="left:${x}px;top:${y}px;width:${w}px;padding:${w*.075}px ${w*.075}px ${w*.05}px">
   <div class="qrc" style="width:${w*.85}px;height:${w*.85}px"><img src="assets/qr.svg" alt=""><img class="qrlogo" src="assets/logo.webp" alt=""></div>
   <p style="margin-top:${w*.04}px;font-size:${Math.round(w*.06)}px">Escanéame y empieza</p></div>`;
-const fine = 'Configuración del contrato gratis para los primeros 20 contratistas que se registren. El informe mensual se paga aparte. Pascal nunca inventa actividades: tú decides qué se reporta.';
+const fine = 'Configuración del contrato gratis hasta agotar los cupos. El informe mensual se paga aparte. Pascal nunca inventa actividades: tú decides qué se reporta.';
 let html = `<div class="abs brand"><img src="assets/logo.webp" alt=""><span><b>CuentaFácil</b> · de Pascal<i>IA</i></span></div>`;
 if (hw) html += web('right:0;top:0;transform:scaleX(-1)') + spider(880, 120);
 if (fmt === 'story') {
   html += `<h1 class="abs" style="top:190px;font-size:${hw?150:128}px">${title}</h1>
   <p class="abs sub" style="top:${hw?500:480}px">Tu cuenta de cobro, por WhatsApp con Pascal</p>
-  <div class="abs badge" style="top:610px;padding:34px 70px 30px"><b>20</b><span>configuraciones<br>gratis</span><small>Solo 20 cupos</small></div>
+  <div class="abs badge" style="top:610px;padding:38px 64px 32px"><span style="font-size:76px;line-height:.95">Configuraciones<br>gratis</span><small>Cupos limitados</small></div>
   <img class="abs pascal" src="assets/pascal.webp" style="left:-30px;top:1060px;width:470px" alt="">
   ${qr(440,1040,560)}
   ${steps.replace('__POS__','left:440px;right:50px;top:1720px;display:none')}
@@ -88,7 +88,7 @@ if (fmt === 'story') {
   <p class="abs fine" style="left:450px;right:70px;top:1748px;font-size:24px">${fine}</p>`;
 } else {
   html += `<h1 class="abs" style="top:160px;font-size:${hw?118:104}px">${title}</h1>
-  <div class="abs badge" style="top:430px;left:290px;padding:24px 44px 22px"><b style="font-size:120px">20</b><span style="font-size:42px">configuraciones<br>gratis</span><small style="font-size:24px">Solo 20 cupos</small></div>
+  <div class="abs badge" style="top:440px;left:290px;padding:30px 40px 24px"><span style="font-size:54px;line-height:.95">Configuraciones<br>gratis</span><small style="font-size:24px">Cupos limitados</small></div>
   <img class="abs pascal" src="assets/pascal.webp" style="left:-10px;top:790px;width:280px" alt="">
   ${qr(650,400,380)}
   ${steps.replace('__POS__','left:290px;right:40px;top:860px')}
