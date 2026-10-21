@@ -1,5 +1,7 @@
 # Campaña "Último día sin sustos" — captación en la ESE Noroccidental
 
+Mensajes listos en `campana/MENSAJES.md`; tarjetas con QR en `campana/tarjeta/`.
+
 Propuesta del 21 de octubre de 2026 (replanteada el mismo día: 20 configuraciones gratis en lugar de cuentas gratis). Complementa `PLAN_DIFUSION.md` (plan general) y respeta sus reglas (§5.7). Uso interno: las piezas públicas **no nombran la entidad ni la región** y no llevan testimonios ni cifras inventadas.
 
 ## 1. Resumen
