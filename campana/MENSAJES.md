@@ -10,7 +10,7 @@ Tarjetas: `campana/tarjeta/tarjeta-story-hw.png` (estados, hasta el 31-oct), `ta
 >
 > Te cuento: estoy lanzando **CuentaFácil**. Le escribes a Pascal por WhatsApp lo que hiciste (texto, foto o nota de voz) y él te arma el informe y la cuenta. Tú revisas y firmas.
 >
-> Tengo **20 configuraciones gratis** para compañeros y te guardé una 🎁. ¿Te lo muestro en 2 minutos, en el descanso?
+> Tengo **configuraciones gratis** para compañeros (cupos limitados) y te guardé una 🎁. ¿Te lo muestro en 2 minutos, en el descanso?
 
 **Versión corta (si ya hay confianza):**
 
@@ -26,7 +26,7 @@ Tarjetas: `campana/tarjeta/tarjeta-story-hw.png` (estados, hasta el 31-oct), `ta
 >
 > 📲 **CuentaFácil**: le cuentas tu trabajo del día a Pascal por WhatsApp (texto, foto o nota de voz) y al cierre te entrega el informe, la cuenta de cobro y los soportes listos para revisar y firmar.
 >
-> 🎁 **Configuración gratis para los primeros 20** (Pascal lee tu contrato y organiza tus obligaciones). El informe mensual se paga aparte.
+> 🎁 **Configuración gratis, cupos limitados** (Pascal lee tu contrato y organiza tus obligaciones). El informe mensual se paga aparte.
 >
 > 👉 Escanea el QR de la imagen o entra a pascalia.lat/cuentafacil
 >
@@ -39,15 +39,15 @@ Adjuntar: `tarjeta-feed-hw.png` (o el video de Halloween la semana del 29-oct).
 | Día | Imagen o video | Texto encima |
 |---|---|---|
 | Mié 22 y jue 23 oct | Teaser "Confiésalo" | Confiésalo… 👀 |
-| Vie 24 oct (lanzamiento) | Tarjeta story Halloween | 🎁 20 configuraciones gratis. Escanea y empieza |
+| Vie 24 oct (lanzamiento) | Tarjeta story Halloween | 🎁 Configuraciones gratis, cupos limitados. Escanea y empieza |
 | Sáb 25 oct | Video "Antes y después" | Así era antes el fin de mes 😩 |
-| Lun 27 oct | Tarjeta story + número | ⏳ Quedan [N] cupos gratis |
+| Lun 27 oct | Tarjeta story + número | ⏳ Configuración gratis: aún hay cupos |
 | Mié 29 a vie 31 oct | Video de Halloween | 🎃 Los 5 terrores del contratista. ¿Cuál es el tuyo? |
-| Lun 3 nov | Tarjeta story clásica | ⏳ Quedan [N] cupos. El último día, sin afán |
+| Lun 3 nov | Tarjeta story clásica | ⏳ Cupos limitados. El último día, sin afán |
 | Mié 5 nov | Video "Día a día" | Este mes, repórtale a Pascal desde el día 1 📸 |
 | Lun 10 nov | Video de Pascal | Yo puedo fallar… pero me respalda mi equipo 💛 |
 
-El número de cupos se toma de la base (contratos configurados con código de cortesía) cada lunes.
+El total de cupos (20) es interno y no se publica. Cada lunes se revisa en la base cuántos van (contratos configurados con código de cortesía); cuando se agoten, se quitan los estados de la oferta.
 
 ## 4. Al supervisor (en persona o por privado)
 
@@ -73,7 +73,7 @@ El número de cupos se toma de la base (contratos configurados con código de co
 
 | Pregunta | Respuesta |
 |---|---|
-| ¿Cuánto cuesta? | La configuración es gratis para los primeros 20. Después, cada informe mensual cuesta $50.000 y solo lo pagas cuando lo pides. |
+| ¿Cuánto cuesta? | La configuración es gratis mientras haya cupos. Después, cada informe mensual cuesta $50.000 y solo lo pagas cuando lo pides. |
 | ¿Es seguro? ¿Qué hacen con mis datos? | Tus datos sensibles se guardan cifrados y solo se usan para tu cuenta. Antes de empezar aceptas la política de datos y puedes pedir que se borren. |
 | ¿Pascal inventa lo que hice? | No. Pascal solo organiza lo que tú le cuentas. Tú revisas, apruebas y firmas todo. |
 | ¿Mi supervisor lo acepta? | Sale en el formato que pide la entidad. Tú lo entregas como siempre, por SECOP o como lo hagas hoy. |
