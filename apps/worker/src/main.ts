@@ -26,6 +26,7 @@ import { processRegistryImports, queueRegistryUploads } from './runtime/registry
 import { parseRegistryWorkbook } from './runtime/registry-xlsx.js';
 import { SupabaseReminderDb, sendSupportReminders } from './runtime/reminders.js';
 import { purgeExpiredFiles } from './runtime/retention.js';
+import { parseStaffMessage, STAFF_WAITING, staffOutgoing } from './runtime/staff.js';
 import { SupabasePipelineDb } from './runtime/supabase-db.js';
 import { turnId } from './runtime/turn-ids.js';
 import { SupabaseStore } from './store/supabase-store.js';
@@ -382,6 +383,21 @@ async function processTransfer(inboxId: number): Promise<void> {
   await pipelineDb.markInbox(inboxId, 'processed');
 }
 
+/** Message the owner wrote in the panel: Pascal delivers it in the contractor's chat (ADR-057). */
+async function processStaff(inboxId: number): Promise<void> {
+  const item = await pipelineDb.getInbox(inboxId);
+  if (!item || item.status !== 'pending') return;
+  const msg = parseStaffMessage(item.body);
+  if (!msg) {
+    await pipelineDb.markInbox(inboxId, 'rejected', 'invalid staff message');
+    return;
+  }
+  const user = await store.getUser(msg.userId);
+  const result = await deliver(deliverDeps, recipient(user), [staffOutgoing(msg.text)], STAFF_WAITING);
+  log.info('staff.message', { userId: user.id, result });
+  await pipelineDb.markInbox(inboxId, 'processed');
+}
+
 type InboundItem = Awaited<ReturnType<typeof inbound.read>>[number];
 
 /** Who sent a stored webhook delivery, to keep each person's messages in order. */
@@ -397,6 +413,7 @@ async function processQueued(m: InboundItem): Promise<void> {
       if (m.message.provider === 'whatsapp') await pipeline.processInbox(m.message.inbox_id);
       else if (m.message.provider === 'wompi') await processWompi(m.message.inbox_id);
       else if (m.message.provider === 'transfer') await processTransfer(m.message.inbox_id);
+      else if (m.message.provider === 'staff') await processStaff(m.message.inbox_id);
     });
     await inbound.delete(m.msgId);
   } catch (e) {

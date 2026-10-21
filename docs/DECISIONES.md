@@ -309,3 +309,11 @@
   - La política de datos sigue en la 1.3.
   - Si solo cambiaron los términos, Pascal lo dice así («ahora también puedes pagar por transferencia bancaria… o con QR Bancolombia»), con el botón «Ver términos». El «Acepto» registra solo los términos.
 - **Consecuencias:** fila `terms 1.3` en `policy_versions` (también en `seed.sql`). PascalBot conoce los nuevos medios de pago. Queda para el abogado si el comprobante de transferencia debe nombrarse en la política de datos (`CAMBIOS_v1.2.md`).
+
+## ADR-057 — El dueño escribe en la conversación con Pascal desde el panel (2026-10-21)
+- **Contexto:** el dueño necesita escribirle a un contratista (por ejemplo, a quien configuró y no ha pagado) y que el mensaje llegue en su chat con Pascal, no desde un número personal. El panel no tenía cómo, y WhatsApp solo deja enviar texto libre en las 24 horas siguientes al último mensaje de la persona.
+- **Decisión:** en la ficha del contratista (/contratistas/[id]) hay un formulario «Escribir en su conversación con Pascal».
+  - La función `staff_message` (solo superadmin, de 1 a 1500 caracteres, contratista existente) deja el mensaje en la cola `inbound` como un evento `staff`, igual que `transfer_review`.
+  - El worker lo entrega con `deliver` (ADR-043), firmado «👤 *Equipo CuentaFácil*». Con la ventana cerrada lo guarda y envía la plantilla `aviso_pendiente` («tengo listo un mensaje del equipo de CuentaFácil · Ver ahora»); el mensaje sale cuando la persona toca el botón o vuelve a escribir.
+  - La ficha dice si la ventana está abierta (último mensaje en `wa_inbound`) y hasta qué hora.
+- **Consecuencias:** migración `20261021000001_staff_messages.sql`: `staff` en `webhook_inbox.provider` y la función `staff_message`. El mensaje queda en `messages` como cualquier salida de Pascal. No reemplaza el soporte con tickets; es para avisos puntuales del dueño.

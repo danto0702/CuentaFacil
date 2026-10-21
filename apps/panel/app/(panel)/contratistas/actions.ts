@@ -62,3 +62,17 @@ export async function deleteGeneralObligations(form: FormData): Promise<void> {
     (data ?? []).map((r) => r.id),
   );
 }
+
+/** Message from the owner that Pascal delivers in the contractor's chat (ADR-057). */
+export async function sendStaffMessage(form: FormData): Promise<void> {
+  const userId = s(form, 'userId');
+  const text = s(form, 'text');
+  const back = `/contratistas/${userId}`;
+  if (!text) redirect(`${back}?msg=${encodeURIComponent('Escribe el mensaje antes de enviarlo.')}`);
+  const sb = await supabaseServer();
+  const { error } = await sb.rpc('staff_message', { p_user: userId, p_text: text });
+  if (error) redirect(`${back}?msg=${encodeURIComponent(`No pude enviar el mensaje: ${error.message}`)}`);
+  redirect(
+    `${back}?msg=${encodeURIComponent('Listo: Pascal entrega tu mensaje en su conversación en unos segundos.')}`,
+  );
+}
