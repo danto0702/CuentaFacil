@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { adminAvailable, getContractorDetail } from '@/lib/admin';
-import { deleteGeneralObligations, deleteObligation } from '../actions';
+import { deleteGeneralObligations, deleteObligation, sendStaffMessage } from '../actions';
 
 export default async function ContractorPage({
   params,
@@ -26,6 +26,8 @@ export default async function ContractorPage({
         {c.docIssuedIn || <em>falta (Pascal lo pregunta en el próximo mensaje)</em>}
       </p>
       {msg && <div className="banner">{msg}</div>}
+
+      <StaffMessage userId={c.id} lastInboundAt={c.lastInboundAt} />
 
       {c.contracts.length === 0 && <p className="muted">Sin contratos configurados.</p>}
       {c.contracts.map((k) => {
@@ -91,5 +93,39 @@ export default async function ContractorPage({
         );
       })}
     </>
+  );
+}
+
+const WINDOW_MS = 24 * 3600_000;
+const bogota = new Intl.DateTimeFormat('es-CO', {
+  timeZone: 'America/Bogota',
+  day: 'numeric',
+  month: 'short',
+  hour: 'numeric',
+  minute: '2-digit',
+});
+
+/** Write as Pascal (ADR-057): free text inside the 24-hour window, otherwise behind the notice template. */
+function StaffMessage({ userId, lastInboundAt }: { userId: string; lastInboundAt: string | null }) {
+  const closesAt = lastInboundAt ? new Date(lastInboundAt).getTime() + WINDOW_MS : 0;
+  const open = closesAt > Date.now();
+  return (
+    <div className="card">
+      <h3>Escribir en su conversación con Pascal</h3>
+      <p className="muted">
+        {open
+          ? `Le llega de inmediato: escribió por última vez hace menos de 24 horas (puedes escribirle libremente hasta el ${bogota.format(closesAt)}).`
+          : 'Pasaron más de 24 horas desde su último mensaje: Pascal le envía el aviso «Tengo listo un mensaje del equipo de CuentaFácil · Ver ahora» y tu mensaje le llega cuando lo toque o cuando vuelva a escribir.'}{' '}
+        Sale firmado como «👤 Equipo CuentaFácil».
+      </p>
+      <form action={sendStaffMessage} className="stack">
+        <input type="hidden" name="userId" value={userId} />
+        <label>
+          Mensaje
+          <textarea name="text" rows={4} maxLength={1500} required />
+        </label>
+        <button type="submit">Enviar por Pascal</button>
+      </form>
+    </div>
   );
 }

@@ -308,6 +308,8 @@ export interface ContractorDetail {
   name: string;
   phone: string;
   docIssuedIn: string;
+  /** Last message the contractor sent: Pascal can write freely for 24 hours after it. */
+  lastInboundAt: string | null;
   contracts: ContractDetail[];
 }
 
@@ -328,6 +330,12 @@ export async function getContractorDetail(id: string): Promise<ContractorDetail 
     .eq('user_id', id)
     .order('start_date', { ascending: false });
   if (cErr) throw cErr;
+  const { data: inbound } = await sb
+    .from('wa_inbound')
+    .select('received_at')
+    .eq('phone_e164', u.phone_e164)
+    .order('received_at', { ascending: false })
+    .limit(1);
   const obligationIds = (contracts ?? []).flatMap((c) => (c.obligations ?? []).map((o) => o.id));
   const contractIds = (contracts ?? []).map((c) => c.id);
   // Activities: each note once per obligation it supports, also the extra ones («Otra obligación»).
@@ -362,6 +370,7 @@ export async function getContractorDetail(id: string): Promise<ContractorDetail 
     name: u.full_name || 'Sin nombre aún',
     phone: maskPhone(u.phone_e164),
     docIssuedIn: u.doc_issued_in ?? '',
+    lastInboundAt: inbound?.[0]?.received_at ?? null,
     contracts: (contracts ?? []).map((c) => ({
       id: c.id,
       number: c.number_full,
