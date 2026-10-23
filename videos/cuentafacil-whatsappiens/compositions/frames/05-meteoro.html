@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="es-CO">
+<head><meta charset="UTF-8" /></head>
+<body>
+<template>
+<style>
+
+@font-face{font-family:"Bricolage Grotesque";font-style:normal;font-weight:500 800;src:url("assets/fonts/BricolageGrotesque-latin.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Bricolage Grotesque";font-style:normal;font-weight:500 800;src:url("assets/fonts/BricolageGrotesque-latin-ext.woff2") format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C4,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:"Geist";font-style:normal;font-weight:400 700;src:url("assets/fonts/Geist-latin.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Geist";font-style:normal;font-weight:400 700;src:url("assets/fonts/Geist-latin-ext.woff2") format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C4,U+2C60-2C7F,U+A720-A7FF}
+
+#root{position:absolute;inset:0;overflow:hidden}
+
+#root{background:#0E2A1F;color:#FFF8EC}
+.abs{position:absolute}
+.disp{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;letter-spacing:-.035em}
+.txt{font-family:"Geist",sans-serif}
+.center{left:60px;right:60px;text-align:center}
+.char{position:absolute;filter:drop-shadow(0 30px 40px rgba(0,0,0,.45))}
+.bg{position:absolute;inset:0;width:1080px;height:1920px}
+.vf{position:absolute;inset:0;pointer-events:none}
+.vf i{position:absolute;width:90px;height:90px;border:6px solid rgba(255,255,255,.85)}
+.vf .tl{left:46px;top:46px;border-right:0;border-bottom:0}.vf .tr{right:46px;top:46px;border-left:0;border-bottom:0}
+.vf .bl{left:46px;bottom:46px;border-right:0;border-top:0}.vf .br{right:46px;bottom:46px;border-left:0;border-top:0}
+.rec{position:absolute;left:80px;top:80px;display:flex;align-items:center;gap:14px;font:700 34px/1 "Geist",sans-serif;color:#fff;letter-spacing:.08em;text-shadow:0 2px 8px rgba(0,0,0,.6)}
+.rec b{width:24px;height:24px;border-radius:50%;background:#FF3B30}
+.tc{position:absolute;right:80px;top:80px;font:600 32px/1 "Geist",sans-serif;color:#fff;letter-spacing:.06em;font-variant-numeric:tabular-nums;text-shadow:0 2px 8px rgba(0,0,0,.6)}
+.lt{position:absolute;left:70px;right:70px;padding:24px 30px 22px;background:rgba(10,24,18,.82);border-left:10px solid #FFC107;border-radius:6px}
+.lt b{display:block;font:800 52px/1.05 "Bricolage Grotesque",sans-serif;letter-spacing:-.02em;color:#fff}
+.lt i{display:block;margin-top:8px;font:500 italic 34px/1.2 "Geist",sans-serif;color:#E8DCC2}
+.sub{position:absolute;left:90px;right:90px;text-align:center;font:600 40px/1.3 "Geist",sans-serif;color:#fff;text-shadow:0 3px 10px rgba(0,0,0,.9),0 0 2px #000}
+.grain{position:absolute;inset:0;opacity:.07;mix-blend-mode:overlay;pointer-events:none}
+.ok{display:inline-grid;place-items:center;width:42px;height:42px;border-radius:12px;background:#25D366;vertical-align:-8px;margin-right:10px}
+.ok svg{width:30px;height:30px;fill:none;stroke:#fff;stroke-width:3.4;stroke-linecap:round;stroke-linejoin:round}
+.spark{position:absolute}
+.spark path{fill:#FFE27A}
+
+
+#f05-dino{left:300px;top:960px;width:480px}
+#f05-met{left:620px;top:140px;width:300px;height:300px}
+#f05-met img{position:absolute;inset:0;width:100%;height:100%}
+#f05-trail{position:absolute;left:150px;top:-330px;width:520px;height:520px;transform:rotate(0deg)}
+#f05-flash{inset:0;background:#FFF6E0;opacity:0}
+#f05-sub{top:1580px}
+#f05-q{top:320px;font-size:96px;color:#fff;text-shadow:0 6px 24px rgba(0,0,0,.6)}
+
+</style>
+<div id="root" data-composition-id="f05-meteoro" data-width="1080" data-height="1920">
+<svg class="bg" id="f05-bg" viewBox="0 0 1080 1920" data-layout-allow-overflow><defs><linearGradient id="f05-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FF9A3C"/><stop offset=".55" stop-color="#D9482B"/><stop offset="1" stop-color="#5C1A1B"/></linearGradient></defs><rect width="1080" height="1920" fill="url(#f05-sky)"/><path d="M0 1180 C200 1060 380 1120 560 1060 C760 990 900 1080 1080 1020 L1080 1920 L0 1920Z" fill="#7A2E1E"/><path d="M0 1300 C240 1220 420 1290 640 1230 C820 1180 960 1240 1080 1210 L1080 1920 L0 1920Z" fill="#4E1D16"/><path d="M0 1460 C300 1420 700 1440 1080 1410 L1080 1920 L0 1920Z" fill="#3B2A1A"/></svg><svg class="bg" id="f05-fg" viewBox="0 0 1080 1920" data-layout-allow-overflow><g transform="translate(-40 1700) rotate(-30) scale(1.6)"><path d="M0 0 C60 -40 160 -40 240 0 C160 40 60 40 0 0Z" fill="#1E4D2B"/><path d="M0 0 L230 0" stroke="rgba(0,0,0,.18)" stroke-width="4"/></g><g transform="translate(-60 1820) rotate(-10) scale(1.4)"><path d="M0 0 C60 -40 160 -40 240 0 C160 40 60 40 0 0Z" fill="#2E6B3A"/><path d="M0 0 L230 0" stroke="rgba(0,0,0,.18)" stroke-width="4"/></g><g transform="translate(1120 1720) rotate(210) scale(1.6)"><path d="M0 0 C60 -40 160 -40 240 0 C160 40 60 40 0 0Z" fill="#1E4D2B"/><path d="M0 0 L230 0" stroke="rgba(0,0,0,.18)" stroke-width="4"/></g><g transform="translate(1130 1840) rotate(190) scale(1.3)"><path d="M0 0 C60 -40 160 -40 240 0 C160 40 60 40 0 0Z" fill="#2E6B3A"/><path d="M0 0 L230 0" stroke="rgba(0,0,0,.18)" stroke-width="4"/></g><g transform="translate(-30 220) rotate(25) scale(1.2)"><path d="M0 0 C60 -40 160 -40 240 0 C160 40 60 40 0 0Z" fill="#173F24"/><path d="M0 0 L230 0" stroke="rgba(0,0,0,.18)" stroke-width="4"/></g><g transform="translate(1110 260) rotate(160) scale(1.2)"><path d="M0 0 C60 -40 160 -40 240 0 C160 40 60 40 0 0Z" fill="#173F24"/><path d="M0 0 L230 0" stroke="rgba(0,0,0,.18)" stroke-width="4"/></g></svg>
+<p id="f05-q" class="abs center disp">¿Qué es eso?</p>
+<div id="f05-met" class="abs" data-layout-allow-overflow>
+  <svg id="f05-trail" viewBox="0 0 520 520"><defs><linearGradient id="f05-g" x1="1" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFE27A" stop-opacity="0"/><stop offset=".6" stop-color="#FF9A3C"/><stop offset="1" stop-color="#FF5A1F"/></linearGradient></defs>
+  <path d="M520 0 L140 470 Q120 500 90 470 L60 440 Q40 410 70 390 Z" fill="url(#f05-g)"/></svg>
+  <img src="assets/chars/meteorito.webp" alt="">
+</div>
+<img id="f05-dino" class="char" src="assets/chars/dino-susto.webp" alt="">
+<p id="f05-sub" class="sub">De pronto… algo se acerca desde el cielo.</p>
+<div class="vf"><i class="tl"></i><i class="tr"></i><i class="bl"></i><i class="br"></i></div><div class="rec"><b id="f05-rec"></b>REC</div><div class="tc" id="f05-tc">00:00:07</div><svg class="grain" viewBox="0 0 1080 1920"><filter id="f05-gr"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 .5  0 0 0 0 .5  0 0 0 0 .5  0 0 0 .9 0"/></filter><rect width="1080" height="1920" filter="url(#f05-gr)"/></svg>
+<div id="f05-flash" class="abs"></div>
+
+</div>
+<script>
+const tl = gsap.timeline({ paused: true });
+
+window.__timelines["f05-meteoro"] = tl;
+</script>
+</template>
+</body>
+</html>

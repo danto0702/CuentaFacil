@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="es-CO">
+<head><meta charset="UTF-8" /></head>
+<body>
+<template>
+<style>
+
+@font-face{font-family:"Bricolage Grotesque";font-style:normal;font-weight:500 800;src:url("assets/fonts/BricolageGrotesque-latin.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Bricolage Grotesque";font-style:normal;font-weight:500 800;src:url("assets/fonts/BricolageGrotesque-latin-ext.woff2") format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C4,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:"Geist";font-style:normal;font-weight:400 700;src:url("assets/fonts/Geist-latin.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Geist";font-style:normal;font-weight:400 700;src:url("assets/fonts/Geist-latin-ext.woff2") format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C4,U+2C60-2C7F,U+A720-A7FF}
+
+#root{position:absolute;inset:0;overflow:hidden}
+
+#root{background:#0E2A1F;color:#FFF8EC}
+.abs{position:absolute}
+.disp{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;letter-spacing:-.035em}
+.txt{font-family:"Geist",sans-serif}
+.center{left:60px;right:60px;text-align:center}
+.char{position:absolute;filter:drop-shadow(0 30px 40px rgba(0,0,0,.45))}
+.bg{position:absolute;inset:0;width:1080px;height:1920px}
+.vf{position:absolute;inset:0;pointer-events:none}
+.vf i{position:absolute;width:90px;height:90px;border:6px solid rgba(255,255,255,.85)}
+.vf .tl{left:46px;top:46px;border-right:0;border-bottom:0}.vf .tr{right:46px;top:46px;border-left:0;border-bottom:0}
+.vf .bl{left:46px;bottom:46px;border-right:0;border-top:0}.vf .br{right:46px;bottom:46px;border-left:0;border-top:0}
+.rec{position:absolute;left:80px;top:80px;display:flex;align-items:center;gap:14px;font:700 34px/1 "Geist",sans-serif;color:#fff;letter-spacing:.08em;text-shadow:0 2px 8px rgba(0,0,0,.6)}
+.rec b{width:24px;height:24px;border-radius:50%;background:#FF3B30}
+.tc{position:absolute;right:80px;top:80px;font:600 32px/1 "Geist",sans-serif;color:#fff;letter-spacing:.06em;font-variant-numeric:tabular-nums;text-shadow:0 2px 8px rgba(0,0,0,.6)}
+.lt{position:absolute;left:70px;right:70px;padding:24px 30px 22px;background:rgba(10,24,18,.82);border-left:10px solid #FFC107;border-radius:6px}
+.lt b{display:block;font:800 52px/1.05 "Bricolage Grotesque",sans-serif;letter-spacing:-.02em;color:#fff}
+.lt i{display:block;margin-top:8px;font:500 italic 34px/1.2 "Geist",sans-serif;color:#E8DCC2}
+.sub{position:absolute;left:90px;right:90px;text-align:center;font:600 40px/1.3 "Geist",sans-serif;color:#fff;text-shadow:0 3px 10px rgba(0,0,0,.9),0 0 2px #000}
+.grain{position:absolute;inset:0;opacity:.07;mix-blend-mode:overlay;pointer-events:none}
+.ok{display:inline-grid;place-items:center;width:42px;height:42px;border-radius:12px;background:#25D366;vertical-align:-8px;margin-right:10px}
+.ok svg{width:30px;height:30px;fill:none;stroke:#fff;stroke-width:3.4;stroke-linecap:round;stroke-linejoin:round}
+.spark{position:absolute}
+.spark path{fill:#FFE27A}
+
+
+#f08-duo{left:120px;top:700px;width:840px}
+#f08-k{top:330px;font-size:108px;line-height:.95;color:#fff;text-shadow:0 6px 24px rgba(80,30,0,.5)}
+#f08-k b{color:#FFF1C4}
+
+</style>
+<div id="root" data-composition-id="f08-vida" data-width="1080" data-height="1920">
+<svg class="bg" id="f08-bg" viewBox="0 0 1080 1920" data-layout-allow-overflow><defs><linearGradient id="f08-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FBD98B"/><stop offset=".55" stop-color="#F2A65A"/><stop offset="1" stop-color="#E57A44"/></linearGradient></defs><rect width="1080" height="1920" fill="url(#f08-sky)"/><circle id="f08-sun" cx="760" cy="520" r="150" fill="#FFF1C4" opacity=".9"/><path d="M0 1180 C200 1060 380 1120 560 1060 C760 990 900 1080 1080 1020 L1080 1920 L0 1920Z" fill="#C7783E"/><path d="M0 1300 C240 1220 420 1290 640 1230 C820 1180 960 1240 1080 1210 L1080 1920 L0 1920Z" fill="#8E5A2B"/><path d="M0 1460 C300 1420 700 1440 1080 1410 L1080 1920 L0 1920Z" fill="#6E8B3D"/></svg><svg class="bg" id="f08-fg" viewBox="0 0 1080 1920" data-layout-allow-overflow><g transform="translate(-40 1700) rotate(-30) scale(1.6)"><path d="M0 0 C60 -40 160 -40 240 0 C160 40 60 40 0 0Z" fill="#1E4D2B"/><path d="M0 0 L230 0" stroke="rgba(0,0,0,.18)" stroke-width="4"/></g><g transform="translate(-60 1820) rotate(-10) scale(1.4)"><path d="M0 0 C60 -40 160 -40 240 0 C160 40 60 40 0 0Z" fill="#2E6B3A"/><path d="M0 0 L230 0" stroke="rgba(0,0,0,.18)" stroke-width="4"/></g><g transform="translate(1120 1720) rotate(210) scale(1.6)"><path d="M0 0 C60 -40 160 -40 240 0 C160 40 60 40 0 0Z" fill="#1E4D2B"/><path d="M0 0 L230 0" stroke="rgba(0,0,0,.18)" stroke-width="4"/></g><g transform="translate(1130 1840) rotate(190) scale(1.3)"><path d="M0 0 C60 -40 160 -40 240 0 C160 40 60 40 0 0Z" fill="#2E6B3A"/><path d="M0 0 L230 0" stroke="rgba(0,0,0,.18)" stroke-width="4"/></g><g transform="translate(-30 220) rotate(25) scale(1.2)"><path d="M0 0 C60 -40 160 -40 240 0 C160 40 60 40 0 0Z" fill="#173F24"/><path d="M0 0 L230 0" stroke="rgba(0,0,0,.18)" stroke-width="4"/></g><g transform="translate(1110 260) rotate(160) scale(1.2)"><path d="M0 0 C60 -40 160 -40 240 0 C160 40 60 40 0 0Z" fill="#173F24"/><path d="M0 0 L230 0" stroke="rgba(0,0,0,.18)" stroke-width="4"/></g></svg>
+<svg class="bg" viewBox="0 0 1080 1920"><rect class="f08-cf" x="140" y="380" width="18" height="30" rx="4" fill="#FFC107" transform="rotate(20 140 380)"/><rect class="f08-cf" x="260" y="300" width="18" height="30" rx="4" fill="#25D366" transform="rotate(-30 260 300)"/><rect class="f08-cf" x="420" y="360" width="18" height="30" rx="4" fill="#FF7A1A" transform="rotate(40 420 360)"/><rect class="f08-cf" x="600" y="280" width="18" height="30" rx="4" fill="#38BDF8" transform="rotate(-10 600 280)"/><rect class="f08-cf" x="760" y="360" width="18" height="30" rx="4" fill="#FFC107" transform="rotate(30 760 360)"/><rect class="f08-cf" x="920" y="300" width="18" height="30" rx="4" fill="#E5484D" transform="rotate(-40 920 300)"/><rect class="f08-cf" x="200" y="520" width="18" height="30" rx="4" fill="#38BDF8" transform="rotate(60 200 520)"/><rect class="f08-cf" x="880" y="520" width="18" height="30" rx="4" fill="#25D366" transform="rotate(-20 880 520)"/><rect class="f08-cf" x="520" y="460" width="18" height="30" rx="4" fill="#E5484D" transform="rotate(15 520 460)"/><rect class="f08-cf" x="680" y="520" width="18" height="30" rx="4" fill="#FFC107" transform="rotate(-50 680 520)"/></svg>
+<h2 id="f08-k" class="abs center disp">Y le sobra<br><b>tiempo para vivir</b></h2>
+<img id="f08-duo" class="char" src="assets/chars/chocalas.webp" alt="">
+<svg id="f08-k1" class="spark" style="left:120px;top:760px;width:70px;height:70px" viewBox="0 0 24 24"><path d="M12 0 L14.2 9.8 L24 12 L14.2 14.2 L12 24 L9.8 14.2 L0 12 L9.8 9.8 Z"/></svg><svg id="f08-k2" class="spark" style="left:900px;top:820px;width:60px;height:60px" viewBox="0 0 24 24"><path d="M12 0 L14.2 9.8 L24 12 L14.2 14.2 L12 24 L9.8 14.2 L0 12 L9.8 9.8 Z"/></svg><svg id="f08-k3" class="spark" style="left:540px;top:640px;width:50px;height:50px" viewBox="0 0 24 24"><path d="M12 0 L14.2 9.8 L24 12 L14.2 14.2 L12 24 L9.8 14.2 L0 12 L9.8 9.8 Z"/></svg>
+
+</div>
+<script>
+const tl = gsap.timeline({ paused: true });
+
+window.__timelines["f08-vida"] = tl;
+</script>
+</template>
+</body>
+</html>

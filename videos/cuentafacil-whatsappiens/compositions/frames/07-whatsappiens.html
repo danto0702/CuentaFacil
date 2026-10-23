@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="es-CO">
+<head><meta charset="UTF-8" /></head>
+<body>
+<template>
+<style>
+
+@font-face{font-family:"Bricolage Grotesque";font-style:normal;font-weight:500 800;src:url("assets/fonts/BricolageGrotesque-latin.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Bricolage Grotesque";font-style:normal;font-weight:500 800;src:url("assets/fonts/BricolageGrotesque-latin-ext.woff2") format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C4,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:"Geist";font-style:normal;font-weight:400 700;src:url("assets/fonts/Geist-latin.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Geist";font-style:normal;font-weight:400 700;src:url("assets/fonts/Geist-latin-ext.woff2") format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C4,U+2C60-2C7F,U+A720-A7FF}
+
+#root{position:absolute;inset:0;overflow:hidden}
+
+#root{background:#0E2A1F;color:#FFF8EC}
+.abs{position:absolute}
+.disp{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;letter-spacing:-.035em}
+.txt{font-family:"Geist",sans-serif}
+.center{left:60px;right:60px;text-align:center}
+.char{position:absolute;filter:drop-shadow(0 30px 40px rgba(0,0,0,.45))}
+.bg{position:absolute;inset:0;width:1080px;height:1920px}
+.vf{position:absolute;inset:0;pointer-events:none}
+.vf i{position:absolute;width:90px;height:90px;border:6px solid rgba(255,255,255,.85)}
+.vf .tl{left:46px;top:46px;border-right:0;border-bottom:0}.vf .tr{right:46px;top:46px;border-left:0;border-bottom:0}
+.vf .bl{left:46px;bottom:46px;border-right:0;border-top:0}.vf .br{right:46px;bottom:46px;border-left:0;border-top:0}
+.rec{position:absolute;left:80px;top:80px;display:flex;align-items:center;gap:14px;font:700 34px/1 "Geist",sans-serif;color:#fff;letter-spacing:.08em;text-shadow:0 2px 8px rgba(0,0,0,.6)}
+.rec b{width:24px;height:24px;border-radius:50%;background:#FF3B30}
+.tc{position:absolute;right:80px;top:80px;font:600 32px/1 "Geist",sans-serif;color:#fff;letter-spacing:.06em;font-variant-numeric:tabular-nums;text-shadow:0 2px 8px rgba(0,0,0,.6)}
+.lt{position:absolute;left:70px;right:70px;padding:24px 30px 22px;background:rgba(10,24,18,.82);border-left:10px solid #FFC107;border-radius:6px}
+.lt b{display:block;font:800 52px/1.05 "Bricolage Grotesque",sans-serif;letter-spacing:-.02em;color:#fff}
+.lt i{display:block;margin-top:8px;font:500 italic 34px/1.2 "Geist",sans-serif;color:#E8DCC2}
+.sub{position:absolute;left:90px;right:90px;text-align:center;font:600 40px/1.3 "Geist",sans-serif;color:#fff;text-shadow:0 3px 10px rgba(0,0,0,.9),0 0 2px #000}
+.grain{position:absolute;inset:0;opacity:.07;mix-blend-mode:overlay;pointer-events:none}
+.ok{display:inline-grid;place-items:center;width:42px;height:42px;border-radius:12px;background:#25D366;vertical-align:-8px;margin-right:10px}
+.ok svg{width:30px;height:30px;fill:none;stroke:#fff;stroke-width:3.4;stroke-linecap:round;stroke-linejoin:round}
+.spark{position:absolute}
+.spark path{fill:#FFE27A}
+
+
+#f07-hamaca{left:160px;top:1040px;width:820px}
+#f07-palm1{left:60px;top:780px;width:60px;height:900px;background:linear-gradient(90deg,#7A5230,#A47448);border-radius:30px;transform:rotate(-4deg)}
+#f07-palm2{left:960px;top:760px;width:60px;height:920px;background:linear-gradient(90deg,#7A5230,#A47448);border-radius:30px;transform:rotate(5deg)}
+.f07-m{position:absolute;max-width:640px;padding:20px 26px;border-radius:26px;font:500 36px/1.3 "Geist",sans-serif;color:#E9EDEF;background:#1F2C34;box-shadow:0 14px 30px rgba(0,0,0,.35)}
+.f07-m.me{background:#005C4B}
+#f07-lt{top:1600px}
+
+</style>
+<div id="root" data-composition-id="f07-whatsappiens" data-width="1080" data-height="1920">
+<svg class="bg" id="f07-bg" viewBox="0 0 1080 1920" data-layout-allow-overflow><defs><linearGradient id="f07-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FBD98B"/><stop offset=".55" stop-color="#F2A65A"/><stop offset="1" stop-color="#E57A44"/></linearGradient></defs><rect width="1080" height="1920" fill="url(#f07-sky)"/><circle id="f07-sun" cx="760" cy="520" r="150" fill="#FFF1C4" opacity=".9"/><path d="M0 1180 C200 1060 380 1120 560 1060 C760 990 900 1080 1080 1020 L1080 1920 L0 1920Z" fill="#C7783E"/><path d="M0 1300 C240 1220 420 1290 640 1230 C820 1180 960 1240 1080 1210 L1080 1920 L0 1920Z" fill="#8E5A2B"/><path d="M0 1460 C300 1420 700 1440 1080 1410 L1080 1920 L0 1920Z" fill="#6E8B3D"/></svg><svg class="bg" id="f07-fg" viewBox="0 0 1080 1920" data-layout-allow-overflow><g transform="translate(-40 1700) rotate(-30) scale(1.6)"><path d="M0 0 C60 -40 160 -40 240 0 C160 40 60 40 0 0Z" fill="#1E4D2B"/><path d="M0 0 L230 0" stroke="rgba(0,0,0,.18)" stroke-width="4"/></g><g transform="translate(-60 1820) rotate(-10) scale(1.4)"><path d="M0 0 C60 -40 160 -40 240 0 C160 40 60 40 0 0Z" fill="#2E6B3A"/><path d="M0 0 L230 0" stroke="rgba(0,0,0,.18)" stroke-width="4"/></g><g transform="translate(1120 1720) rotate(210) scale(1.6)"><path d="M0 0 C60 -40 160 -40 240 0 C160 40 60 40 0 0Z" fill="#1E4D2B"/><path d="M0 0 L230 0" stroke="rgba(0,0,0,.18)" stroke-width="4"/></g><g transform="translate(1130 1840) rotate(190) scale(1.3)"><path d="M0 0 C60 -40 160 -40 240 0 C160 40 60 40 0 0Z" fill="#2E6B3A"/><path d="M0 0 L230 0" stroke="rgba(0,0,0,.18)" stroke-width="4"/></g><g transform="translate(-30 220) rotate(25) scale(1.2)"><path d="M0 0 C60 -40 160 -40 240 0 C160 40 60 40 0 0Z" fill="#173F24"/><path d="M0 0 L230 0" stroke="rgba(0,0,0,.18)" stroke-width="4"/></g><g transform="translate(1110 260) rotate(160) scale(1.2)"><path d="M0 0 C60 -40 160 -40 240 0 C160 40 60 40 0 0Z" fill="#173F24"/><path d="M0 0 L230 0" stroke="rgba(0,0,0,.18)" stroke-width="4"/></g></svg>
+<div id="f07-palm1" class="abs"></div><div id="f07-palm2" class="abs"></div>
+<img id="f07-hamaca" class="char" src="assets/chars/hamaca.webp" alt="">
+<div id="f07-m1" class="f07-m me" style="right:80px;top:300px">🎤 Nota de voz · 0:18</div>
+<div id="f07-m2" class="f07-m me" style="right:80px;top:410px">📸 Hoy hice la jornada de vacunación</div>
+<div id="f07-m3" class="f07-m" style="left:80px;top:560px"><span class="ok"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>Anotado en tu obligación 2</div>
+<div id="f07-m4" class="f07-m" style="left:80px;top:700px">📄 <b>Tu informe está listo</b> para revisar y firmar</div>
+<div id="f07-lt" class="lt"><b>Homo whatsappiens</b><i>Especie en expansión · hábitat: WhatsApp</i></div>
+<div class="vf"><i class="tl"></i><i class="tr"></i><i class="bl"></i><i class="br"></i></div><div class="rec"><b id="f07-rec"></b>REC</div><div class="tc" id="f07-tc">10:14:52</div><svg class="grain" viewBox="0 0 1080 1920"><filter id="f07-gr"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 .5  0 0 0 0 .5  0 0 0 0 .5  0 0 0 .9 0"/></filter><rect width="1080" height="1920" filter="url(#f07-gr)"/></svg>
+
+</div>
+<script>
+const tl = gsap.timeline({ paused: true });
+
+window.__timelines["f07-whatsappiens"] = tl;
+</script>
+</template>
+</body>
+</html>
