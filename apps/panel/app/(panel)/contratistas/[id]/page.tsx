@@ -55,7 +55,7 @@ export default async function ContractorPage({
                 <tr>
                   <th>#</th>
                   <th>Obligación</th>
-                  <th>Uso</th>
+                  <th>Actividades</th>
                   <th />
                 </tr>
               </thead>
@@ -64,7 +64,13 @@ export default async function ContractorPage({
                   <tr key={o.id}>
                     <td>{o.kind === 'general' ? `G${o.number}` : o.number}</td>
                     <td>{o.text}</td>
-                    <td>{o.uses ? `${o.uses} nota(s)/borrador(es)` : '—'}</td>
+                    <td>
+                      {o.activities
+                        ? `${o.activities} actividad${o.activities === 1 ? '' : 'es'}`
+                        : o.uses
+                          ? 'En uso'
+                          : '—'}
+                    </td>
                     <td>
                       {o.uses === 0 && (
                         <form action={deleteObligation}>

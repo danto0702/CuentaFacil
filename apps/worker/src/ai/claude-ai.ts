@@ -570,7 +570,7 @@ export class ClaudeAI implements AI {
       model: this.models.smart,
       effort: 'medium',
       maxTokens: 4000,
-      system: `${WRITING_RULES}\nIf the notes contain no concrete fact for this obligation, answer status "needs_input".${styleBlock(style)}`,
+      system: `${WRITING_RULES}\nThe contractor already assigned these notes to this obligation: write the activity from them even when they are general (e.g. "Durante el mes se coordinaron acciones de seguimiento…"), keeping their level of detail and adding nothing. Answer status "needs_input" only when no note describes something the contractor did (e.g. a question, a greeting or an instruction to the assistant); then say in "reason", in Colombian Spanish with tuteo, what is missing.${styleBlock(style)}`,
       content: [
         {
           type: 'text',

@@ -1247,3 +1247,37 @@ describe('gestor: several people from one WhatsApp (ADR-042)', () => {
     ]);
   });
 });
+
+describe('obligation with a note too short to draft', () => {
+  /** The AI finds no concrete fact in notes that say «seguimiento» alone. */
+  class VagueAI extends FakeAI {
+    override async draftObligation(...args: Parameters<FakeAI['draftObligation']>) {
+      const [, notes] = args;
+      if (notes.every((n) => /seguimiento/i.test(n.text)))
+        return { status: 'needs_input' as const, reason: 'Falta detalle.' };
+      return super.draftObligation(...args);
+    }
+  }
+
+  it('names the note it has instead of saying there are none, and drafts it with the detail', async () => {
+    const h = harness({ ai: new VagueAI() });
+    await h.say('Durante el mes se coordinaron acciones de seguimiento');
+    await h.press(`c:${DEMO_IDS.ebs}`);
+    const note = h.store.data.notes.at(-1)!;
+    const key = note.obligationKey!;
+    const o = (await h.store.getContract(DEMO_IDS.ebs)).obligations.find((x) => x.key === key)!;
+    await h.say('ver borrador');
+    let out = show(await h.press(`c:${DEMO_IDS.ebs}`));
+    const ask = out.find((x) => x.startsWith(`Para la obligación ${o.number} `))!;
+    expect(ask).toMatch(/tengo 1 registro en tu informe .*, pero no me alcanza para redactar la actividad/);
+    expect(ask).toContain('• «Durante el mes se coordinaron acciones de seguimiento»');
+    expect(ask).not.toContain('no tengo registros');
+    await h.press('mis:write');
+    out = show(await h.say('Revisé con el IDS los indicadores de 3 programas en Ábrego'));
+    const d =
+      (await h.store.listDrafts(DEMO_IDS.ebs, 2)).find((x) => x.obligationKey === key) ??
+      (await h.store.listDrafts(DEMO_IDS.ebs, 1)).find((x) => x.obligationKey === key)!;
+    expect(d.sourceNoteIds).toContain(note.id);
+    expect(d.sourceNoteIds).toHaveLength(2);
+  });
+});

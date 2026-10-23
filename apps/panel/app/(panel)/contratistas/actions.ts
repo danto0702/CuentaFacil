@@ -8,16 +8,21 @@ const s = (form: FormData, k: string) => String(form.get(k) ?? '').trim();
 /** Obligations with notes, evidences or drafts are kept: removing them would orphan that history. */
 async function usedObligations(ids: string[]): Promise<Set<string>> {
   const sb = await supabaseServer();
-  const [a, b, c, d] = await Promise.all([
+  const [a, b, e, c, d] = await Promise.all([
     sb.from('activity_notes').select('suggested_obligation_id').in('suggested_obligation_id', ids),
     sb.from('activity_notes').select('confirmed_obligation_id').in('confirmed_obligation_id', ids),
+    // Also the activities added to it as «Otra obligación».
+    sb.from('activity_notes').select('extra_obligation_ids').overlaps('extra_obligation_ids', ids),
     sb.from('drafts').select('obligation_id').in('obligation_id', ids),
     sb.from('evidences').select('obligation_id').in('obligation_id', ids),
   ]);
+  if (a.error || b.error || e.error || c.error || d.error)
+    throw new Error('No pude revisar si las obligaciones tienen actividades.');
   return new Set(
     [
       ...(a.data ?? []).map((r) => r.suggested_obligation_id),
       ...(b.data ?? []).map((r) => r.confirmed_obligation_id),
+      ...(e.data ?? []).flatMap((r) => (r.extra_obligation_ids ?? []) as string[]),
       ...(c.data ?? []).map((r) => r.obligation_id),
       ...(d.data ?? []).map((r) => r.obligation_id),
     ].filter(Boolean),

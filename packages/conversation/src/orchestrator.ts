@@ -3594,15 +3594,22 @@ ${lines.join('\n')}${due.length ? '' : '\n\nNo tienes nada pendiente. 👍'}`,
     const o = c.obligations.find((x) => x.key === missing[0])!;
     const omit = (await this.deps.store.getEntity(c.entityId)).settings.emptyObligations === 'omit';
     this.setFlow(turn, 'draft_missing', 'ask', { contractId: c.id, periodNumber: p.number, missing });
+    // Notes that could not be drafted are named: «no tengo registros» would contradict *estado*.
+    const mine = (await this.deps.store.listNotes(c.id, p.from, p.to)).filter((n) => noteSupports(n, o.key));
+    const ask = mine.length
+      ? `Para la obligación ${o.number} («${clip(o.text, 90)}») tengo ${mine.length === 1 ? '1 registro' : `${mine.length} registros`} en tu ${this.reportLabel(c, p)}, pero no me alcanza para redactar la actividad:\n${mine
+          .slice(0, 3)
+          .map((n) => `• «${clip(n.text, 120)}»`)
+          .join(
+            '\n',
+          )}\n\nCuéntame un poco más de lo que hiciste (qué, dónde, con quién o cuántos) y lo agrego.`
+      : `Para la obligación ${o.number} («${clip(o.text, 90)}») no tengo registros en tu ${this.reportLabel(c, p)}. ¿Qué hiciste?`;
     turn.out.push(
-      buttons(
-        `Para la obligación ${o.number} («${clip(o.text, 90)}») no tengo registros en tu ${this.reportLabel(c, p)}. ¿Qué hiciste?`,
-        [
-          { id: 'mis:write', title: 'Escribir/Audio' },
-          { id: 'mis:default', title: 'Texto por defecto' },
-          { id: 'mis:na', title: omit ? 'Omitir' : 'No aplicó' },
-        ],
-      ),
+      buttons(ask, [
+        { id: 'mis:write', title: 'Escribir/Audio' },
+        { id: 'mis:default', title: 'Texto por defecto' },
+        { id: 'mis:na', title: omit ? 'Omitir' : 'No aplicó' },
+      ]),
     );
   }
 
@@ -3674,13 +3681,23 @@ ${lines.join('\n')}${due.length ? '' : '\n\nNo tienes nada pendiente. 👍'}`,
       createdAt: this.deps.clock.now().toISOString(),
     };
     await this.deps.store.addNote(note);
-    const r = await this.deps.ai.draftObligation(
-      o,
-      [note],
-      await this.deps.store.getWritingStyle(turn.user.id),
+    // Together with the notes already in the obligation (the detail completes them, it does not replace them).
+    const earlier = (await this.deps.store.listNotes(c.id, p.from, p.to)).filter(
+      (n) => n.id !== note.id && noteSupports(n, o.key),
     );
-    const paragraphs = r.status === 'ok' ? r.paragraphs : [msg.text.trim()];
-    await this.deps.store.saveDraft(this.draft(c, p, o, paragraphs, 'proposed', [note.id]));
+    const all = [...earlier, note];
+    const r = await this.deps.ai.draftObligation(o, all, await this.deps.store.getWritingStyle(turn.user.id));
+    const paragraphs = r.status === 'ok' ? r.paragraphs : all.map((n) => n.text.trim());
+    await this.deps.store.saveDraft(
+      this.draft(
+        c,
+        p,
+        o,
+        paragraphs,
+        'proposed',
+        all.map((n) => n.id),
+      ),
+    );
     return this.nextMissing(turn, c, p, missing.slice(1));
   }
 

@@ -288,6 +288,9 @@ export interface ObligationRow {
   kind: 'specific' | 'general';
   number: number;
   text: string;
+  /** Activities registered for it (all reports), counting those added as «Otra obligación». */
+  activities: number;
+  /** Notes, drafts or photos tied to it: while > 0 it cannot be removed. */
   uses: number;
 }
 
@@ -326,25 +329,31 @@ export async function getContractorDetail(id: string): Promise<ContractorDetail 
     .order('start_date', { ascending: false });
   if (cErr) throw cErr;
   const obligationIds = (contracts ?? []).flatMap((c) => (c.obligations ?? []).map((o) => o.id));
+  const contractIds = (contracts ?? []).map((c) => c.id);
+  // Activities: each note once per obligation it supports, also the extra ones («Otra obligación»).
+  const activities = new Map<string, number>();
+  // Anything that keeps the obligation from being removed (notes, also AI suggestions, drafts, photos).
   const uses = new Map<string, number>();
   if (obligationIds.length) {
-    const [notesS, notesC, drafts, evidences] = await Promise.all([
+    const [notes, drafts, evidences] = await Promise.all([
       sb
         .from('activity_notes')
-        .select('suggested_obligation_id')
-        .in('suggested_obligation_id', obligationIds),
-      sb
-        .from('activity_notes')
-        .select('confirmed_obligation_id')
-        .in('confirmed_obligation_id', obligationIds),
+        .select('suggested_obligation_id, confirmed_obligation_id, extra_obligation_ids')
+        .in('contract_id', contractIds),
       sb.from('drafts').select('obligation_id').in('obligation_id', obligationIds),
       sb.from('evidences').select('obligation_id').in('obligation_id', obligationIds),
     ]);
-    const add = (k: string | null) => k && uses.set(k, (uses.get(k) ?? 0) + 1);
-    for (const r of notesS.data ?? []) add(r.suggested_obligation_id);
-    for (const r of notesC.data ?? []) add(r.confirmed_obligation_id);
-    for (const r of drafts.data ?? []) add(r.obligation_id);
-    for (const r of evidences.data ?? []) add(r.obligation_id);
+    if (notes.error) throw notes.error;
+    const add = (m: Map<string, number>, k: string | null) => k && m.set(k, (m.get(k) ?? 0) + 1);
+    for (const n of notes.data ?? []) {
+      const own = new Set<string>(
+        [n.confirmed_obligation_id, ...((n.extra_obligation_ids ?? []) as string[])].filter(Boolean),
+      );
+      for (const k of own) add(activities, k);
+      for (const k of new Set([...own, n.suggested_obligation_id].filter(Boolean))) add(uses, k);
+    }
+    for (const r of drafts.data ?? []) add(uses, r.obligation_id);
+    for (const r of evidences.data ?? []) add(uses, r.obligation_id);
   }
   type One<T> = T | T[] | null;
   const one = <T>(v: One<T>): T | null => (Array.isArray(v) ? (v[0] ?? null) : v);
@@ -365,6 +374,7 @@ export async function getContractorDetail(id: string): Promise<ContractorDetail 
           kind: o.kind as 'specific' | 'general',
           number: o.number,
           text: o.literal_text,
+          activities: activities.get(o.id) ?? 0,
           uses: uses.get(o.id) ?? 0,
         }))
         .sort((a, b) => (a.kind === b.kind ? a.number - b.number : a.kind === 'specific' ? -1 : 1)),
