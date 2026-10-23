@@ -23,9 +23,9 @@
 .vf i{position:absolute;width:90px;height:90px;border:6px solid rgba(255,255,255,.85)}
 .vf .tl{left:46px;top:46px;border-right:0;border-bottom:0}.vf .tr{right:46px;top:46px;border-left:0;border-bottom:0}
 .vf .bl{left:46px;bottom:46px;border-right:0;border-top:0}.vf .br{right:46px;bottom:46px;border-left:0;border-top:0}
-.rec{position:absolute;left:80px;top:80px;display:flex;align-items:center;gap:14px;font:700 34px/1 "Geist",sans-serif;color:#fff;letter-spacing:.08em;text-shadow:0 2px 8px rgba(0,0,0,.6)}
+.rec{position:absolute;left:80px;top:80px;padding:10px 16px;border-radius:12px;background:rgba(0,0,0,.45);display:flex;align-items:center;gap:14px;font:700 34px/1 "Geist",sans-serif;color:#fff;letter-spacing:.08em;text-shadow:0 2px 8px rgba(0,0,0,.6)}
 .rec b{width:24px;height:24px;border-radius:50%;background:#FF3B30}
-.tc{position:absolute;right:80px;top:80px;font:600 32px/1 "Geist",sans-serif;color:#fff;letter-spacing:.06em;font-variant-numeric:tabular-nums;text-shadow:0 2px 8px rgba(0,0,0,.6)}
+.tc{position:absolute;right:80px;top:80px;padding:10px 16px;border-radius:12px;background:rgba(0,0,0,.45);font:600 32px/1 "Geist",sans-serif;color:#fff;letter-spacing:.06em;font-variant-numeric:tabular-nums;text-shadow:0 2px 8px rgba(0,0,0,.6)}
 .lt{position:absolute;left:70px;right:70px;padding:24px 30px 22px;background:rgba(10,24,18,.82);border-left:10px solid #FFC107;border-radius:6px}
 .lt b{display:block;font:800 52px/1.05 "Bricolage Grotesque",sans-serif;letter-spacing:-.02em;color:#fff}
 .lt i{display:block;margin-top:8px;font:500 italic 34px/1.2 "Geist",sans-serif;color:#E8DCC2}
@@ -38,10 +38,10 @@
 
 
 #f01-black{inset:0;background:#000}
-#f01-k1{top:700px;font:700 40px/1 "Geist",sans-serif;letter-spacing:.5em;color:#FFF3D6;text-shadow:0 2px 12px rgba(0,0,0,.5)}
-#f01-k2{top:760px;font-size:150px;line-height:.9;color:#FFF8EC;text-shadow:0 6px 30px rgba(60,20,0,.45)}
+#f01-k1{top:700px;font:700 40px/1 "Geist",sans-serif;letter-spacing:.5em;color:#4A2A12}
+#f01-k2{top:760px;font-size:150px;line-height:.9;color:#3B1F0E}
 #f01-rule{left:340px;width:400px;top:1080px;height:8px;background:#FFC107;border-radius:4px}
-#f01-k3{top:1120px;font:500 italic 44px/1.25 "Geist",sans-serif;color:#FFF3D6;text-shadow:0 2px 12px rgba(0,0,0,.6)}
+#f01-k3{top:1120px;font:500 italic 44px/1.25 "Geist",sans-serif;color:#FFF8EC;text-shadow:0 2px 12px rgba(0,0,0,.7)}
 #f01-sil{left:640px;top:1200px;width:300px;filter:brightness(0) opacity(.55)}
 
 </style>
@@ -59,6 +59,16 @@
 </div>
 <script>
 const tl = gsap.timeline({ paused: true });
+
+tl.to("#f01-black",{opacity:0,duration:.8,ease:"power1.inOut"},0);
+tl.from("#f01-sun",{attr:{cy:820},duration:6.89,ease:"power1.out"},0);
+tl.fromTo(".f01-bird",{x:-60},{x:120,duration:6.89,ease:"none"},0);
+tl.to(".f01-bird",{scaleY:.4,transformOrigin:"50% 50%",duration:.25,yoyo:true,repeat:26,ease:"sine.inOut",stagger:.06},0);
+tl.from("#f01-k1",{opacity:0,scaleX:1.4,duration:1,ease:"power2.out"},.5);
+tl.from("#f01-k2",{opacity:0,y:60,duration:.8,ease:"power3.out"},.8);
+tl.from("#f01-rule",{scaleX:0,duration:.6,ease:"power2.out"},1.4);
+tl.from("#f01-k3",{opacity:0,y:30,duration:.6},1.7);
+tl.from("#f01-sil",{opacity:0,x:200,duration:1.2,ease:"power2.out"},1.2);
 
 window.__timelines["f01-titulo"] = tl;
 </script>

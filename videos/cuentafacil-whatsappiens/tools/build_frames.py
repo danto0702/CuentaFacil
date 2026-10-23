@@ -23,9 +23,9 @@ COMMON = '''
 .vf i{position:absolute;width:90px;height:90px;border:6px solid rgba(255,255,255,.85)}
 .vf .tl{left:46px;top:46px;border-right:0;border-bottom:0}.vf .tr{right:46px;top:46px;border-left:0;border-bottom:0}
 .vf .bl{left:46px;bottom:46px;border-right:0;border-top:0}.vf .br{right:46px;bottom:46px;border-left:0;border-top:0}
-.rec{position:absolute;left:80px;top:80px;display:flex;align-items:center;gap:14px;font:700 34px/1 "Geist",sans-serif;color:#fff;letter-spacing:.08em;text-shadow:0 2px 8px rgba(0,0,0,.6)}
+.rec{position:absolute;left:80px;top:80px;padding:10px 16px;border-radius:12px;background:rgba(0,0,0,.45);display:flex;align-items:center;gap:14px;font:700 34px/1 "Geist",sans-serif;color:#fff;letter-spacing:.08em;text-shadow:0 2px 8px rgba(0,0,0,.6)}
 .rec b{width:24px;height:24px;border-radius:50%;background:#FF3B30}
-.tc{position:absolute;right:80px;top:80px;font:600 32px/1 "Geist",sans-serif;color:#fff;letter-spacing:.06em;font-variant-numeric:tabular-nums;text-shadow:0 2px 8px rgba(0,0,0,.6)}
+.tc{position:absolute;right:80px;top:80px;padding:10px 16px;border-radius:12px;background:rgba(0,0,0,.45);font:600 32px/1 "Geist",sans-serif;color:#fff;letter-spacing:.06em;font-variant-numeric:tabular-nums;text-shadow:0 2px 8px rgba(0,0,0,.6)}
 .lt{position:absolute;left:70px;right:70px;padding:24px 30px 22px;background:rgba(10,24,18,.82);border-left:10px solid #FFC107;border-radius:6px}
 .lt b{display:block;font:800 52px/1.05 "Bricolage Grotesque",sans-serif;letter-spacing:-.02em;color:#fff}
 .lt i{display:block;margin-top:8px;font:500 italic 34px/1.2 "Geist",sans-serif;color:#E8DCC2}
@@ -104,10 +104,10 @@ BIRDS = ''.join(f'<path class="f01-bird" d="M{x} {y} q18 -16 36 0 q18 -16 36 0" 
                 for x, y in [(160, 560), (260, 500), (330, 600), (820, 700), (900, 640)])
 frames['01-titulo'] = ('f01-titulo', '''
 #f01-black{inset:0;background:#000}
-#f01-k1{top:700px;font:700 40px/1 "Geist",sans-serif;letter-spacing:.5em;color:#FFF3D6;text-shadow:0 2px 12px rgba(0,0,0,.5)}
-#f01-k2{top:760px;font-size:150px;line-height:.9;color:#FFF8EC;text-shadow:0 6px 30px rgba(60,20,0,.45)}
+#f01-k1{top:700px;font:700 40px/1 "Geist",sans-serif;letter-spacing:.5em;color:#4A2A12}
+#f01-k2{top:760px;font-size:150px;line-height:.9;color:#3B1F0E}
 #f01-rule{left:340px;width:400px;top:1080px;height:8px;background:#FFC107;border-radius:4px}
-#f01-k3{top:1120px;font:500 italic 44px/1.25 "Geist",sans-serif;color:#FFF3D6;text-shadow:0 2px 12px rgba(0,0,0,.6)}
+#f01-k3{top:1120px;font:500 italic 44px/1.25 "Geist",sans-serif;color:#FFF8EC;text-shadow:0 2px 12px rgba(0,0,0,.7)}
 #f01-sil{left:640px;top:1200px;width:300px;filter:brightness(0) opacity(.55)}
 ''', jungle('f01', 'day') + f'''
 <svg class="bg" viewBox="0 0 1080 1920">{BIRDS}</svg>
@@ -158,7 +158,7 @@ frames['03-habitat'] = ('f03-habitat', '''
 ''')
 
 # ---------- 04 Panic ----------
-PDFS = [(80, 420, -18), (820, 380, 14), (40, 760, 10), (880, 760, -12), (120, 1120, -8), (870, 1360, 16), (440, 330, 6), (300, 560, -20), (700, 560, 18)]
+PDFS = [(80, 420, -18), (880, 1040, 14), (40, 760, 10), (880, 760, -12), (120, 1120, -8), (40, 1380, 16), (440, 330, 6), (300, 560, -20), (60, 560, 18)]
 def pdf(i, x, y, r):
     return (f'<div class="f04-pdf" id="f04-p{i}" style="left:{x}px;top:{y}px;transform:rotate({r}deg)">'
             f'<i>PDF</i><s></s><s></s><s style="width:60%"></s></div>')
@@ -170,13 +170,13 @@ frames['04-panico'] = ('f04-panico', '''
 #f04-count{right:80px;top:200px;padding:18px 28px;border-radius:20px;background:rgba(10,15,30,.85);border:3px solid #FFC107;text-align:center}
 #f04-count b{display:block;font:800 92px/1 "Bricolage Grotesque",sans-serif;color:#FFC107;letter-spacing:-.04em}
 #f04-count span{font:600 30px/1.2 "Geist",sans-serif;color:#fff}
-#f04-note{left:700px;top:1160px;width:340px}
+#f04-note{left:640px;top:420px;width:360px}
 #f04-note p{font:700 36px/1.15 "Geist",sans-serif;color:#fff;text-shadow:0 3px 10px rgba(0,0,0,.9)}
 #f04-sub{top:1560px}
 ''', jungle('f04', 'night') + ''.join(pdf(i, *a) for i, a in enumerate(PDFS)) + f'''
 <img id="f04-dino" class="char" src="{chars('dino-panico')}" alt="">
 <div id="f04-count" class="abs"><b id="f04-num">14</b><span>PDF por unir</span></div>
-<div id="f04-note" class="abs"><svg width="140" height="80" viewBox="0 0 140 80" style="transform:scaleY(-1)"><path d="M130 10 C90 10 50 30 20 66" stroke="#FFC107" stroke-width="7" fill="none" stroke-linecap="round"/><path d="M8 58 L20 70 L36 58" stroke="#FFC107" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><p>Bracitos:<br>demasiado cortos<br>para el teclado</p></div>
+<div id="f04-note" class="abs"><svg width="140" height="80" viewBox="0 0 140 80" style="position:absolute;left:-150px;top:120px;transform:scaleX(1)"><path d="M130 10 C90 10 50 30 20 66" stroke="#FFC107" stroke-width="7" fill="none" stroke-linecap="round"/><path d="M8 58 L20 70 L36 58" stroke="#FFC107" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><p>Bracitos:<br>demasiado cortos<br>para el teclado</p></div>
 <p id="f04-sub" class="sub">Une PDF… copia firmas… y otra vez el formato.</p>
 {viewfinder('f04', '23:59:31')}
 ''')

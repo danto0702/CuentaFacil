@@ -23,9 +23,9 @@
 .vf i{position:absolute;width:90px;height:90px;border:6px solid rgba(255,255,255,.85)}
 .vf .tl{left:46px;top:46px;border-right:0;border-bottom:0}.vf .tr{right:46px;top:46px;border-left:0;border-bottom:0}
 .vf .bl{left:46px;bottom:46px;border-right:0;border-top:0}.vf .br{right:46px;bottom:46px;border-left:0;border-top:0}
-.rec{position:absolute;left:80px;top:80px;display:flex;align-items:center;gap:14px;font:700 34px/1 "Geist",sans-serif;color:#fff;letter-spacing:.08em;text-shadow:0 2px 8px rgba(0,0,0,.6)}
+.rec{position:absolute;left:80px;top:80px;padding:10px 16px;border-radius:12px;background:rgba(0,0,0,.45);display:flex;align-items:center;gap:14px;font:700 34px/1 "Geist",sans-serif;color:#fff;letter-spacing:.08em;text-shadow:0 2px 8px rgba(0,0,0,.6)}
 .rec b{width:24px;height:24px;border-radius:50%;background:#FF3B30}
-.tc{position:absolute;right:80px;top:80px;font:600 32px/1 "Geist",sans-serif;color:#fff;letter-spacing:.06em;font-variant-numeric:tabular-nums;text-shadow:0 2px 8px rgba(0,0,0,.6)}
+.tc{position:absolute;right:80px;top:80px;padding:10px 16px;border-radius:12px;background:rgba(0,0,0,.45);font:600 32px/1 "Geist",sans-serif;color:#fff;letter-spacing:.06em;font-variant-numeric:tabular-nums;text-shadow:0 2px 8px rgba(0,0,0,.6)}
 .lt{position:absolute;left:70px;right:70px;padding:24px 30px 22px;background:rgba(10,24,18,.82);border-left:10px solid #FFC107;border-radius:6px}
 .lt b{display:block;font:800 52px/1.05 "Bricolage Grotesque",sans-serif;letter-spacing:-.02em;color:#fff}
 .lt i{display:block;margin-top:8px;font:500 italic 34px/1.2 "Geist",sans-serif;color:#E8DCC2}
@@ -59,6 +59,17 @@
 </div>
 <script>
 const tl = gsap.timeline({ paused: true });
+tl.to("#f07-rec",{opacity:.15,duration:.5,yoyo:true,repeat:13,ease:"steps(1)"},0);
+const f07_cam={t:0};
+tl.to(f07_cam,{t:7.50,duration:7.50,ease:"none",onUpdate:()=>{const f=Math.floor(f07_cam.t*30)%30, x=36892+Math.floor(f07_cam.t);const pad=n=>String(n).padStart(2,"0");document.querySelector("#f07-tc").textContent=pad(Math.floor(x/3600)%24)+":"+pad(Math.floor(x/60)%60)+":"+pad(x%60)+":"+pad(f);}},0);
+
+tl.from("#f07-hamaca",{y:300,opacity:0,duration:.6,ease:"power3.out"},.1);
+tl.to("#f07-hamaca",{rotation:2.5,transformOrigin:"50% 0%",duration:1.1,yoyo:true,repeat:5,ease:"sine.inOut"},.7);
+tl.from("#f07-m1",{opacity:0,scale:.6,y:30,duration:.4,ease:"back.out(2)",transformOrigin:"right bottom"},0.80);
+tl.from("#f07-m2",{opacity:0,scale:.6,y:30,duration:.4,ease:"back.out(2)",transformOrigin:"right bottom"},2.43);
+tl.from("#f07-m3",{opacity:0,scale:.6,y:30,duration:.4,ease:"back.out(2)",transformOrigin:"left bottom"},4.07);
+tl.from("#f07-m4",{opacity:0,scale:.6,y:30,duration:.4,ease:"back.out(2)",transformOrigin:"left bottom"},5.70);
+tl.from("#f07-lt",{x:-900,duration:.55,ease:"power3.out"},1.2);
 
 window.__timelines["f07-whatsappiens"] = tl;
 </script>

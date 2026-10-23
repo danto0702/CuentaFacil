@@ -12,9 +12,9 @@ def camera(p, D, base):
     """Blinking REC dot and a running timecode, both driven by the timeline (seek-safe)."""
     h, m, s = (int(x) for x in base.split(':'))
     return (f'tl.to("#{p}-rec",{{opacity:.15,duration:.5,yoyo:true,repeat:{reps(D, 0, .5)},ease:"steps(1)"}},0);\n'
-            f'const {p.replace("-", "_")}o={{t:0}};\n'
-            f'tl.to({p.replace("-", "_")}o,{{t:{D:.2f},duration:{D:.2f},ease:"none",onUpdate:()=>{{'
-            f'const f=Math.floor({p.replace("-", "_")}o.t*30)%30, x={h * 3600 + m * 60 + s}+Math.floor({p.replace("-", "_")}o.t);'
+            f'const {p.replace("-", "_")}_cam={{t:0}};\n'
+            f'tl.to({p.replace("-", "_")}_cam,{{t:{D:.2f},duration:{D:.2f},ease:"none",onUpdate:()=>{{'
+            f'const f=Math.floor({p.replace("-", "_")}_cam.t*30)%30, x={h * 3600 + m * 60 + s}+Math.floor({p.replace("-", "_")}_cam.t);'
             f'const pad=n=>String(n).padStart(2,"0");'
             f'document.querySelector("#{p}-tc").textContent=pad(Math.floor(x/3600)%24)+":"+pad(Math.floor(x/60)%60)+":"+pad(x%60)+":"+pad(f);}}}},0);\n')
 
@@ -31,7 +31,7 @@ tl.to("#f01-black",{{opacity:0,duration:.8,ease:"power1.inOut"}},0);
 tl.from("#f01-sun",{{attr:{{cy:820}},duration:{D:.2f},ease:"power1.out"}},0);
 tl.fromTo(".f01-bird",{{x:-60}},{{x:120,duration:{D:.2f},ease:"none"}},0);
 tl.to(".f01-bird",{{scaleY:.4,transformOrigin:"50% 50%",duration:.25,yoyo:true,repeat:{int(D / .25) - 1},ease:"sine.inOut",stagger:.06}},0);
-tl.from("#f01-k1",{{opacity:0,letterSpacing:"1.2em",duration:1,ease:"power2.out"}},.5);
+tl.from("#f01-k1",{{opacity:0,scaleX:1.4,duration:1,ease:"power2.out"}},.5);
 tl.from("#f01-k2",{{opacity:0,y:60,duration:.8,ease:"power3.out"}},.8);
 tl.from("#f01-rule",{{scaleX:0,duration:.6,ease:"power2.out"}},1.4);
 tl.from("#f01-k3",{{opacity:0,y:30,duration:.6}},1.7);
@@ -57,12 +57,13 @@ tl.to("#f03-k1, #f03-k2",{{y:10,duration:.18,yoyo:true,repeat:{reps(D, 3.7, .18)
 tl.to("#f03-dino",{{scale:1.02,transformOrigin:"50% 100%",duration:.9,yoyo:true,repeat:{reps(D, 0, .9)},ease:"sine.inOut"}},0);
 {lowthird('f03', 2.6)}
 '''
+PDF_JS = ''.join(f'tl.from("#f04-p{i}",{{x:{470-x},y:{900-y},scale:0,rotation:180,duration:.6,ease:"power3.out"}},{0.2+i*0.12:.2f});\n' for i,(x,y) in enumerate([(80,420),(880,1040),(40,760),(880,760),(120,1120),(40,1380),(440,330),(300,560),(60,560)]))
 D = DUR['04-panico']
 M['04-panico'] = camera('f04', D, '23:59:31') + f'''
 tl.from("#f04-dino",{{scale:.85,transformOrigin:"50% 100%",duration:.4,ease:"back.out(2)"}},.1);
 tl.to("#f04-dino",{{x:10,duration:.06,yoyo:true,repeat:{reps(D, .6, .06)},ease:"none"}},.6);
-tl.from(".f04-pdf",{{x:0,left:470,top:900,scale:0,rotation:180,duration:.6,ease:"power3.out",stagger:.12}},.2);
-tl.to(".f04-pdf",{{y:"-=30",rotation:"+=10",duration:.6,yoyo:true,repeat:{reps(D, 1.5, .6)},ease:"sine.inOut",stagger:.07}},1.5);
+{PDF_JS}
+tl.to(".f04-pdf",{{y:-30,duration:.6,yoyo:true,repeat:{reps(D, 1.9, .6)},ease:"sine.inOut",stagger:.07}},1.9);
 tl.from("#f04-count",{{opacity:0,scale:.5,duration:.4,ease:"back.out(2)"}},.4);
 const f04o={{v:1}};
 tl.to(f04o,{{v:14,duration:1.6,ease:"power1.out",onUpdate:()=>{{document.querySelector("#f04-num").textContent=Math.round(f04o.v);}}}},.5);
@@ -72,7 +73,7 @@ tl.from("#f04-sub",{{opacity:0,y:30,duration:.4}},.8);
 D = DUR['05-meteoro']
 M['05-meteoro'] = camera('f05', D, '00:00:07') + f'''
 tl.from("#f05-q",{{opacity:0,y:-40,duration:.45,ease:"back.out(2)"}},.3);
-tl.fromTo("#f05-met",{{x:520,y:-620,scale:.5}},{{x:-260,y:640,scale:1.25,duration:{D - 1.1:.2f},ease:"power2.in"}},0);
+tl.fromTo("#f05-met",{{x:360,y:-460,scale:.6}},{{x:-260,y:640,scale:1.25,duration:{D - 1.1:.2f},ease:"sine.in"}},0);
 tl.to("#f05-met img",{{rotation:-360,duration:{D - 1.1:.2f},ease:"none"}},0);
 tl.to("#f05-dino",{{x:8,duration:.05,yoyo:true,repeat:{reps(D, 1.2, .05)},ease:"none"}},1.2);
 tl.from("#f05-sub",{{opacity:0,y:30,duration:.4}},.6);

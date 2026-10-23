@@ -23,9 +23,9 @@
 .vf i{position:absolute;width:90px;height:90px;border:6px solid rgba(255,255,255,.85)}
 .vf .tl{left:46px;top:46px;border-right:0;border-bottom:0}.vf .tr{right:46px;top:46px;border-left:0;border-bottom:0}
 .vf .bl{left:46px;bottom:46px;border-right:0;border-top:0}.vf .br{right:46px;bottom:46px;border-left:0;border-top:0}
-.rec{position:absolute;left:80px;top:80px;display:flex;align-items:center;gap:14px;font:700 34px/1 "Geist",sans-serif;color:#fff;letter-spacing:.08em;text-shadow:0 2px 8px rgba(0,0,0,.6)}
+.rec{position:absolute;left:80px;top:80px;padding:10px 16px;border-radius:12px;background:rgba(0,0,0,.45);display:flex;align-items:center;gap:14px;font:700 34px/1 "Geist",sans-serif;color:#fff;letter-spacing:.08em;text-shadow:0 2px 8px rgba(0,0,0,.6)}
 .rec b{width:24px;height:24px;border-radius:50%;background:#FF3B30}
-.tc{position:absolute;right:80px;top:80px;font:600 32px/1 "Geist",sans-serif;color:#fff;letter-spacing:.06em;font-variant-numeric:tabular-nums;text-shadow:0 2px 8px rgba(0,0,0,.6)}
+.tc{position:absolute;right:80px;top:80px;padding:10px 16px;border-radius:12px;background:rgba(0,0,0,.45);font:600 32px/1 "Geist",sans-serif;color:#fff;letter-spacing:.06em;font-variant-numeric:tabular-nums;text-shadow:0 2px 8px rgba(0,0,0,.6)}
 .lt{position:absolute;left:70px;right:70px;padding:24px 30px 22px;background:rgba(10,24,18,.82);border-left:10px solid #FFC107;border-radius:6px}
 .lt b{display:block;font:800 52px/1.05 "Bricolage Grotesque",sans-serif;letter-spacing:-.02em;color:#fff}
 .lt i{display:block;margin-top:8px;font:500 italic 34px/1.2 "Geist",sans-serif;color:#E8DCC2}
@@ -43,12 +43,12 @@
 #f05-trail{position:absolute;left:150px;top:-330px;width:520px;height:520px;transform:rotate(0deg)}
 #f05-flash{inset:0;background:#FFF6E0;opacity:0}
 #f05-sub{top:1580px}
-#f05-q{top:320px;font-size:96px;color:#fff;text-shadow:0 6px 24px rgba(0,0,0,.6)}
+#f05-q{left:70px;top:200px;font-size:84px;text-align:left;color:#fff;text-shadow:0 6px 24px rgba(0,0,0,.6)}
 
 </style>
 <div id="root" data-composition-id="f05-meteoro" data-width="1080" data-height="1920">
 <svg class="bg" id="f05-bg" viewBox="0 0 1080 1920" data-layout-allow-overflow><defs><linearGradient id="f05-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FF9A3C"/><stop offset=".55" stop-color="#D9482B"/><stop offset="1" stop-color="#5C1A1B"/></linearGradient></defs><rect width="1080" height="1920" fill="url(#f05-sky)"/><path d="M0 1180 C200 1060 380 1120 560 1060 C760 990 900 1080 1080 1020 L1080 1920 L0 1920Z" fill="#7A2E1E"/><path d="M0 1300 C240 1220 420 1290 640 1230 C820 1180 960 1240 1080 1210 L1080 1920 L0 1920Z" fill="#4E1D16"/><path d="M0 1460 C300 1420 700 1440 1080 1410 L1080 1920 L0 1920Z" fill="#3B2A1A"/></svg><svg class="bg" id="f05-fg" viewBox="0 0 1080 1920" data-layout-allow-overflow><g transform="translate(-40 1700) rotate(-30) scale(1.6)"><path d="M0 0 C60 -40 160 -40 240 0 C160 40 60 40 0 0Z" fill="#1E4D2B"/><path d="M0 0 L230 0" stroke="rgba(0,0,0,.18)" stroke-width="4"/></g><g transform="translate(-60 1820) rotate(-10) scale(1.4)"><path d="M0 0 C60 -40 160 -40 240 0 C160 40 60 40 0 0Z" fill="#2E6B3A"/><path d="M0 0 L230 0" stroke="rgba(0,0,0,.18)" stroke-width="4"/></g><g transform="translate(1120 1720) rotate(210) scale(1.6)"><path d="M0 0 C60 -40 160 -40 240 0 C160 40 60 40 0 0Z" fill="#1E4D2B"/><path d="M0 0 L230 0" stroke="rgba(0,0,0,.18)" stroke-width="4"/></g><g transform="translate(1130 1840) rotate(190) scale(1.3)"><path d="M0 0 C60 -40 160 -40 240 0 C160 40 60 40 0 0Z" fill="#2E6B3A"/><path d="M0 0 L230 0" stroke="rgba(0,0,0,.18)" stroke-width="4"/></g><g transform="translate(-30 220) rotate(25) scale(1.2)"><path d="M0 0 C60 -40 160 -40 240 0 C160 40 60 40 0 0Z" fill="#173F24"/><path d="M0 0 L230 0" stroke="rgba(0,0,0,.18)" stroke-width="4"/></g><g transform="translate(1110 260) rotate(160) scale(1.2)"><path d="M0 0 C60 -40 160 -40 240 0 C160 40 60 40 0 0Z" fill="#173F24"/><path d="M0 0 L230 0" stroke="rgba(0,0,0,.18)" stroke-width="4"/></g></svg>
-<p id="f05-q" class="abs center disp">¿Qué es eso?</p>
+<p id="f05-q" class="abs disp">¿Qué es eso?</p>
 <div id="f05-met" class="abs" data-layout-allow-overflow>
   <svg id="f05-trail" viewBox="0 0 520 520"><defs><linearGradient id="f05-g" x1="1" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFE27A" stop-opacity="0"/><stop offset=".6" stop-color="#FF9A3C"/><stop offset="1" stop-color="#FF5A1F"/></linearGradient></defs>
   <path d="M520 0 L140 470 Q120 500 90 470 L60 440 Q40 410 70 390 Z" fill="url(#f05-g)"/></svg>
@@ -62,6 +62,17 @@
 </div>
 <script>
 const tl = gsap.timeline({ paused: true });
+tl.to("#f05-rec",{opacity:.15,duration:.5,yoyo:true,repeat:8,ease:"steps(1)"},0);
+const f05_cam={t:0};
+tl.to(f05_cam,{t:5.00,duration:5.00,ease:"none",onUpdate:()=>{const f=Math.floor(f05_cam.t*30)%30, x=7+Math.floor(f05_cam.t);const pad=n=>String(n).padStart(2,"0");document.querySelector("#f05-tc").textContent=pad(Math.floor(x/3600)%24)+":"+pad(Math.floor(x/60)%60)+":"+pad(x%60)+":"+pad(f);}},0);
+
+tl.from("#f05-q",{opacity:0,y:-40,duration:.45,ease:"back.out(2)"},.3);
+tl.fromTo("#f05-met",{x:360,y:-460,scale:.6},{x:-260,y:640,scale:1.25,duration:3.90,ease:"sine.in"},0);
+tl.to("#f05-met img",{rotation:-360,duration:3.90,ease:"none"},0);
+tl.to("#f05-dino",{x:8,duration:.05,yoyo:true,repeat:72,ease:"none"},1.2);
+tl.from("#f05-sub",{opacity:0,y:30,duration:.4},.6);
+tl.to("#f05-flash",{opacity:1,duration:.25,ease:"power2.in"},3.90);
+tl.to("#f05-bg, #f05-fg, #f05-dino",{x:18,duration:.04,yoyo:true,repeat:9,ease:"none"},3.90);
 
 window.__timelines["f05-meteoro"] = tl;
 </script>

@@ -23,9 +23,9 @@
 .vf i{position:absolute;width:90px;height:90px;border:6px solid rgba(255,255,255,.85)}
 .vf .tl{left:46px;top:46px;border-right:0;border-bottom:0}.vf .tr{right:46px;top:46px;border-left:0;border-bottom:0}
 .vf .bl{left:46px;bottom:46px;border-right:0;border-top:0}.vf .br{right:46px;bottom:46px;border-left:0;border-top:0}
-.rec{position:absolute;left:80px;top:80px;display:flex;align-items:center;gap:14px;font:700 34px/1 "Geist",sans-serif;color:#fff;letter-spacing:.08em;text-shadow:0 2px 8px rgba(0,0,0,.6)}
+.rec{position:absolute;left:80px;top:80px;padding:10px 16px;border-radius:12px;background:rgba(0,0,0,.45);display:flex;align-items:center;gap:14px;font:700 34px/1 "Geist",sans-serif;color:#fff;letter-spacing:.08em;text-shadow:0 2px 8px rgba(0,0,0,.6)}
 .rec b{width:24px;height:24px;border-radius:50%;background:#FF3B30}
-.tc{position:absolute;right:80px;top:80px;font:600 32px/1 "Geist",sans-serif;color:#fff;letter-spacing:.06em;font-variant-numeric:tabular-nums;text-shadow:0 2px 8px rgba(0,0,0,.6)}
+.tc{position:absolute;right:80px;top:80px;padding:10px 16px;border-radius:12px;background:rgba(0,0,0,.45);font:600 32px/1 "Geist",sans-serif;color:#fff;letter-spacing:.06em;font-variant-numeric:tabular-nums;text-shadow:0 2px 8px rgba(0,0,0,.6)}
 .lt{position:absolute;left:70px;right:70px;padding:24px 30px 22px;background:rgba(10,24,18,.82);border-left:10px solid #FFC107;border-radius:6px}
 .lt b{display:block;font:800 52px/1.05 "Bricolage Grotesque",sans-serif;letter-spacing:-.02em;color:#fff}
 .lt i{display:block;margin-top:8px;font:500 italic 34px/1.2 "Geist",sans-serif;color:#E8DCC2}
@@ -40,7 +40,7 @@
 #f02-pascal{left:80px;top:860px;width:640px}
 #f02-bush{left:-80px;top:1420px;width:1240px}
 #f02-lt{top:1560px}
-#f02-shh{left:720px;top:820px;font-size:120px;color:#fff;text-shadow:0 6px 20px rgba(0,0,0,.4)}
+#f02-shh{left:620px;top:760px;font-size:120px;color:#fff;text-shadow:0 6px 20px rgba(0,0,0,.4)}
 
 </style>
 <div id="root" data-composition-id="f02-explorador" data-width="1080" data-height="1920">
@@ -57,6 +57,18 @@
 </div>
 <script>
 const tl = gsap.timeline({ paused: true });
+tl.to("#f02-rec",{opacity:.15,duration:.5,yoyo:true,repeat:12,ease:"steps(1)"},0);
+const f02_cam={t:0};
+tl.to(f02_cam,{t:6.73,duration:6.73,ease:"none",onUpdate:()=>{const f=Math.floor(f02_cam.t*30)%30, x=20537+Math.floor(f02_cam.t);const pad=n=>String(n).padStart(2,"0");document.querySelector("#f02-tc").textContent=pad(Math.floor(x/3600)%24)+":"+pad(Math.floor(x/60)%60)+":"+pad(x%60)+":"+pad(f);}},0);
+
+tl.from("#f02-pascal",{y:420,duration:.7,ease:"back.out(1.4)"},.3);
+tl.to("#f02-pascal",{y:"+=-10",rotation:-1.5,duration:0.7,yoyo:true,repeat:6,ease:"sine.inOut"},1.1);
+
+tl.from("#f02-shh",{opacity:0,scale:.4,duration:.45,ease:"back.out(2)"},.9);
+tl.to("#f02-shh",{opacity:0,duration:.4},2.6);
+tl.from("#f02-lt",{x:-900,duration:.55,ease:"power3.out"},1.6);
+
+tl.fromTo("#f02-fg",{x:-20},{x:20,duration:6.73,ease:"sine.inOut"},0);
 
 window.__timelines["f02-explorador"] = tl;
 </script>
