@@ -30,6 +30,7 @@ import type {
   WritingStyle,
 } from './domain.js';
 import { noteSupports, pilaMonthFor } from './domain.js';
+import { dedupeNotes, sameActivity } from './duplicates.js';
 import { contractSupportTypes, GOAL_ALERT, goalLine, periodGoals } from './goals.js';
 import { type Command, forcedNote, isNoteRequest, matchCommand, matchMonthRequest } from './intents.js';
 import { type NoteSuspicion, PHOTO_RECORD_PREFIX, suspectNote } from './note-check.js';
@@ -2366,6 +2367,28 @@ ${lines.join('\n')}${due.length ? '' : '\n\nNo tienes nada pendiente. 👍'}`,
           ? { obligationKey: result.obligationKey, confidence: result.confidence }
           : {}),
       };
+      // Sent again (or forwarded): the activity is already there; keep one and add the new photos to it.
+      const repeated = (await this.deps.store.listNotes(c.id, c.startDate, c.endDate)).find((n) =>
+        sameActivity(n, note),
+      );
+      if (repeated) {
+        const added = evidenceIds.filter((id) => !repeated.evidenceIds.includes(id));
+        if (added.length)
+          await this.deps.store.updateNote({ ...repeated, evidenceIds: [...repeated.evidenceIds, ...added] });
+        const o = c.obligations.find((x) => x.key === repeated.obligationKey);
+        turn.out.push(
+          buttons(
+            `♻️ Esa actividad ya la tenía registrada${contracts.length > 1 ? ` en ${c.shortLabel}` : ''} el ${formatDdMmYyyy(repeated.date)}${
+              o ? ` en la obligación ${o.number}` : ''
+            }, así que no la anoté de nuevo.${added.length ? ` Le agregué ${added.length === 1 ? 'la foto' : `las ${added.length} fotos`}.` : ''}\n${await this.periodLine(c, repeated.date)}`,
+            [
+              { id: `chg:${repeated.id}`, title: '✏️ Corregir' },
+              { id: `add:${repeated.id}`, title: '➕ Otra obligación' },
+            ],
+          ),
+        );
+        continue;
+      }
       await this.deps.store.addNote(note);
       const photos = evidenceIds.length
         ? ` con ${evidenceIds.length} foto${evidenceIds.length > 1 ? 's' : ''}`
@@ -2979,7 +3002,7 @@ ${lines.join('\n')}${due.length ? '' : '\n\nNo tienes nada pendiente. 👍'}`,
         turn.out.push(text(`📄 ${c.shortLabel}: no tienes cuentas pendientes.`));
         continue;
       }
-      const notes = await this.deps.store.listNotes(c.id, p.from, p.to);
+      const notes = await this.withoutRepeated(turn, await this.deps.store.listNotes(c.id, p.from, p.to));
       const count = (k: string) => notes.filter((n) => noteSupports(n, k)).length;
       const obl = c.obligations
         .filter((o) => o.kind === 'specific')
@@ -3016,6 +3039,25 @@ ${lines.join('\n')}${due.length ? '' : '\n\nNo tienes nada pendiente. 👍'}`,
   // -------------------------------------------------------------------------
   // Drafting and review
   // -------------------------------------------------------------------------
+  /**
+   * Activities registered twice (sent again, forwarded): one is kept, with the obligations and photos of
+   * both, and the contractor is told. Returns the notes left.
+   */
+  private async withoutRepeated(turn: Turn, notes: Note[]): Promise<Note[]> {
+    const { kept, changed, removed } = dedupeNotes(notes);
+    if (!removed.length) return notes;
+    for (const n of changed) await this.deps.store.updateNote(n);
+    for (const id of removed) await this.deps.store.deleteNote(id);
+    turn.out.push(
+      text(
+        removed.length === 1
+          ? '♻️ Encontré una actividad registrada dos veces y dejé una sola, con sus obligaciones y fotos.'
+          : `♻️ Encontré ${removed.length} actividades repetidas y dejé una sola de cada una, con sus obligaciones y fotos.`,
+      ),
+    );
+    return kept;
+  }
+
   private async startDraft(turn: Turn, c: Contract, period?: Period): Promise<void> {
     const p = period ?? (await this.currentPeriod(c));
     if (!p) {
@@ -3023,7 +3065,7 @@ ${lines.join('\n')}${due.length ? '' : '\n\nNo tienes nada pendiente. 👍'}`,
       return;
     }
     const entity = await this.deps.store.getEntity(c.entityId);
-    const notes = await this.deps.store.listNotes(c.id, p.from, p.to);
+    const notes = await this.withoutRepeated(turn, await this.deps.store.listNotes(c.id, p.from, p.to));
     if (notes.length === 0) return this.nothingToDraft(turn, c, p);
     // Before drafting, a look at the notes that seem to be in the wrong report or are not activities.
     const checked = (turn.state.context.checkedNotes as string[] | undefined) ?? [];

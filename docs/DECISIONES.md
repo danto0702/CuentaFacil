@@ -317,3 +317,12 @@
   - El worker lo entrega con `deliver` (ADR-043), firmado «👤 *Equipo CuentaFácil*». Con la ventana cerrada lo guarda y envía la plantilla `aviso_pendiente` («tengo listo un mensaje del equipo de CuentaFácil · Ver ahora»); el mensaje sale cuando la persona toca el botón o vuelve a escribir.
   - La ficha dice si la ventana está abierta (último mensaje en `wa_inbound`) y hasta qué hora.
 - **Consecuencias:** migración `20261021000001_staff_messages.sql`: `staff` en `webhook_inbox.provider` y la función `staff_message`. El mensaje queda en `messages` como cualquier salida de Pascal. No reemplaza el soporte con tickets; es para avisos puntuales del dueño.
+
+## ADR-058 — Actividades repetidas: queda una sola (2026-10-23)
+- **Contexto:** un contratista envió dos veces la misma actividad (el simulacro de sismo, 22/10). Quedó contada dos veces en el estado y en el borrador.
+- **Decisión:** Pascal toma como repetidas dos actividades del mismo contrato y del mismo día con el mismo texto. Se ignoran tildes, mayúsculas, signos y errores de digitación (hasta 5 % de caracteres distintos).
+  - No son repetidas si cambia un número o una cantidad («25 familias» / «30 familias»), si se agrega una palabra que cambia el sentido («capacité *de nuevo*…») o si la misma rutina se hizo otro día.
+  - Los registros fotográficos sin descripción nunca se toman como repetidos.
+  - **Al anotar:** si la actividad ya existe, no se guarda otra vez. Pascal responde «♻️ Esa actividad ya la tenía registrada…», con *Corregir* y *Otra obligación*. Las fotos nuevas se agregan a la actividad que ya estaba.
+  - **Antes del estado y del borrador:** las repetidas que ya estaban guardadas se unen. Queda la primera, con las obligaciones y fotos de todas, y Pascal avisa cuántas unió.
+- **Consecuencias:** `packages/conversation/src/duplicates.ts` (`similarText`, `sameActivity`, `dedupeNotes`). Las repetidas se borran de `activity_notes` y sus fotos pasan a la que queda. Un borrador que usaba la nota borrada se vuelve a redactar.

@@ -2,6 +2,7 @@ export * from './ally.js';
 export * from './brand.js';
 export * from './demo.js';
 export * from './domain.js';
+export * from './duplicates.js';
 export * from './fakes.js';
 export * from './goals.js';
 export * from './intents.js';
