@@ -71,6 +71,8 @@ export interface CellOpts {
   vMerge?: 'restart' | 'continue';
   /** Vertical text, read bottom to top (narrow rating columns). */
   vertical?: boolean;
+  /** Lines above and below the cell, also when the table has no inner lines (a title box). */
+  boxed?: boolean;
 }
 
 export function cell(content: string | string[], opts: CellOpts): string {
@@ -81,6 +83,10 @@ export function cell(content: string | string[], opts: CellOpts): string {
     tcPr.push(
       '<w:tcBorders><w:top w:val="nil"/><w:left w:val="nil"/><w:bottom w:val="nil"/><w:right w:val="nil"/></w:tcBorders>',
     );
+  }
+  if (opts.boxed) {
+    const line = (side: string) => `<w:${side} w:val="single" w:sz="4" w:space="0" w:color="000000"/>`;
+    tcPr.push(`<w:tcBorders>${line('top')}${line('bottom')}</w:tcBorders>`);
   }
   if (opts.fill) tcPr.push(`<w:shd w:val="clear" w:color="auto" w:fill="${opts.fill}"/>`);
   if (opts.vertical) tcPr.push('<w:textDirection w:val="btLr"/>');
@@ -105,10 +111,16 @@ export function cmdRow(code: string, totalWidth: number, gridCols: number): stri
   return row([cell(cmd(code), { width: totalWidth, span: gridCols })]);
 }
 
-export function table(gridWidths: number[], rows: string[], opts: { borders?: boolean } = {}): string {
+export function table(
+  gridWidths: number[],
+  rows: string[],
+  /** `innerLines: false`: only the outer box, no lines between rows or columns. */
+  opts: { borders?: boolean; innerLines?: boolean } = {},
+): string {
   const total = gridWidths.reduce((a, b) => a + b, 0);
   const border = opts.borders === false ? 'nil' : 'single';
-  const b = (side: string) => `<w:${side} w:val="${border}" w:sz="4" w:space="0" w:color="000000"/>`;
+  const b = (side: string) =>
+    `<w:${side} w:val="${opts.innerLines === false && side.startsWith('inside') ? 'nil' : border}" w:sz="4" w:space="0" w:color="000000"/>`;
   return [
     '<w:tbl><w:tblPr>',
     `<w:tblW w:w="${total}" w:type="dxa"/><w:jc w:val="center"/>`,

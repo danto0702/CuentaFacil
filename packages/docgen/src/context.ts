@@ -135,6 +135,29 @@ const dd = (d?: IsoDate) => (d ? formatDdMmYyyy(d) : '');
 
 async function toImage(img: ImageInput, widthCm: number, maxHeightCm: number) {
   const meta = await sharp(img.data).metadata();
+  return imageAt(img, meta, widthCm, maxHeightCm);
+}
+
+/**
+ * Evidence photo sized by its shape (ADR-059): phone photos and screenshots (portrait) 3 per line, the
+ * others (screenshots of a computer, landscape photos) 2 per line, on the 15.3 cm of the annex box.
+ */
+async function toEvidence(img: ImageInput, fixedWidthCm?: number) {
+  const meta = await sharp(img.data).metadata();
+  if (fixedWidthCm) return imageAt(img, meta, fixedWidthCm, 10);
+  const portrait = (meta.height ?? 1) / (meta.width ?? 1) > PORTRAIT;
+  return portrait ? imageAt(img, meta, 4.8, 8.5) : imageAt(img, meta, 6.6, 6.5);
+}
+
+/** Taller than wide by this ratio: a phone photo or screenshot. */
+const PORTRAIT = 1.15;
+
+function imageAt(
+  img: ImageInput,
+  meta: { width?: number; height?: number; format?: string },
+  widthCm: number,
+  maxHeightCm: number,
+) {
   const w = meta.width ?? 1;
   const h = meta.height ?? 1;
   let width = widthCm;
@@ -147,12 +170,65 @@ async function toImage(img: ImageInput, widthCm: number, maxHeightCm: number) {
   // Normalize anything that is not PNG/JPEG/GIF (e.g. WebP/HEIC already converted upstream) to JPEG.
   const data =
     ext === '.jpg' && meta.format !== 'jpeg'
-      ? await sharp(img.data).jpeg({ quality: 85 }).toBuffer()
-      : img.data;
-  return {
-    image: { width: round2(width), height: round2(height), data, extension: ext as '.png' | '.jpg' | '.gif' },
+      ? sharp(img.data).jpeg({ quality: 85 }).toBuffer()
+      : Promise.resolve(img.data);
+  return data.then((d) => ({
+    image: {
+      width: round2(width),
+      height: round2(height),
+      data: d,
+      extension: ext as '.png' | '.jpg' | '.gif',
+    },
     caption: img.caption ?? '',
-  };
+  }));
+}
+
+/** Width of the annex box for the photos, and the space between two photos on a line (cm). */
+const LINE_CM = 15.2;
+const GAP_CM = 0.4;
+/** Height of photos per block: a block is never split, so it must fit on a page with the headers. */
+const BLOCK_CM = 17;
+
+/**
+ * The annex in blocks: one per activity, or several («ACTIVIDAD 4 (continuación)») when its photos are
+ * taller than a page. Lines are measured as Word wraps the inline photos.
+ */
+export function evidenceBlocks<E extends { image: { width: number; height: number } }>(
+  list: { number: string; evidences: E[] }[],
+) {
+  const blocks: { title: string; evidences: E[] }[] = [];
+  for (const o of list) {
+    let current: E[] = [];
+    let height = 0;
+    let lineWidth = 0;
+    let lineHeight = 0;
+    const flush = () => {
+      if (!current.length) return;
+      blocks.push({
+        title: `ACTIVIDAD ${o.number}${blocks.some((b) => b.title.startsWith(`ACTIVIDAD ${o.number}`)) ? ' (continuación)' : ''}`,
+        evidences: current,
+      });
+      current = [];
+      height = 0;
+      lineWidth = 0;
+      lineHeight = 0;
+    };
+    for (const e of o.evidences) {
+      const { width, height: h } = e.image;
+      if (lineWidth && lineWidth + GAP_CM + width > LINE_CM) {
+        height += lineHeight;
+        lineWidth = 0;
+        lineHeight = 0;
+      }
+      // A new line that would not fit starts a new block.
+      if (!lineWidth && current.length && height + h > BLOCK_CM) flush();
+      lineWidth += (lineWidth ? GAP_CM : 0) + width;
+      lineHeight = Math.max(lineHeight, h);
+      current.push(e);
+    }
+    flush();
+  }
+  return blocks;
 }
 
 const round2 = (n: number) => Math.round(n * 100) / 100;
@@ -172,7 +248,6 @@ function ratingFlags(rating: ObligationInput['rating']) {
 
 export async function buildTemplateContext(input: CuentaInput): Promise<TemplateContext> {
   const { entity, contractor, contract, period } = input;
-  const widthCm = input.evidenceWidthCm ?? 7.5;
   const end = parseIso(period.to);
   const start = parseIso(period.from);
   const isLast = period.number === contract.paymentsCount;
@@ -189,7 +264,7 @@ export async function buildTemplateContext(input: CuentaInput): Promise<Template
   );
   for (const o of sorted) {
     const activities = o.omit ? [] : o.activities.length ? o.activities : [entity.defaultActivityText];
-    const evidences = await Promise.all(o.evidences.map((e) => toImage(e, widthCm, 10)));
+    const evidences = await Promise.all(o.evidences.map((e) => toEvidence(e, input.evidenceWidthCm)));
     obligations.push({
       number: String(o.number),
       text: o.text,
@@ -330,6 +405,7 @@ export async function buildTemplateContext(input: CuentaInput): Promise<Template
     specific_obligations: obligations.filter((o) => o.kind === 'specific' && !o.omitted),
     general_obligations: obligations.filter((o) => o.kind === 'general' && !o.omitted),
     evidence_obligations: obligations.filter((o) => o.has_evidence && !o.omitted),
+    evidence_blocks: evidenceBlocks(obligations.filter((o) => o.has_evidence && !o.omitted)),
     has_contractor_signature: !!input.contractorSignature,
     contractor_signature: input.contractorSignature
       ? (

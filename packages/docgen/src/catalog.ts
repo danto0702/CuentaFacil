@@ -211,6 +211,14 @@ export const TemplateContextSchema = z.object({
   evidence_obligations: z
     .array(ObligationSchema)
     .describe('Obligaciones que tienen evidencias (para el anexo).'),
+  evidence_blocks: z
+    .array(
+      z.object({
+        title: s('«ACTIVIDAD 4», o «ACTIVIDAD 4 (continuación)» cuando sus fotos no caben en una hoja.'),
+        evidences: z.array(EvidenceSchema).describe('Fotos del bloque.'),
+      }),
+    )
+    .describe('Anexo de evidencias en bloques que caben en una hoja: una fila por bloque, sin partirla.'),
   has_contractor_signature: z.boolean().describe('El contratista compartió la foto de su firma.'),
   contractor_signature: ImageSchema.nullable().describe('Firma del contratista (solo si la compartió).'),
   contractor_duties: z

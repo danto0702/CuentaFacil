@@ -248,6 +248,13 @@
 | `evidence_obligations[].goals[]` | lista | Metas del mes de la obligación con lo realizado (vacío si no tiene metas). |
 | `evidence_obligations[].goals[]` | objeto |  |
 | `evidence_obligations[].goals[].text` | texto | «Seguimientos: meta 80 · realizadas 80». |
+| `evidence_blocks[]` | lista | Anexo de evidencias en bloques que caben en una hoja: una fila por bloque, sin partirla. |
+| `evidence_blocks[]` | objeto |  |
+| `evidence_blocks[].title` | texto | «ACTIVIDAD 4», o «ACTIVIDAD 4 (continuación)» cuando sus fotos no caben en una hoja. |
+| `evidence_blocks[].evidences[]` | lista | Fotos del bloque. |
+| `evidence_blocks[].evidences[]` | objeto |  |
+| `evidence_blocks[].evidences[].image` | imagen | Imagen lista para el comando IMAGE (ancho y alto en cm). |
+| `evidence_blocks[].evidences[].caption` | texto | Pie de foto (puede ir vacío). |
 | `has_contractor_signature` | sí/no | El contratista compartió la foto de su firma. |
 | `contractor_signature` | texto | Firma del contratista (solo si la compartió). |
 | `contractor_duties[]` | lista | Obligaciones generales del contratista según la cláusula del contrato (tabla 1.2 del informe de supervisión). |

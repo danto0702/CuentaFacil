@@ -216,32 +216,43 @@ function sworn(): string {
 
 function evidenceAnnex(): string {
   return [
-    cmd('IF evidence_obligations.length > 0', F),
-    p('', { ...F, size: 2, pageBreakBefore: true, spacingAfter: 0 }),
+    cmd('IF evidence_blocks.length > 0', F),
+    // Right after the certification: a new page only when the first block does not fit.
+    p('', { ...F, spacingAfter: 240 }),
     table(
       [W],
       [
-        row([cell(p('ANEXOS – EVIDENCIAS', { ...F, bold: true, align: 'center' }), { width: W })], {
-          cantSplit: true,
-        }),
-        // One cell for all the activities, so the box has no lines between them; it may span pages.
-        row([
-          cell(
-            [
-              cmd('FOR o IN evidence_obligations', F),
-              p('ACTIVIDAD {{$o.number}}', { ...F, bold: true, spacingBefore: 120, keepNext: true }),
-              // Inline images in one paragraph wrap two per line at 7.5 cm on an "oficio" page.
-              p(['{{FOR e IN $o.evidences}}', '{{IMAGE $e.image}}', '  ', '{{END-FOR e}}'], {
-                ...F,
-                align: 'center',
-                spacingAfter: 120,
-              }),
-              cmd('END-FOR o', F),
-            ],
-            { width: W, vAlign: 'top' },
-          ),
-        ]),
+        // Repeated at the top of each page of the annex.
+        row(
+          [cell(p('ANEXOS – EVIDENCIAS', { ...F, bold: true, align: 'center' }), { width: W, boxed: true })],
+          {
+            header: true,
+            cantSplit: true,
+          },
+        ),
+        // One row per activity (or part of one with many photos): the title never stays apart from its
+        // photos and a row that does not fit moves alone, without leaving the annex empty.
+        cmdRow('FOR b IN evidence_blocks', W, 1),
+        row(
+          [
+            cell(
+              [
+                p('{{$b.title}}', { ...F, bold: true, spacingBefore: 120 }),
+                // Inline images wrap by themselves: phone photos 3 per line, landscape ones 2 (context.ts).
+                p(['{{FOR e IN $b.evidences}}', '{{IMAGE $e.image}}', '  ', '{{END-FOR e}}'], {
+                  ...F,
+                  align: 'center',
+                  spacingAfter: 120,
+                }),
+              ],
+              { width: W, vAlign: 'top' },
+            ),
+          ],
+          { cantSplit: true },
+        ),
+        cmdRow('END-FOR b', W, 1),
       ],
+      { innerLines: false },
     ),
     cmd('END-IF', F),
   ].join('');

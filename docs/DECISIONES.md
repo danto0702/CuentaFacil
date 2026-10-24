@@ -326,3 +326,22 @@
   - **Al anotar:** si la actividad ya existe, no se guarda otra vez. Pascal responde «♻️ Esa actividad ya la tenía registrada…», con *Corregir* y *Otra obligación*. Las fotos nuevas se agregan a la actividad que ya estaba.
   - **Antes del estado y del borrador:** las repetidas que ya estaban guardadas se unen. Queda la primera, con las obligaciones y fotos de todas, y Pascal avisa cuántas unió.
 - **Consecuencias:** `packages/conversation/src/duplicates.ts` (`similarText`, `sameActivity`, `dedupeNotes`). Las repetidas se borran de `activity_notes` y sus fotos pasan a la que queda. Un borrador que usaba la nota borrada se vuelve a redactar.
+
+## ADR-059 — Anexo de evidencias sin espacios en blanco (2026-10-24)
+- **Contexto:** en el informe del 0649 quedaba media hoja en blanco debajo de la certificación juramentada. Además, el título «ANEXOS – EVIDENCIAS» quedaba solo en una hoja y las fotos pasaban a la siguiente.
+  - Causa: el anexo empezaba siempre en hoja nueva.
+  - Todas las actividades iban en una sola celda que LibreOffice no partía entre hojas.
+  - El «mantener con el siguiente» de cada título encadenaba todo.
+  - Los pantallazos de celular salían de 7,5 cm de ancho (2 por línea, hasta 10 cm de alto).
+- **Decisión (respuestas del dueño):**
+  - El anexo va **seguido** de la certificación. Pasa a otra hoja solo si la primera actividad no cabe.
+  - Hay **una fila por actividad**, que no se parte, así que el título nunca queda separado de sus fotos. Una actividad con muchas fotos se divide en bloques que caben en una hoja: «ACTIVIDAD 4 (continuación)». Se cuentan líneas completas, hasta 17 cm de fotos por bloque.
+  - El tamaño depende de la forma de la foto:
+    - verticales (fotos y pantallazos de celular, alto/ancho > 1,15): 3 por línea, 4,8 cm de ancho y máximo 8,5 cm de alto;
+    - horizontales: 2 por línea, 6,6 cm de ancho y máximo 6,5 cm de alto.
+  - Hay un solo recuadro, sin líneas entre actividades. El título «ANEXOS – EVIDENCIAS» se repite arriba en cada hoja del anexo.
+- **Consecuencias:**
+  - Nueva etiqueta `evidence_blocks[]` (`title`, `evidences[]`) para las plantillas.
+  - `table(…, { innerLines: false })` y `cell({ boxed })` en `ooxml.ts`.
+  - El tamaño por forma también aplica a `evidence_obligations[].evidences[]` de las plantillas de otras entidades.
+  - En la prueba con pantallazos el informe pasó de 5 a 3 hojas.
