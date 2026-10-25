@@ -120,7 +120,7 @@ def riser(dur):
     s = np.sin(2 * np.pi * np.cumsum(f) / SR) * 0.4 + onepole(rng.standard_normal(n), 2500) * 0.6
     return s * (t / dur) ** 2
 
-ST = S[1]; STEP = 2.0; MET = S[1] + 5 * STEP; WH = S[2]
+ST = S[1]; STEP = T.get('step', 2.0); MET = S[1] + 5 * STEP; WH = S[2]
 CHM = [[57, 60, 64], [53, 57, 60], [55, 59, 62], [52, 55, 59]]   # Am F G Em (tension), then bright
 CHB = [[60, 64, 67], [55, 59, 62], [57, 60, 64], [53, 57, 60]]   # C G Am F
 HOOK = [69, 72, 76, 72, 74, 72, 69, 67]
@@ -140,7 +140,7 @@ t0 = WH - 0.05; c = 0
 while t0 < DUR - 2.0:
     bar_at(t0, CHB[c % 4], True); t0 += 4 * BEAT; c += 1
 add(pad([60, 64, 67, 72], 2.4), DUR - 2.4, 0.18); add(bell(84, 2.4), DUR - 2.4, 0.08)
-sfx(kick(), 0.85, 0.5); sfx(noise_hit(0.4), 0.85, 0.12)                       # "etapa 4" punch
+sfx(kick(), 2.1, 0.5); sfx(noise_hit(0.4), 2.1, 0.12)                       # "etapa 4" punch
 for i in range(5):
     sfx(whoosh(0.45), ST + i * STEP - 0.3, 0.16, pan=-0.5)                       # stage swipe
     sfx(pop(72 + i * 2), ST + i * STEP + 0.1, 0.10)

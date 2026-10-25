@@ -4,7 +4,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 T = json.load(open(os.path.join(ROOT, 'tools', 'timing.json')))
 NAMES = ['01-gancho', '02-etapas', '03-whatsappiens', '04-linea', '05-cierre']
 DUR = dict(zip(NAMES, T['dur']))
-STEP = 2.0  # seconds per stage in scene 02
+STEP = T.get("step", 2.0)  # seconds per stage in scene 02
 
 def reps(D, start, per):
     return max(1, int((D - start - .1) / per) - 1)
@@ -13,9 +13,9 @@ M = {}
 D = DUR['01-gancho']
 M['01-gancho'] = f'''
 tl.from("#f01-hero",{{y:500,duration:.45,ease:"back.out(1.6)"}},0);
-tl.to("#f01-hero",{{x:10,duration:.05,yoyo:true,repeat:{reps(D, .9, .05)},ease:"none"}},.9);
+tl.to("#f01-hero",{{x:10,duration:.05,yoyo:true,repeat:{reps(D, 2.2, .05)},ease:"none"}},2.2);
 tl.from("#f01-c1",{{opacity:0,y:-40,scale:.9,duration:.35,ease:"back.out(2)"}},.05);
-tl.from("#f01-c2",{{opacity:0,scale:1.6,duration:.3,ease:"back.out(2.5)"}},.85);
+tl.from("#f01-c2",{{opacity:0,scale:1.6,duration:.3,ease:"back.out(2.5)"}},2.1);
 '''
 D = DUR['02-etapas']
 js = ''
