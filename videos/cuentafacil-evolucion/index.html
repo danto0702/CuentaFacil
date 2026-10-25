@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="es-CO">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="assets/vendor/gsap.min.js"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: #0E2A1F; }
+      #root { position: relative; width: 100%; height: 100%; overflow: hidden; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="24.8" data-width="1080" data-height="1920">
+      <div id="f01-gancho" class="clip" data-composition-id="f01-gancho" data-composition-src="compositions/frames/01-gancho.html" data-start="0" data-duration="2.6" data-track-index="1" data-width="1080" data-height="1920"></div>
+      <div id="f02-etapas" class="clip" data-composition-id="f02-etapas" data-composition-src="compositions/frames/02-etapas.html" data-start="2.6" data-duration="12.0" data-track-index="1" data-width="1080" data-height="1920"></div>
+      <div id="f03-whatsappiens" class="clip" data-composition-id="f03-whatsappiens" data-composition-src="compositions/frames/03-whatsappiens.html" data-start="14.6" data-duration="3.8" data-track-index="1" data-width="1080" data-height="1920"></div>
+      <div id="f04-linea" class="clip" data-composition-id="f04-linea" data-composition-src="compositions/frames/04-linea.html" data-start="18.4" data-duration="2.8" data-track-index="1" data-width="1080" data-height="1920"></div>
+      <div id="f05-cierre" class="clip" data-composition-id="f05-cierre" data-composition-src="compositions/frames/05-cierre.html" data-start="21.2" data-duration="3.6" data-track-index="1" data-width="1080" data-height="1920"></div>
+      <audio id="music" src="assets/audio/music.wav" data-start="0" data-duration="24.8" data-track-index="4" data-volume="0.6"></audio>
+    </div>
+    <script>
+      window.__timelines = window.__timelines || {};
+      window.__timelines["main"] = gsap.timeline({ paused: true });
+    </script>
+  </body>
+</html>
