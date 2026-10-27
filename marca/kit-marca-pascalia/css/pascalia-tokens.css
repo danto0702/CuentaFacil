@@ -1,0 +1,58 @@
+/* PascalIA · tokens de diseño. Fuente de verdad: tokens/tokens.json. No cambies valores por página. */
+:root {
+  /* Color: marca */
+  --yellow: #FFC107;        /* acción: botones, marcador, nodos, foco en oscuro */
+  --yellow-hover: #FFB300;  /* hover del amarillo, cursor de escritura */
+  --yellow-soft: #FFD54F;   /* selección de texto, inicio del degradado */
+  --gold-ink: #8A6100;      /* amarillo legible sobre blanco (5.6:1), solo detalles pequeños */
+  --brand-grad: linear-gradient(135deg, #FFD54F 0%, #FFC107 55%, #FFB300 100%);
+
+  /* Color: neutros */
+  --graphite: #1F1F1F;      /* texto principal, botones oscuros, secciones de resultado/cierre */
+  --graphite-deep: #181818; /* pie de página */
+  --muted: #5C5C5C;         /* texto secundario (6.7:1 sobre blanco) */
+  --gray: #E9E9E9;          /* líneas finas (hairline) */
+  --cream: #FFF8E1;         /* fondo cálido de secciones alternas */
+  --cream-line: #F3E7BE;    /* hairline sobre crema */
+  --white: #FFFFFF;
+  --on-dark: #CFCFCF;       /* texto secundario sobre grafito */
+  --on-dark-line: #3A3A3A;  /* divisores sobre grafito */
+
+  /* Sombras */
+  --shadow-card: 0 8px 24px rgba(31, 31, 31, .08);
+  --shadow-brand: 0 10px 30px -10px rgba(255, 193, 7, .55);
+  --shadow-lift: 0 22px 48px -18px rgba(31, 31, 31, .28);
+  --shadow-askbar: inset 0 0 0 1px var(--gray), 0 18px 44px -20px rgba(31, 31, 31, .25);
+  --shadow-device: 0 30px 60px -30px rgba(31, 31, 31, .5);
+  --hairline: inset 0 0 0 1px var(--gray);
+
+  /* Tipografía */
+  --f-head: "Montserrat", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --f-body: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --fs-display: clamp(2.5rem, 6vw, 4.75rem);
+  --fs-headline: clamp(2rem, 4vw, 3.25rem);
+  --fs-title: clamp(1.35rem, 2.2vw, 1.75rem);
+  --fs-figure: clamp(2.6rem, 5vw, 4rem);
+  --fs-lead: clamp(1.0625rem, 1.6vw, 1.25rem);
+  --fs-body: 1.0625rem;
+  --fs-label: 1rem;
+  --fs-fine: .875rem;
+
+  /* Radios */
+  --r-field: 12px; --r-tile: 14px; --r-inner: 16px; --r-item: 18px;
+  --r-window: 20px; --r-panel: 24px; --r-pill: 999px;
+
+  /* Espaciado */
+  --s-1: 8px; --s-2: 12px; --s-3: 22px; --s-4: 36px; --s-5: 64px;
+  --section-sm: 72px; --section: 104px;
+  --wrap: 1200px; --gutter: 16px;
+  --nav-h: 72px;
+
+  /* Movimiento */
+  --ease: cubic-bezier(.22, 1, .36, 1);
+  --t-fast: 200ms;   /* color, fondo */
+  --t-base: 220ms;   /* elevación de botones, flecha */
+  --t-med: 300ms;    /* nav, FAQ, subrayados */
+  --t-reveal: 600ms; /* entrada al hacer scroll */
+  --t-mark: 900ms;   /* marcador que se dibuja */
+}

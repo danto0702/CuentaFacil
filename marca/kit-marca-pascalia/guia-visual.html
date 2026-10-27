@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="es-CO" class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Guía visual · PascalIA</title>
+  <meta name="description" content="Identidad visual de PascalIA: colores, tipografía, componentes, íconos y movimiento.">
+  <link rel="icon" href="logos/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/fuentes.css">
+  <link rel="stylesheet" href="css/pascalia-tokens.css">
+  <link rel="stylesheet" href="css/pascalia.css">
+  <link rel="stylesheet" href="css/pascalia-motion.css">
+  <script src="js/pascalia.js" defer></script>
+  <style>
+    .g-sec { padding: 72px 0; border-top: 1px solid var(--gray); }
+    .g-sec > .wrap > h2 { margin-bottom: 10px; }
+    .g-sec > .wrap > p.lead { margin-bottom: 36px; }
+    .g-row { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; }
+    .g-cap { font: 600 .78rem var(--f-head); color: var(--muted); margin: 26px 0 10px; text-transform: uppercase; letter-spacing: .06em; }
+    .sw { border-radius: var(--r-window); overflow: hidden; box-shadow: var(--hairline), var(--shadow-card); background: #fff; }
+    .sw-c { height: 110px; display: flex; align-items: flex-end; padding: 12px; font: 700 .8rem var(--f-head); }
+    .sw-t { padding: 12px 14px; display: grid; gap: 2px; font-size: .85rem; }
+    .sw-t b { font: 700 .95rem var(--f-head); }
+    .sw-t code { color: var(--muted); font-size: .8rem; }
+    .ty { display: grid; grid-template-columns: 160px 1fr; gap: 20px; align-items: baseline; padding: 18px 0; border-bottom: 1px solid var(--gray); }
+    .ty small { font: 600 .78rem var(--f-head); color: var(--muted); }
+    .ty small code { display: block; font-weight: 400; margin-top: 4px; }
+    .icons { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 10px; }
+    .icons div { display: grid; justify-items: center; gap: 8px; padding: 16px 6px; border-radius: var(--r-tile); box-shadow: var(--hairline); font-size: .72rem; color: var(--muted); transition: background-color var(--t-fast); }
+    .icons div:hover { background: var(--cream); color: var(--graphite); }
+    .icons .i { width: 26px; height: 26px; color: var(--graphite); }
+    .do { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+    .do > div { border-radius: var(--r-window); padding: 22px; box-shadow: var(--hairline); }
+    .do h4 { font: 800 .9rem var(--f-head); margin-bottom: 10px; display: flex; gap: 8px; align-items: center; }
+    .do .yes h4 { color: #1E7B34; } .do .no h4 { color: #B3261E; }
+    .do ul { margin: 0; padding-left: 18px; color: var(--muted); display: grid; gap: 6px; }
+    .demo-box { padding: 28px; border-radius: var(--r-panel); background: var(--cream); box-shadow: inset 0 0 0 1px var(--cream-line); }
+    .motion-tbl td:first-child { font-weight: 600; }
+    .radii { display: flex; flex-wrap: wrap; gap: 16px; }
+    .radii div { width: 110px; height: 80px; background: var(--cream); box-shadow: inset 0 0 0 1px var(--cream-line); display: grid; place-items: center; font: 600 .78rem var(--f-head); }
+    .shadows { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 24px; }
+    .shadows div { height: 110px; background: #fff; border-radius: var(--r-window); display: grid; place-items: center; font: 600 .82rem var(--f-head); }
+    .pascal-row { display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-end; }
+    .pascal-row figure { margin: 0; display: grid; gap: 8px; justify-items: center; font-size: .8rem; color: var(--muted); }
+    .pascal-row img { border-radius: var(--r-panel); background: var(--cream); box-shadow: var(--shadow-card); }
+    @media (max-width: 640px) { .ty { grid-template-columns: 1fr; gap: 6px; } }
+  </style>
+</head>
+<body>
+<svg class="sr-only" aria-hidden="true" focusable="false">
+<symbol id="flor" viewBox="-112 -112 224 224"><defs>
+    <path id="f-petal" d="M0,-8 C40,-34 44,-78 0,-108 C-44,-78 -40,-34 0,-8Z"/>
+    <path id="f-vein" d="M0,0 C17,-16 15,-44 0,-62 C-15,-44 -17,-16 0,0"/>
+  </defs>
+  <g fill="#FFC107" fill-opacity="0.82">
+    <use href="#f-petal"/>
+    <use href="#f-petal" transform="rotate(60)"/>
+    <use href="#f-petal" transform="rotate(120)"/>
+    <use href="#f-petal" transform="rotate(180)"/>
+    <use href="#f-petal" transform="rotate(240)"/>
+    <use href="#f-petal" transform="rotate(300)"/>
+  </g>
+  <g fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round">
+    <use href="#f-vein"/>
+    <use href="#f-vein" transform="rotate(-62)"/>
+    <use href="#f-vein" transform="rotate(62)"/>
+    <use href="#f-vein" transform="rotate(-132)"/>
+    <use href="#f-vein" transform="rotate(132)"/>
+    <path d="M0,0 V62"/>
+  </g>
+  <g fill="#fff">
+    <circle r="9"/>
+    <circle cy="-62" r="8"/>
+    <circle cy="-62" r="8" transform="rotate(-62)"/>
+    <circle cy="-62" r="8" transform="rotate(62)"/>
+    <circle cy="-62" r="8" transform="rotate(-132)"/>
+    <circle cy="-62" r="8" transform="rotate(132)"/>
+  </g></symbol>
+<symbol id="arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+<symbol id="check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+<symbol id="bars" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+<symbol id="chat" viewBox="0 0 24 24"><path d="M20.5 11.5a8.5 8.5 0 01-12.3 7.6L3.5 20.5l1.4-4.5a8.5 8.5 0 1115.6-4.5z"/><path d="M8.5 11.5h.01M12 11.5h.01M15.5 11.5h.01"/></symbol>
+<symbol id="nfc" viewBox="0 0 24 24"><rect x="4" y="3" width="10" height="18" rx="2"/><path d="M8 18h2"/><path d="M17.5 8.5a5 5 0 010 7M20.5 5.5a9.2 9.2 0 010 13"/></symbol>
+<symbol id="web" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.2 3 14.8 0 18M12 3c-3 3.2-3 14.8 0 18"/></symbol>
+<symbol id="menu-card" viewBox="0 0 24 24"><path d="M6 3v7a2 2 0 004 0V3M8 12v9"/><path d="M17 21V3c-2.5 1.5-3 5-3 8h3"/></symbol>
+<symbol id="dash" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M7 16l3-3 2 2 5-5"/></symbol>
+<symbol id="scan" viewBox="0 0 24 24"><path d="M4 8V5.5A1.5 1.5 0 015.5 4H8M16 4h2.5A1.5 1.5 0 0120 5.5V8M20 16v2.5a1.5 1.5 0 01-1.5 1.5H16M8 20H5.5A1.5 1.5 0 014 18.5V16"/><path d="M8 10h8M8 14h5"/></symbol>
+<symbol id="doc" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></symbol>
+<symbol id="file-check" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z"/><path d="M14 3v5h5M9 14.5l2 2 4-4"/></symbol>
+<symbol id="people" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><path d="M16 4.6a3.5 3.5 0 010 6.8M21.5 20c0-2.7-1.5-4.7-3.8-5.6"/></symbol>
+<symbol id="user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7.5 8-7.5s8 3.1 8 7.5"/></symbol>
+<symbol id="calendar" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M9 15.5l2 2 4-4"/></symbol>
+<symbol id="pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.1-7-11.2a7 7 0 0114 0C19 14.9 12 21 12 21z"/><circle cx="12" cy="10" r="2.5"/></symbol>
+<symbol id="store" viewBox="0 0 24 24"><path d="M4 10l1.2-6h13.6L20 10"/><path d="M4 10a2.7 2.7 0 005.3 0 2.7 2.7 0 005.4 0 2.7 2.7 0 005.3 0"/><path d="M5 11.5V20h14v-8.5M10 20v-5h4v5"/></symbol>
+<symbol id="cup" viewBox="0 0 24 24"><path d="M4 9h13v5a6 6 0 01-6 6h-1a6 6 0 01-6-6z"/><path d="M17 11h1.5a2.5 2.5 0 010 5H17M8 3c0 1.5 1 2 1 3.5M12 3c0 1.5 1 2 1 3.5"/></symbol>
+<symbol id="steth" viewBox="0 0 24 24"><path d="M6 3v6a5 5 0 0010 0V3"/><path d="M11 14v2a5 5 0 0010 0v-2"/><circle cx="21" cy="12" r="2"/></symbol>
+<symbol id="briefcase" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2M3 13h18"/></symbol>
+<symbol id="building" viewBox="0 0 24 24"><path d="M3 21h18M5 21V10l7-5 7 5v11"/><path d="M9 21v-6h6v6M9 11h.01M15 11h.01"/></symbol>
+<symbol id="truck" viewBox="0 0 24 24"><path d="M2.5 6.5h11v10h-11zM13.5 10h4l3.5 3.5v3h-7.5"/><circle cx="6.5" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></symbol>
+<symbol id="route" viewBox="0 0 24 24"><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M8.5 18H15a3 3 0 000-6H9a3 3 0 010-6h6.5"/></symbol>
+<symbol id="wifi-off" viewBox="0 0 24 24"><path d="M3 3l18 18M8.5 16.5a5 5 0 017 0M5 12.6a10 10 0 015.2-2.5M13.8 10.1A10 10 0 0119 12.6M2 9a15 15 0 015-2.6M12 5.5A15 15 0 0122 9"/><path d="M12 20h.01"/></symbol>
+<symbol id="sync" viewBox="0 0 24 24"><path d="M20 11a8 8 0 00-14.3-4.9L4 8M4 4v4h4"/><path d="M4 13a8 8 0 0014.3 4.9L20 16M20 20v-4h-4"/></symbol>
+<symbol id="clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+<symbol id="hash" viewBox="0 0 24 24"><path d="M5 9h15M4 15h15M10 3L8 21M16 3l-2 18"/></symbol>
+<symbol id="printer" viewBox="0 0 24 24"><path d="M7 9V3h10v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M7 14h10v7H7z"/></symbol>
+<symbol id="alert" viewBox="0 0 24 24"><path d="M12 3L2 20h20z"/><path d="M12 10v4M12 17h.01"/></symbol>
+<symbol id="chart" viewBox="0 0 24 24"><path d="M3 20h18M6 20v-6M11 20v-9M16 20v-5"/><path d="M4 9l5-4 4 3 7-5"/></symbol>
+<symbol id="shield" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 4.7-3.4 8-8 9-4.6-1-8-4.3-8-9V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+<symbol id="history" viewBox="0 0 24 24"><path d="M3 12a9 9 0 103-6.7L3 8"/><path d="M3 3v5h5M12 7v5l3 3"/></symbol>
+<symbol id="lock" viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 018 0v3M12 14v3"/></symbol>
+<symbol id="scale" viewBox="0 0 24 24"><path d="M12 3v18M7 21h10M5 7h14M5 7l-3 7a3 3 0 006 0zM19 7l-3 7a3 3 0 006 0z"/></symbol>
+<symbol id="upload" viewBox="0 0 24 24"><path d="M12 15V4M7.5 8.5L12 4l4.5 4.5"/><path d="M4 15v3.5A2.5 2.5 0 006.5 21h11a2.5 2.5 0 002.5-2.5V15"/></symbol>
+<symbol id="home" viewBox="0 0 24 24"><path d="M3 11l9-7 9 7"/><path d="M5.5 9.5V20h13V9.5M10 20v-5h4v5"/></symbol>
+<symbol id="brain" viewBox="0 0 24 24"><path d="M9 4a3 3 0 00-3 3 3 3 0 00-2 5 3 3 0 002 5 3 3 0 006 1V5a2 2 0 00-3-1z"/><path d="M15 4a3 3 0 013 3 3 3 0 012 5 3 3 0 01-2 5 3 3 0 01-6 1"/></symbol>
+<symbol id="folder" viewBox="0 0 24 24"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path d="M8 14l2.5 2.5L16 11"/></symbol>
+<symbol id="devices" viewBox="0 0 24 24"><rect x="2" y="4" width="14" height="10" rx="1.5"/><path d="M5 18h8"/><rect x="17" y="8" width="5" height="12" rx="1.2"/></symbol>
+<symbol id="map" viewBox="0 0 24 24"><path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/></symbol>
+<symbol id="ruler" viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="8" rx="1.5"/><path d="M7 8v3M11 8v4M15 8v3M19 8v4"/></symbol>
+<symbol id="compass" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/></symbol>
+<symbol id="pill" viewBox="0 0 24 24"><path d="M10.5 20.5a5 5 0 01-7-7l9-9a5 5 0 017 7z"/><path d="M8 8l8 8"/></symbol>
+<symbol id="list-check" viewBox="0 0 24 24"><path d="M10 6h11M10 12h11M10 18h11"/><path d="M3 6l1.5 1.5L7 5M3 12l1.5 1.5L7 11M3 18l1.5 1.5L7 17"/></symbol>
+<symbol id="bell" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0112 0v5l2 2H4z"/><path d="M10 20a2 2 0 004 0"/></symbol>
+<symbol id="box" viewBox="0 0 24 24"><path d="M3 7.5L12 3l9 4.5v9L12 21l-9-4.5z"/><path d="M3 7.5L12 12l9-4.5M12 12v9"/></symbol>
+<symbol id="book" viewBox="0 0 24 24"><path d="M4 5a2 2 0 012-2h13v15H6a2 2 0 00-2 2z"/><path d="M4 20a2 2 0 002 2h13v-4M9 8h6"/></symbol>
+<symbol id="megaphone" viewBox="0 0 24 24"><path d="M3 10v4h4l8 5V5L7 10z"/><path d="M18.5 9a4 4 0 010 6M7 14l1.5 6h3L10 15"/></symbol>
+<symbol id="idcard" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2.5"/><path d="M5.5 16.5c.6-1.8 2-2.7 3.5-2.7s2.9.9 3.5 2.7M15 10h3M15 13.5h3"/></symbol>
+<symbol id="flag" viewBox="0 0 24 24"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></symbol>
+<symbol id="cap" viewBox="0 0 24 24"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5M22 9v6"/></symbol>
+<symbol id="search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20.5 20.5L16 16"/></symbol>
+<symbol id="qr" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3M21 14v.01M14 21h3M20 17v4"/></symbol>
+<symbol id="camera" viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></symbol>
+<symbol id="sparkle" viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 16l.7 2.3L22 19l-2.3.7L19 22l-.7-2.3L16 19l2.3-.7z"/></symbol>
+<symbol id="target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></symbol>
+<symbol id="pulse" viewBox="0 0 24 24"><path d="M3 12h4l2.5-6 5 12 2.5-6h4"/></symbol>
+<symbol id="syringe" viewBox="0 0 24 24"><path d="M18 3l3 3M16.5 4.5l3 3M19 6l-10 10-3-3L16 3"/><path d="M9.5 9.5l2 2M12 7l2 2M6 13l-3 3M3 21l3.5-3.5M6 16l2 2"/></symbol>
+<symbol id="bowl" viewBox="0 0 24 24"><path d="M3 11h18a9 9 0 01-18 0z"/><path d="M8.5 7.5c0-1.5 1-2 1-3.5M12.5 7.5c0-1.5 1-2 1-3.5"/></symbol>
+<symbol id="whatsapp" viewBox="0 0 24 24"><path d="M20.5 11.5a8.5 8.5 0 01-12.3 7.6L3.5 20.5l1.4-4.5a8.5 8.5 0 1115.6-4.5z"/><path d="M9 8.5c0 3.5 2.5 6.5 6.5 6.5l1-1.6-2-1-1 .8c-1-.4-2.3-1.7-2.7-2.7l.8-1-1-2z"/></symbol>
+<symbol id="money" viewBox="0 0 24 24"><rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.8"/><path d="M6 9.5v5M18 9.5v5"/></symbol>
+<symbol id="pen" viewBox="0 0 24 24"><path d="M15 4l5 5L9 20H4v-5z"/><path d="M13 6l5 5"/></symbol>
+<symbol id="mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3"/></symbol>
+<symbol id="zip" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z"/><path d="M14 3v5h5M10 4v2M10 8v2M10 12v2M9 16h2v3H9z"/></symbol>
+<symbol id="code" viewBox="0 0 24 24"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5M13.5 4.5l-3 15"/></symbol>
+<symbol id="sprout" viewBox="0 0 24 24"><path d="M12 21v-9"/><path d="M12 12c0-4.4 3-7 8-7 0 4.4-3 7-8 7z"/><path d="M12 15c0-3.5-2.4-5.5-7-5.5 0 3.5 2.4 5.5 7 5.5z"/></symbol>
+<symbol id="heart" viewBox="0 0 24 24"><path d="M12 20s-7.5-4.6-7.5-10.2A4.2 4.2 0 0112 7.4a4.2 4.2 0 017.5 2.4C19.5 15.4 12 20 12 20z"/></symbol>
+<symbol id="plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+</svg>
+<header class="nav">
+  <div class="wrap nav-in">
+    <a class="logo" href="#top"><svg class="flor" aria-hidden="true"><use href="#flor"/></svg><span class="logo-txt"><span class="logo-name">Pascal<b>IA</b></span><span class="logo-by">Guía visual <b>v1.0</b></span></span></a>
+    <button class="menu-btn" aria-expanded="false" aria-controls="menu" aria-label="Abrir menú"><span class="menu-ico"><i></i><i></i></span></button>
+    <nav class="nav-links" id="menu" aria-label="Secciones">
+      <a href="#color">Color</a><a href="#tipo">Tipografía</a><a href="#componentes">Componentes</a><a href="#iconos">Íconos</a><a href="#movimiento">Movimiento</a>
+      <a class="btn btn-primary btn-sm" href="#reglas">Reglas <svg class="i arr" aria-hidden="true"><use href="#arrow"/></svg></a>
+    </nav>
+  </div>
+  <div class="progress" data-progress><i></i></div>
+</header>
+
+<main id="top">
+<section class="hero">
+  <div class="hero-bg" aria-hidden="true"><svg class="hero-flor flor-spin" viewBox="-112 -112 224 224"><defs>
+    <path id="h-petal" d="M0,-8 C40,-34 44,-78 0,-108 C-44,-78 -40,-34 0,-8Z"/>
+    <path id="h-vein" d="M0,0 C17,-16 15,-44 0,-62 C-15,-44 -17,-16 0,0"/>
+  </defs>
+  <g fill="#FFC107" fill-opacity="0.82">
+    <use href="#h-petal"/>
+    <use href="#h-petal" transform="rotate(60)"/>
+    <use href="#h-petal" transform="rotate(120)"/>
+    <use href="#h-petal" transform="rotate(180)"/>
+    <use href="#h-petal" transform="rotate(240)"/>
+    <use href="#h-petal" transform="rotate(300)"/>
+  </g>
+  <g fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round">
+    <use href="#h-vein"/>
+    <use href="#h-vein" transform="rotate(-62)"/>
+    <use href="#h-vein" transform="rotate(62)"/>
+    <use href="#h-vein" transform="rotate(-132)"/>
+    <use href="#h-vein" transform="rotate(132)"/>
+    <path d="M0,0 V62"/>
+  </g>
+  <g class="flor-nodes" fill="#fff">
+    <circle r="9"/>
+    <circle cy="-62" r="8"/>
+    <circle cy="-62" r="8" transform="rotate(-62)"/>
+    <circle cy="-62" r="8" transform="rotate(62)"/>
+    <circle cy="-62" r="8" transform="rotate(-132)"/>
+    <circle cy="-62" r="8" transform="rotate(132)"/>
+  </g></svg></div>
+  <div class="wrap hero-in">
+    <span class="pill-live rise"><i></i> Identidad de marca · versión 1.0</span>
+    <h1 class="h1" data-words>Así se ve y se <span class="mark">mueve</span> PascalIA</h1>
+    <p class="lead rise d2">Todo lo que necesitas para que cada página, herramienta y panel se sienta PascalIA: amarillo que invita a actuar, grafito que da resultados y crema que da calidez.</p>
+    <div class="ctas rise d3"><a class="btn btn-primary" href="#componentes">Ver componentes <svg class="i arr" aria-hidden="true"><use href="#arrow"/></svg></a><a class="btn btn-ghost" href="#reglas">Las 10 reglas</a></div>
+  </div>
+</section>
+
+<section class="g-sec" id="logo"><div class="wrap">
+  <h2>Logo</h2>
+  <p class="lead">La flor-red (6 pétalos, venas y nodos blancos) más la palabra Pascal<b>IA</b> en Montserrat 800, con "IA" en amarillo. Archivos en <code>logos/</code>.</p>
+  <div class="grid">
+    <div class="card" style="display:grid;place-items:center;min-height:180px"><img src="logos/logo-horizontal.svg" alt="Logo horizontal" style="height:64px;width:auto"></div>
+    <div class="card" style="display:grid;place-items:center;min-height:180px;background:var(--graphite)"><img src="logos/logo-horizontal-blanco.svg" alt="Logo sobre oscuro" style="height:64px;width:auto"></div>
+    <div class="card card-cream" style="display:grid;place-items:center;min-height:180px"><img src="logos/logo-vertical.svg" alt="Logo vertical" style="height:130px;width:auto"></div>
+  </div>
+  <p class="fine" style="margin-top:16px">Área de protección: la altura de la letra "P" alrededor del logo. Tamaño mínimo: 24 px de flor en pantalla (favicon 16 px solo flor). Nunca recolorees los pétalos, nunca pongas el logo sobre amarillo ni sobre fotos sin un velo.</p>
+</div></section>
+
+<section class="g-sec" id="color"><div class="wrap">
+  <h2>Color</h2>
+  <p class="lead">Amarillo = acción. Grafito = resultado y cierre. Crema = calidez. Blanco = aire. Contraste medido sobre blanco (WCAG).</p>
+  <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(170px,1fr))">
+    <div class="sw"><div class="sw-c" style="background:#FFC107;color:#1F1F1F;box-shadow:inset 0 -1px 0 var(--gray)">Acción</div><div class="sw-t"><b>yellow</b><code>#FFC107 · --yellow</code><code>vs blanco 1.6:1 · vs grafito 10.1:1</code></div></div>
+<div class="sw"><div class="sw-c" style="background:#FFB300;color:#1F1F1F;box-shadow:inset 0 -1px 0 var(--gray)">Hover</div><div class="sw-t"><b>yellow-hover</b><code>#FFB300 · --yellow-hover</code><code>vs blanco 1.8:1 · vs grafito 9.2:1</code></div></div>
+<div class="sw"><div class="sw-c" style="background:#FFD54F;color:#1F1F1F;box-shadow:inset 0 -1px 0 var(--gray)">Selección</div><div class="sw-t"><b>yellow-soft</b><code>#FFD54F · --yellow-soft</code><code>vs blanco 1.4:1 · vs grafito 11.7:1</code></div></div>
+<div class="sw"><div class="sw-c" style="background:#8A6100;color:#FFFFFF;box-shadow:inset 0 -1px 0 var(--gray)">Amarillo legible</div><div class="sw-t"><b>gold-ink</b><code>#8A6100 · --gold-ink</code><code>vs blanco 5.5:1 · vs grafito 3.0:1</code></div></div>
+<div class="sw"><div class="sw-c" style="background:#1F1F1F;color:#FFFFFF;box-shadow:inset 0 -1px 0 var(--gray)">Texto · resultado</div><div class="sw-t"><b>graphite</b><code>#1F1F1F · --graphite</code><code>vs blanco 16.5:1 · vs grafito 1.0:1</code></div></div>
+<div class="sw"><div class="sw-c" style="background:#181818;color:#FFFFFF;box-shadow:inset 0 -1px 0 var(--gray)">Pie</div><div class="sw-t"><b>graphite-deep</b><code>#181818 · --graphite-deep</code><code>vs blanco 17.8:1 · vs grafito 1.1:1</code></div></div>
+<div class="sw"><div class="sw-c" style="background:#5C5C5C;color:#FFFFFF;box-shadow:inset 0 -1px 0 var(--gray)">Texto secundario</div><div class="sw-t"><b>muted</b><code>#5C5C5C · --muted</code><code>vs blanco 6.7:1 · vs grafito 2.5:1</code></div></div>
+<div class="sw"><div class="sw-c" style="background:#E9E9E9;color:#1F1F1F;box-shadow:inset 0 -1px 0 var(--gray)">Hairline</div><div class="sw-t"><b>gray</b><code>#E9E9E9 · --gray</code><code>vs blanco 1.2:1 · vs grafito 13.6:1</code></div></div>
+<div class="sw"><div class="sw-c" style="background:#FFF8E1;color:#1F1F1F;box-shadow:inset 0 -1px 0 var(--gray)">Calidez</div><div class="sw-t"><b>cream</b><code>#FFF8E1 · --cream</code><code>vs blanco 1.1:1 · vs grafito 15.5:1</code></div></div>
+<div class="sw"><div class="sw-c" style="background:#F3E7BE;color:#1F1F1F;box-shadow:inset 0 -1px 0 var(--gray)">Hairline crema</div><div class="sw-t"><b>cream-line</b><code>#F3E7BE · --cream-line</code><code>vs blanco 1.2:1 · vs grafito 13.3:1</code></div></div>
+<div class="sw"><div class="sw-c" style="background:#FFFFFF;color:#1F1F1F;box-shadow:inset 0 -1px 0 var(--gray)">Aire</div><div class="sw-t"><b>white</b><code>#FFFFFF · --white</code><code>vs blanco 1.0:1 · vs grafito 16.5:1</code></div></div>
+
+  </div>
+  <div class="g-cap">Degradado de marca</div>
+  <div style="height:72px;border-radius:var(--r-window);background:var(--brand-grad)"></div>
+  <p class="fine" style="margin-top:8px">Solo en detalles (barras de progreso, puntos, pétalos decorativos). Nunca como fondo de sección ni detrás de texto largo.</p>
+</div></section>
+
+<section class="g-sec" id="tipo"><div class="wrap">
+  <h2>Tipografía</h2>
+  <p class="lead">Dos voces: <b>Montserrat habla</b> (titulares, botones, etiquetas, cifras) e <b>Inter explica</b> (texto corrido, campos, chips).</p>
+  <div class="ty"><small>Display · H1<code>Montserrat 800 · clamp(2.5–4.75rem) · 1.05 · −0.02em · máx 13ch</code></small><div class="display" style="font-size:clamp(2.2rem,5vw,4rem)">Tu cuenta, <span class="mark">lista</span></div></div>
+  <div class="ty"><small>Headline · H2<code>Montserrat 700 · clamp(2–3.25rem) · 1.1</code></small><div class="headline">Tres formas de crecer</div></div>
+  <div class="ty"><small>Title · H3<code>Montserrat 700 · clamp(1.35–1.75rem) · 1.2</code></small><div class="title">Consultoría que conecta</div></div>
+  <div class="ty"><small>Figure<code>Montserrat 800 · clamp(2.6–4rem) · tabular-nums</code></small><div class="figure">$ 50.000</div></div>
+  <div class="ty"><small>Lead<code>Inter 400 · clamp(1.0625–1.25rem) · muted</code></small><p class="lead">Le cuentas a Pascal lo que hiciste y él organiza el resto.</p></div>
+  <div class="ty"><small>Body<code>Inter 400 · 1.0625rem · 1.65</code></small><p>El contratista es responsable de lo que firma. Pascal organiza, calcula y redacta borradores; nunca inventa actividades.</p></div>
+  <div class="ty"><small>Label<code>Montserrat 600 · 1rem</code></small><span class="label">Fecha de pago</span></div>
+  <div class="ty"><small>Eyebrow<code>Montserrat 700 · .8rem · mayúsculas · gold-ink</code></small><span class="eyebrow">Lo que hacemos</span></div>
+  <div class="ty"><small>Fine<code>Inter 400 · .875rem · muted</code></small><span class="fine">Precios en pesos colombianos, IVA incluido.</span></div>
+</div></section>
+
+<section class="g-sec" id="espacio"><div class="wrap">
+  <h2>Radios, sombras y espacio</h2>
+  <p class="lead">Todo contenedor lleva <b>hairline</b> (1 px inset #E9E9E9) + <b>calidez</b> (sombra suave). Nada de bordes duros ni sombras negras.</p>
+  <div class="g-cap">Radios</div>
+  <div class="radii"><div style="border-radius:12px">field 12</div><div style="border-radius:14px">tile 14</div><div style="border-radius:16px">inner 16</div><div style="border-radius:18px">item 18</div><div style="border-radius:20px">window 20</div><div style="border-radius:24px">panel 24</div><div style="border-radius:999px">pill 999</div></div>
+  <div class="g-cap">Sombras</div>
+  <div class="shadows"><div style="box-shadow:var(--hairline)">hairline</div><div style="box-shadow:var(--hairline),var(--shadow-card)">card</div><div style="box-shadow:var(--shadow-lift)">lift (hover)</div><div style="box-shadow:var(--shadow-brand);background:var(--yellow)">brand (amarillo)</div><div style="box-shadow:var(--shadow-device)">device</div></div>
+  <div class="g-cap">Espaciado</div>
+  <table class="table"><thead><tr><th>Token</th><th>Valor</th><th>Uso</th></tr></thead><tbody>
+    <tr><td>--s-1 / --s-2</td><td class="num">8 / 12 px</td><td>Dentro de componentes (ícono–texto, chips)</td></tr>
+    <tr><td>--s-3</td><td class="num">22 px</td><td>Entre bloques de un mismo grupo, grilla de tarjetas</td></tr>
+    <tr><td>--s-4</td><td class="num">36 px</td><td>Titular → contenido</td></tr>
+    <tr><td>--s-5</td><td class="num">64 px</td><td>Columnas de una sección</td></tr>
+    <tr><td>--section / --section-sm</td><td class="num">104 / 72 px</td><td>Padding vertical de sección (80 / 56 en móvil)</td></tr>
+    <tr><td>--wrap</td><td class="num">1200 px</td><td>Ancho máximo, margen lateral 16 px</td></tr>
+  </tbody></table>
+</div></section>
+
+<section class="g-sec" id="componentes"><div class="wrap">
+  <h2>Componentes</h2>
+  <p class="lead">Copia el HTML de <code>plantillas/plantilla-pagina.html</code>; las clases viven en <code>css/pascalia.css</code>.</p>
+
+  <div class="g-cap">Botones</div>
+  <div class="g-row">
+    <a class="btn btn-primary" href="#componentes">Empieza gratis <svg class="i arr" aria-hidden="true"><use href="#arrow"/></svg></a>
+    <a class="btn btn-dark" href="#componentes">Ver informe</a>
+    <a class="btn btn-ghost" href="#componentes">Más detalles</a>
+    <a class="btn btn-primary btn-sm" href="#componentes">Pequeño</a>
+    <button class="play"><span class="play-dot"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg></span> Mira cómo funciona</button>
+  </div>
+  <div class="g-row" style="margin-top:16px;padding:22px;border-radius:var(--r-window);background:var(--graphite)">
+    <a class="btn btn-primary" href="#componentes">Primario sobre oscuro</a>
+    <a class="btn btn-outline-w" href="#componentes">Contorno blanco</a>
+  </div>
+
+  <div class="g-cap">Píldoras, chips y etiquetas</div>
+  <div class="g-row">
+    <span class="pill-live"><i></i> Pascal está en línea</span>
+    <div class="chips"><button class="chip" aria-pressed="true">Informe</button><button class="chip" aria-pressed="false">Planilla</button><button class="chip" aria-pressed="false">Soportes</button></div>
+    <span class="tag">Borrador</span><span class="tag tag-cream">En revisión</span><span class="tag tag-dark">Aprobado</span>
+  </div>
+
+  <div class="g-cap">Barra de Pascal y respuesta</div>
+  <div class="demo-box">
+    <form class="ask" onsubmit="return false"><label class="askbar"><img class="ask-face" src="graficos/pascal/pascal-rostro.webp" alt=""><span class="ask-ph">Escríbele a Pascal lo que hiciste hoy</span><input type="text" aria-label="Escríbele a Pascal"><button class="ask-send" type="submit" aria-label="Enviar"><svg class="i" aria-hidden="true"><use href="#arrow"/></svg></button></label></form>
+    <div style="display:grid;gap:14px;margin-top:22px;max-width:640px">
+      <div class="bubble-me">Hoy capacité a 12 personas en el uso del nuevo formato.</div>
+      <div class="reply" style="margin:0"><div class="reply-av"><img src="graficos/pascal/pascal-rostro.webp" alt=""></div><div class="reply-bubble"><b class="who">Pascal</b><p>¡Anotado! Lo dejé en la obligación 3. ¿Tienes una foto de la capacitación como soporte?</p></div></div>
+      <div class="reply" style="margin:0"><div class="reply-av"><img src="graficos/pascal/pascal-rostro.webp" alt=""></div><div class="reply-bubble"><span class="typing" aria-label="Pascal está escribiendo"><i></i><i></i><i></i></span></div></div>
+    </div>
+  </div>
+
+  <div class="g-cap">Pestañas</div>
+  <div class="tabs" role="tablist"><span class="tab-ink" aria-hidden="true"></span><button role="tab" aria-selected="true">Diario</button><button role="tab" aria-selected="false">Cierre</button><button role="tab" aria-selected="false">Historial</button></div>
+
+  <div class="g-cap">Tarjetas, ventana y resultado</div>
+  <div class="grid">
+    <a class="card spot tilt" href="#componentes"><div class="ico-tile"><svg class="i" aria-hidden="true"><use href="#chat"/></svg></div><h3>Tarjeta con enlace</h3><p>Sube 4 px y gana sombra al pasar el cursor; resplandor amarillo que sigue el mouse.</p></a>
+    <div class="win"><div class="win-bar"><svg class="flor" aria-hidden="true"><use href="#flor"/></svg><b>Cuenta de octubre</b><span>Borrador</span></div><div class="win-body"><ul class="checks"><li>Informe de actividades</li><li>Planilla PILA</li><li>Antecedentes</li></ul><div style="margin-top:18px" class="bar on"><i style="--w:75%"></i></div></div><div class="win-foot"><span>Total</span><b>$ 4.200.000</b></div></div>
+    <div class="result"><small>Valor del informe</small><span class="result-value">$ 50.000</span><p style="color:var(--on-dark);margin-top:10px">El grafito se reserva para resultados y cierres.</p></div>
+  </div>
+
+  <div class="g-cap">Pasos y método</div>
+  <div class="grid">
+    <ol class="steps"><li><span><b>Escríbele a Pascal</b> lo que hiciste.</span></li><li><span><b>Envía soportes</b>: foto, PDF o nota de voz.</span></li><li><span><b>Revisa y firma</b> tu cuenta.</span></li></ol>
+    <ol class="method"><li class="is-on"><span class="figure" style="font-size:1.5rem">01</span><div><h3 style="font-size:1.1rem">Paso activo</h3><p class="fine">Barra amarilla y fondo crema.</p></div></li><li><span class="figure" style="font-size:1.5rem">02</span><div><h3 style="font-size:1.1rem">Paso siguiente</h3><p class="fine">Atenuado al 40 %.</p></div></li></ol>
+  </div>
+
+  <div class="g-cap">Formularios</div>
+  <div class="grid">
+    <div class="field"><label for="g1">Número de contrato</label><input id="g1" placeholder="CPS-0000-2026"><small>Como aparece en SECOP.</small></div>
+    <div class="field"><label for="g2">Correo</label><input id="g2" aria-invalid="true" value="correo@"><span class="err">Revisa el correo: le falta el dominio.</span></div>
+    <div class="field"><span class="label" style="font-size:.92rem">Modo de corte</span><div class="seg"><input type="radio" name="seg" id="s1" checked><label for="s1">Fin de mes</label><input type="radio" name="seg" id="s2"><label for="s2">Fecha a fecha</label></div><label style="display:flex;gap:10px;align-items:center;margin-top:12px"><input type="checkbox" class="switch" checked> Recordatorio diario</label></div>
+  </div>
+
+  <div class="g-cap">Avisos</div>
+  <div style="display:grid;gap:10px">
+    <div class="note"><svg class="i" aria-hidden="true"><use href="#bell"/></svg><p>Tu planilla vence en 3 días.</p></div>
+    <div class="note note-dark"><svg class="i" aria-hidden="true"><use href="#check"/></svg><p>Cuenta generada. Revisa y firma.</p></div>
+    <div class="note note-error"><svg class="i" aria-hidden="true"><use href="#alert"/></svg><p>No pudimos leer el PDF. Envíalo de nuevo.</p></div>
+  </div>
+
+  <div class="g-cap">Preguntas frecuentes</div>
+  <div class="faq" data-single style="max-width:760px">
+    <details open><summary>¿Pascal inventa actividades? <svg class="faq-i i" aria-hidden="true"><use href="#plus"/></svg></summary><div class="faq-a"><p>No. Solo organiza lo que tú le cuentas. Tú revisas y firmas.</p></div></details>
+    <details><summary>¿Cuánto cuesta? <svg class="faq-i i" aria-hidden="true"><use href="#plus"/></svg></summary><div class="faq-a"><p>Respuesta en Inter, color muted.</p></div></details>
+  </div>
+
+  <div class="g-cap">Cifras sobre grafito</div>
+  <div style="background:var(--graphite);border-radius:var(--r-panel);padding:36px 12px"><ul class="facts"><li><b>3</b><span>servicios</span></li><li><b>4</b><span>valores</span></li><li><b>1</b><span>flor</span></li></ul></div>
+</div></section>
+
+<section class="g-sec" id="iconos"><div class="wrap">
+  <h2>Íconos</h2>
+  <p class="lead">Línea de 24 × 24, trazo 1.85, extremos redondeados, sin relleno, color = <code>currentColor</code>. Nunca emojis como íconos. Sprite: <code>iconos/iconos.svg</code> · sueltos: <code>iconos/svg/</code>.</p>
+  <div class="icons"><div><svg class="i" aria-hidden="true"><use href="#arrow"/></svg>arrow</div><div><svg class="i" aria-hidden="true"><use href="#check"/></svg>check</div><div><svg class="i" aria-hidden="true"><use href="#bars"/></svg>bars</div><div><svg class="i" aria-hidden="true"><use href="#chat"/></svg>chat</div><div><svg class="i" aria-hidden="true"><use href="#nfc"/></svg>nfc</div><div><svg class="i" aria-hidden="true"><use href="#web"/></svg>web</div><div><svg class="i" aria-hidden="true"><use href="#menu-card"/></svg>menu-card</div><div><svg class="i" aria-hidden="true"><use href="#dash"/></svg>dash</div><div><svg class="i" aria-hidden="true"><use href="#scan"/></svg>scan</div><div><svg class="i" aria-hidden="true"><use href="#doc"/></svg>doc</div><div><svg class="i" aria-hidden="true"><use href="#file-check"/></svg>file-check</div><div><svg class="i" aria-hidden="true"><use href="#people"/></svg>people</div><div><svg class="i" aria-hidden="true"><use href="#user"/></svg>user</div><div><svg class="i" aria-hidden="true"><use href="#calendar"/></svg>calendar</div><div><svg class="i" aria-hidden="true"><use href="#pin"/></svg>pin</div><div><svg class="i" aria-hidden="true"><use href="#store"/></svg>store</div><div><svg class="i" aria-hidden="true"><use href="#cup"/></svg>cup</div><div><svg class="i" aria-hidden="true"><use href="#steth"/></svg>steth</div><div><svg class="i" aria-hidden="true"><use href="#briefcase"/></svg>briefcase</div><div><svg class="i" aria-hidden="true"><use href="#building"/></svg>building</div><div><svg class="i" aria-hidden="true"><use href="#truck"/></svg>truck</div><div><svg class="i" aria-hidden="true"><use href="#route"/></svg>route</div><div><svg class="i" aria-hidden="true"><use href="#wifi-off"/></svg>wifi-off</div><div><svg class="i" aria-hidden="true"><use href="#sync"/></svg>sync</div><div><svg class="i" aria-hidden="true"><use href="#clock"/></svg>clock</div><div><svg class="i" aria-hidden="true"><use href="#hash"/></svg>hash</div><div><svg class="i" aria-hidden="true"><use href="#printer"/></svg>printer</div><div><svg class="i" aria-hidden="true"><use href="#alert"/></svg>alert</div><div><svg class="i" aria-hidden="true"><use href="#chart"/></svg>chart</div><div><svg class="i" aria-hidden="true"><use href="#shield"/></svg>shield</div><div><svg class="i" aria-hidden="true"><use href="#history"/></svg>history</div><div><svg class="i" aria-hidden="true"><use href="#lock"/></svg>lock</div><div><svg class="i" aria-hidden="true"><use href="#scale"/></svg>scale</div><div><svg class="i" aria-hidden="true"><use href="#upload"/></svg>upload</div><div><svg class="i" aria-hidden="true"><use href="#home"/></svg>home</div><div><svg class="i" aria-hidden="true"><use href="#brain"/></svg>brain</div><div><svg class="i" aria-hidden="true"><use href="#folder"/></svg>folder</div><div><svg class="i" aria-hidden="true"><use href="#devices"/></svg>devices</div><div><svg class="i" aria-hidden="true"><use href="#map"/></svg>map</div><div><svg class="i" aria-hidden="true"><use href="#ruler"/></svg>ruler</div><div><svg class="i" aria-hidden="true"><use href="#compass"/></svg>compass</div><div><svg class="i" aria-hidden="true"><use href="#pill"/></svg>pill</div><div><svg class="i" aria-hidden="true"><use href="#list-check"/></svg>list-check</div><div><svg class="i" aria-hidden="true"><use href="#bell"/></svg>bell</div><div><svg class="i" aria-hidden="true"><use href="#box"/></svg>box</div><div><svg class="i" aria-hidden="true"><use href="#book"/></svg>book</div><div><svg class="i" aria-hidden="true"><use href="#megaphone"/></svg>megaphone</div><div><svg class="i" aria-hidden="true"><use href="#idcard"/></svg>idcard</div><div><svg class="i" aria-hidden="true"><use href="#flag"/></svg>flag</div><div><svg class="i" aria-hidden="true"><use href="#cap"/></svg>cap</div><div><svg class="i" aria-hidden="true"><use href="#search"/></svg>search</div><div><svg class="i" aria-hidden="true"><use href="#qr"/></svg>qr</div><div><svg class="i" aria-hidden="true"><use href="#camera"/></svg>camera</div><div><svg class="i" aria-hidden="true"><use href="#sparkle"/></svg>sparkle</div><div><svg class="i" aria-hidden="true"><use href="#target"/></svg>target</div><div><svg class="i" aria-hidden="true"><use href="#pulse"/></svg>pulse</div><div><svg class="i" aria-hidden="true"><use href="#syringe"/></svg>syringe</div><div><svg class="i" aria-hidden="true"><use href="#bowl"/></svg>bowl</div><div><svg class="i" aria-hidden="true"><use href="#whatsapp"/></svg>whatsapp</div><div><svg class="i" aria-hidden="true"><use href="#money"/></svg>money</div><div><svg class="i" aria-hidden="true"><use href="#pen"/></svg>pen</div><div><svg class="i" aria-hidden="true"><use href="#mic"/></svg>mic</div><div><svg class="i" aria-hidden="true"><use href="#zip"/></svg>zip</div><div><svg class="i" aria-hidden="true"><use href="#code"/></svg>code</div><div><svg class="i" aria-hidden="true"><use href="#sprout"/></svg>sprout</div><div><svg class="i" aria-hidden="true"><use href="#heart"/></svg>heart</div><div><svg class="i" aria-hidden="true"><use href="#plus"/></svg>plus</div></div>
+</div></section>
+
+<section class="g-sec" id="pascal"><div class="wrap">
+  <h2>Pascal</h2>
+  <p class="lead">El asistente de PascalIA. Usa solo las ilustraciones oficiales de <code>graficos/pascal/</code>; no lo redibujes, no le cambies colores ni lo generes con IA.</p>
+  <div class="pascal-row">
+    <figure><img src="graficos/pascal/pascal.webp" alt="Pascal" style="height:220px;width:auto"><figcaption>pascal.webp · hoja de personaje</figcaption></figure>
+    <figure><img src="graficos/pascal/pascal-guino.webp" alt="Pascal guiñando" style="height:180px;width:auto"><figcaption>pascal-guino · cierres</figcaption></figure>
+    <figure><img src="graficos/pascal/pascal-panel.webp" alt="Pascal con panel" style="height:180px;width:auto"><figcaption>pascal-panel · cuerpo entero</figcaption></figure>
+    <figure><img src="graficos/pascal/pascalbot-avatar.webp" alt="Avatar de Pascal" style="height:96px;width:96px;border-radius:50%"><figcaption>pascalbot-avatar · chat</figcaption></figure>
+    <figure><img src="graficos/pascal/pascal-rostro.webp" alt="Rostro de Pascal" style="height:96px;width:96px;border-radius:50%;object-fit:cover;box-shadow:0 0 0 3px var(--yellow)"><figcaption>rostro · avatar</figcaption></figure>
+  </div>
+</div></section>
+
+<section class="g-sec" id="movimiento"><div class="wrap">
+  <h2>Movimiento</h2>
+  <p class="lead">Una sola curva: <code>cubic-bezier(.22, 1, .36, 1)</code> (sale rápido, llega suave). Entradas cortas, loops lentos y sutiles. Todo se apaga con <code>prefers-reduced-motion</code>.</p>
+  <table class="table motion-tbl"><thead><tr><th>Efecto</th><th>Duración</th><th>Detalle</th></tr></thead><tbody>
+    <tr><td>Color / fondo en hover</td><td class="num">200 ms</td><td>Botones, chips, enlaces del pie</td></tr>
+    <tr><td>Elevación de botón</td><td class="num">220 ms</td><td>−2 px + sombra amarilla; flecha se corre 4 px; al presionar escala .97</td></tr>
+    <tr><td>Destello del botón primario</td><td class="num">4 s ciclo</td><td>Franja blanca diagonal; también una vez al pasar el cursor (900 ms)</td></tr>
+    <tr><td>Nav al hacer scroll</td><td class="num">300 ms</td><td>72 → 60 px, blanco 86 % con desenfoque; barra de lectura amarilla de 3 px</td></tr>
+    <tr><td>Subrayado de enlaces</td><td class="num">300 ms</td><td>Línea amarilla de 2 px que crece desde la izquierda</td></tr>
+    <tr><td>Entrada al hacer scroll (.reveal)</td><td class="num">600 ms</td><td>Opacidad 0 → 1 y sube 24 px; escalonar 80 ms</td></tr>
+    <tr><td>Titular palabra por palabra</td><td class="num">600 ms</td><td>Cada palabra sube 20 px; 80 ms entre palabras; inicia a los 150 ms</td></tr>
+    <tr><td>Marcador (.mark)</td><td class="num">900 ms</td><td>Banda amarilla 58–90 % de la línea que se dibuja de izquierda a derecha; una por titular</td></tr>
+    <tr><td>Entrada al cargar (.rise)</td><td class="num">700 ms</td><td>Sube 18 px; retrasos 450 / 600 / 750 ms</td></tr>
+    <tr><td>Punto en vivo (pulse)</td><td class="num">2 s</td><td>Halo amarillo que se expande 10 px</td></tr>
+    <tr><td>Flor del héroe</td><td class="num">60 s</td><td>Gira una vuelta, 13 % de opacidad; nodos laten (3.2 s)</td></tr>
+    <tr><td>FAQ</td><td class="num">300 ms</td><td>Barra amarilla izquierda crece; el "+" gira 45° y se vuelve amarillo</td></tr>
+    <tr><td>Escribiendo… (dots)</td><td class="num">1 s</td><td>Tres puntos que saltan y se vuelven amarillos</td></tr>
+  </tbody></table>
+  <div class="g-row" style="margin-top:28px">
+    <div style="position:relative;width:120px;height:120px;display:grid;place-items:center"><span class="ring"></span><span class="ring r2"></span><svg class="flor" style="width:56px;height:56px" aria-hidden="true"><use href="#flor"/></svg></div>
+    <p class="fine" style="max-width:30em">Ondas (.ring): para notificaciones, NFC o "en vivo". Usa máximo un elemento animado en loop por pantalla además de la flor.</p>
+  </div>
+</div></section>
+
+<section class="g-sec bg-cream" id="reglas"><div class="wrap">
+  <h2>Las 10 reglas</h2>
+  <p class="lead">Si dudas, vuelve aquí.</p>
+  <ol class="steps" style="gap:16px">
+    <li><span><b>Grafito sobre amarillo.</b> Nunca texto blanco sobre amarillo.</span></li>
+    <li><span><b>El amarillo es acción.</b> Botones, marcador, puntos, foco. Nunca fondo de sección.</span></li>
+    <li><span><b>El grafito es resultado.</b> Solo para cifras finales, resultados y el cierre de la página.</span></li>
+    <li><span><b>Hairline + calidez.</b> Contenedores con línea de 1 px y sombra suave; sin bordes duros.</span></li>
+    <li><span><b>Montserrat habla, Inter explica.</b> No mezcles otras fuentes.</span></li>
+    <li><span><b>Un marcador por titular.</b> Sobre la palabra que importa.</span></li>
+    <li><span><b>Íconos de línea</b> del set oficial, nunca emojis como íconos.</span></li>
+    <li><span><b>La flor no se toca.</b> 6 pétalos, venas y nodos blancos, 82 % de opacidad.</span></li>
+    <li><span><b>Pascal solo desde el arte oficial.</b></span></li>
+    <li><span><b>Español de Colombia, tuteo, cordial.</b> Frases cortas, verbos de acción, sin tecnicismos.</span></li>
+  </ol>
+</div></section>
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-in">
+    <div><a class="logo logo-w" href="#top"><svg class="flor" aria-hidden="true"><use href="#flor"/></svg><span class="logo-txt"><span class="logo-name">Pascal<b>IA</b></span></span></a><p class="foot-small">Ideas que hacen florecer tu organización.</p></div>
+    <div class="foot-col"><h3>Guía</h3><a href="#color">Color</a><a href="#tipo">Tipografía</a><a href="#componentes">Componentes</a></div>
+    <div class="foot-col"><h3>Recursos</h3><a href="#iconos">Íconos</a><a href="#pascal">Pascal</a><a href="#movimiento">Movimiento</a></div>
+    <div class="foot-col"><h3>Archivos</h3><a href="GUIA_DE_MARCA.md">Guía de marca</a><a href="INSTRUCCIONES_PARA_IA.md">Instrucciones para IA</a><a href="plantillas/plantilla-pagina.html">Plantilla</a></div>
+    <p class="foot-legal">© 2026 PascalIA. Conocimiento. Tecnología. Personas. Resultados.</p>
+  </div>
+</footer>
+<button class="to-top" aria-label="Volver arriba"><svg class="i" aria-hidden="true" style="transform:rotate(-90deg)"><use href="#arrow"/></svg></button>
+</body>
+</html>
