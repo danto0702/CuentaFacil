@@ -70,9 +70,9 @@
 </div>
 <script>
 const tl = gsap.timeline({ paused: true });
-tl.to(".f09-st",{opacity:.12,duration:.7,yoyo:true,repeat:5,ease:"sine.inOut",stagger:{each:.18}},0);
+tl.to(".f09-st",{opacity:.12,duration:.7,yoyo:true,repeat:6,ease:"sine.inOut",stagger:{each:.18}},0);
 tl.from(`[id^="f09-web"]`,{opacity:0,duration:.6,ease:"power2.out",stagger:.08},0);
-tl.fromTo("#f09-fog",{x:-80},{x:80,duration:5.00,ease:"none"},0);
+tl.fromTo("#f09-fog",{x:-80},{x:80,duration:5.50,ease:"none"},0);
 tl.from("#f09-chip",{opacity:0,y:-40,duration:.4,ease:"back.out(2)"},0.1);
 tl.from("#f09-title",{opacity:0,scale:1.5,rotation:-4,duration:.5,ease:"back.out(1.6)"},0.25);
 
@@ -83,7 +83,7 @@ tl.from("#f09-lab",{opacity:0,scale:.5,duration:.4,ease:"back.out(2)"},2.2);
 tl.from("#f09-cal",{x:-500,duration:.5,ease:"power3.out"},1.4);
 tl.from("#f09-vamp",{x:600,duration:.6,ease:"power3.out"},1.8);
 tl.from("#f09-back",{scale:0,duration:.45,ease:"back.out(2.5)"},2.6);
-tl.to("#f09-vamp",{y:"+=-26",duration:0.4,yoyo:true,repeat:4,ease:"sine.inOut"},2.4);
+tl.to("#f09-vamp",{y:"+=-26",duration:0.4,yoyo:true,repeat:6,ease:"sine.inOut"},2.4);
 
 
 window.__timelines["f09-estres"] = tl;

@@ -65,19 +65,19 @@
 </div>
 <script>
 const tl = gsap.timeline({ paused: true });
-tl.to(".f01-st",{opacity:.12,duration:.7,yoyo:true,repeat:7,ease:"sine.inOut",stagger:{each:.18}},0);
+tl.to(".f01-st",{opacity:.12,duration:.7,yoyo:true,repeat:5,ease:"sine.inOut",stagger:{each:.18}},0);
 tl.from(`[id^="f01-web"]`,{opacity:0,duration:.6,ease:"power2.out",stagger:.08},0);
 tl.from("#f01-sp0",{y:-700,duration:1.1,ease:"bounce.out"},0.15);
-tl.to("#f01-sp0",{y:-60,duration:.9,yoyo:true,repeat:4,ease:"sine.inOut"},1.30);
+tl.to("#f01-sp0",{y:-60,duration:.9,yoyo:true,repeat:3,ease:"sine.inOut"},1.30);
 tl.from("#f01-sp1",{y:-700,duration:1.1,ease:"bounce.out"},0.50);
-tl.to("#f01-sp1",{y:-60,duration:.9,yoyo:true,repeat:4,ease:"sine.inOut"},1.65);
-tl.fromTo("#f01-bat0",{x:-500},{x:500,y:-120,duration:6.13,ease:"none"},0);
-tl.to("#f01-bat0",{scaleY:.35,duration:.14,yoyo:true,repeat:42,ease:"sine.inOut"},0);
-tl.fromTo("#f01-bat1",{x:500},{x:-500,y:-60,duration:6.13,ease:"none"},0);
-tl.to("#f01-bat1",{scaleY:.35,duration:.14,yoyo:true,repeat:42,ease:"sine.inOut"},0);
-tl.fromTo("#f01-bat2",{x:-500},{x:500,y:0,duration:6.13,ease:"none"},0);
-tl.to("#f01-bat2",{scaleY:.35,duration:.14,yoyo:true,repeat:42,ease:"sine.inOut"},0);
-tl.fromTo("#f01-fog",{x:-80},{x:80,duration:6.13,ease:"none"},0);
+tl.to("#f01-sp1",{y:-60,duration:.9,yoyo:true,repeat:3,ease:"sine.inOut"},1.65);
+tl.fromTo("#f01-bat0",{x:-500},{x:500,y:-120,duration:5.29,ease:"none"},0);
+tl.to("#f01-bat0",{scaleY:.35,duration:.14,yoyo:true,repeat:36,ease:"sine.inOut"},0);
+tl.fromTo("#f01-bat1",{x:500},{x:-500,y:-60,duration:5.29,ease:"none"},0);
+tl.to("#f01-bat1",{scaleY:.35,duration:.14,yoyo:true,repeat:36,ease:"sine.inOut"},0);
+tl.fromTo("#f01-bat2",{x:-500},{x:500,y:0,duration:5.29,ease:"none"},0);
+tl.to("#f01-bat2",{scaleY:.35,duration:.14,yoyo:true,repeat:36,ease:"sine.inOut"},0);
+tl.fromTo("#f01-fog",{x:-80},{x:80,duration:5.29,ease:"none"},0);
 tl.from("#f01-moon",{scale:.5,opacity:0,duration:1,ease:"power2.out"},0.1);
 
 tl.fromTo("#f01-flash",{opacity:.9},{opacity:0,duration:.18,ease:"none"},0);
@@ -87,8 +87,8 @@ tl.from("#f01-num",{opacity:0,scale:3,duration:.5,ease:"back.out(1.6)"},0.8);
 tl.from("#f01-k2",{opacity:0,y:80,duration:.5,ease:"power3.out"},1.2);
 tl.to("#f01-num",{rotation:6,duration:.08,yoyo:true,repeat:9,ease:"none"},2.0);
 tl.from("#f01-peek img",{y:420,duration:.55,ease:"back.out(1.7)",stagger:.12},1.5);
-tl.to("#f01-peek img",{y:-26,duration:.4,yoyo:true,repeat:9,ease:"sine.inOut",stagger:.1},2.3);
-tl.fromTo("#f01-glow",{scale:.8,opacity:.5},{scale:1.15,opacity:1,duration:3.06,yoyo:true,repeat:1,ease:"sine.inOut"},0);
+tl.to("#f01-peek img",{y:-26,duration:.4,yoyo:true,repeat:7,ease:"sine.inOut",stagger:.1},2.3);
+tl.fromTo("#f01-glow",{scale:.8,opacity:.5},{scale:1.15,opacity:1,duration:2.65,yoyo:true,repeat:1,ease:"sine.inOut"},0);
 
 window.__timelines["f01-noche"] = tl;
 </script>

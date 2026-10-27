@@ -9,7 +9,7 @@ language: es-CO
 audience: contratistas de prestación de servicios de entidades públicas colombianas
 length: 60s
 angle: halloween-terrores-y-hechizos
-voice: clone:chatterbox — voz del dueño, con su autorización (2026-10-19)
+voice: clone:voxcpm2 — voz del dueño, con su autorización (2026-10-19; reeditada con VoxCPM el 2026-10-27)
 ---
 
 ## Intent
@@ -24,7 +24,7 @@ Video de Halloween, terror cómico y muy dinámico. Cinco "terrores del contrati
 
 ## Customizations
 
-- Voz: la voz clonada del dueño (Chatterbox, local).
+- Voz: la voz clonada del dueño (VoxCPM2 local desde el 2026-10-27; antes Chatterbox). Terrores 01-06 con efecto tenebroso; Pascal 07-11 limpio.
 - Ambientación: telarañas, arañas que bajan colgando, murciélagos, luna, niebla, rayos.
 - Música original de Halloween (órgano, pizzicato, theremín) que gira a alegre cuando llega Pascal; efectos (trueno, crujido, risa, boing, destellos).
 

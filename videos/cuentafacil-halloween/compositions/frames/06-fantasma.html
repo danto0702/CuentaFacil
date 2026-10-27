@@ -61,25 +61,25 @@
 </div>
 <script>
 const tl = gsap.timeline({ paused: true });
-tl.to(".f06-st",{opacity:.12,duration:.7,yoyo:true,repeat:5,ease:"sine.inOut",stagger:{each:.18}},0);
+tl.to(".f06-st",{opacity:.12,duration:.7,yoyo:true,repeat:6,ease:"sine.inOut",stagger:{each:.18}},0);
 tl.from(`[id^="f06-web"]`,{opacity:0,duration:.6,ease:"power2.out",stagger:.08},0);
 tl.from("#f06-sp0",{y:-700,duration:1.1,ease:"bounce.out"},0.15);
 tl.to("#f06-sp0",{y:-60,duration:.9,yoyo:true,repeat:3,ease:"sine.inOut"},1.30);
-tl.fromTo("#f06-bat0",{x:-500},{x:500,y:-120,duration:5.00,ease:"none"},0);
-tl.to("#f06-bat0",{scaleY:.35,duration:.14,yoyo:true,repeat:34,ease:"sine.inOut"},0);
-tl.fromTo("#f06-fog",{x:-80},{x:80,duration:5.00,ease:"none"},0);
+tl.fromTo("#f06-bat0",{x:-500},{x:500,y:-120,duration:5.50,ease:"none"},0);
+tl.to("#f06-bat0",{scaleY:.35,duration:.14,yoyo:true,repeat:38,ease:"sine.inOut"},0);
+tl.fromTo("#f06-fog",{x:-80},{x:80,duration:5.50,ease:"none"},0);
 tl.from("#f06-moon",{scale:.5,opacity:0,duration:1,ease:"power2.out"},0.1);
 tl.from("#f06-chip",{opacity:0,y:-40,duration:.4,ease:"back.out(2)"},0.1);
 tl.from("#f06-title",{opacity:0,scale:1.5,rotation:-4,duration:.5,ease:"back.out(1.6)"},0.25);
 
 tl.from("#f06-list",{x:-700,duration:.6,ease:"power3.out"},0.3);
 tl.from("#f06-ghost",{opacity:0,y:140,scale:.6,duration:.7,ease:"back.out(1.6)"},0.6);
-tl.to("#f06-ghost",{y:"+=-40",duration:0.6,yoyo:true,repeat:4,ease:"sine.inOut"},1.3);
+tl.to("#f06-ghost",{y:"+=-40",duration:0.6,yoyo:true,repeat:5,ease:"sine.inOut"},1.3);
 
 tl.to("#f06-a1, #f06-a2, #f06-a4",{opacity:.12,x:30,filter:"blur(3px)",duration:.4,stagger:.35,ease:"power1.in"},1.4);
 tl.from("#f06-vs > div",{opacity:0,scale:.4,duration:.45,ease:"back.out(2)",stagger:.3},2.6);
-tl.to("#f06-vs > div:last-child",{x:8,duration:.05,yoyo:true,repeat:26,ease:"none"},3.6);
-tl.fromTo("#f06-glow",{scale:.85},{scale:1.2,duration:2.50,yoyo:true,repeat:1,ease:"sine.inOut"},0);
+tl.to("#f06-vs > div:last-child",{x:8,duration:.05,yoyo:true,repeat:36,ease:"none"},3.6);
+tl.fromTo("#f06-glow",{scale:.85},{scale:1.2,duration:2.75,yoyo:true,repeat:1,ease:"sine.inOut"},0);
 
 window.__timelines["f06-fantasma"] = tl;
 </script>
