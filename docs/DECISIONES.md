@@ -124,3 +124,7 @@
 ## ADR-030 — Modelos de Claude por tarea (2026-10-10)
 - **Decisión:** `AI_MODEL_FAST=claude-haiku-5-5` para clasificar notas/fotos e interpretar mensajes; `AI_MODEL_SMART=claude-sonnet-5-5` para leer soportes, redactar, aplicar correcciones y control de calidad; `AI_MODEL_SETUP=claude-opus-5-5` para la configuración del contrato (contrato SECOP, clausulado, informe anterior), que ocurre una vez por contrato y es crítica.
 - **Consecuencias:** costo de IA por configuración ≈ US$0,28; el resto del modelo financiero no cambia. En el piloto se mide la precisión por tarea y se sube o baja de modelo por variable de entorno, sin cambiar código.
+
+## ADR-031 — El proyecto Supabase aloja provisionalmente a Fanátikos (2026-10-27)
+- **Decisión:** por decisión del dueño, el proyecto Supabase de CuentaFacil aloja de forma provisional la base de datos de **Fanátikos de PascalIA** (gestión de campeonatos de fútbol), mientras ese producto tiene su propio proyecto. Todo lo de Fanátikos vive en el esquema `fanatikos`, en los buckets `fanatikos-public` y `fanatikos-private` y en las políticas `fanatikos_*` de `storage.objects`; no referencia ni modifica nada de `public`.
+- **Consecuencias:** no borrar ni alterar el esquema `fanatikos`, esos buckets ni esas políticas desde CuentaFacil. Fanátikos aplica sus cambios con `execute_sql` y no aparece en `supabase_migrations.schema_migrations`. La configuración de Auth (plantillas, URL del sitio) es compartida: cambiarla afecta a ambos. Detalles y plan de salida en el repositorio `danto0702/fanatikos`, `docs/SUPABASE.md`.
