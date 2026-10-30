@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="es-CO">
+<head><meta charset="UTF-8" /></head>
+<body>
+<template>
+<style>
+
+@font-face{font-family:"Creepster";font-style:normal;font-weight:400;src:url("assets/fonts/Creepster-latin.woff2") format("woff2")}
+@font-face{font-family:"Bricolage Grotesque";font-style:normal;font-weight:500 800;src:url("assets/fonts/BricolageGrotesque-latin.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Bricolage Grotesque";font-style:normal;font-weight:500 800;src:url("assets/fonts/BricolageGrotesque-latin-ext.woff2") format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C4,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:"Geist";font-style:normal;font-weight:400 700;src:url("assets/fonts/Geist-latin.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Geist";font-style:normal;font-weight:400 700;src:url("assets/fonts/Geist-latin-ext.woff2") format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C4,U+2C60-2C7F,U+A720-A7FF}
+
+@font-face{font-family:"Montserrat";font-style:normal;font-weight:700;src:url("assets/fonts/montserrat-latin-700-normal.woff2") format("woff2")}
+@font-face{font-family:"Montserrat";font-style:normal;font-weight:800;src:url("assets/fonts/montserrat-latin-800-normal.woff2") format("woff2")}
+@font-face{font-family:"Inter";font-style:normal;font-weight:500;src:url("assets/fonts/inter-latin-500-normal.woff2") format("woff2")}
+@font-face{font-family:"Inter";font-style:normal;font-weight:600;src:url("assets/fonts/inter-latin-600-normal.woff2") format("woff2")}
+
+#root{position:absolute;inset:0;overflow:hidden}
+
+#root{background:radial-gradient(120% 80% at 50% 18%,#3A1D5E 0%,#22113A 45%,#120820 100%);color:#FFF3E0}
+.abs{position:absolute}
+.creep{font-family:"Creepster",cursive;font-weight:400;letter-spacing:.02em;line-height:.95}
+.disp{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;letter-spacing:-.035em}
+.txt{font-family:"Geist",sans-serif}
+.center{left:60px;right:60px;text-align:center}
+.glow{position:absolute;border-radius:50%;filter:blur(90px)}
+.char{position:absolute;filter:drop-shadow(0 30px 40px rgba(0,0,0,.55))}
+.chip{display:inline-block;padding:14px 30px;border-radius:999px;font:700 34px/1 "Geist",sans-serif;letter-spacing:.2em;text-transform:uppercase}
+.chip.t{background:#FF7A1A;color:#1A0B05}
+.chip.h{background:#FFC107;color:#1F1405}
+.moon{position:absolute;border-radius:50%;background:radial-gradient(circle at 38% 36%,#FFF8DC 0%,#FFE8A3 55%,#F2C866 100%);box-shadow:0 0 120px 40px rgba(255,220,130,.28)}
+.moon i{position:absolute;border-radius:50%;background:rgba(200,160,80,.28)}
+.star{position:absolute;width:6px;height:6px;border-radius:50%;background:#FFF3E0}
+.web{position:absolute;width:360px;height:360px;opacity:.85}
+.web path{fill:none;stroke:rgba(235,225,255,.55);stroke-width:2}
+.spider{position:absolute;top:0;width:90px}
+.spider line{stroke:rgba(235,225,255,.6);stroke-width:2}
+.bat{position:absolute;width:120px;fill:#0B0612}
+.fog{position:absolute;left:-200px;right:-200px;height:260px;border-radius:50%;background:rgba(190,170,230,.16);filter:blur(40px)}
+.ok{display:inline-grid;place-items:center;width:44px;height:44px;border-radius:12px;background:#25D366;vertical-align:-8px;margin-right:12px}
+.ok svg{width:32px;height:32px;fill:none;stroke:#fff;stroke-width:3.4;stroke-linecap:round;stroke-linejoin:round}
+.spark{position:absolute;width:60px;height:60px}
+.spark path{fill:#FFE27A}
+
+.brand-bg{position:absolute;inset:0;background:radial-gradient(70% 40% at 50% 10%,rgba(255,193,7,.22),transparent 70%),linear-gradient(180deg,#FFF8E1 0%,#FFFDF5 55%,#FFFFFF 100%)}
+.mh{font-family:"Montserrat",sans-serif;font-weight:800;letter-spacing:-.02em;color:#1F1F1F;line-height:1.06}
+.mk{background:linear-gradient(transparent 58%,#FFC107 58%,#FFC107 90%,transparent 90%) no-repeat 0 0/100% 100%;padding:0 .06em}
+.inter{font-family:"Inter",sans-serif}
+.cal{position:absolute;border-radius:28px;background:#FFF3E0;color:#2A1208;text-align:center;overflow:hidden;box-shadow:0 30px 60px -20px rgba(0,0,0,.6)}
+.cal .top{padding:20px 0;font:800 40px/1 "Montserrat",sans-serif;letter-spacing:.1em;color:#fff}
+.cal .d{font:800 190px/1 "Montserrat",sans-serif;padding:26px 0 10px;letter-spacing:-.05em}
+.cal .s{font:600 30px/1 "Inter",sans-serif;padding-bottom:30px;color:#7A5A40}
+.candy{position:absolute;width:90px;height:46px}
+.card-ok{position:absolute;padding:18px 24px;border-radius:20px;background:#FFF3E0;color:#1F1F1F;font:800 32px/1 "Montserrat",sans-serif;box-shadow:0 20px 40px -14px rgba(0,0,0,.6);white-space:nowrap}
+.card-ok i{display:inline-grid;place-items:center;width:40px;height:40px;border-radius:50%;background:#FFC107;margin-right:12px;vertical-align:-8px;font-style:normal}
+.card-ok svg{width:26px;height:26px;fill:none;stroke:#1F1F1F;stroke-width:3.4;stroke-linecap:round;stroke-linejoin:round}
+.conf{position:absolute;width:18px;height:30px;border-radius:4px}
+
+
+#f04-glow{left:200px;top:500px;width:700px;height:700px;background:rgba(37,211,102,.16)}
+#f04-title{top:120px;font-size:86px;line-height:1.02;color:#FFF3E0}
+#f04-title b{color:#FFC107}
+#f04-phone{left:70px;top:420px;width:520px;border-radius:46px;background:#0B141A;border:9px solid #1F1F1F;overflow:hidden;box-shadow:0 40px 80px -30px rgba(0,0,0,.8)}
+.f04-top{display:flex;align-items:center;gap:14px;padding:18px 20px;background:#1F2C34;color:#E9EDEF;font:700 28px/1 "Geist",sans-serif}
+.f04-top img{width:52px;height:52px;border-radius:50%}
+.f04-top small{display:block;font:500 20px/1.2 "Geist",sans-serif;color:#8696A0;margin-top:4px}
+.f04-chat{padding:18px;display:flex;flex-direction:column;gap:12px}
+.f04-m{max-width:88%;padding:13px 16px;border-radius:18px;font:500 25px/1.3 "Geist",sans-serif;color:#E9EDEF;background:#1F2C34;align-self:flex-start}
+.f04-m.me{background:#005C4B;align-self:flex-end}
+#f04-arrow{left:560px;top:690px;width:120px}
+#f04-doc{left:660px;top:470px;width:370px;padding:28px 26px 30px;border-radius:24px;background:#FFF3E0;color:#2A1208;box-shadow:0 30px 60px -20px rgba(0,0,0,.7)}
+#f04-doc h4{font:800 30px/1.15 "Montserrat",sans-serif;margin-bottom:14px}
+#f04-doc s{display:block;height:12px;border-radius:6px;background:#D9C8B4;margin-top:12px}
+#f04-stamp{left:640px;top:820px;padding:16px 22px;border:7px solid #25D366;border-radius:20px;color:#1E8A4C;background:#FFF3E0;font:800 34px/1.05 "Montserrat",sans-serif;text-align:center;transform:rotate(-8deg)}
+#f04-crew{left:20px;top:1290px;width:1040px}
+
+</style>
+<div id="root" data-composition-id="f04-cuentas" data-width="1080" data-height="1920">
+<i class="star f04-st" style="left:80px;top:120px;opacity:0.35"></i><i class="star f04-st" style="left:210px;top:260px;opacity:0.55"></i><i class="star f04-st" style="left:330px;top:90px;opacity:0.75"></i><i class="star f04-st" style="left:520px;top:180px;opacity:0.35"></i><i class="star f04-st" style="left:700px;top:70px;opacity:0.55"></i><i class="star f04-st" style="left:860px;top:230px;opacity:0.75"></i><i class="star f04-st" style="left:990px;top:140px;opacity:0.35"></i><i class="star f04-st" style="left:150px;top:420px;opacity:0.55"></i><i class="star f04-st" style="left:940px;top:420px;opacity:0.75"></i><i class="star f04-st" style="left:600px;top:330px;opacity:0.35"></i><i class="star f04-st" style="left:420px;top:40px;opacity:0.55"></i><i class="star f04-st" style="left:1020px;top:300px;opacity:0.75"></i><svg id="f04-webtl" class="web" style="left:-6px;top:-6px" viewBox="0 0 360 360" data-layout-allow-overflow><path d="M0 0 L360.0 0.0 M0 0 L347.7 93.2 M0 0 L311.8 180.0 M0 0 L254.6 254.6 M0 0 L180.0 311.8 M0 0 L93.2 347.7 M0 0 L0.0 360.0 M60.0 0.0 Q50.7 6.7 58.0 15.5 Q47.3 19.6 52.0 30.0 Q40.6 31.1 42.4 42.4 Q31.1 40.6 30.0 52.0 Q19.6 47.3 15.5 58.0 Q6.7 50.7 0.0 60.0 M120.0 0.0 Q101.4 13.4 115.9 31.1 Q94.5 39.2 103.9 60.0 Q81.2 62.3 84.9 84.9 Q62.3 81.2 60.0 103.9 Q39.2 94.5 31.1 115.9 Q13.4 101.4 0.0 120.0 M185.0 0.0 Q156.4 20.6 178.7 47.9 Q145.7 60.4 160.2 92.5 Q125.1 96.0 130.8 130.8 Q96.0 125.1 92.5 160.2 Q60.4 145.7 47.9 178.7 Q20.6 156.4 0.0 185.0 M255.0 0.0 Q215.6 28.4 246.3 66.0 Q200.9 83.2 220.8 127.5 Q172.5 132.4 180.3 180.3 Q132.4 172.5 127.5 220.8 Q83.2 200.9 66.0 246.3 Q28.4 215.6 0.0 255.0 M330.0 0.0 Q279.0 36.7 318.8 85.4 Q260.0 107.7 285.8 165.0 Q223.2 171.3 233.3 233.3 Q171.3 223.2 165.0 285.8 Q107.7 260.0 85.4 318.8 Q36.7 279.0 0.0 330.0"/></svg><svg id="f04-webtr" class="web" style="right:-6px;top:-6px;transform:scaleX(-1)" viewBox="0 0 360 360" data-layout-allow-overflow><path d="M0 0 L360.0 0.0 M0 0 L347.7 93.2 M0 0 L311.8 180.0 M0 0 L254.6 254.6 M0 0 L180.0 311.8 M0 0 L93.2 347.7 M0 0 L0.0 360.0 M60.0 0.0 Q50.7 6.7 58.0 15.5 Q47.3 19.6 52.0 30.0 Q40.6 31.1 42.4 42.4 Q31.1 40.6 30.0 52.0 Q19.6 47.3 15.5 58.0 Q6.7 50.7 0.0 60.0 M120.0 0.0 Q101.4 13.4 115.9 31.1 Q94.5 39.2 103.9 60.0 Q81.2 62.3 84.9 84.9 Q62.3 81.2 60.0 103.9 Q39.2 94.5 31.1 115.9 Q13.4 101.4 0.0 120.0 M185.0 0.0 Q156.4 20.6 178.7 47.9 Q145.7 60.4 160.2 92.5 Q125.1 96.0 130.8 130.8 Q96.0 125.1 92.5 160.2 Q60.4 145.7 47.9 178.7 Q20.6 156.4 0.0 185.0 M255.0 0.0 Q215.6 28.4 246.3 66.0 Q200.9 83.2 220.8 127.5 Q172.5 132.4 180.3 180.3 Q132.4 172.5 127.5 220.8 Q83.2 200.9 66.0 246.3 Q28.4 215.6 0.0 255.0 M330.0 0.0 Q279.0 36.7 318.8 85.4 Q260.0 107.7 285.8 165.0 Q223.2 171.3 233.3 233.3 Q171.3 223.2 165.0 285.8 Q107.7 260.0 85.4 318.8 Q36.7 279.0 0.0 330.0"/></svg>
+<div id="f04-glow" class="glow" data-layout-allow-overflow></div>
+<h2 id="f04-title" class="abs center disp">Cuentas listas,<br><b>sin afán y sin sustos</b></h2>
+<div id="f04-phone" class="abs">
+  <div class="f04-top"><img src="assets/brand/logo.webp" alt=""><div>Pascal · CuentaFácil<small>en línea</small></div></div>
+  <div class="f04-chat">
+    <div class="f04-m me" id="f04-m1">Hoy hice la jornada de vacunación 📸</div>
+    <div class="f04-m" id="f04-m2"><span class="ok"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>Anotado en tu obligación 2</div>
+    <div class="f04-m me" id="f04-m3">🎤 Nota de voz · 0:31</div>
+    <div class="f04-m" id="f04-m4"><span class="ok"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>¡Tu cuenta de octubre está lista!</div>
+  </div>
+</div>
+<svg id="f04-arrow" class="abs" viewBox="0 0 120 60"><path d="M6 30 L100 30 M78 10 L104 30 L78 50" stroke="#FFC107" stroke-width="10" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+<div id="f04-doc" class="abs"><h4>Informe de actividades · octubre</h4><s></s><s></s><s style="width:70%"></s><s></s><s style="width:55%"></s></div>
+<div id="f04-stamp" class="abs">LISTA PARA<br>FIRMAR</div>
+<img id="f04-crew" class="char" src="assets/chars/contratistas.webp" alt="">
+<i id="f04-cf0" class="conf" style="left:90px;top:1180px;background:#FFC107"></i><i id="f04-cf1" class="conf" style="left:220px;top:1180px;background:#7C4DFF"></i><i id="f04-cf2" class="conf" style="left:360px;top:1180px;background:#FF7A1A"></i><i id="f04-cf3" class="conf" style="left:500px;top:1180px;background:#FFC107"></i><i id="f04-cf4" class="conf" style="left:640px;top:1180px;background:#25D366"></i><i id="f04-cf5" class="conf" style="left:780px;top:1180px;background:#7C4DFF"></i><i id="f04-cf6" class="conf" style="left:920px;top:1180px;background:#FFC107"></i><i id="f04-cf7" class="conf" style="left:160px;top:1180px;background:#FF7A1A"></i><i id="f04-cf8" class="conf" style="left:430px;top:1180px;background:#25D366"></i><i id="f04-cf9" class="conf" style="left:700px;top:1180px;background:#FFC107"></i><i id="f04-cf10" class="conf" style="left:990px;top:1180px;background:#FF7A1A"></i><i id="f04-cf11" class="conf" style="left:300px;top:1180px;background:#FFC107"></i>
+
+</div>
+<script>
+const tl = gsap.timeline({ paused: true });
+tl.to(".f04-st",{opacity:.12,duration:.7,yoyo:true,repeat:8,ease:"sine.inOut",stagger:{each:.18}},0);
+tl.from(`[id^="f04-web"]`,{opacity:0,duration:.6,ease:"power2.out",stagger:.08},0);
+
+tl.from("#f04-title",{opacity:0,y:-50,duration:.5,ease:"power3.out"},0.1);
+tl.from("#f04-phone",{x:-640,duration:.55,ease:"power3.out"},0.3);
+tl.from("#f04-m1, #f04-m2, #f04-m3, #f04-m4",{opacity:0,y:30,scale:.85,duration:.32,ease:"back.out(2)",stagger:.38},0.8);
+tl.from("#f04-arrow",{opacity:0,x:-40,duration:.35,ease:"power3.out"},2.0);
+tl.from("#f04-doc",{opacity:0,scale:.6,rotation:8,duration:.45,ease:"back.out(1.8)"},2.2);
+tl.fromTo("#f04-stamp",{scale:3,opacity:0},{scale:1,opacity:1,duration:.3,ease:"power4.in"},2.8);
+tl.from("#f04-crew",{y:700,duration:.6,ease:"back.out(1.3)"},1.2);
+tl.to("#f04-crew",{y:"+=-18",duration:0.4,yoyo:true,repeat:11,ease:"sine.inOut"},1.9);
+
+tl.fromTo(".conf",{y:-1300,rotation:0},{y:700,rotation:720,duration:5.60,ease:"none",stagger:.12},1.2);
+tl.to("#f04-arrow",{x:16,duration:.3,yoyo:true,repeat:13,ease:"sine.inOut"},2.4);
+
+window.__timelines["f04-cuentas"] = tl;
+</script>
+</template>
+</body>
+</html>

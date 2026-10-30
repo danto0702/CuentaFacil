@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="es-CO">
+<head><meta charset="UTF-8" /></head>
+<body>
+<template>
+<style>
+
+@font-face{font-family:"Creepster";font-style:normal;font-weight:400;src:url("assets/fonts/Creepster-latin.woff2") format("woff2")}
+@font-face{font-family:"Bricolage Grotesque";font-style:normal;font-weight:500 800;src:url("assets/fonts/BricolageGrotesque-latin.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Bricolage Grotesque";font-style:normal;font-weight:500 800;src:url("assets/fonts/BricolageGrotesque-latin-ext.woff2") format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C4,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:"Geist";font-style:normal;font-weight:400 700;src:url("assets/fonts/Geist-latin.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Geist";font-style:normal;font-weight:400 700;src:url("assets/fonts/Geist-latin-ext.woff2") format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C4,U+2C60-2C7F,U+A720-A7FF}
+
+@font-face{font-family:"Montserrat";font-style:normal;font-weight:700;src:url("assets/fonts/montserrat-latin-700-normal.woff2") format("woff2")}
+@font-face{font-family:"Montserrat";font-style:normal;font-weight:800;src:url("assets/fonts/montserrat-latin-800-normal.woff2") format("woff2")}
+@font-face{font-family:"Inter";font-style:normal;font-weight:500;src:url("assets/fonts/inter-latin-500-normal.woff2") format("woff2")}
+@font-face{font-family:"Inter";font-style:normal;font-weight:600;src:url("assets/fonts/inter-latin-600-normal.woff2") format("woff2")}
+
+#root{position:absolute;inset:0;overflow:hidden}
+
+#root{background:radial-gradient(120% 80% at 50% 18%,#3A1D5E 0%,#22113A 45%,#120820 100%);color:#FFF3E0}
+.abs{position:absolute}
+.creep{font-family:"Creepster",cursive;font-weight:400;letter-spacing:.02em;line-height:.95}
+.disp{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;letter-spacing:-.035em}
+.txt{font-family:"Geist",sans-serif}
+.center{left:60px;right:60px;text-align:center}
+.glow{position:absolute;border-radius:50%;filter:blur(90px)}
+.char{position:absolute;filter:drop-shadow(0 30px 40px rgba(0,0,0,.55))}
+.chip{display:inline-block;padding:14px 30px;border-radius:999px;font:700 34px/1 "Geist",sans-serif;letter-spacing:.2em;text-transform:uppercase}
+.chip.t{background:#FF7A1A;color:#1A0B05}
+.chip.h{background:#FFC107;color:#1F1405}
+.moon{position:absolute;border-radius:50%;background:radial-gradient(circle at 38% 36%,#FFF8DC 0%,#FFE8A3 55%,#F2C866 100%);box-shadow:0 0 120px 40px rgba(255,220,130,.28)}
+.moon i{position:absolute;border-radius:50%;background:rgba(200,160,80,.28)}
+.star{position:absolute;width:6px;height:6px;border-radius:50%;background:#FFF3E0}
+.web{position:absolute;width:360px;height:360px;opacity:.85}
+.web path{fill:none;stroke:rgba(235,225,255,.55);stroke-width:2}
+.spider{position:absolute;top:0;width:90px}
+.spider line{stroke:rgba(235,225,255,.6);stroke-width:2}
+.bat{position:absolute;width:120px;fill:#0B0612}
+.fog{position:absolute;left:-200px;right:-200px;height:260px;border-radius:50%;background:rgba(190,170,230,.16);filter:blur(40px)}
+.ok{display:inline-grid;place-items:center;width:44px;height:44px;border-radius:12px;background:#25D366;vertical-align:-8px;margin-right:12px}
+.ok svg{width:32px;height:32px;fill:none;stroke:#fff;stroke-width:3.4;stroke-linecap:round;stroke-linejoin:round}
+.spark{position:absolute;width:60px;height:60px}
+.spark path{fill:#FFE27A}
+
+.brand-bg{position:absolute;inset:0;background:radial-gradient(70% 40% at 50% 10%,rgba(255,193,7,.22),transparent 70%),linear-gradient(180deg,#FFF8E1 0%,#FFFDF5 55%,#FFFFFF 100%)}
+.mh{font-family:"Montserrat",sans-serif;font-weight:800;letter-spacing:-.02em;color:#1F1F1F;line-height:1.06}
+.mk{background:linear-gradient(transparent 58%,#FFC107 58%,#FFC107 90%,transparent 90%) no-repeat 0 0/100% 100%;padding:0 .06em}
+.inter{font-family:"Inter",sans-serif}
+.cal{position:absolute;border-radius:28px;background:#FFF3E0;color:#2A1208;text-align:center;overflow:hidden;box-shadow:0 30px 60px -20px rgba(0,0,0,.6)}
+.cal .top{padding:20px 0;font:800 40px/1 "Montserrat",sans-serif;letter-spacing:.1em;color:#fff}
+.cal .d{font:800 190px/1 "Montserrat",sans-serif;padding:26px 0 10px;letter-spacing:-.05em}
+.cal .s{font:600 30px/1 "Inter",sans-serif;padding-bottom:30px;color:#7A5A40}
+.candy{position:absolute;width:90px;height:46px}
+.card-ok{position:absolute;padding:18px 24px;border-radius:20px;background:#FFF3E0;color:#1F1F1F;font:800 32px/1 "Montserrat",sans-serif;box-shadow:0 20px 40px -14px rgba(0,0,0,.6);white-space:nowrap}
+.card-ok i{display:inline-grid;place-items:center;width:40px;height:40px;border-radius:50%;background:#FFC107;margin-right:12px;vertical-align:-8px;font-style:normal}
+.card-ok svg{width:26px;height:26px;fill:none;stroke:#1F1F1F;stroke-width:3.4;stroke-linecap:round;stroke-linejoin:round}
+.conf{position:absolute;width:18px;height:30px;border-radius:4px}
+
+
+#f07-flor{left:-260px;top:1100px;width:900px;height:900px;opacity:.13}
+#f07-title{top:120px;font-size:82px}
+#f07-qr{left:470px;top:500px;width:560px;padding:40px 40px 24px;border-radius:44px;background:#fff;text-align:center;box-shadow:inset 0 0 0 2px #E9E9E9,0 30px 60px -24px rgba(31,31,31,.3)}
+#f07-qrc{position:relative;width:480px;height:480px}
+#f07-qrc > img:first-child{display:block;width:100%;height:100%}
+#f07-qrlogo{position:absolute;left:50%;top:50%;width:138px;height:138px;margin:-69px 0 0 -69px;border-radius:40px;box-shadow:0 0 0 10px #fff}
+#f07-cap{margin-top:22px;font:800 34px/1 "Montserrat",sans-serif;color:#1F1F1F}
+#f07-brand{left:470px;top:1200px;width:560px;text-align:center}
+#f07-brand b{display:block;font:800 78px/1 "Montserrat",sans-serif;letter-spacing:-.03em;color:#1F1F1F}
+#f07-brand span{display:inline-flex;align-items:center;gap:14px;margin-top:18px;padding:12px 26px 12px 16px;border-radius:999px;background:#1F1F1F;font:700 40px/1 "Montserrat",sans-serif;color:#fff}
+#f07-brand img{width:54px;height:54px}
+#f07-brand i{font-style:normal;color:#FFC107}
+#f07-pascal{left:10px;top:540px;width:420px;filter:drop-shadow(0 30px 40px rgba(31,31,31,.25))}
+#f07-thanks{left:470px;width:560px;top:1420px;text-align:center;padding:24px 20px;border-radius:30px;background:#1F1F1F;color:#fff;font:800 40px/1.2 "Montserrat",sans-serif}
+#f07-thanks em{font-style:normal;color:#FFC107}
+#f07-pump{left:880px;top:1660px;width:150px}
+
+</style>
+<div id="root" data-composition-id="f07-cierre" data-width="1080" data-height="1920">
+
+<div class="brand-bg"></div>
+<img id="f07-flor" class="abs" style="" src="assets/brand/flower.svg" alt="">
+<h2 id="f07-title" class="abs center mh">Empieza tu cuenta<br>de <span class="mk">noviembre</span></h2>
+<img id="f07-pascal" class="abs" src="assets/chars/pascal-senala.webp" alt="">
+<div id="f07-qr" class="abs"><div id="f07-qrc"><img src="assets/brand/qr.svg" alt=""><img id="f07-qrlogo" src="assets/brand/logo.webp" alt=""></div><p id="f07-cap">Escanéame y empieza</p></div>
+<div id="f07-brand" class="abs"><b>CuentaFácil</b><span><img src="assets/brand/flower.svg" alt="">de Pascal<i>IA</i></span></div>
+<p id="f07-thanks" class="abs">¡Gracias por <em>confiar</em><br>en Pascal!</p>
+<svg id="f07-pump" class="candy" style="left:880px;top:1660px;width:153px;height:78px;transform:rotate(-12deg)" viewBox="0 0 90 46" data-layout-allow-overflow><path d="M22 23 L2 6 L6 23 L2 40 Z" fill="#FFC107"/><path d="M68 23 L88 6 L84 23 L88 40 Z" fill="#FFC107"/><ellipse cx="45" cy="23" rx="25" ry="19" fill="#FF7A1A"/><path d="M33 9 Q45 23 37 39 M48 5 Q58 23 50 41" stroke="#FFC107" stroke-width="5" fill="none" opacity=".8"/></svg>
+
+</div>
+<script>
+const tl = gsap.timeline({ paused: true });
+
+tl.to("#f07-flor",{rotation:45,duration:7.50,ease:"none"},0);
+tl.from("#f07-title",{opacity:0,y:-50,duration:.5,ease:"power3.out"},0.1);
+tl.fromTo("#f07-title .mk",{backgroundSize:"0% 100%"},{backgroundSize:"100% 100%",duration:.8,ease:"power2.out"},0.5);
+tl.from("#f07-pascal",{x:-520,duration:.6,ease:"power3.out"},0.3);
+tl.from("#f07-qr",{scale:.4,opacity:0,rotation:-8,duration:.6,ease:"back.out(1.8)"},0.6);
+tl.to("#f07-qr",{scale:1.03,duration:.5,yoyo:true,repeat:10,ease:"sine.inOut"},1.6);
+tl.from("#f07-brand",{opacity:0,y:50,duration:.5,ease:"power3.out"},1.1);
+tl.from("#f07-thanks",{opacity:0,y:50,scale:.9,duration:.5,ease:"back.out(1.8)"},1.8);
+tl.from("#f07-pump",{opacity:0,scale:0,rotation:-90,duration:.45,ease:"back.out(2.5)"},2.3);
+tl.to("#f07-pascal",{rotation:3,transformOrigin:"50% 100%",duration:.5,yoyo:true,repeat:8,ease:"sine.inOut"},2.4);
+
+window.__timelines["f07-cierre"] = tl;
+</script>
+</template>
+</body>
+</html>
