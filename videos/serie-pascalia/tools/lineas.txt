@@ -1,0 +1,42 @@
+e1-01|A|¡Ay, mijo! ¿Y eso de PascalIA qué es? ¿Eso se come o qué?|¡Ay, mijo! ¿Y eso de PascalIA qué es? ¿Eso se come o qué?
+e1-02|P|No, abuela. PascalIA es una empresa de tecnología e inteligencia artificial.|No, abuela. PascalIA es una empresa de tecnología e inteligencia artificial.
+e1-03|A|¿Y por qué Pascal? ¿Porque usted se llama así?|¿Y por qué Pascal? ¿Porque usted se llama así?
+e1-04|P|Por Blés Pascal, un genio francés que, con apenas diecinueve años, inventó una de las primeras calculadoras… para ayudarle a su papá, que se pasaba las noches sacando cuentas.|Por Blaise Pascal, un genio francés que, con apenas 19 años, inventó una de las primeras calculadoras… para ayudarle a su papá, que se pasaba las noches sacando cuentas.
+e1-05|A|¡Ave María, qué muchacho tan juicioso!|¡Ave María, qué muchacho tan juicioso!
+e1-06|P|Eso mismo hacemos nosotros: creamos herramientas con inteligencia artificial que le quitan a la gente el trabajo pesado.|Eso mismo hacemos nosotros: creamos herramientas con inteligencia artificial que le quitan a la gente el trabajo pesado.
+e1-07|A|¿Y esa florecita amarilla?|¿Y esa florecita amarilla?
+e1-08|P|Es la Pascalia: sus pétalos están conectados como una red. Porque cuando la tecnología se hace bien, las empresas evolucionan… y las personas florecen.|Es la Pascalia: sus pétalos están conectados como una red. Porque cuando la tecnología se hace bien, las empresas evolucionan… y las personas florecen.
+e1-09|A|¡Qué verraquera! ¿Y eso a mí en qué me sirve?|¡Qué verraquera! ¿Y eso a mí en qué me sirve?
+e1-10|P|Eso se lo cuento en el próximo video, abuela.|Eso se lo cuento en el próximo video, abuela.
+e2-01|A|Mijo, este celular me tiene loca. ¿Y usted a qué es que se dedica?|Mijo, este celular me tiene loca. ¿Y usted a qué es que se dedica?
+e2-02|P|A tres cosas, abuela. Mire.|A tres cosas, abuela. Mire.
+e2-03|P|Primero, consultoría: miramos cómo trabaja su empresa, dónde se pierde el tiempo… y qué se puede automatizar con inteligencia artificial.|Primero, consultoría: miramos cómo trabaja su empresa, dónde se pierde el tiempo… y qué se puede automatizar con inteligencia artificial.
+e2-04|A|Como cuando yo reviso la alacena y ya sé qué falta.|Como cuando yo reviso la alacena y ya sé qué falta.
+e2-05|P|¡Exacto!|¡Exacto!
+e2-06|P|Segundo, desarrollo: herramientas a la medida. WhatsApp que responde solo, tableros, documentos que se hacen solitos, apps de campo, reservas, cu erre y ene efe ce.|Segundo, desarrollo: herramientas a la medida. WhatsApp que responde solo, tableros, documentos que se hacen solitos, apps de campo, reservas, QR y NFC.
+e2-07|A|¿Documentos que se hacen solitos? ¡Eso es brujería!|¿Documentos que se hacen solitos? ¡Eso es brujería!
+e2-08|P|No, abuela: es inteligencia artificial.|No, abuela: es inteligencia artificial.
+e2-09|P|Y tercero, capacitación: les enseñamos a empresarios, empleados y a cualquier persona a usar la inteligencia artificial, presencial o virtual.|Y tercero, capacitación: les enseñamos a empresarios, empleados y a cualquier persona a usar la inteligencia artificial, presencial o virtual.
+e2-10|A|¿Y a mí también me enseña?|¿Y a mí también me enseña?
+e2-11|P|Claro, abuela, y sin miedo. Analizamos, desarrollamos y capacitamos, para que su organización florezca.|Claro, abuela, y sin miedo. Analizamos, desarrollamos y capacitamos, para que su organización florezca.
+e2-12|A|¿Y ya tiene cosas hechas para mostrarme?|¿Y ya tiene cosas hechas para mostrarme?
+e2-13|P|Uy, abuela… en el próximo le abro el maletín.|Uy, abuela… en el próximo le abro el maletín.
+e3-01|A|A ver, mijo, muéstreme lo que tiene en ese maletín.|A ver, mijo, muéstreme lo que tiene en ese maletín.
+e3-02|P|Mesa Viva, para restaurantes: mesas, cocina, domicilios y factura electrónica.|MesaViva, para restaurantes: mesas, cocina, domicilios y factura electrónica.
+e3-03|A|¡Pa la comadre del restaurante!|¡Pa' la comadre del restaurante!
+e3-04|P|CuentaFácil: los contratistas le cuentan su día a Pascal y la cuenta de cobro sale lista.|CuentaFácil: los contratistas le cuentan su día a Pascal y la cuenta de cobro sale lista.
+e3-05|A|¡Pa mi nieto, que vive de afán el último día!|¡Pa' mi nieto, que vive de afán el último día!
+e3-06|P|Fanátikos: campeonatos de fútbol con la planilla del árbitro en el celular y la tabla en vivo.|Fanátikos: campeonatos de fútbol con la planilla del árbitro en el celular y la tabla en vivo.
+e3-07|A|¡Pa los del torneo del barrio!|¡Pa' los del torneo del barrio!
+e3-08|P|Flota: los vehículos de su empresa, registrados desde el celular, con ge pe ese y foto.|Flota: los vehículos de su empresa, registrados desde el celular, con GPS y foto.
+e3-09|A|¡Ah, pa saber dónde anda el carro!|¡Ah, pa' saber dónde anda el carro!
+e3-10|P|Nana de ene te: seguimiento de los niños con desnutrición aguda, para el sector salud.|NANA DNT: seguimiento de los niños con desnutrición aguda, para el sector salud.
+e3-11|A|Eso sí es una bendición.|Eso sí es una bendición.
+e3-12|P|Páginas web desde cero, con dominio y mantenimiento. Somos especialistas en menús.|Páginas web desde cero, con dominio y mantenimiento. Somos especialistas en menús.
+e3-13|A|¿Y mi tienda puede tener página?|¿Y mi tienda puede tener página?
+e3-14|P|¡Claro! Y con ene efe ce, el cliente acerca el celular… y listo.|¡Claro! Y con NFC, el cliente acerca el celular… y listo.
+e3-15|A|¡Uy, como magia!|¡Uy, como magia!
+e3-16|P|Y gamificación: su marca convertida en un juego, para que los clientes vuelvan.|Y gamificación: su marca convertida en un juego, para que los clientes vuelvan.
+e3-17|A|¡Hasta a mí me dieron ganas de jugar!|¡Hasta a mí me dieron ganas de jugar!
+e3-18|P|Escríbanos por WhatsApp al tres doce, tres ochenta y ocho, cincuenta doce.|Escríbanos por WhatsApp al 312 388 5012.
+e3-19|A|¡Qué verraquera, mijo! Y dígales que van de parte mía.|¡Qué verraquera, mijo! Y dígales que van de parte mía.
