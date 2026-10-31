@@ -83,14 +83,14 @@
 <script>
 const tl = gsap.timeline({ paused: true });
 
-tl.to("#f06-flor",{rotation:50,duration:9.00,ease:"none"},0);
+tl.to("#f06-flor",{rotation:50,duration:10.08,ease:"none"},0);
 tl.from("#f06-title",{opacity:0,y:-50,duration:.5,ease:"power3.out"},0.1);
 tl.fromTo("#f06-title .mk",{backgroundSize:"0% 100%"},{backgroundSize:"100% 100%",duration:.8,ease:"power2.out"},0.5);
 tl.from("#f06-pascal",{x:-560,duration:.6,ease:"power3.out"},0.3);
-tl.to("#f06-pascal",{rotation:2,transformOrigin:"50% 100%",duration:.7,yoyo:true,repeat:10,ease:"sine.inOut"},1.0);
+tl.to("#f06-pascal",{rotation:2,transformOrigin:"50% 100%",duration:.7,yoyo:true,repeat:11,ease:"sine.inOut"},1.0);
 tl.from(".f06-step",{opacity:0,x:120,duration:.5,ease:"power3.out",stagger:1.20},0.9);
 tl.from(".f06-step i",{scale:0,rotation:-90,duration:.45,ease:"back.out(2.5)",stagger:1.20},1.1);
-tl.from("#f06-pill",{opacity:0,y:40,duration:.45,ease:"back.out(1.8)"},7.40);
+tl.from("#f06-pill",{opacity:0,y:40,duration:.45,ease:"back.out(1.8)"},8.48);
 
 window.__timelines["f06-asistente"] = tl;
 </script>
