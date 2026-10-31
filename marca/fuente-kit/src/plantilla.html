@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="es-CO" class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>[Nombre de la página] · PascalIA</title>
+  <meta name="description" content="[Una frase de 150 caracteres que diga qué resuelve esta página.]">
+  <meta name="theme-color" content="#FFC107">
+  <link rel="icon" href="../logos/favicon.svg" type="image/svg+xml">
+  <!-- Orden obligatorio: fuentes → tokens → componentes → movimiento -->
+  <link rel="stylesheet" href="../css/fuentes.css">
+  <link rel="stylesheet" href="../css/pascalia-tokens.css">
+  <link rel="stylesheet" href="../css/pascalia.css">
+  <link rel="stylesheet" href="../css/pascalia-motion.css">
+  <script src="../js/pascalia.js" defer></script>
+</head>
+<body>
+<!--SPRITE-->
+<a class="skip" href="#main">Saltar al contenido</a>
+
+<header class="nav">
+  <div class="wrap nav-in">
+    <a class="logo" href="#" aria-label="PascalIA, inicio">
+      <svg class="flor" aria-hidden="true"><use href="#flor"/></svg>
+      <span class="logo-txt"><span class="logo-name">Pascal<b>IA</b></span></span>
+    </a>
+    <button class="menu-btn" aria-expanded="false" aria-controls="menu" aria-label="Abrir menú"><span class="menu-ico"><i></i><i></i></span></button>
+    <nav class="nav-links" id="menu" aria-label="Principal">
+      <a href="#servicios">Servicios</a>
+      <a href="#como">Cómo trabajamos</a>
+      <a href="#preguntas">Preguntas</a>
+      <a class="btn btn-primary btn-sm" href="#contacto">Hablemos <svg class="i arr" aria-hidden="true"><use href="#arrow"/></svg></a>
+    </nav>
+  </div>
+  <div class="progress" data-progress><i></i></div>
+</header>
+
+<main id="main">
+  <section class="hero">
+    <div class="hero-bg" aria-hidden="true"><!--FLOR_HERO--></div>
+    <div class="wrap hero-in">
+      <span class="pill-live rise"><i></i> Consultoría · Desarrollo · Capacitación</span>
+      <h1 class="h1" data-words>Ideas que hacen <span class="mark">florecer</span> tu organización</h1>
+      <p class="lead rise d2">Conocimiento. Tecnología. Personas. Resultados. Te acompañamos a convertir tus procesos en herramientas que trabajan por ti.</p>
+      <div class="ctas rise d3">
+        <a class="btn btn-primary" href="#contacto">Agenda una conversación <svg class="i arr" aria-hidden="true"><use href="#arrow"/></svg></a>
+        <a class="btn btn-ghost" href="#servicios">Ver servicios</a>
+      </div>
+      <form class="ask rise d4" style="margin-top:44px" onsubmit="return false">
+        <label class="askbar">
+          <img class="ask-face" src="../graficos/pascal/pascal-rostro.webp" alt="">
+          <span class="ask-ph">Pregúntale a Pascal qué podemos automatizar</span>
+          <input type="text" aria-label="Pregúntale a Pascal">
+          <button class="ask-send" type="submit" aria-label="Enviar"><svg class="i" aria-hidden="true"><use href="#arrow"/></svg></button>
+        </label>
+      </form>
+    </div>
+  </section>
+
+  <section class="section" id="servicios">
+    <div class="wrap">
+      <div class="head reveal">
+        <span class="eyebrow">Lo que hacemos</span>
+        <h2>Tres formas de <span class="mark">crecer</span> contigo</h2>
+        <p>Empresas que evolucionan, personas que florecen.</p>
+      </div>
+      <div class="grid">
+        <article class="card spot reveal">
+          <div class="ico-tile"><svg class="i" aria-hidden="true"><use href="#compass"/></svg></div>
+          <h3>Consultoría</h3>
+          <p>Analiza · Conecta · Transforma. Entendemos tu operación y diseñamos el camino.</p>
+        </article>
+        <article class="card spot reveal d1">
+          <div class="ico-tile"><svg class="i" aria-hidden="true"><use href="#code"/></svg></div>
+          <h3>Desarrollo</h3>
+          <p>Automatiza · Integra · Escala. Construimos las herramientas que tu equipo usa a diario.</p>
+        </article>
+        <article class="card spot reveal d2">
+          <div class="ico-tile"><svg class="i" aria-hidden="true"><use href="#sprout"/></svg></div>
+          <h3>Capacitación</h3>
+          <p>Aprende · Aplica · Florece. Tu equipo se apropia de la tecnología, sin miedo.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section bg-cream" id="como">
+    <div class="wrap" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:64px;align-items:center">
+      <div class="reveal">
+        <h2>Así <span class="mark">arrancamos</span></h2>
+        <ol class="steps" style="margin-top:28px">
+          <li><span><b>Conversamos.</b> Nos cuentas qué te quita tiempo.</span></li>
+          <li><span><b>Proponemos.</b> Te mostramos una solución con alcance y precio claros.</span></li>
+          <li><span><b>Construimos contigo.</b> Avances cortos que puedes probar.</span></li>
+          <li><span><b>Acompañamos.</b> Capacitamos a tu equipo y seguimos cerca.</span></li>
+        </ol>
+      </div>
+      <div class="win reveal d1">
+        <div class="win-bar"><svg class="flor" aria-hidden="true"><use href="#flor"/></svg><b>Pascal<span style="color:var(--gold-ink);margin:0;font:inherit">IA</span></b><span>Propuesta</span></div>
+        <div class="win-body">
+          <ul class="checks">
+            <li>Diagnóstico de tu proceso</li>
+            <li>Prototipo que puedes tocar</li>
+            <li>Capacitación incluida</li>
+          </ul>
+        </div>
+        <div class="win-foot"><span>Valor</span><b>[$ 0.000.000]</b></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section bg-dark">
+    <div class="wrap">
+      <h2 class="reveal" style="text-align:center;max-width:22ch;margin:0 auto">Lo que nos <span class="y">mueve</span></h2>
+      <ul class="facts reveal" style="margin-top:48px">
+        <li><b style="font-size:1.5rem">Innovación con propósito</b><span>Tecnología que resuelve algo real.</span></li>
+        <li><b style="font-size:1.5rem">Soluciones humanas</b><span>Pensadas para quien las usa.</span></li>
+        <li><b style="font-size:1.5rem">Crecimiento sostenible</b><span>Que dure y que escale.</span></li>
+        <li><b style="font-size:1.5rem">Conocimiento sin límites</b><span>Lo que sabemos, lo compartimos.</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="section" id="preguntas">
+    <div class="wrap" style="max-width:820px">
+      <div class="head reveal"><h2>Preguntas <span class="mark">frecuentes</span></h2></div>
+      <div class="faq" data-single>
+        <details class="reveal"><summary>¿Cuánto tarda un proyecto? <svg class="faq-i i" aria-hidden="true"><use href="#plus"/></svg></summary><div class="faq-a"><p>Depende del alcance. Siempre entregamos avances cortos para que pruebes desde la primera semana.</p></div></details>
+        <details class="reveal"><summary>¿Necesito saber de tecnología? <svg class="faq-i i" aria-hidden="true"><use href="#plus"/></svg></summary><div class="faq-a"><p>No. Tú conoces tu operación; nosotros ponemos la tecnología y te acompañamos a usarla.</p></div></details>
+        <details class="reveal"><summary>¿Trabajan con entidades públicas? <svg class="faq-i i" aria-hidden="true"><use href="#plus"/></svg></summary><div class="faq-a"><p>Sí, y con empresas privadas, independientes y equipos de salud.</p></div></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="close" id="contacto">
+    <div class="wrap" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:64px;align-items:center">
+      <div class="reveal">
+        <h2>Tu próxima idea <span class="y">puede florecer</span> este mes</h2>
+        <p>Cuéntanos qué quieres resolver. Te respondemos por WhatsApp o correo.</p>
+        <div class="ctas">
+          <a class="btn btn-primary" href="#">Escríbenos por WhatsApp <svg class="i arr" aria-hidden="true"><use href="#arrow"/></svg></a>
+          <a class="btn btn-outline-w" href="#">Escribir un correo</a>
+        </div>
+      </div>
+      <!--FLOR_CLOSE-->
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-in">
+    <div>
+      <a class="logo logo-w" href="#"><svg class="flor" aria-hidden="true"><use href="#flor"/></svg><span class="logo-txt"><span class="logo-name">Pascal<b>IA</b></span></span></a>
+      <p class="foot-small">Ideas que hacen florecer tu organización.</p>
+    </div>
+    <div class="foot-col"><h3>Servicios</h3><a href="#">Consultoría</a><a href="#">Desarrollo</a><a href="#">Capacitación</a></div>
+    <div class="foot-col"><h3>Soluciones</h3><a href="#">CuentaFácil</a><a href="#">MesaViva</a><a href="#">NANA DNT</a></div>
+    <div class="foot-col"><h3>Legal</h3><a href="#">Política de datos</a><a href="#">Términos</a><a href="#contacto">Contacto</a></div>
+    <p class="foot-legal">© [Año] PascalIA. Hecho en Colombia.</p>
+  </div>
+</footer>
+<button class="to-top" aria-label="Volver arriba"><svg class="i" aria-hidden="true" style="transform:rotate(-90deg)"><use href="#arrow"/></svg></button>
+</body>
+</html>

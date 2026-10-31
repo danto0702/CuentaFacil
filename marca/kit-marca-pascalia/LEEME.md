@@ -5,7 +5,7 @@ Todo lo necesario para que cualquier página, panel o herramienta de PascalIA te
 ## Empieza aquí
 
 1. Abre **`guia-visual.html`** en el navegador: muestra colores, tipografía, componentes, íconos y animaciones funcionando.
-2. Lee **`GUIA_DE_MARCA.md`** (especificación completa) o, si vas a usar una IA para construir, pásale **`INSTRUCCIONES_PARA_IA.md`**.
+2. Lee **`HISTORIA_DE_MARCA.md`** (el porqué de la marca) y **`GUIA_DE_MARCA.md`** (especificación completa) o, si vas a usar una IA para construir, pásale **`INSTRUCCIONES_PARA_IA.md`**.
 3. Copia **`plantillas/plantilla-pagina.html`** (y las carpetas `css/`, `js/`, `fuentes/`, `logos/`, `graficos/`) para empezar una página nueva.
 
 ## Contenido
@@ -13,6 +13,7 @@ Todo lo necesario para que cualquier página, panel o herramienta de PascalIA te
 | Carpeta / archivo | Qué hay |
 |---|---|
 | `guia-visual.html` | Guía visual interactiva (abre sin servidor). |
+| `HISTORIA_DE_MARCA.md` | Concepto: el nombre (Blaise Pascal y la Pascalina), la flor-red, el amarillo, los tres ejes, discurso de marca, tono y mensajes por audiencia. |
 | `GUIA_DE_MARCA.md` | Logo, color con contraste, tipografía, espacio, radios, sombras, íconos, Pascal, componentes, movimiento, accesibilidad, voz y tono, sub-marcas y lista de chequeo. |
 | `INSTRUCCIONES_PARA_IA.md` | Reglas cortas para Claude, ChatGPT, Cursor, v0 y otras herramientas. |
 | `css/fuentes.css` | @font-face locales de Montserrat (600/700/800) e Inter (400/500/600). |

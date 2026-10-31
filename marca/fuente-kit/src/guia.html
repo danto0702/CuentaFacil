@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="es-CO" class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Guía visual · PascalIA</title>
+  <meta name="description" content="Identidad visual de PascalIA: colores, tipografía, componentes, íconos y movimiento.">
+  <link rel="icon" href="logos/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/fuentes.css">
+  <link rel="stylesheet" href="css/pascalia-tokens.css">
+  <link rel="stylesheet" href="css/pascalia.css">
+  <link rel="stylesheet" href="css/pascalia-motion.css">
+  <script src="js/pascalia.js" defer></script>
+  <style>
+    .g-sec { padding: 72px 0; border-top: 1px solid var(--gray); }
+    .g-sec > .wrap > h2 { margin-bottom: 10px; }
+    .g-sec > .wrap > p.lead { margin-bottom: 36px; }
+    .g-row { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; }
+    .g-cap { font: 600 .78rem var(--f-head); color: var(--muted); margin: 26px 0 10px; text-transform: uppercase; letter-spacing: .06em; }
+    .sw { border-radius: var(--r-window); overflow: hidden; box-shadow: var(--hairline), var(--shadow-card); background: #fff; }
+    .sw-c { height: 110px; display: flex; align-items: flex-end; padding: 12px; font: 700 .8rem var(--f-head); }
+    .sw-t { padding: 12px 14px; display: grid; gap: 2px; font-size: .85rem; }
+    .sw-t b { font: 700 .95rem var(--f-head); }
+    .sw-t code { color: var(--muted); font-size: .8rem; }
+    .ty { display: grid; grid-template-columns: 160px 1fr; gap: 20px; align-items: baseline; padding: 18px 0; border-bottom: 1px solid var(--gray); }
+    .ty small { font: 600 .78rem var(--f-head); color: var(--muted); }
+    .ty small code { display: block; font-weight: 400; margin-top: 4px; }
+    .icons { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 10px; }
+    .icons div { display: grid; justify-items: center; gap: 8px; padding: 16px 6px; border-radius: var(--r-tile); box-shadow: var(--hairline); font-size: .72rem; color: var(--muted); transition: background-color var(--t-fast); }
+    .icons div:hover { background: var(--cream); color: var(--graphite); }
+    .icons .i { width: 26px; height: 26px; color: var(--graphite); }
+    .do { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+    .do > div { border-radius: var(--r-window); padding: 22px; box-shadow: var(--hairline); }
+    .do h4 { font: 800 .9rem var(--f-head); margin-bottom: 10px; display: flex; gap: 8px; align-items: center; }
+    .do .yes h4 { color: #1E7B34; } .do .no h4 { color: #B3261E; }
+    .do ul { margin: 0; padding-left: 18px; color: var(--muted); display: grid; gap: 6px; }
+    .demo-box { padding: 28px; border-radius: var(--r-panel); background: var(--cream); box-shadow: inset 0 0 0 1px var(--cream-line); }
+    .motion-tbl td:first-child { font-weight: 600; }
+    .radii { display: flex; flex-wrap: wrap; gap: 16px; }
+    .radii div { width: 110px; height: 80px; background: var(--cream); box-shadow: inset 0 0 0 1px var(--cream-line); display: grid; place-items: center; font: 600 .78rem var(--f-head); }
+    .shadows { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 24px; }
+    .shadows div { height: 110px; background: #fff; border-radius: var(--r-window); display: grid; place-items: center; font: 600 .82rem var(--f-head); }
+    .pascal-row { display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-end; }
+    .pascal-row figure { margin: 0; display: grid; gap: 8px; justify-items: center; font-size: .8rem; color: var(--muted); }
+    .pascal-row img { border-radius: var(--r-panel); background: var(--cream); box-shadow: var(--shadow-card); }
+    @media (max-width: 640px) { .ty { grid-template-columns: 1fr; gap: 6px; } }
+  </style>
+</head>
+<body>
+<!--SPRITE-->
+<header class="nav">
+  <div class="wrap nav-in">
+    <a class="logo" href="#top"><svg class="flor" aria-hidden="true"><use href="#flor"/></svg><span class="logo-txt"><span class="logo-name">Pascal<b>IA</b></span><span class="logo-by">Guía visual <b>v1.0</b></span></span></a>
+    <button class="menu-btn" aria-expanded="false" aria-controls="menu" aria-label="Abrir menú"><span class="menu-ico"><i></i><i></i></span></button>
+    <nav class="nav-links" id="menu" aria-label="Secciones">
+      <a href="#concepto">Concepto</a><a href="#color">Color</a><a href="#tipo">Tipografía</a><a href="#componentes">Componentes</a><a href="#iconos">Íconos</a>
+      <a class="btn btn-primary btn-sm" href="#reglas">Reglas <svg class="i arr" aria-hidden="true"><use href="#arrow"/></svg></a>
+    </nav>
+  </div>
+  <div class="progress" data-progress><i></i></div>
+</header>
+
+<main id="top">
+<section class="hero">
+  <div class="hero-bg" aria-hidden="true"><!--FLOR_HERO--></div>
+  <div class="wrap hero-in">
+    <span class="pill-live rise"><i></i> Identidad de marca · versión 1.0</span>
+    <h1 class="h1" data-words>Así se ve y se <span class="mark">mueve</span> PascalIA</h1>
+    <p class="lead rise d2">Todo lo que necesitas para que cada página, herramienta y panel se sienta PascalIA: amarillo que invita a actuar, grafito que da resultados y crema que da calidez.</p>
+    <div class="ctas rise d3"><a class="btn btn-primary" href="#componentes">Ver componentes <svg class="i arr" aria-hidden="true"><use href="#arrow"/></svg></a><a class="btn btn-ghost" href="#reglas">Las 10 reglas</a></div>
+  </div>
+</section>
+
+<section class="g-sec bg-cream" id="concepto"><div class="wrap">
+  <span class="eyebrow">Concepto de marca</span>
+  <h2 style="margin-top:8px">Pascal + <span class="mark">IA</span></h2>
+  <p class="lead" style="margin-top:12px">El nombre une a Blaise Pascal, el polímata que a los 19 años inventó la Pascalina (una de las primeras calculadoras) para aliviar el trabajo de su padre, con la Inteligencia Artificial. Como él, creamos herramientas que le quitan a las personas la carga operativa.</p>
+  <div class="grid" style="margin-top:36px">
+    <div class="card"><div class="ico-tile" style="background:#fff"><svg class="i" aria-hidden="true"><use href="#compass"/></svg></div><span class="eyebrow">El Pensamiento Pascal</span><h3 style="margin-top:6px">Consultoría</h3><p>Analiza · Conecta · Transforma. Diagnóstico de procesos y transformación digital desde varios ángulos: procesos, datos y personas.</p></div>
+    <div class="card"><div class="ico-tile" style="background:#fff"><svg class="i" aria-hidden="true"><use href="#code"/></svg></div><span class="eyebrow">La Ingeniería Pascalia</span><h3 style="margin-top:6px">Desarrollo</h3><p>Automatiza · Integra · Escala. WhatsApp con IA, chatbots, dashboards, documentos automáticos, apps de campo, CRM, reservas, QR y NFC.</p></div>
+    <div class="card"><div class="ico-tile" style="background:#fff"><svg class="i" aria-hidden="true"><use href="#sprout"/></svg></div><span class="eyebrow">El Florecimiento</span><h3 style="margin-top:6px">Capacitación</h3><p>Aprende · Aplica · Florece. Formación presencial y virtual en IA para empresarios, empleados y cualquier persona.</p></div>
+  </div>
+  <div class="grid" style="margin-top:22px">
+    <div class="note"><svg class="i" aria-hidden="true"><use href="#sparkle"/></svg><p><b>La flor-red.</b> Seis pétalos con venas y nodos, como una red neuronal: lo orgánico y la IA en un solo símbolo. Crecimiento, ramificación, florecimiento.</p></div>
+    <div class="note"><svg class="i" aria-hidden="true"><use href="#target"/></svg><p><b>El amarillo.</b> Diferencia en un sector saturado de azul y negro. Energía, optimismo y claridad; invita a aprender sin miedo al cambio.</p></div>
+  </div>
+  <p class="fine" style="margin-top:18px">Historia completa, discurso de marca y mensajes por audiencia en <code>HISTORIA_DE_MARCA.md</code>.</p>
+</div></section>
+
+<section class="g-sec" id="logo"><div class="wrap">
+  <h2>Logo</h2>
+  <p class="lead">La flor-red (6 pétalos, venas y nodos blancos) más la palabra Pascal<b>IA</b> en Montserrat 800, con "IA" en amarillo. Archivos en <code>logos/</code>.</p>
+  <div class="grid">
+    <div class="card" style="display:grid;place-items:center;min-height:180px"><img src="logos/logo-horizontal.svg" alt="Logo horizontal" style="height:64px;width:auto"></div>
+    <div class="card" style="display:grid;place-items:center;min-height:180px;background:var(--graphite)"><img src="logos/logo-horizontal-blanco.svg" alt="Logo sobre oscuro" style="height:64px;width:auto"></div>
+    <div class="card card-cream" style="display:grid;place-items:center;min-height:180px"><img src="logos/logo-vertical.svg" alt="Logo vertical" style="height:130px;width:auto"></div>
+  </div>
+  <p class="fine" style="margin-top:16px">Área de protección: la altura de la letra "P" alrededor del logo. Tamaño mínimo: 24 px de flor en pantalla (favicon 16 px solo flor). Nunca recolorees los pétalos, nunca pongas el logo sobre amarillo ni sobre fotos sin un velo.</p>
+</div></section>
+
+<section class="g-sec" id="color"><div class="wrap">
+  <h2>Color</h2>
+  <p class="lead">Amarillo = acción. Grafito = resultado y cierre. Crema = calidez. Blanco = aire. Contraste medido sobre blanco (WCAG).</p>
+  <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(170px,1fr))">
+    <!--SWATCHES-->
+  </div>
+  <div class="g-cap">Degradado de marca</div>
+  <div style="height:72px;border-radius:var(--r-window);background:var(--brand-grad)"></div>
+  <p class="fine" style="margin-top:8px">Solo en detalles (barras de progreso, puntos, pétalos decorativos). Nunca como fondo de sección ni detrás de texto largo.</p>
+</div></section>
+
+<section class="g-sec" id="tipo"><div class="wrap">
+  <h2>Tipografía</h2>
+  <p class="lead">Dos voces: <b>Montserrat habla</b> (titulares, botones, etiquetas, cifras) e <b>Inter explica</b> (texto corrido, campos, chips).</p>
+  <div class="ty"><small>Display · H1<code>Montserrat 800 · clamp(2.5–4.75rem) · 1.05 · −0.02em · máx 13ch</code></small><div class="display" style="font-size:clamp(2.2rem,5vw,4rem)">Tu cuenta, <span class="mark">lista</span></div></div>
+  <div class="ty"><small>Headline · H2<code>Montserrat 700 · clamp(2–3.25rem) · 1.1</code></small><div class="headline">Tres formas de crecer</div></div>
+  <div class="ty"><small>Title · H3<code>Montserrat 700 · clamp(1.35–1.75rem) · 1.2</code></small><div class="title">Consultoría que conecta</div></div>
+  <div class="ty"><small>Figure<code>Montserrat 800 · clamp(2.6–4rem) · tabular-nums</code></small><div class="figure">$ 50.000</div></div>
+  <div class="ty"><small>Lead<code>Inter 400 · clamp(1.0625–1.25rem) · muted</code></small><p class="lead">Le cuentas a Pascal lo que hiciste y él organiza el resto.</p></div>
+  <div class="ty"><small>Body<code>Inter 400 · 1.0625rem · 1.65</code></small><p>El contratista es responsable de lo que firma. Pascal organiza, calcula y redacta borradores; nunca inventa actividades.</p></div>
+  <div class="ty"><small>Label<code>Montserrat 600 · 1rem</code></small><span class="label">Fecha de pago</span></div>
+  <div class="ty"><small>Eyebrow<code>Montserrat 700 · .8rem · mayúsculas · gold-ink</code></small><span class="eyebrow">Lo que hacemos</span></div>
+  <div class="ty"><small>Fine<code>Inter 400 · .875rem · muted</code></small><span class="fine">Precios en pesos colombianos, IVA incluido.</span></div>
+</div></section>
+
+<section class="g-sec" id="espacio"><div class="wrap">
+  <h2>Radios, sombras y espacio</h2>
+  <p class="lead">Todo contenedor lleva <b>hairline</b> (1 px inset #E9E9E9) + <b>calidez</b> (sombra suave). Nada de bordes duros ni sombras negras.</p>
+  <div class="g-cap">Radios</div>
+  <div class="radii"><div style="border-radius:12px">field 12</div><div style="border-radius:14px">tile 14</div><div style="border-radius:16px">inner 16</div><div style="border-radius:18px">item 18</div><div style="border-radius:20px">window 20</div><div style="border-radius:24px">panel 24</div><div style="border-radius:999px">pill 999</div></div>
+  <div class="g-cap">Sombras</div>
+  <div class="shadows"><div style="box-shadow:var(--hairline)">hairline</div><div style="box-shadow:var(--hairline),var(--shadow-card)">card</div><div style="box-shadow:var(--shadow-lift)">lift (hover)</div><div style="box-shadow:var(--shadow-brand);background:var(--yellow)">brand (amarillo)</div><div style="box-shadow:var(--shadow-device)">device</div></div>
+  <div class="g-cap">Espaciado</div>
+  <table class="table"><thead><tr><th>Token</th><th>Valor</th><th>Uso</th></tr></thead><tbody>
+    <tr><td>--s-1 / --s-2</td><td class="num">8 / 12 px</td><td>Dentro de componentes (ícono–texto, chips)</td></tr>
+    <tr><td>--s-3</td><td class="num">22 px</td><td>Entre bloques de un mismo grupo, grilla de tarjetas</td></tr>
+    <tr><td>--s-4</td><td class="num">36 px</td><td>Titular → contenido</td></tr>
+    <tr><td>--s-5</td><td class="num">64 px</td><td>Columnas de una sección</td></tr>
+    <tr><td>--section / --section-sm</td><td class="num">104 / 72 px</td><td>Padding vertical de sección (80 / 56 en móvil)</td></tr>
+    <tr><td>--wrap</td><td class="num">1200 px</td><td>Ancho máximo, margen lateral 16 px</td></tr>
+  </tbody></table>
+</div></section>
+
+<section class="g-sec" id="componentes"><div class="wrap">
+  <h2>Componentes</h2>
+  <p class="lead">Copia el HTML de <code>plantillas/plantilla-pagina.html</code>; las clases viven en <code>css/pascalia.css</code>.</p>
+
+  <div class="g-cap">Botones</div>
+  <div class="g-row">
+    <a class="btn btn-primary" href="#componentes">Empieza gratis <svg class="i arr" aria-hidden="true"><use href="#arrow"/></svg></a>
+    <a class="btn btn-dark" href="#componentes">Ver informe</a>
+    <a class="btn btn-ghost" href="#componentes">Más detalles</a>
+    <a class="btn btn-primary btn-sm" href="#componentes">Pequeño</a>
+    <button class="play"><span class="play-dot"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg></span> Mira cómo funciona</button>
+  </div>
+  <div class="g-row" style="margin-top:16px;padding:22px;border-radius:var(--r-window);background:var(--graphite)">
+    <a class="btn btn-primary" href="#componentes">Primario sobre oscuro</a>
+    <a class="btn btn-outline-w" href="#componentes">Contorno blanco</a>
+  </div>
+
+  <div class="g-cap">Píldoras, chips y etiquetas</div>
+  <div class="g-row">
+    <span class="pill-live"><i></i> Pascal está en línea</span>
+    <div class="chips"><button class="chip" aria-pressed="true">Informe</button><button class="chip" aria-pressed="false">Planilla</button><button class="chip" aria-pressed="false">Soportes</button></div>
+    <span class="tag">Borrador</span><span class="tag tag-cream">En revisión</span><span class="tag tag-dark">Aprobado</span>
+  </div>
+
+  <div class="g-cap">Barra de Pascal y respuesta</div>
+  <div class="demo-box">
+    <form class="ask" onsubmit="return false"><label class="askbar"><img class="ask-face" src="graficos/pascal/pascal-rostro.webp" alt=""><span class="ask-ph">Escríbele a Pascal lo que hiciste hoy</span><input type="text" aria-label="Escríbele a Pascal"><button class="ask-send" type="submit" aria-label="Enviar"><svg class="i" aria-hidden="true"><use href="#arrow"/></svg></button></label></form>
+    <div style="display:grid;gap:14px;margin-top:22px;max-width:640px">
+      <div class="bubble-me">Hoy capacité a 12 personas en el uso del nuevo formato.</div>
+      <div class="reply" style="margin:0"><div class="reply-av"><img src="graficos/pascal/pascal-rostro.webp" alt=""></div><div class="reply-bubble"><b class="who">Pascal</b><p>¡Anotado! Lo dejé en la obligación 3. ¿Tienes una foto de la capacitación como soporte?</p></div></div>
+      <div class="reply" style="margin:0"><div class="reply-av"><img src="graficos/pascal/pascal-rostro.webp" alt=""></div><div class="reply-bubble"><span class="typing" aria-label="Pascal está escribiendo"><i></i><i></i><i></i></span></div></div>
+    </div>
+  </div>
+
+  <div class="g-cap">Pestañas</div>
+  <div class="tabs" role="tablist"><span class="tab-ink" aria-hidden="true"></span><button role="tab" aria-selected="true">Diario</button><button role="tab" aria-selected="false">Cierre</button><button role="tab" aria-selected="false">Historial</button></div>
+
+  <div class="g-cap">Tarjetas, ventana y resultado</div>
+  <div class="grid">
+    <a class="card spot tilt" href="#componentes"><div class="ico-tile"><svg class="i" aria-hidden="true"><use href="#chat"/></svg></div><h3>Tarjeta con enlace</h3><p>Sube 4 px y gana sombra al pasar el cursor; resplandor amarillo que sigue el mouse.</p></a>
+    <div class="win"><div class="win-bar"><svg class="flor" aria-hidden="true"><use href="#flor"/></svg><b>Cuenta de octubre</b><span>Borrador</span></div><div class="win-body"><ul class="checks"><li>Informe de actividades</li><li>Planilla PILA</li><li>Antecedentes</li></ul><div style="margin-top:18px" class="bar on"><i style="--w:75%"></i></div></div><div class="win-foot"><span>Total</span><b>$ 4.200.000</b></div></div>
+    <div class="result"><small>Valor del informe</small><span class="result-value">$ 50.000</span><p style="color:var(--on-dark);margin-top:10px">El grafito se reserva para resultados y cierres.</p></div>
+  </div>
+
+  <div class="g-cap">Pasos y método</div>
+  <div class="grid">
+    <ol class="steps"><li><span><b>Escríbele a Pascal</b> lo que hiciste.</span></li><li><span><b>Envía soportes</b>: foto, PDF o nota de voz.</span></li><li><span><b>Revisa y firma</b> tu cuenta.</span></li></ol>
+    <ol class="method"><li class="is-on"><span class="figure" style="font-size:1.5rem">01</span><div><h3 style="font-size:1.1rem">Paso activo</h3><p class="fine">Barra amarilla y fondo crema.</p></div></li><li><span class="figure" style="font-size:1.5rem">02</span><div><h3 style="font-size:1.1rem">Paso siguiente</h3><p class="fine">Atenuado al 40 %.</p></div></li></ol>
+  </div>
+
+  <div class="g-cap">Formularios</div>
+  <div class="grid">
+    <div class="field"><label for="g1">Número de contrato</label><input id="g1" placeholder="CPS-0000-2026"><small>Como aparece en SECOP.</small></div>
+    <div class="field"><label for="g2">Correo</label><input id="g2" aria-invalid="true" value="correo@"><span class="err">Revisa el correo: le falta el dominio.</span></div>
+    <div class="field"><span class="label" style="font-size:.92rem">Modo de corte</span><div class="seg"><input type="radio" name="seg" id="s1" checked><label for="s1">Fin de mes</label><input type="radio" name="seg" id="s2"><label for="s2">Fecha a fecha</label></div><label style="display:flex;gap:10px;align-items:center;margin-top:12px"><input type="checkbox" class="switch" checked> Recordatorio diario</label></div>
+  </div>
+
+  <div class="g-cap">Avisos</div>
+  <div style="display:grid;gap:10px">
+    <div class="note"><svg class="i" aria-hidden="true"><use href="#bell"/></svg><p>Tu planilla vence en 3 días.</p></div>
+    <div class="note note-dark"><svg class="i" aria-hidden="true"><use href="#check"/></svg><p>Cuenta generada. Revisa y firma.</p></div>
+    <div class="note note-error"><svg class="i" aria-hidden="true"><use href="#alert"/></svg><p>No pudimos leer el PDF. Envíalo de nuevo.</p></div>
+  </div>
+
+  <div class="g-cap">Preguntas frecuentes</div>
+  <div class="faq" data-single style="max-width:760px">
+    <details open><summary>¿Pascal inventa actividades? <svg class="faq-i i" aria-hidden="true"><use href="#plus"/></svg></summary><div class="faq-a"><p>No. Solo organiza lo que tú le cuentas. Tú revisas y firmas.</p></div></details>
+    <details><summary>¿Cuánto cuesta? <svg class="faq-i i" aria-hidden="true"><use href="#plus"/></svg></summary><div class="faq-a"><p>Respuesta en Inter, color muted.</p></div></details>
+  </div>
+
+  <div class="g-cap">Cifras sobre grafito</div>
+  <div style="background:var(--graphite);border-radius:var(--r-panel);padding:36px 12px"><ul class="facts"><li><b>3</b><span>servicios</span></li><li><b>4</b><span>valores</span></li><li><b>1</b><span>flor</span></li></ul></div>
+</div></section>
+
+<section class="g-sec" id="iconos"><div class="wrap">
+  <h2>Íconos</h2>
+  <p class="lead">Línea de 24 × 24, trazo 1.85, extremos redondeados, sin relleno, color = <code>currentColor</code>. Nunca emojis como íconos. Sprite: <code>iconos/iconos.svg</code> · sueltos: <code>iconos/svg/</code>.</p>
+  <div class="icons"><!--ICONS--></div>
+</div></section>
+
+<section class="g-sec" id="pascal"><div class="wrap">
+  <h2>Pascal</h2>
+  <p class="lead">El asistente de PascalIA. Usa solo las ilustraciones oficiales de <code>graficos/pascal/</code>; no lo redibujes, no le cambies colores ni lo generes con IA.</p>
+  <div class="pascal-row">
+    <figure><img src="graficos/pascal/pascal.webp" alt="Pascal" style="height:220px;width:auto"><figcaption>pascal.webp · hoja de personaje</figcaption></figure>
+    <figure><img src="graficos/pascal/pascal-guino.webp" alt="Pascal guiñando" style="height:180px;width:auto"><figcaption>pascal-guino · cierres</figcaption></figure>
+    <figure><img src="graficos/pascal/pascal-panel.webp" alt="Pascal con panel" style="height:180px;width:auto"><figcaption>pascal-panel · cuerpo entero</figcaption></figure>
+    <figure><img src="graficos/pascal/pascalbot-avatar.webp" alt="Avatar de Pascal" style="height:96px;width:96px;border-radius:50%"><figcaption>pascalbot-avatar · chat</figcaption></figure>
+    <figure><img src="graficos/pascal/pascal-rostro.webp" alt="Rostro de Pascal" style="height:96px;width:96px;border-radius:50%;object-fit:cover;box-shadow:0 0 0 3px var(--yellow)"><figcaption>rostro · avatar</figcaption></figure>
+  </div>
+</div></section>
+
+<section class="g-sec" id="movimiento"><div class="wrap">
+  <h2>Movimiento</h2>
+  <p class="lead">Una sola curva: <code>cubic-bezier(.22, 1, .36, 1)</code> (sale rápido, llega suave). Entradas cortas, loops lentos y sutiles. Todo se apaga con <code>prefers-reduced-motion</code>.</p>
+  <table class="table motion-tbl"><thead><tr><th>Efecto</th><th>Duración</th><th>Detalle</th></tr></thead><tbody>
+    <tr><td>Color / fondo en hover</td><td class="num">200 ms</td><td>Botones, chips, enlaces del pie</td></tr>
+    <tr><td>Elevación de botón</td><td class="num">220 ms</td><td>−2 px + sombra amarilla; flecha se corre 4 px; al presionar escala .97</td></tr>
+    <tr><td>Destello del botón primario</td><td class="num">4 s ciclo</td><td>Franja blanca diagonal; también una vez al pasar el cursor (900 ms)</td></tr>
+    <tr><td>Nav al hacer scroll</td><td class="num">300 ms</td><td>72 → 60 px, blanco 86 % con desenfoque; barra de lectura amarilla de 3 px</td></tr>
+    <tr><td>Subrayado de enlaces</td><td class="num">300 ms</td><td>Línea amarilla de 2 px que crece desde la izquierda</td></tr>
+    <tr><td>Entrada al hacer scroll (.reveal)</td><td class="num">600 ms</td><td>Opacidad 0 → 1 y sube 24 px; escalonar 80 ms</td></tr>
+    <tr><td>Titular palabra por palabra</td><td class="num">600 ms</td><td>Cada palabra sube 20 px; 80 ms entre palabras; inicia a los 150 ms</td></tr>
+    <tr><td>Marcador (.mark)</td><td class="num">900 ms</td><td>Banda amarilla 58–90 % de la línea que se dibuja de izquierda a derecha; una por titular</td></tr>
+    <tr><td>Entrada al cargar (.rise)</td><td class="num">700 ms</td><td>Sube 18 px; retrasos 450 / 600 / 750 ms</td></tr>
+    <tr><td>Punto en vivo (pulse)</td><td class="num">2 s</td><td>Halo amarillo que se expande 10 px</td></tr>
+    <tr><td>Flor del héroe</td><td class="num">60 s</td><td>Gira una vuelta, 13 % de opacidad; nodos laten (3.2 s)</td></tr>
+    <tr><td>FAQ</td><td class="num">300 ms</td><td>Barra amarilla izquierda crece; el "+" gira 45° y se vuelve amarillo</td></tr>
+    <tr><td>Escribiendo… (dots)</td><td class="num">1 s</td><td>Tres puntos que saltan y se vuelven amarillos</td></tr>
+  </tbody></table>
+  <div class="g-row" style="margin-top:28px">
+    <div style="position:relative;width:120px;height:120px;display:grid;place-items:center"><span class="ring"></span><span class="ring r2"></span><svg class="flor" style="width:56px;height:56px" aria-hidden="true"><use href="#flor"/></svg></div>
+    <p class="fine" style="max-width:30em">Ondas (.ring): para notificaciones, NFC o "en vivo". Usa máximo un elemento animado en loop por pantalla además de la flor.</p>
+  </div>
+</div></section>
+
+<section class="g-sec bg-cream" id="reglas"><div class="wrap">
+  <h2>Las 10 reglas</h2>
+  <p class="lead">Si dudas, vuelve aquí.</p>
+  <ol class="steps" style="gap:16px">
+    <li><span><b>Grafito sobre amarillo.</b> Nunca texto blanco sobre amarillo.</span></li>
+    <li><span><b>El amarillo es acción.</b> Botones, marcador, puntos, foco. Nunca fondo de sección.</span></li>
+    <li><span><b>El grafito es resultado.</b> Solo para cifras finales, resultados y el cierre de la página.</span></li>
+    <li><span><b>Hairline + calidez.</b> Contenedores con línea de 1 px y sombra suave; sin bordes duros.</span></li>
+    <li><span><b>Montserrat habla, Inter explica.</b> No mezcles otras fuentes.</span></li>
+    <li><span><b>Un marcador por titular.</b> Sobre la palabra que importa.</span></li>
+    <li><span><b>Íconos de línea</b> del set oficial, nunca emojis como íconos.</span></li>
+    <li><span><b>La flor no se toca.</b> 6 pétalos, venas y nodos blancos, 82 % de opacidad.</span></li>
+    <li><span><b>Pascal solo desde el arte oficial.</b></span></li>
+    <li><span><b>Español de Colombia, tuteo, cordial.</b> Frases cortas, verbos de acción, sin tecnicismos.</span></li>
+  </ol>
+</div></section>
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-in">
+    <div><a class="logo logo-w" href="#top"><svg class="flor" aria-hidden="true"><use href="#flor"/></svg><span class="logo-txt"><span class="logo-name">Pascal<b>IA</b></span></span></a><p class="foot-small">Ideas que hacen florecer tu organización.</p></div>
+    <div class="foot-col"><h3>Guía</h3><a href="#color">Color</a><a href="#tipo">Tipografía</a><a href="#componentes">Componentes</a></div>
+    <div class="foot-col"><h3>Recursos</h3><a href="#iconos">Íconos</a><a href="#pascal">Pascal</a><a href="#movimiento">Movimiento</a></div>
+    <div class="foot-col"><h3>Archivos</h3><a href="HISTORIA_DE_MARCA.md">Historia de marca</a><a href="GUIA_DE_MARCA.md">Guía de marca</a><a href="INSTRUCCIONES_PARA_IA.md">Instrucciones para IA</a><a href="plantillas/plantilla-pagina.html">Plantilla</a></div>
+    <p class="foot-legal">© 2026 PascalIA. Conocimiento. Tecnología. Personas. Resultados.</p>
+  </div>
+</footer>
+<button class="to-top" aria-label="Volver arriba"><svg class="i" aria-hidden="true" style="transform:rotate(-90deg)"><use href="#arrow"/></svg></button>
+</body>
+</html>
