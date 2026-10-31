@@ -38,5 +38,5 @@ e3-14|P|¡Claro! Y con ene efe ce, el cliente acerca el celular… y listo.|¡Cl
 e3-15|A|¡Uy, como magia!|¡Uy, como magia!
 e3-16|P|Y gamificación: su marca convertida en un juego, para que los clientes vuelvan.|Y gamificación: su marca convertida en un juego, para que los clientes vuelvan.
 e3-17|A|¡Hasta a mí me dieron ganas de jugar!|¡Hasta a mí me dieron ganas de jugar!
-e3-18|P|Escríbanos por WhatsApp al tres doce, tres ochenta y ocho, cincuenta doce.|Escríbanos por WhatsApp al 312 388 5012.
+e3-18|P|Escríbanos por WhatsApp al tres, uno, dos… tres, ocho, ocho… cinco, cero, uno, dos.|Escríbanos por WhatsApp al 312 388 5012.
 e3-19|A|¡Qué verraquera, mijo! Y dígales que van de parte mía.|¡Qué verraquera, mijo! Y dígales que van de parte mía.

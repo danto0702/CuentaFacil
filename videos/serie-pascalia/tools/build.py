@@ -46,7 +46,7 @@ CSS = '''
 .pill{display:inline-flex;align-items:center;gap:10px;padding:12px 22px;border-radius:999px;background:#fff;box-shadow:inset 0 0 0 2px #E9E9E9;font:600 30px/1 "Inter",sans-serif;color:#1F1F1F}
 .pill i{width:12px;height:12px;border-radius:50%;background:#FFC107}
 .char{position:absolute;bottom:20px;filter:drop-shadow(0 26px 30px rgba(31,20,10,.45));opacity:0}
-.bub{position:absolute;max-width:640px;padding:22px 30px;border-radius:30px;font:700 40px/1.22 "Montserrat",sans-serif;letter-spacing:-.01em;opacity:0;box-shadow:0 16px 34px -12px rgba(31,20,10,.55)}
+.bub{position:absolute;max-width:720px;padding:22px 30px;border-radius:30px;font:700 40px/1.22 "Montserrat",sans-serif;letter-spacing:-.01em;opacity:0;box-shadow:0 16px 34px -12px rgba(31,20,10,.55)}
 .bub.A{left:40px;bottom:900px;background:#fff;color:#1F1F1F;box-shadow:inset 0 0 0 4px #D9A21B,0 16px 34px -12px rgba(31,20,10,.55);border-bottom-left-radius:8px}
 .bub.P{right:40px;bottom:980px;background:#FFC107;color:#1F1F1F;border-bottom-right-radius:8px}
 .bub small{display:block;font:800 22px/1 "Montserrat",sans-serif;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;opacity:.65}
@@ -92,7 +92,7 @@ def ins_title(lines, sub=''):
 
 def ins_logo():
     return ('<div class="in"><img class="it" src="assets/brand/flower.svg" style="width:230px;height:230px" alt="">'
-            '<h2 class="mh it" style="font-size:118px;margin-top:10px">Pascal<span style="color:#E0A800">IA</span></h2>'
+            '<h2 class="mh it" style="font-size:118px;margin-top:10px">Pascal<span style="color:#A87600">IA</span></h2>'
             '<p class="sub it">Tecnología e inteligencia artificial</p></div>')
 
 def ins_blaise():
@@ -108,8 +108,8 @@ def ins_icons(items, head):
     return f'<div class="in"><h2 class="mh it" style="font-size:76px;margin-bottom:44px">{head}</h2><div style="display:flex;gap:56px">{tiles}</div></div>'
 
 def ins_flower(text):
-    return (f'<div class="in"><img class="it flor" src="assets/brand/flower.svg" style="width:300px;height:300px" alt="">'
-            f'<h2 class="mh it" style="font-size:62px;margin-top:22px">{text}</h2></div>')
+    return (f'<div class="in" style="justify-content:flex-start;padding-top:36px"><img class="it flor" src="assets/brand/flower.svg" style="width:240px;height:240px" alt="">'
+            f'<h2 class="mh it" style="font-size:56px;margin-top:18px">{text}</h2></div>')
 
 def contact_strip():
     return ('<div class="it" style="display:flex;align-items:center;gap:26px;margin-top:30px">'
@@ -124,7 +124,7 @@ def ins_next(title):
 
 def ins_contact():
     return ('<div class="in"><div class="it" style="display:flex;align-items:center;gap:18px"><img src="assets/brand/flower.svg" style="width:96px;height:96px" alt="">'
-            '<span class="mh" style="font-size:84px">Pascal<span style="color:#E0A800">IA</span></span></div>'
+            '<span class="mh" style="font-size:84px">Pascal<span style="color:#A87600">IA</span></span></div>'
             f'<p class="sub it" style="margin-top:8px">Ideas que hacen florecer tu organización</p>{contact_strip()}</div>')
 
 def ins_three(active=None):
@@ -196,6 +196,7 @@ EP = {
 }
 
 HEAD, GAP, TAIL = 0.35, 0.3, 0.55
+PACE = {'ep3': (0.25, 0.18, 0.4)}
 
 def chunks(text, limit=56):
     words = text.split(); out = []; cur = ''
@@ -265,10 +266,11 @@ def build(ep):
     json.dump({'id': f'pascalia-{ep}', 'name': f'pascalia-{ep}', 'createdAt': '2026-10-31T00:00:00.000Z'}, open(os.path.join(out, 'meta.json'), 'w'))
     t = 0.0; rows = []; vo = []; timing = []
     for i, b in enumerate(EP[ep]['beats']):
-        lt = []; c = HEAD
+        head, gap, tail = PACE.get(ep, (HEAD, GAP, TAIL))
+        lt = []; c = head
         for n, *_ in b['lines']:
-            d = dur(n); lt.append((round(c, 2), round(d, 2))); c += d + GAP
-        D = round(c - GAP + b.get('tail', TAIL), 2)
+            d = dur(n); lt.append((round(c, 2), round(d, 2))); c += d + gap
+        D = round(c - gap + b.get('tail', tail), 2)
         cid, html = beat_html(ep, i, b, D, lt)
         open(os.path.join(fr, f'{cid}.html'), 'w').write(html)
         rows.append(f'      <div id="{cid}" class="clip" data-composition-id="{cid}" data-composition-src="compositions/frames/{cid}.html" data-start="{t:.2f}" data-duration="{D:.2f}" data-track-index="1" data-width="1080" data-height="1920"></div>')
