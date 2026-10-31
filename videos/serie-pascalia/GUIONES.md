@@ -3,7 +3,7 @@
 **Concepto:** Pascal visita a su abuela santandereana, que le pregunta todo. Él le explica PascalIA con ejemplos de la vida diaria. Humor y ternura; cada episodio cierra con una pregunta de la abuela que lleva al siguiente.
 
 - **Formato:** vertical 1080 × 1920, 60–75 s, para Reels, TikTok y estados de WhatsApp.
-- **Voces:** Pascal con la voz clonada del dueño (VoxCPM). La abuela con una voz sintética diseñada en VoxCPM (no es la voz de una persona real).
+- **Voces:** Pascal con la voz clonada del dueño (VoxCPM). La abuela con la voz sintética "b" diseñada en VoxCPM (elegida por el dueño, 2026-10-31; no es la voz de una persona real).
 - **Escenario:** el corredor de una casa santandereana: baldosa, matas en tarros, mecedora, mesa con tinto y arepa. Desde la mitad de cada video entran los colores de PascalIA: crema, amarillo y grafito.
 - **La abuela:** trata de "usted" a todos, como buena santandereana. Sus muletillas son "¡Ave María!", "¡Qué verraquera!" y "mijo".
 - **Cierre fijo:** logo de PascalIA, "Escríbenos por WhatsApp: 312 388 5012" y pascalia.lat. Sin precios.
