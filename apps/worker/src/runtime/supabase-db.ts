@@ -60,6 +60,21 @@ export class SupabasePipelineDb implements PipelineDb {
     return row.processed_at === null;
   }
 
+  /** When the person last wrote to Pascal (the 24-hour window of WhatsApp). */
+  async lastInbound(phone: string): Promise<Date | null> {
+    const row = must(
+      await this.sb
+        .from('wa_inbound')
+        .select('received_at')
+        .eq('phone_e164', phone)
+        .order('received_at', { ascending: false })
+        .limit(1)
+        .maybeSingle(),
+      'lastInbound',
+    ) as { received_at: string } | null;
+    return row ? new Date(row.received_at) : null;
+  }
+
   async markInboundProcessed(wamid: string): Promise<void> {
     must(
       await this.sb.from('wa_inbound').update({ processed_at: new Date().toISOString() }).eq('wamid', wamid),

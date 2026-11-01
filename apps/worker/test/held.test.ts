@@ -77,4 +77,23 @@ describe('delivery outside the 24-hour window', () => {
     expect(s.sent).toEqual(msgs);
     expect(await flushHeld(s.d, 'u1', to.phone)).toBe(0);
   });
+
+  it('checks the window before sending: WhatsApp accepts the text and only reports it as failed later', async () => {
+    const s = setup(true);
+    const now = new Date('2026-10-31T04:02:36Z');
+    const wrote = (iso: string | null) => ({
+      ...s.d,
+      now: () => now,
+      lastInbound: async () => (iso ? new Date(iso) : null),
+    });
+    // Wrote 25 hours ago: the notice, not the text that WhatsApp would drop.
+    expect(await deliver(wrote('2026-10-30T03:00:00Z'), to, msgs, 'un mensaje')).toBe('held');
+    expect(s.sent).toEqual([]);
+    expect(s.templates).toHaveLength(1);
+    // Never wrote from this number.
+    expect(await deliver(wrote(null), to, msgs, 'un mensaje')).toBe('held');
+    // Wrote an hour ago: sent right away.
+    expect(await deliver(wrote('2026-10-31T03:00:00Z'), to, msgs, 'un mensaje')).toBe('sent');
+    expect(s.sent).toEqual(msgs);
+  });
 });

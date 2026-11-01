@@ -29,7 +29,16 @@ export interface DeliverDeps {
   send(to: string, out: Outgoing): Promise<string>;
   sendTemplate(to: string, t: TemplateMessage): Promise<string>;
   log: Logger;
+  /**
+   * When the person last wrote (null: never). WhatsApp accepts a free-form message outside the window and
+   * only reports it as failed later (status 131047), so the window is checked before sending.
+   */
+  lastInbound?(phone: string): Promise<Date | null>;
+  now?(): Date;
 }
+
+/** The 24-hour window, with a margin for the time the message takes to reach WhatsApp. */
+const WINDOW_MS = 24 * 3600_000 - 10 * 60_000;
 
 const isWindowClosed = (e: unknown) => (e as { code?: number }).code === WINDOW_CLOSED;
 
@@ -45,6 +54,11 @@ export async function deliver(
   /** What is waiting, for the template: «los documentos de tu cuenta». */
   what: string,
 ): Promise<'sent' | 'held'> {
+  if (d.lastInbound) {
+    const last = await d.lastInbound(to.phone);
+    const now = d.now?.() ?? new Date();
+    if (!last || now.getTime() - last.getTime() > WINDOW_MS) return holdAndNotify(d, to, outs, what);
+  }
   for (let i = 0; i < outs.length; i++) {
     try {
       await d.send(to.phone, outs[i]!);
@@ -53,22 +67,32 @@ export async function deliver(
         d.log.error('deliver.send_failed', { userId: to.userId, error: String(e) });
         continue;
       }
-      await d.held.hold(to.userId, outs.slice(i));
-      try {
-        await d.sendTemplate(to.phone, {
-          name: NOTICE_TEMPLATE,
-          language: 'es',
-          body: [to.name, what],
-          quickReplies: [SHOW_HELD],
-        });
-      } catch (t) {
-        // Template not approved yet: the messages wait until the person writes.
-        d.log.error('deliver.notice_failed', { userId: to.userId, error: String(t) });
-      }
-      return 'held';
+      return holdAndNotify(d, to, outs.slice(i), what);
     }
   }
   return 'sent';
+}
+
+/** Keeps the messages and sends the approved notice; they go out when the person taps it or writes. */
+async function holdAndNotify(
+  d: DeliverDeps,
+  to: { userId: string; phone: string; name: string },
+  outs: Outgoing[],
+  what: string,
+): Promise<'held'> {
+  await d.held.hold(to.userId, outs);
+  try {
+    await d.sendTemplate(to.phone, {
+      name: NOTICE_TEMPLATE,
+      language: 'es',
+      body: [to.name, what],
+      quickReplies: [SHOW_HELD],
+    });
+  } catch (t) {
+    // Template not approved yet: the messages wait until the person writes.
+    d.log.error('deliver.notice_failed', { userId: to.userId, error: String(t) });
+  }
+  return 'held';
 }
 
 /** Sends what was held for the user, in order; how many went out. */

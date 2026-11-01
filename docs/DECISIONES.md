@@ -345,3 +345,11 @@
   - `table(…, { innerLines: false })` y `cell({ boxed })` en `ooxml.ts`.
   - El tamaño por forma también aplica a `evidence_obligations[].evidences[]` de las plantillas de otras entidades.
   - En la prueba con pantallazos el informe pasó de 5 a 3 hojas.
+
+## ADR-060 — La ventana de 24 horas se revisa antes de enviar (2026-11-01)
+- **Contexto:** un mensaje escrito desde el panel (ADR-057) no llegó y el worker lo registró como «sent». WhatsApp acepta el texto aunque hayan pasado más de 24 horas desde el último mensaje de la persona. Segundos después lo reporta como fallido en un aviso de estado (error 131047, «Re-engagement message»). `deliver` (ADR-043) solo detectaba ese error si llegaba al enviar, así que nunca guardaba el mensaje ni mandaba la plantilla `aviso_pendiente`. La columna `conversations.last_inbound_at` existía, pero nadie la llenaba.
+- **Decisión:**
+  - Antes de enviar, `deliver` busca el último mensaje de la persona en `wa_inbound`, la misma fuente que usa el panel para mostrar la ventana.
+  - Si nunca escribió desde ese número, o si pasaron más de 23 h 50 min (10 minutos de margen), el mensaje queda guardado y se envía la plantilla de aviso. La persona lo recibe cuando toca «Ver ahora» o cuando vuelve a escribir.
+  - Se mantiene la detección del error al enviar.
+- **Consecuencias:** aplica a todo lo que Pascal envía por su cuenta: mensajes del panel, pagos confirmados, transferencias y avisos de gestores. No cambia el esquema de la base de datos. El mensaje del 31/10 a la contratista sin teléfono (usuario de WhatsApp CO.…) se perdió y hay que volver a escribirlo desde el panel.

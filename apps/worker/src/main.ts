@@ -163,6 +163,7 @@ const deliverDeps: DeliverDeps = {
   },
   sendTemplate: (to, t) => messenger.sendTemplate(to, t),
   log: alertLog,
+  lastInbound: (phone) => pipelineDb.lastInbound(phone),
 };
 const recipient = (u: { id: string; phone: string; fullName: string }) => ({
   userId: u.id,
