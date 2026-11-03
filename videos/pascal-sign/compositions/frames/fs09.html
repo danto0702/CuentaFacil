@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="es-CO">
+<head><meta charset="UTF-8" /></head>
+<body>
+<template>
+<style>
+
+@font-face{font-family:"Montserrat";font-weight:700;src:url("assets/fonts/montserrat-latin-700-normal.woff2") format("woff2")}
+@font-face{font-family:"Montserrat";font-weight:800;src:url("assets/fonts/montserrat-latin-800-normal.woff2") format("woff2")}
+@font-face{font-family:"Inter";font-weight:500;src:url("assets/fonts/inter-latin-500-normal.woff2") format("woff2")}
+@font-face{font-family:"Inter";font-weight:600;src:url("assets/fonts/inter-latin-600-normal.woff2") format("woff2")}
+
+#root{position:absolute;inset:0;overflow:hidden}
+
+#root{font-family:"Inter",sans-serif;color:#fff}
+.abs{position:absolute}
+.dark{position:absolute;inset:0;background:radial-gradient(90% 60% at 50% 30%,#2B2B2B 0%,#151515 60%,#0B0B0B 100%)}
+.light{position:absolute;inset:0;background:radial-gradient(80% 45% at 50% 12%,rgba(255,193,7,.28),transparent 70%),linear-gradient(180deg,#FFF8E1 0%,#FFFDF5 55%,#FFFFFF 100%)}
+.yel{position:absolute;inset:0;background:#FFC107}
+.h{position:absolute;left:60px;right:60px;text-align:center;font-family:"Montserrat",sans-serif;font-weight:800;letter-spacing:-.02em;line-height:1.05}
+.h.w{color:#fff}.h.g{color:#1F1F1F}
+.mk{background:linear-gradient(transparent 58%,#FFC107 58%,#FFC107 90%,transparent 90%);padding:0 .06em}
+.yy{color:#FFC107}
+.red{color:#FF5A5A}
+.ic{width:100%;height:100%;fill:none;stroke-width:1.85;stroke-linecap:round;stroke-linejoin:round}
+.phone{position:absolute;border-radius:64px;background:#0E0E0E;border:12px solid #2A2A2A;box-shadow:0 40px 80px -30px rgba(0,0,0,.8),0 0 0 2px #444;overflow:hidden}
+.phone.lite{border-color:#1F1F1F;box-shadow:0 40px 80px -30px rgba(31,31,31,.45)}
+.scr{position:absolute;inset:0;overflow:hidden}
+.wa-top{height:120px;background:#1F2C34;display:flex;align-items:flex-end;padding:0 26px 18px;gap:16px;color:#E9EDEF;font:700 34px/1 "Inter",sans-serif}
+.wa-search{margin:22px 22px 0;height:76px;border-radius:40px;background:#202C33;display:flex;align-items:center;gap:16px;padding:0 26px;color:#E9EDEF;font:500 36px/1 "Inter",sans-serif}
+.wa-search .ic{width:36px;height:36px}
+.caret{display:inline-block;width:3px;height:40px;background:#25D366;margin-left:4px;vertical-align:middle}
+.tile-sig{position:absolute;width:190px;height:150px;border-radius:14px;background:#F1EEE6;display:grid;place-items:center;box-shadow:0 6px 16px rgba(0,0,0,.5)}
+.tile-sig .sig{width:160px}
+.doc{position:absolute;width:300px;height:400px;border-radius:18px;background:#FAFAF7;color:#1F1F1F;padding:26px;box-shadow:0 20px 40px -12px rgba(0,0,0,.7)}
+.doc b{display:block;font:800 30px/1 "Montserrat",sans-serif;letter-spacing:.06em}
+.doc s{display:block;height:12px;border-radius:6px;background:#DDD;margin-top:14px}
+.doc .sig{position:absolute;left:30px;bottom:40px;width:220px}
+.chip{display:inline-flex;align-items:center;gap:12px;padding:16px 30px;border-radius:999px;font:800 34px/1 "Montserrat",sans-serif}
+.cap{position:absolute;left:70px;right:70px;bottom:250px;display:flex;justify-content:center}
+.cap span{display:inline-block;max-width:940px;padding:18px 28px;border-radius:24px;background:rgba(15,15,15,.88);color:#fff;font:700 40px/1.25 "Montserrat",sans-serif;text-align:center;opacity:0}
+.card{position:absolute;border-radius:36px;background:#fff;box-shadow:inset 0 0 0 3px #F3E7BE,0 30px 60px -24px rgba(31,31,31,.35);color:#1F1F1F}
+.row{display:grid;grid-template-columns:160px 1fr 230px;gap:16px;align-items:center;padding:20px 28px;border-top:2px solid #EFEFEF;font:600 28px/1.2 "Inter",sans-serif}
+.row b{font:800 28px/1 "Montserrat",sans-serif;color:#8A6100;text-align:right}
+.row i{font-style:normal;color:#5C5C5C}
+.char{position:absolute;filter:drop-shadow(0 26px 30px rgba(31,31,31,.3))}
+
+
+#fs09-t{top:120px;font-size:84px}
+#fs09-rep{left:50px;top:470px;width:980px;overflow:hidden}
+#fs09-rep h3{display:flex;align-items:center;gap:16px;padding:30px 28px 22px;font:800 38px/1 "Montserrat",sans-serif}
+#fs09-rep h3 img{width:64px;height:64px;border-radius:16px}
+.fs09-hd{display:grid;grid-template-columns:160px 1fr 230px;gap:16px;padding:14px 28px;background:#FFF8E1;font:800 22px/1 "Montserrat",sans-serif;letter-spacing:.08em;color:#8A6100}
+#fs09-dl{left:300px;top:1300px;width:480px;height:110px;border-radius:55px;background:#1F1F1F;color:#fff;display:flex;align-items:center;justify-content:center;gap:16px;font:800 36px/1 "Montserrat",sans-serif}
+#fs09-dl .ic{width:44px;height:44px;transform:rotate(180deg)}
+
+</style>
+<div id="root" data-composition-id="fs09" data-width="1080" data-height="1920">
+<div class="light"></div>
+<h1 id="fs09-t" class="h g">Tu historial,<br>con <span class="mk">consecutivo</span></h1>
+<div id="fs09-rep" class="card"><h3><img src="assets/brand/pascal-sign-logo.webp" alt="">Mis firmas</h3>
+<div class="fs09-hd"><span>FECHA</span><span>DOCUMENTO</span><span style="text-align:right">CONSECUTIVO</span></div>
+<div class="row fs09-row"><i>03/11/2026</i><span>Acta de entrega</span><b>DT-0042-2026</b></div><div class="row fs09-row"><i>31/10/2026</i><span>Informe de actividades</span><b>DT-0041-2026</b></div><div class="row fs09-row"><i>28/10/2026</i><span>Cuenta de cobro</span><b>DT-0040-2026</b></div><div class="row fs09-row"><i>24/10/2026</i><span>Contrato de servicios</span><b>DT-0039-2026</b></div><div class="row fs09-row"><i>20/10/2026</i><span>Constancia</span><b>DT-0038-2026</b></div></div>
+<div id="fs09-dl" class="abs"><svg class="ic" viewBox="0 0 24 24" style="stroke:#FFC107" aria-hidden="true"><path d="M12 15V4M7.5 8.5L12 4l4.5 4.5"/><path d="M4 15v3.5A2.5 2.5 0 006.5 21h11a2.5 2.5 0 002.5-2.5V15"/></svg>Descargar</div>
+<div class="cap"><span id="fs09-c0">Y puedes descargar el detallado de todas las firmas</span></div><div class="cap"><span id="fs09-c1">que has hecho, cada una con su consecutivo.</span></div>
+</div>
+<script>
+const tl = gsap.timeline({ paused: true });
+
+tl.from("#fs09-t",{opacity:0,y:-40,duration:.4,ease:"back.out(1.8)"},0);
+tl.from("#fs09-rep",{y:120,opacity:0,duration:.45,ease:"power3.out"},.15);
+tl.from(".fs09-row",{opacity:0,x:-80,duration:.3,ease:"power3.out",stagger:.18},.5);
+tl.from("#fs09-dl",{scale:.5,opacity:0,duration:.35,ease:"back.out(2)"},2.68);
+tl.to("#fs09-dl",{scale:1.06,duration:.35,yoyo:true,repeat:8,ease:"sine.inOut"},3.08);
+tl.fromTo(".fs09-row b",{backgroundColor:"rgba(255,193,7,0)"},{backgroundColor:"rgba(255,193,7,.35)",duration:.3,stagger:.12},4.46);
+tl.set("#fs09-c0",{opacity:1},0.30);
+tl.set("#fs09-c0",{opacity:0},3.52);
+tl.set("#fs09-c1",{opacity:1},3.52);
+tl.set("#fs09-c1",{opacity:0},6.54);
+
+window.__timelines["fs09"] = tl;
+</script>
+</template>
+</body>
+</html>

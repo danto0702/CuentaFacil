@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="es-CO">
+<head><meta charset="UTF-8" /></head>
+<body>
+<template>
+<style>
+
+@font-face{font-family:"Montserrat";font-weight:700;src:url("assets/fonts/montserrat-latin-700-normal.woff2") format("woff2")}
+@font-face{font-family:"Montserrat";font-weight:800;src:url("assets/fonts/montserrat-latin-800-normal.woff2") format("woff2")}
+@font-face{font-family:"Inter";font-weight:500;src:url("assets/fonts/inter-latin-500-normal.woff2") format("woff2")}
+@font-face{font-family:"Inter";font-weight:600;src:url("assets/fonts/inter-latin-600-normal.woff2") format("woff2")}
+
+#root{position:absolute;inset:0;overflow:hidden}
+
+#root{font-family:"Inter",sans-serif;color:#fff}
+.abs{position:absolute}
+.dark{position:absolute;inset:0;background:radial-gradient(90% 60% at 50% 30%,#2B2B2B 0%,#151515 60%,#0B0B0B 100%)}
+.light{position:absolute;inset:0;background:radial-gradient(80% 45% at 50% 12%,rgba(255,193,7,.28),transparent 70%),linear-gradient(180deg,#FFF8E1 0%,#FFFDF5 55%,#FFFFFF 100%)}
+.yel{position:absolute;inset:0;background:#FFC107}
+.h{position:absolute;left:60px;right:60px;text-align:center;font-family:"Montserrat",sans-serif;font-weight:800;letter-spacing:-.02em;line-height:1.05}
+.h.w{color:#fff}.h.g{color:#1F1F1F}
+.mk{background:linear-gradient(transparent 58%,#FFC107 58%,#FFC107 90%,transparent 90%);padding:0 .06em}
+.yy{color:#FFC107}
+.red{color:#FF5A5A}
+.ic{width:100%;height:100%;fill:none;stroke-width:1.85;stroke-linecap:round;stroke-linejoin:round}
+.phone{position:absolute;border-radius:64px;background:#0E0E0E;border:12px solid #2A2A2A;box-shadow:0 40px 80px -30px rgba(0,0,0,.8),0 0 0 2px #444;overflow:hidden}
+.phone.lite{border-color:#1F1F1F;box-shadow:0 40px 80px -30px rgba(31,31,31,.45)}
+.scr{position:absolute;inset:0;overflow:hidden}
+.wa-top{height:120px;background:#1F2C34;display:flex;align-items:flex-end;padding:0 26px 18px;gap:16px;color:#E9EDEF;font:700 34px/1 "Inter",sans-serif}
+.wa-search{margin:22px 22px 0;height:76px;border-radius:40px;background:#202C33;display:flex;align-items:center;gap:16px;padding:0 26px;color:#E9EDEF;font:500 36px/1 "Inter",sans-serif}
+.wa-search .ic{width:36px;height:36px}
+.caret{display:inline-block;width:3px;height:40px;background:#25D366;margin-left:4px;vertical-align:middle}
+.tile-sig{position:absolute;width:190px;height:150px;border-radius:14px;background:#F1EEE6;display:grid;place-items:center;box-shadow:0 6px 16px rgba(0,0,0,.5)}
+.tile-sig .sig{width:160px}
+.doc{position:absolute;width:300px;height:400px;border-radius:18px;background:#FAFAF7;color:#1F1F1F;padding:26px;box-shadow:0 20px 40px -12px rgba(0,0,0,.7)}
+.doc b{display:block;font:800 30px/1 "Montserrat",sans-serif;letter-spacing:.06em}
+.doc s{display:block;height:12px;border-radius:6px;background:#DDD;margin-top:14px}
+.doc .sig{position:absolute;left:30px;bottom:40px;width:220px}
+.chip{display:inline-flex;align-items:center;gap:12px;padding:16px 30px;border-radius:999px;font:800 34px/1 "Montserrat",sans-serif}
+.cap{position:absolute;left:70px;right:70px;bottom:250px;display:flex;justify-content:center}
+.cap span{display:inline-block;max-width:940px;padding:18px 28px;border-radius:24px;background:rgba(15,15,15,.88);color:#fff;font:700 40px/1.25 "Montserrat",sans-serif;text-align:center;opacity:0}
+.card{position:absolute;border-radius:36px;background:#fff;box-shadow:inset 0 0 0 3px #F3E7BE,0 30px 60px -24px rgba(31,31,31,.35);color:#1F1F1F}
+.row{display:grid;grid-template-columns:160px 1fr 230px;gap:16px;align-items:center;padding:20px 28px;border-top:2px solid #EFEFEF;font:600 28px/1.2 "Inter",sans-serif}
+.row b{font:800 28px/1 "Montserrat",sans-serif;color:#8A6100;text-align:right}
+.row i{font-style:normal;color:#5C5C5C}
+.char{position:absolute;filter:drop-shadow(0 26px 30px rgba(31,31,31,.3))}
+
+
+#fs07-t{top:130px;font-size:90px}
+#fs07-ph{left:120px;top:440px;width:600px;height:1080px}
+#fs07-pdf{position:absolute;left:34px;right:34px;top:70px;bottom:150px;border-radius:18px;background:#fff;box-shadow:inset 0 0 0 2px #E9E9E9;padding:34px;color:#1F1F1F}
+#fs07-pdf b{display:block;font:800 30px/1 "Montserrat",sans-serif;margin-bottom:16px}
+#fs07-pdf s{display:block;height:12px;border-radius:6px;background:#E5E5E5;margin-top:14px}
+#fs07-pdf .sig{position:absolute;left:40px;bottom:130px;width:360px}
+#fs07-line{position:absolute;left:40px;right:120px;bottom:120px;height:3px;background:#BDBDBD}
+#fs07-btn{position:absolute;left:34px;right:34px;bottom:40px;height:90px;border-radius:45px;background:#FFC107;display:flex;align-items:center;justify-content:center;gap:12px;font:800 34px/1 "Montserrat",sans-serif;color:#1F1F1F}
+#fs07-btn .ic{width:40px;height:40px}
+#fs07-dot{position:absolute;width:56px;height:56px;border-radius:50%;background:rgba(255,193,7,.55);box-shadow:0 0 0 6px rgba(255,193,7,.25);left:70px;top:720px}
+#fs07-p{left:690px;top:820px;height:1020px}
+
+</style>
+<div id="root" data-composition-id="fs07" data-width="1080" data-height="1920">
+<div class="light"></div>
+<h1 id="fs07-t" class="h g">Tus firmas <span class="mk">a la mano</span></h1>
+<div id="fs07-ph" class="phone lite"><div class="scr" style="background:#F2EBD6"><div id="fs07-pdf"><b>Acta de entrega.pdf</b><s></s><s></s><s style="width:80%"></s><s></s><s style="width:60%"></s><div id="fs07-line"></div><svg class="sig fs07-sig" viewBox="0 0 310 100" style=""><path d="M15 60 C25 30 60 15 55 50 C50 80 30 85 40 60 C55 35 85 70 100 45 C115 25 125 70 140 50 C160 25 175 65 195 50 C215 35 230 55 250 45 M60 82 C140 72 220 77 280 67" fill="none" stroke="#1B2A6B" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+<div id="fs07-btn"><svg class="ic" viewBox="0 0 24 24" style="stroke:#1F1F1F" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Listo</div></div><div id="fs07-dot"></div></div>
+<img id="fs07-p" class="char" src="assets/chars/pascal-celular.webp" alt="">
+<div class="cap"><span id="fs07-c0">Con Pascal Sign tienes tus firmas a la mano:</span></div><div class="cap"><span id="fs07-c1">abres el PDF, firmas con el dedo y listo,</span></div><div class="cap"><span id="fs07-c2">desde donde estés.</span></div>
+</div>
+<script>
+const tl = gsap.timeline({ paused: true });
+
+tl.from("#fs07-t",{opacity:0,y:-40,duration:.4,ease:"back.out(1.8)"},0);
+tl.from("#fs07-ph",{y:900,duration:.55,ease:"power3.out"},.15);
+tl.from("#fs07-p",{x:500,duration:.55,ease:"power3.out"},.3);
+tl.fromTo(".fs07-sig path",{strokeDasharray:1400,strokeDashoffset:1400},{strokeDashoffset:0,duration:2.20,ease:"power1.inOut"},1.94);
+tl.fromTo("#fs07-dot",{x:0,y:0},{x:330,y:-20,duration:2.20,ease:"power1.inOut"},1.94);
+tl.to("#fs07-dot",{opacity:0,duration:.2},4.14);
+tl.from("#fs07-btn",{scale:.8,opacity:.4,duration:.3,ease:"back.out(2)"},4.24);
+tl.set("#fs07-c0",{opacity:1},0.30);
+tl.set("#fs07-c0",{opacity:0},3.10);
+tl.set("#fs07-c1",{opacity:1},3.10);
+tl.set("#fs07-c1",{opacity:0},5.71);
+tl.set("#fs07-c2",{opacity:1},5.71);
+tl.set("#fs07-c2",{opacity:0},7.16);
+
+window.__timelines["fs07"] = tl;
+</script>
+</template>
+</body>
+</html>

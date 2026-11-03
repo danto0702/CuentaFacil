@@ -1,0 +1,10 @@
+s01|P|Abre tu WhatsApp… y busca la palabra firma.|Abre tu WhatsApp… y busca la palabra "firma".
+s02|P|¿Cuántas fotos de tu firma encontraste? ¿Y quién más las tiene?|¿Cuántas fotos de tu firma encontraste? ¿Y quién más las tiene?
+s03|P|Tu firma anda suelta. Se reutiliza en documentos que nunca viste… y no tienes cómo saberlo.|Tu firma anda suelta. Se reutiliza en documentos que nunca viste… y no tienes cómo saberlo.
+s04|P|Y cuando te piden firmar algo urgente, toca esperar a tener un computador a la mano.|Y cuando te piden firmar algo urgente, toca esperar a tener un computador a la mano.
+s05|P|Nadie tiene control sobre sus firmas.|Nadie tiene control sobre sus firmas.
+s06|P|Hasta ahora.|Hasta ahora.
+s07|P|Con Pascal Sáin tienes tus firmas a la mano: abres el pe de efe, firmas con el dedo y listo, desde donde estés.|Con Pascal Sign tienes tus firmas a la mano: abres el PDF, firmas con el dedo y listo, desde donde estés.
+s08|P|Tus firmas se guardan solo en tu dispositivo. No en un chat. No en un correo.|Tus firmas se guardan solo en tu dispositivo. No en un chat. No en un correo.
+s09|P|Y puedes descargar el detallado de todas las firmas que has hecho, cada una con su consecutivo.|Y puedes descargar el detallado de todas las firmas que has hecho, cada una con su consecutivo.
+s10|P|Tu firma es tu palabra. Recupera el control. Pruébalo gratis por siete días. Pascal Sáin, de PascalIA.|Tu firma es tu palabra. Recupera el control. Pruébalo gratis por 7 días. Pascal Sign, de PascalIA.
