@@ -13,7 +13,7 @@ Solución: tus firmas a la mano en el celular, guardadas solo en tu dispositivo,
 | 6 | 20–22 s | Corte a amarillo, logo de Pascal Sign. | "Hasta ahora." | Pascal Sign |
 | 7 | 22–30 s | Celular con el PDF; se iluminan por turno las tres opciones: Con el dedo · Imagen · Foto. La firma cae en su lugar. | "Con Pascal Sign tienes tus firmas a la mano: firmas con el dedo, subes una imagen… o le tomas una foto a tu firma. Y listo, desde donde estés." | Tus firmas a la mano · Con el dedo · Imagen · Foto |
 | 8 | 27–31 s | Candado sobre el celular; la firma entra en una caja fuerte dentro del teléfono. | "Tus firmas se guardan solo en tu dispositivo. No en un chat, no en un correo." | Solo en tu dispositivo |
-| 9 | 31–36 s | Se descarga un reporte: lista con fecha, documento, objeto y consecutivo de cada firma (ej. DT-0042-2026). | "Y puedes descargar el detallado de todas las firmas que has hecho, cada una con su consecutivo. Sabes qué firmaste, cuándo y para qué." | Tu historial de firmas, con consecutivo |
+| 9 | 31–40 s | Reporte "Mis firmas": columnas Fecha · Razón · Nº único (ej. DT-0042-2026); se resalta cada columna cuando se nombra y aparece el botón Descargar. | "Y cada firma queda registrada: la fecha, la razón por la que la usaste y un número único de identificación. Descarga el detallado cuando quieras." | Cada firma, registrada · Fecha · Razón · Nº único |
 | 10 | 36–40 s | Mira a cámara, guarda el celular. Logo, enlace, QR. | "Tu firma es tu palabra. Recupera el control. Pascal Sign, de PascalIA." | Recupera el control de tu firma · [enlace] |
 
 Pie legal pequeño al final: Firma electrónica (Ley 527 de 1999 y Decreto 2364 de 2012).

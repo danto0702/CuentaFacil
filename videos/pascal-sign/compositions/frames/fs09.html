@@ -50,33 +50,48 @@
 #fs09-rep{left:50px;top:470px;width:980px;overflow:hidden}
 #fs09-rep h3{display:flex;align-items:center;gap:16px;padding:30px 28px 22px;font:800 38px/1 "Montserrat",sans-serif}
 #fs09-rep h3 img{width:64px;height:64px;border-radius:16px}
-.fs09-hd{display:grid;grid-template-columns:160px 1fr 230px;gap:16px;padding:14px 28px;background:#FFF8E1;font:800 22px/1 "Montserrat",sans-serif;letter-spacing:.08em;color:#8A6100}
-#fs09-dl{left:300px;top:1300px;width:480px;height:110px;border-radius:55px;background:#1F1F1F;color:#fff;display:flex;align-items:center;justify-content:center;gap:16px;font:800 36px/1 "Montserrat",sans-serif}
+.fs09-hd{display:grid;grid-template-columns:180px 1fr 250px;gap:16px;padding:14px 28px;background:#FFF8E1;font:800 22px/1 "Montserrat",sans-serif;letter-spacing:.08em;color:#8A6100}
+#fs09-rep .row{grid-template-columns:180px 1fr 250px}
+.fs09-c{border-radius:10px;padding:6px 8px;margin:-6px -8px}
+#fs09-labs{left:50px;right:50px;top:1150px;display:flex;justify-content:center;gap:16px}
+.fs09-lab{display:inline-flex;align-items:center;gap:10px;padding:14px 24px;border-radius:999px;background:#1F1F1F;color:#fff;font:800 30px/1 "Montserrat",sans-serif}
+.fs09-lab .ic{width:34px;height:34px}
+#fs09-dl{left:300px;top:1300px;width:480px;height:110px;border-radius:55px;background:#FFC107;color:#1F1F1F;display:flex;align-items:center;justify-content:center;gap:16px;font:800 36px/1 "Montserrat",sans-serif}
 #fs09-dl .ic{width:44px;height:44px;transform:rotate(180deg)}
 
 </style>
 <div id="root" data-composition-id="fs09" data-width="1080" data-height="1920">
 <div class="light"></div>
-<h1 id="fs09-t" class="h g">Tu historial,<br>con <span class="mk">consecutivo</span></h1>
+<h1 id="fs09-t" class="h g">Cada firma,<br><span class="mk">registrada</span></h1>
 <div id="fs09-rep" class="card"><h3><img src="assets/brand/pascal-sign-logo.webp" alt="">Mis firmas</h3>
-<div class="fs09-hd"><span>FECHA</span><span>DOCUMENTO</span><span style="text-align:right">CONSECUTIVO</span></div>
-<div class="row fs09-row"><i>03/11/2026</i><span>Acta de entrega</span><b>DT-0042-2026</b></div><div class="row fs09-row"><i>31/10/2026</i><span>Informe de actividades</span><b>DT-0041-2026</b></div><div class="row fs09-row"><i>28/10/2026</i><span>Cuenta de cobro</span><b>DT-0040-2026</b></div><div class="row fs09-row"><i>24/10/2026</i><span>Contrato de servicios</span><b>DT-0039-2026</b></div><div class="row fs09-row"><i>20/10/2026</i><span>Constancia</span><b>DT-0038-2026</b></div></div>
-<div id="fs09-dl" class="abs"><svg class="ic" viewBox="0 0 24 24" style="stroke:#FFC107" aria-hidden="true"><path d="M12 15V4M7.5 8.5L12 4l4.5 4.5"/><path d="M4 15v3.5A2.5 2.5 0 006.5 21h11a2.5 2.5 0 002.5-2.5V15"/></svg>Descargar</div>
-<div class="cap"><span id="fs09-c0">Y puedes descargar el detallado de todas las firmas</span></div><div class="cap"><span id="fs09-c1">que has hecho, cada una con su consecutivo.</span></div>
+<div class="fs09-hd"><span>FECHA</span><span>RAZÓN</span><span style="text-align:right">Nº ÚNICO</span></div>
+<div class="row fs09-row"><i class="fs09-c fs09-cf">03/11/2026</i><span class="fs09-c fs09-cr">Entrega de equipos</span><b class="fs09-c fs09-cn">DT-0042-2026</b></div><div class="row fs09-row"><i class="fs09-c fs09-cf">31/10/2026</i><span class="fs09-c fs09-cr">Informe mensual</span><b class="fs09-c fs09-cn">DT-0041-2026</b></div><div class="row fs09-row"><i class="fs09-c fs09-cf">28/10/2026</i><span class="fs09-c fs09-cr">Cuenta de cobro</span><b class="fs09-c fs09-cn">DT-0040-2026</b></div><div class="row fs09-row"><i class="fs09-c fs09-cf">24/10/2026</i><span class="fs09-c fs09-cr">Firma de contrato</span><b class="fs09-c fs09-cn">DT-0039-2026</b></div><div class="row fs09-row"><i class="fs09-c fs09-cf">20/10/2026</i><span class="fs09-c fs09-cr">Constancia laboral</span><b class="fs09-c fs09-cn">DT-0038-2026</b></div></div>
+<div id="fs09-labs" class="abs"><span id="fs09-l1" class="fs09-lab"><svg class="ic" viewBox="0 0 24 24" style="stroke:#FFC107" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M9 15.5l2 2 4-4"/></svg>Fecha</span><span id="fs09-l2" class="fs09-lab"><svg class="ic" viewBox="0 0 24 24" style="stroke:#FFC107" aria-hidden="true"><path d="M15 4l5 5L9 20H4v-5z"/><path d="M13 6l5 5"/></svg>Razón</span><span id="fs09-l3" class="fs09-lab"><svg class="ic" viewBox="0 0 24 24" style="stroke:#FFC107" aria-hidden="true"><path d="M5 9h15M4 15h15M10 3L8 21M16 3l-2 18"/></svg>Nº único</span></div>
+<div id="fs09-dl" class="abs"><svg class="ic" viewBox="0 0 24 24" style="stroke:#1F1F1F" aria-hidden="true"><path d="M12 15V4M7.5 8.5L12 4l4.5 4.5"/><path d="M4 15v3.5A2.5 2.5 0 006.5 21h11a2.5 2.5 0 002.5-2.5V15"/></svg>Descargar</div>
+<div class="cap"><span id="fs09-c0">Y cada firma queda registrada:</span></div><div class="cap"><span id="fs09-c1">la fecha, la razón por la que la usaste y un número</span></div><div class="cap"><span id="fs09-c2">único de identificación.</span></div><div class="cap"><span id="fs09-c3">Descarga el detallado cuando quieras.</span></div>
 </div>
 <script>
 const tl = gsap.timeline({ paused: true });
 
 tl.from("#fs09-t",{opacity:0,y:-40,duration:.4,ease:"back.out(1.8)"},0);
 tl.from("#fs09-rep",{y:120,opacity:0,duration:.45,ease:"power3.out"},.15);
-tl.from(".fs09-row",{opacity:0,x:-80,duration:.3,ease:"power3.out",stagger:.18},.5);
-tl.from("#fs09-dl",{scale:.5,opacity:0,duration:.35,ease:"back.out(2)"},2.61);
-tl.to("#fs09-dl",{scale:1.06,duration:.35,yoyo:true,repeat:8,ease:"sine.inOut"},3.01);
-tl.fromTo(".fs09-row b",{backgroundColor:"rgba(255,193,7,0)"},{backgroundColor:"rgba(255,193,7,.35)",duration:.3,stagger:.12},4.35);
+tl.from(".fs09-row",{opacity:0,x:-80,duration:.3,ease:"power3.out",stagger:.15},.5);
+tl.fromTo(".fs09-cf",{backgroundColor:"rgba(255,193,7,0)"},{backgroundColor:"rgba(255,193,7,.45)",duration:.25},2.23);
+tl.from("#fs09-l1",{opacity:0,scale:.5,duration:.3,ease:"back.out(2.5)"},2.23);
+tl.fromTo(".fs09-cr",{backgroundColor:"rgba(255,193,7,0)"},{backgroundColor:"rgba(255,193,7,.45)",duration:.25},3.20);
+tl.from("#fs09-l2",{opacity:0,scale:.5,duration:.3,ease:"back.out(2.5)"},3.20);
+tl.fromTo(".fs09-cn",{backgroundColor:"rgba(255,193,7,0)"},{backgroundColor:"rgba(255,193,7,.45)",duration:.25},4.87);
+tl.from("#fs09-l3",{opacity:0,scale:.5,duration:.3,ease:"back.out(2.5)"},4.87);
+tl.from("#fs09-dl",{scale:.5,opacity:0,duration:.35,ease:"back.out(2)"},6.80);
+tl.to("#fs09-dl",{scale:1.06,duration:.35,yoyo:true,repeat:5,ease:"sine.inOut"},7.20);
 tl.set("#fs09-c0",{opacity:1},0.30);
-tl.set("#fs09-c0",{opacity:0},3.44);
-tl.set("#fs09-c1",{opacity:1},3.44);
-tl.set("#fs09-c1",{opacity:0},6.38);
+tl.set("#fs09-c0",{opacity:0},2.16);
+tl.set("#fs09-c1",{opacity:1},2.16);
+tl.set("#fs09-c1",{opacity:0},5.31);
+tl.set("#fs09-c2",{opacity:1},5.31);
+tl.set("#fs09-c2",{opacity:0},6.80);
+tl.set("#fs09-c3",{opacity:1},6.80);
+tl.set("#fs09-c3",{opacity:0},9.39);
 
 window.__timelines["fs09"] = tl;
 </script>

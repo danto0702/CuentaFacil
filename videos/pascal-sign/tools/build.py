@@ -269,28 +269,39 @@ tl.from("#X-no1",{{opacity:0,scale:.5,duration:.3,ease:"back.out(2)"}},{s + d * 
 tl.from("#X-no2",{{opacity:0,scale:.5,duration:.3,ease:"back.out(2)"}},{s + d * .75:.2f});
 '''))
 # 9 · detallado con consecutivo
-ROWS = [('03/11/2026', 'Acta de entrega', 'DT-0042-2026'), ('31/10/2026', 'Informe de actividades', 'DT-0041-2026'), ('28/10/2026', 'Cuenta de cobro', 'DT-0040-2026'), ('24/10/2026', 'Contrato de servicios', 'DT-0039-2026'), ('20/10/2026', 'Constancia', 'DT-0038-2026')]
+ROWS = [('03/11/2026', 'Entrega de equipos', 'DT-0042-2026'), ('31/10/2026', 'Informe mensual', 'DT-0041-2026'), ('28/10/2026', 'Cuenta de cobro', 'DT-0040-2026'), ('24/10/2026', 'Firma de contrato', 'DT-0039-2026'), ('20/10/2026', 'Constancia laboral', 'DT-0038-2026')]
 S.append(('s09', 'light', .45, '''
 #X-t{top:120px;font-size:84px}
 #X-rep{left:50px;top:470px;width:980px;overflow:hidden}
 #X-rep h3{display:flex;align-items:center;gap:16px;padding:30px 28px 22px;font:800 38px/1 "Montserrat",sans-serif}
 #X-rep h3 img{width:64px;height:64px;border-radius:16px}
-.X-hd{display:grid;grid-template-columns:160px 1fr 230px;gap:16px;padding:14px 28px;background:#FFF8E1;font:800 22px/1 "Montserrat",sans-serif;letter-spacing:.08em;color:#8A6100}
-#X-dl{left:300px;top:1300px;width:480px;height:110px;border-radius:55px;background:#1F1F1F;color:#fff;display:flex;align-items:center;justify-content:center;gap:16px;font:800 36px/1 "Montserrat",sans-serif}
+.X-hd{display:grid;grid-template-columns:180px 1fr 250px;gap:16px;padding:14px 28px;background:#FFF8E1;font:800 22px/1 "Montserrat",sans-serif;letter-spacing:.08em;color:#8A6100}
+#X-rep .row{grid-template-columns:180px 1fr 250px}
+.X-c{border-radius:10px;padding:6px 8px;margin:-6px -8px}
+#X-labs{left:50px;right:50px;top:1150px;display:flex;justify-content:center;gap:16px}
+.X-lab{display:inline-flex;align-items:center;gap:10px;padding:14px 24px;border-radius:999px;background:#1F1F1F;color:#fff;font:800 30px/1 "Montserrat",sans-serif}
+.X-lab .ic{width:34px;height:34px}
+#X-dl{left:300px;top:1300px;width:480px;height:110px;border-radius:55px;background:#FFC107;color:#1F1F1F;display:flex;align-items:center;justify-content:center;gap:16px;font:800 36px/1 "Montserrat",sans-serif}
 #X-dl .ic{width:44px;height:44px;transform:rotate(180deg)}
 ''', f'''
-<h1 id="X-t" class="h g">Tu historial,<br>con <span class="mk">consecutivo</span></h1>
+<h1 id="X-t" class="h g">Cada firma,<br><span class="mk">registrada</span></h1>
 <div id="X-rep" class="card"><h3><img src="assets/brand/pascal-sign-logo.webp" alt="">Mis firmas</h3>
-<div class="X-hd"><span>FECHA</span><span>DOCUMENTO</span><span style="text-align:right">CONSECUTIVO</span></div>
-{''.join(f'<div class="row X-row"><i>{a}</i><span>{b}</span><b>{c}</b></div>' for a, b, c in ROWS)}</div>
-<div id="X-dl" class="abs">{icon("upload", "#FFC107")}Descargar</div>
+<div class="X-hd"><span>FECHA</span><span>RAZÓN</span><span style="text-align:right">Nº ÚNICO</span></div>
+{''.join(f'<div class="row X-row"><i class="X-c X-cf">{a}</i><span class="X-c X-cr">{b}</span><b class="X-c X-cn">{c}</b></div>' for a, b, c in ROWS)}</div>
+<div id="X-labs" class="abs"><span id="X-l1" class="X-lab">{icon("calendar", "#FFC107")}Fecha</span><span id="X-l2" class="X-lab">{icon("pen", "#FFC107")}Razón</span><span id="X-l3" class="X-lab">{icon("hash", "#FFC107")}Nº único</span></div>
+<div id="X-dl" class="abs">{icon("upload")}Descargar</div>
 ''', lambda D, s, d: f'''
 tl.from("#X-t",{{opacity:0,y:-40,duration:.4,ease:"back.out(1.8)"}},0);
 tl.from("#X-rep",{{y:120,opacity:0,duration:.45,ease:"power3.out"}},.15);
-tl.from(".X-row",{{opacity:0,x:-80,duration:.3,ease:"power3.out",stagger:.18}},.5);
-tl.from("#X-dl",{{scale:.5,opacity:0,duration:.35,ease:"back.out(2)"}},{s + d * .4:.2f});
-tl.to("#X-dl",{{scale:1.06,duration:.35,yoyo:true,repeat:{k(D, s + d * .4 + .4, .35)},ease:"sine.inOut"}},{s + d * .4 + .4:.2f});
-tl.fromTo(".X-row b",{{backgroundColor:"rgba(255,193,7,0)"}},{{backgroundColor:"rgba(255,193,7,.35)",duration:.3,stagger:.12}},{s + d * .7:.2f});
+tl.from(".X-row",{{opacity:0,x:-80,duration:.3,ease:"power3.out",stagger:.15}},.5);
+tl.fromTo(".X-cf",{{backgroundColor:"rgba(255,193,7,0)"}},{{backgroundColor:"rgba(255,193,7,.45)",duration:.25}},{s + d * .22:.2f});
+tl.from("#X-l1",{{opacity:0,scale:.5,duration:.3,ease:"back.out(2.5)"}},{s + d * .22:.2f});
+tl.fromTo(".X-cr",{{backgroundColor:"rgba(255,193,7,0)"}},{{backgroundColor:"rgba(255,193,7,.45)",duration:.25}},{s + d * .33:.2f});
+tl.from("#X-l2",{{opacity:0,scale:.5,duration:.3,ease:"back.out(2.5)"}},{s + d * .33:.2f});
+tl.fromTo(".X-cn",{{backgroundColor:"rgba(255,193,7,0)"}},{{backgroundColor:"rgba(255,193,7,.45)",duration:.25}},{s + d * .52:.2f});
+tl.from("#X-l3",{{opacity:0,scale:.5,duration:.3,ease:"back.out(2.5)"}},{s + d * .52:.2f});
+tl.from("#X-dl",{{scale:.5,opacity:0,duration:.35,ease:"back.out(2)"}},{s + d * .74:.2f});
+tl.to("#X-dl",{{scale:1.06,duration:.35,yoyo:true,repeat:{k(D, s + d * .74 + .4, .35)},ease:"sine.inOut"}},{s + d * .74 + .4:.2f});
 '''))
 # 10 · cierre
 S.append(('s10', 'light', 2.2, '''
