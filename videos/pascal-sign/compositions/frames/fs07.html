@@ -47,7 +47,7 @@
 
 
 #fs07-t{top:130px;font-size:90px}
-#fs07-ph{left:120px;top:440px;width:600px;height:1080px}
+#fs07-ph{left:120px;top:450px;width:600px;height:1070px}
 #fs07-pdf{position:absolute;left:34px;right:34px;top:70px;bottom:150px;border-radius:18px;background:#fff;box-shadow:inset 0 0 0 2px #E9E9E9;padding:34px;color:#1F1F1F}
 #fs07-pdf b{display:block;font:800 30px/1 "Montserrat",sans-serif;margin-bottom:16px}
 #fs07-pdf s{display:block;height:12px;border-radius:6px;background:#E5E5E5;margin-top:14px}
@@ -57,15 +57,19 @@
 #fs07-btn .ic{width:40px;height:40px}
 #fs07-dot{position:absolute;width:56px;height:56px;border-radius:50%;background:rgba(255,193,7,.55);box-shadow:0 0 0 6px rgba(255,193,7,.25);left:70px;top:720px}
 #fs07-p{left:690px;top:820px;height:1020px}
+#fs07-ops{left:40px;right:40px;top:330px;display:flex;justify-content:center;gap:18px}
+.fs07-op{display:inline-flex;align-items:center;gap:12px;padding:16px 26px;border-radius:999px;background:#fff;box-shadow:inset 0 0 0 3px #E9E9E9;font:800 32px/1 "Montserrat",sans-serif;color:#1F1F1F}
+.fs07-op .ic{width:38px;height:38px}
 
 </style>
 <div id="root" data-composition-id="fs07" data-width="1080" data-height="1920">
 <div class="light"></div>
 <h1 id="fs07-t" class="h g">Tus firmas <span class="mk">a la mano</span></h1>
+<div id="fs07-ops" class="abs"><span id="fs07-o1" class="fs07-op"><svg class="ic" viewBox="0 0 24 24" style="stroke:#1F1F1F" aria-hidden="true"><path d="M15 4l5 5L9 20H4v-5z"/><path d="M13 6l5 5"/></svg>Con el dedo</span><span id="fs07-o2" class="fs07-op"><svg class="ic" viewBox="0 0 24 24" style="stroke:#1F1F1F" aria-hidden="true"><path d="M12 15V4M7.5 8.5L12 4l4.5 4.5"/><path d="M4 15v3.5A2.5 2.5 0 006.5 21h11a2.5 2.5 0 002.5-2.5V15"/></svg>Imagen</span><span id="fs07-o3" class="fs07-op"><svg class="ic" viewBox="0 0 24 24" style="stroke:#1F1F1F" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Foto</span></div>
 <div id="fs07-ph" class="phone lite"><div class="scr" style="background:#F2EBD6"><div id="fs07-pdf"><b>Acta de entrega.pdf</b><s></s><s></s><s style="width:80%"></s><s></s><s style="width:60%"></s><div id="fs07-line"></div><svg class="sig fs07-sig" viewBox="0 0 310 100" style=""><path d="M15 60 C25 30 60 15 55 50 C50 80 30 85 40 60 C55 35 85 70 100 45 C115 25 125 70 140 50 C160 25 175 65 195 50 C215 35 230 55 250 45 M60 82 C140 72 220 77 280 67" fill="none" stroke="#1B2A6B" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
 <div id="fs07-btn"><svg class="ic" viewBox="0 0 24 24" style="stroke:#1F1F1F" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Listo</div></div><div id="fs07-dot"></div></div>
 <img id="fs07-p" class="char" src="assets/chars/pascal-celular.webp" alt="">
-<div class="cap"><span id="fs07-c0">Con Pascal Sign tienes tus firmas a la mano:</span></div><div class="cap"><span id="fs07-c1">abres el PDF, firmas con el dedo y listo,</span></div><div class="cap"><span id="fs07-c2">desde donde estés.</span></div>
+<div class="cap"><span id="fs07-c0">Con Pascal Sign tienes tus firmas a la mano:</span></div><div class="cap"><span id="fs07-c1">firmas con el dedo, subes una imagen…</span></div><div class="cap"><span id="fs07-c2">o le tomas una foto a tu firma.</span></div><div class="cap"><span id="fs07-c3">Y listo, desde donde estés.</span></div>
 </div>
 <script>
 const tl = gsap.timeline({ paused: true });
@@ -73,16 +77,25 @@ const tl = gsap.timeline({ paused: true });
 tl.from("#fs07-t",{opacity:0,y:-40,duration:.4,ease:"back.out(1.8)"},0);
 tl.from("#fs07-ph",{y:900,duration:.55,ease:"power3.out"},.15);
 tl.from("#fs07-p",{x:500,duration:.55,ease:"power3.out"},.3);
-tl.fromTo(".fs07-sig path",{strokeDasharray:1400,strokeDashoffset:1400},{strokeDashoffset:0,duration:2.20,ease:"power1.inOut"},2.17);
-tl.fromTo("#fs07-dot",{x:0,y:0},{x:330,y:-20,duration:2.20,ease:"power1.inOut"},2.17);
-tl.to("#fs07-dot",{opacity:0,duration:.2},4.37);
-tl.from("#fs07-btn",{scale:.8,opacity:.4,duration:.3,ease:"back.out(2)"},4.47);
+tl.fromTo(".fs07-sig path",{strokeDasharray:1400,strokeDashoffset:1400},{strokeDashoffset:0,duration:2.20,ease:"power1.inOut"},2.30);
+tl.fromTo("#fs07-dot",{x:0,y:0},{x:330,y:-20,duration:2.20,ease:"power1.inOut"},2.30);
+tl.to("#fs07-dot",{opacity:0,duration:.2},4.50);
+tl.from("#fs07-btn",{scale:.8,opacity:.4,duration:.3,ease:"back.out(2)"},4.60);
+tl.from(".fs07-op",{opacity:0,y:-20,duration:.3,ease:"back.out(2)",stagger:.1},.3);
+tl.to("#fs07-o1",{backgroundColor:"#FFC107",boxShadow:"inset 0 0 0 3px #FFC107",duration:.2},2.70);
+tl.to("#fs07-o1",{backgroundColor:"#FFFFFF",boxShadow:"inset 0 0 0 3px #E9E9E9",duration:.2},4.29);
+tl.to("#fs07-o2",{backgroundColor:"#FFC107",boxShadow:"inset 0 0 0 3px #FFC107",scale:1.08,duration:.2},4.29);
+tl.to("#fs07-o2",{backgroundColor:"#FFFFFF",boxShadow:"inset 0 0 0 3px #E9E9E9",scale:1,duration:.2},5.73);
+tl.to("#fs07-o3",{backgroundColor:"#FFC107",boxShadow:"inset 0 0 0 3px #FFC107",scale:1.08,duration:.2},5.73);
+tl.to(".fs07-op",{backgroundColor:"#FFC107",boxShadow:"inset 0 0 0 3px #FFC107",scale:1,duration:.25},7.33);
 tl.set("#fs07-c0",{opacity:1},0.30);
-tl.set("#fs07-c0",{opacity:0},3.50);
-tl.set("#fs07-c1",{opacity:1},3.50);
-tl.set("#fs07-c1",{opacity:0},6.48);
-tl.set("#fs07-c2",{opacity:1},6.48);
-tl.set("#fs07-c2",{opacity:0},8.09);
+tl.set("#fs07-c0",{opacity:0},2.83);
+tl.set("#fs07-c1",{opacity:1},2.83);
+tl.set("#fs07-c1",{opacity:0},4.96);
+tl.set("#fs07-c2",{opacity:1},4.96);
+tl.set("#fs07-c2",{opacity:0},6.74);
+tl.set("#fs07-c3",{opacity:1},6.74);
+tl.set("#fs07-c3",{opacity:0},8.59);
 
 window.__timelines["fs07"] = tl;
 </script>

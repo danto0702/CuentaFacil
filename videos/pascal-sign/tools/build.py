@@ -209,7 +209,7 @@ tl.to("#X-logo",{{scale:1.04,duration:.4,yoyo:true,repeat:{k(D, 1.0, .4)},ease:"
 # 7 · firmas a la mano
 S.append(('s07', 'light', .35, '''
 #X-t{top:130px;font-size:90px}
-#X-ph{left:120px;top:440px;width:600px;height:1080px}
+#X-ph{left:120px;top:450px;width:600px;height:1070px}
 #X-pdf{position:absolute;left:34px;right:34px;top:70px;bottom:150px;border-radius:18px;background:#fff;box-shadow:inset 0 0 0 2px #E9E9E9;padding:34px;color:#1F1F1F}
 #X-pdf b{display:block;font:800 30px/1 "Montserrat",sans-serif;margin-bottom:16px}
 #X-pdf s{display:block;height:12px;border-radius:6px;background:#E5E5E5;margin-top:14px}
@@ -219,8 +219,12 @@ S.append(('s07', 'light', .35, '''
 #X-btn .ic{width:40px;height:40px}
 #X-dot{position:absolute;width:56px;height:56px;border-radius:50%;background:rgba(255,193,7,.55);box-shadow:0 0 0 6px rgba(255,193,7,.25);left:70px;top:720px}
 #X-p{left:690px;top:820px;height:1020px}
+#X-ops{left:40px;right:40px;top:330px;display:flex;justify-content:center;gap:18px}
+.X-op{display:inline-flex;align-items:center;gap:12px;padding:16px 26px;border-radius:999px;background:#fff;box-shadow:inset 0 0 0 3px #E9E9E9;font:800 32px/1 "Montserrat",sans-serif;color:#1F1F1F}
+.X-op .ic{width:38px;height:38px}
 ''', f'''
 <h1 id="X-t" class="h g">Tus firmas <span class="mk">a la mano</span></h1>
+<div id="X-ops" class="abs"><span id="X-o1" class="X-op">{icon("pen")}Con el dedo</span><span id="X-o2" class="X-op">{icon("upload")}Imagen</span><span id="X-o3" class="X-op">{icon("camera")}Foto</span></div>
 <div id="X-ph" class="phone lite"><div class="scr" style="background:#F2EBD6"><div id="X-pdf"><b>Acta de entrega.pdf</b><s></s><s></s><s style="width:80%"></s><s></s><s style="width:60%"></s><div id="X-line"></div>{sig(1, "X-sig", "", "#1B2A6B", 6)}</div>
 <div id="X-btn">{icon("check")}Listo</div></div><div id="X-dot"></div></div>
 <img id="X-p" class="char" src="assets/chars/pascal-celular.webp" alt="">
@@ -232,6 +236,13 @@ tl.fromTo(".X-sig path",{{strokeDasharray:1400,strokeDashoffset:1400}},{{strokeD
 tl.fromTo("#X-dot",{{x:0,y:0}},{{x:330,y:-20,duration:{min(2.2, d * .5):.2f},ease:"power1.inOut"}},{s + d * .25:.2f});
 tl.to("#X-dot",{{opacity:0,duration:.2}},{s + d * .25 + min(2.2, d * .5):.2f});
 tl.from("#X-btn",{{scale:.8,opacity:.4,duration:.3,ease:"back.out(2)"}},{s + d * .25 + min(2.2, d * .5) + .1:.2f});
+tl.from(".X-op",{{opacity:0,y:-20,duration:.3,ease:"back.out(2)",stagger:.1}},.3);
+tl.to("#X-o1",{{backgroundColor:"#FFC107",boxShadow:"inset 0 0 0 3px #FFC107",duration:.2}},{s + d * .3:.2f});
+tl.to("#X-o1",{{backgroundColor:"#FFFFFF",boxShadow:"inset 0 0 0 3px #E9E9E9",duration:.2}},{s + d * .5:.2f});
+tl.to("#X-o2",{{backgroundColor:"#FFC107",boxShadow:"inset 0 0 0 3px #FFC107",scale:1.08,duration:.2}},{s + d * .5:.2f});
+tl.to("#X-o2",{{backgroundColor:"#FFFFFF",boxShadow:"inset 0 0 0 3px #E9E9E9",scale:1,duration:.2}},{s + d * .68:.2f});
+tl.to("#X-o3",{{backgroundColor:"#FFC107",boxShadow:"inset 0 0 0 3px #FFC107",scale:1.08,duration:.2}},{s + d * .68:.2f});
+tl.to(".X-op",{{backgroundColor:"#FFC107",boxShadow:"inset 0 0 0 3px #FFC107",scale:1,duration:.25}},{s + d * .88:.2f});
 '''))
 # 8 · solo en tu dispositivo
 S.append(('s08', 'light', .35, '''
