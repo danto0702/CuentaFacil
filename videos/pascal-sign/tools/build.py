@@ -151,7 +151,7 @@ S.append(('s03', 'dark', .3, '''
 ''', f'''
 <h1 id="X-t" class="h w">Tu firma,<br><span class="red">reutilizada</span><br>sin permiso</h1>
 {''.join(f'<div class="doc X-doc" style="left:{x}px;top:{y}px;transform:rotate({r}deg)"><b>{t}</b><s></s><s></s><s style="width:70%"></s><s></s>{sig(0, "X-cl")}</div>' for t, x, y, r in DOCS)}
-<div id="X-src">{sig(0)}</div>
+<div id="X-src" class="abs">{sig(0)}</div>
 <div id="X-flash" class="abs"></div>
 ''', lambda D, s, d: f'''
 tl.from("#X-t",{{opacity:0,y:-40,duration:.4,ease:"back.out(1.8)"}},0);
@@ -188,10 +188,10 @@ tl.from("#X-pc, #X-pcl",{{opacity:0,y:40,duration:.4,stagger:.15}},1.2);
 # 5 · nadie tiene control
 S.append(('s05', 'black', .5, '''
 #X-t{top:640px;font-size:108px;line-height:1.05}
-#X-t .w{display:inline-block}
+#X-t .w{display:inline-block;margin:0 .13em}
 ''', '''<h1 id="X-t" class="h w"><span class="w">Nadie</span> <span class="w">tiene</span><br><span class="w red">control</span><br><span class="w">sobre</span> <span class="w">sus</span><br><span class="w">firmas</span></h1>''',
 lambda D, s, d: f'''
-tl.from("#X-t .w",{{opacity:0,y:40,duration:.3,ease:"power3.out",stagger:{max(.08, d / 8):.2f}}},{s:.2f});
+tl.from("#X-t .w",{{opacity:0,y:40,duration:.3,ease:"power3.out",stagger:{max(.08, d / 10):.2f}}},{s:.2f});
 tl.to("#X-t",{{x:6,duration:.05,yoyo:true,repeat:7,ease:"none"}},{s + d * .6:.2f});
 '''))
 # 6 · hasta ahora (logo)
@@ -292,7 +292,7 @@ S.append(('s10', 'light', 2.2, '''
 #X-cap{margin-top:20px;font:800 32px/1 "Montserrat",sans-serif;color:#1F1F1F}
 #X-url{left:450px;top:1180px;width:580px;text-align:center;font:800 40px/1 "Montserrat",sans-serif;color:#1F1F1F}
 #X-trial{left:450px;top:1260px;width:580px;text-align:center}
-#X-legal{left:60px;right:60px;bottom:90px;text-align:center;font:500 24px/1.3 "Inter",sans-serif;color:#5C5C5C}
+#X-legal{left:440px;right:40px;bottom:90px;text-align:center;font:500 24px/1.3 "Inter",sans-serif;color:#5C5C5C}
 ''', f'''
 <h1 id="X-t" class="h g">Recupera el control<br>de tu <span class="mk">firma</span></h1>
 <img id="X-p" class="char" src="assets/chars/pascal-senala.webp" alt="">

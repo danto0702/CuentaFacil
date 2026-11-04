@@ -47,7 +47,7 @@
 
 
 #fs05-t{top:640px;font-size:108px;line-height:1.05}
-#fs05-t .w{display:inline-block}
+#fs05-t .w{display:inline-block;margin:0 .13em}
 
 </style>
 <div id="root" data-composition-id="fs05" data-width="1080" data-height="1920">
@@ -56,10 +56,10 @@
 <script>
 const tl = gsap.timeline({ paused: true });
 
-tl.from("#fs05-t .w",{opacity:0,y:40,duration:.3,ease:"power3.out",stagger:0.29},0.30);
-tl.to("#fs05-t",{x:6,duration:.05,yoyo:true,repeat:7,ease:"none"},1.69);
+tl.from("#fs05-t .w",{opacity:0,y:40,duration:.3,ease:"power3.out",stagger:0.28},0.30);
+tl.to("#fs05-t",{x:6,duration:.05,yoyo:true,repeat:7,ease:"none"},2.00);
 tl.set("#fs05-c0",{opacity:1},0.30);
-tl.set("#fs05-c0",{opacity:0},2.91);
+tl.set("#fs05-c0",{opacity:0},3.43);
 
 window.__timelines["fs05"] = tl;
 </script>

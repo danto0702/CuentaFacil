@@ -56,7 +56,7 @@
 <div class="dark"></div>
 <h1 id="fs03-t" class="h w">Tu firma,<br><span class="red">reutilizada</span><br>sin permiso</h1>
 <div class="doc fs03-doc" style="left:60px;top:560px;transform:rotate(-8deg)"><b>ACTA</b><s></s><s></s><s style="width:70%"></s><s></s><svg class="sig fs03-cl" viewBox="0 0 310 100" style=""><path d="M10 70 C30 20 50 20 45 60 C42 85 70 30 90 40 C110 50 95 80 120 60 C140 45 150 30 160 55 C170 80 190 40 210 45 C230 50 220 75 250 60 C270 50 290 35 300 50 M40 88 C120 98 220 92 290 80" fill="none" stroke="#1B2A6B" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="doc fs03-doc" style="left:720px;top:520px;transform:rotate(7deg)"><b>CONTRATO</b><s></s><s></s><s style="width:70%"></s><s></s><svg class="sig fs03-cl" viewBox="0 0 310 100" style=""><path d="M10 70 C30 20 50 20 45 60 C42 85 70 30 90 40 C110 50 95 80 120 60 C140 45 150 30 160 55 C170 80 190 40 210 45 C230 50 220 75 250 60 C270 50 290 35 300 50 M40 88 C120 98 220 92 290 80" fill="none" stroke="#1B2A6B" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="doc fs03-doc" style="left:80px;top:1020px;transform:rotate(6deg)"><b>RECIBO</b><s></s><s></s><s style="width:70%"></s><s></s><svg class="sig fs03-cl" viewBox="0 0 310 100" style=""><path d="M10 70 C30 20 50 20 45 60 C42 85 70 30 90 40 C110 50 95 80 120 60 C140 45 150 30 160 55 C170 80 190 40 210 45 C230 50 220 75 250 60 C270 50 290 35 300 50 M40 88 C120 98 220 92 290 80" fill="none" stroke="#1B2A6B" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="doc fs03-doc" style="left:700px;top:1000px;transform:rotate(-6deg)"><b>PAGARÉ</b><s></s><s></s><s style="width:70%"></s><s></s><svg class="sig fs03-cl" viewBox="0 0 310 100" style=""><path d="M10 70 C30 20 50 20 45 60 C42 85 70 30 90 40 C110 50 95 80 120 60 C140 45 150 30 160 55 C170 80 190 40 210 45 C230 50 220 75 250 60 C270 50 290 35 300 50 M40 88 C120 98 220 92 290 80" fill="none" stroke="#1B2A6B" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-<div id="fs03-src"><svg class="sig " viewBox="0 0 310 100" style=""><path d="M10 70 C30 20 50 20 45 60 C42 85 70 30 90 40 C110 50 95 80 120 60 C140 45 150 30 160 55 C170 80 190 40 210 45 C230 50 220 75 250 60 C270 50 290 35 300 50 M40 88 C120 98 220 92 290 80" fill="none" stroke="#1B2A6B" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+<div id="fs03-src" class="abs"><svg class="sig " viewBox="0 0 310 100" style=""><path d="M10 70 C30 20 50 20 45 60 C42 85 70 30 90 40 C110 50 95 80 120 60 C140 45 150 30 160 55 C170 80 190 40 210 45 C230 50 220 75 250 60 C270 50 290 35 300 50 M40 88 C120 98 220 92 290 80" fill="none" stroke="#1B2A6B" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
 <div id="fs03-flash" class="abs"></div>
 <div class="cap"><span id="fs03-c0">Tu firma anda suelta. Se reutiliza en documentos que</span></div><div class="cap"><span id="fs03-c1">nunca viste… y no tienes cómo saberlo.</span></div>
 </div>
@@ -68,11 +68,11 @@ tl.from("#fs03-src",{scale:.4,opacity:0,duration:.35,ease:"back.out(2)"},.2);
 tl.from(".fs03-doc",{opacity:0,scale:.6,duration:.35,ease:"back.out(1.6)",stagger:.25},.6);
 tl.from(".fs03-cl",{opacity:0,scale:2.2,duration:.25,ease:"power4.in",stagger:.25},.9);
 tl.to("#fs03-flash",{opacity:1,duration:.15,yoyo:true,repeat:9,repeatDelay:.35,ease:"none"},1.2);
-tl.to("#fs03-src",{x:8,duration:.06,yoyo:true,repeat:80,ease:"none"},1.2);
+tl.to("#fs03-src",{x:8,duration:.06,yoyo:true,repeat:84,ease:"none"},1.2);
 tl.set("#fs03-c0",{opacity:1},0.30);
-tl.set("#fs03-c0",{opacity:0},3.59);
-tl.set("#fs03-c1",{opacity:1},3.59);
-tl.set("#fs03-c1",{opacity:0},6.24);
+tl.set("#fs03-c0",{opacity:0},3.73);
+tl.set("#fs03-c1",{opacity:1},3.73);
+tl.set("#fs03-c1",{opacity:0},6.48);
 
 window.__timelines["fs03"] = tl;
 </script>
