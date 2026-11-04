@@ -73,12 +73,12 @@
 </div>
 <script>
 const tl = gsap.timeline({ paused: true });
-tl.fromTo(".fi02-cone",{rotation:-6},{rotation:6,duration:1.2,yoyo:true,repeat:2,ease:"sine.inOut"},0);
+tl.fromTo(".fi02-cone",{rotation:-6},{rotation:6,duration:1.2,yoyo:true,repeat:1,ease:"sine.inOut"},0);
 
-tl.fromTo("#fi02-zoom",{scale:1},{scale:1.18,duration:3.87,ease:"power1.inOut"},0);
-tl.to("#fi02-c",{x:6,duration:.08,yoyo:true,repeat:39,ease:"none"},.4);
+tl.fromTo("#fi02-zoom",{scale:1},{scale:1.18,duration:3.64,ease:"power1.inOut"},0);
+tl.to("#fi02-c",{x:6,duration:.08,yoyo:true,repeat:37,ease:"none"},.4);
 tl.set("#fi02-c0",{opacity:1},0.30);
-tl.set("#fi02-c0",{opacity:0},3.82);
+tl.set("#fi02-c0",{opacity:0},3.59);
 
 window.__timelines["fi02"] = tl;
 </script>

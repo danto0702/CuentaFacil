@@ -1,7 +1,7 @@
 # Pascal Sign · "El interrogatorio" · guion aprobado (≈ 52 s, vertical)
 
 Parodia policíaca: un detective interroga a un contratista por documentos con su firma; él no sabe cuáles firmó porque su firma anda en el WhatsApp de medio mundo. Entra Pascal con Pascal Sign, muestra el historial y el detective cierra el caso.
-Voces: Pascal = voz clonada del dueño (VoxCPM). Detective y contratista = voces sintéticas diseñadas en VoxCPM (no son personas reales).
+Voces: Pascal = voz clonada del dueño (VoxCPM). Detective y contratista = voces sintéticas diseñadas en VoxCPM (no son personas reales); por pedido del dueño (2026-11-04) el detective usa la voz nerviosa y el contratista la grave.
 
 1. Detective: "¿Usted firmó esto?"
 2. Contratista: "Es mi firma… pero yo no recuerdo haber firmado eso."

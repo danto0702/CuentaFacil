@@ -12,6 +12,8 @@ DESIGN = {
 }
 PT = {'P': 'Se trata del oro francés que aquí tenemos, cuchicheó el director. Hemos recibido ya varias advertencias de que quizás se llevase a cabo una tentativa para robárnoslo.'}
 REF = {'P': PREF}
+# Voice casting (owner's request, 2026-11-04): the detective speaks with the nervous voice and the contratista with the deep one.
+VOICE = {'P': 'P', 'D': 'C', 'C': 'D'}
 m = VoxCPM.from_pretrained("openbmb/VoxCPM2", load_denoiser=False, optimize=False, device="cpu")
 sr = m.tts_model.sample_rate
 for who, (ctrl, text) in DESIGN.items():
@@ -23,5 +25,6 @@ for line in open(os.path.join(os.path.dirname(__file__), 'lineas.txt'), encoding
     n, who, tts, _ = line.split('|')
     if ONLY and n not in ONLY: continue
     t0 = time.time()
-    wav = m.generate(text=tts, prompt_wav_path=REF[who], prompt_text=PT[who], reference_wav_path=REF[who])
+    v = VOICE[who]
+    wav = m.generate(text=tts, prompt_wav_path=REF[v], prompt_text=PT[v], reference_wav_path=REF[v])
     sf.write(os.path.join(OUT, f'{n}.wav'), wav, sr); print(n, who, round(len(wav) / sr, 2), 's in', round(time.time() - t0, 1), flush=True)
