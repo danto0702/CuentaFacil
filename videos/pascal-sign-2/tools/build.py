@@ -46,7 +46,7 @@ def ch(name, cls, style):
 DET = 'left:-30px;height:1130px'
 CON = 'left:520px;height:840px'
 PAS = 'right:10px;height:1000px'
-DOCS = [('ACTA', 180, 1120, -10), ('PAGARÉ', 415, 1080, 4), ('CONTRATO', 650, 1120, 9)]
+DOCS = [('ACTA', 150, 440, -10), ('PAGARÉ', 415, 410, 4), ('CONTRATO', 680, 440, 9)]
 def docs(extra=''):
     return ''.join(f'<div class="pdoc X-doc" id="X-d{i}" style="left:{x}px;top:{y}px;transform:rotate({r}deg)"><b>{t}</b><s></s><s></s><s style="width:70%"></s>{sig(0)}</div>' for i, (t, x, y, r) in enumerate(DOCS)) + extra
 
@@ -57,17 +57,17 @@ S = []
 S.append(('i01', .3, '#X-t{top:150px;font-size:96px}', room() + f'''
 <h1 id="X-t" class="h w">¿Usted<br><span class="red">firmó</span> esto?</h1>
 {ch("contratista-nervioso", "c", CON)}{ch("detective-golpe", "d", DET)}
-<div class="pdoc" id="X-paper" style="left:380px;top:1150px;transform:rotate(-6deg)"><b>PAGARÉ</b><s></s><s></s><s style="width:70%"></s>{sig(0)}</div>
+<div class="pdoc" id="X-paper" style="left:415px;top:420px;transform:rotate(-6deg)"><b>PAGARÉ</b><s></s><s></s><s style="width:70%"></s>{sig(0)}</div>
 ''', lambda D, s, d: sway(D) + f'''
 tl.from("#X-d",{{x:-500,duration:.45,ease:"power3.out"}},0);
 tl.from("#X-c",{{opacity:0,duration:.4}},0);
-tl.from("#X-paper",{{y:-700,rotation:-40,duration:.35,ease:"power4.in"}},.25);
+tl.from("#X-paper",{{y:-600,rotation:-40,duration:.35,ease:"power4.in"}},.25);
 tl.to("#X-root-shake",{{}},0);
 tl.from("#X-t",{{opacity:0,scale:1.6,duration:.35,ease:"back.out(1.6)"}},{s:.2f});
 '''))
 S.append(('i02', .3, '#X-zoom{position:absolute;inset:0;transform-origin:70% 70%}', '<div id="X-zoom">' + room() + f'''
 {ch("contratista-nervioso", "c", CON)}{ch("detective-golpe", "d", DET)}
-<div class="pdoc" style="left:380px;top:1150px;transform:rotate(-6deg)"><b>PAGARÉ</b><s></s><s></s><s style="width:70%"></s>{sig(0)}</div></div>
+<div class="pdoc" style="left:415px;top:420px;transform:rotate(-6deg)"><b>PAGARÉ</b><s></s><s></s><s style="width:70%"></s>{sig(0)}</div></div>
 ''', lambda D, s, d: sway(D) + f'''
 tl.fromTo("#X-zoom",{{scale:1}},{{scale:1.18,duration:{D:.2f},ease:"power1.inOut"}},0);
 tl.to("#X-c",{{x:6,duration:.08,yoyo:true,repeat:{k(D, .4, .08)},ease:"none"}},.4);
@@ -148,11 +148,11 @@ tl.from("#X-miss",{{opacity:0,scale:.8,duration:.35,ease:"back.out(2.2)"}},{s + 
 tl.to("#X-miss",{{x:8,duration:.06,yoyo:true,repeat:7,ease:"none"}},{s + d * .62 + .35:.2f});
 '''))
 S.append(('i09', .6, '''
-#X-st{left:150px;top:640px;transform:rotate(-10deg)}
+#X-st{left:150px;top:470px;transform:rotate(-10deg)}
 #X-t{top:180px;font-size:72px}
 ''', room(cone=False, warm=True) + f'''
 {ch("contratista-alivio", "c", "left:470px;height:860px")}{ch("detective-sello", "d", DET)}
-<div class="pdoc" style="left:390px;top:1150px;transform:rotate(-4deg)"><b>PAGARÉ</b><s></s><s></s><s style="width:70%"></s>{sig(0)}</div>
+<div class="pdoc" style="left:415px;top:360px;transform:rotate(-4deg)"><b>PAGARÉ</b><s></s><s></s><s style="width:70%"></s>{sig(0)}</div>
 <div id="X-st" class="stamp">CASO CERRADO</div>
 ''', lambda D, s, d: f'''
 tl.from("#X-d",{{x:-300,duration:.4,ease:"power3.out"}},0);
