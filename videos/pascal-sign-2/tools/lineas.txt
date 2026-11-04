@@ -1,0 +1,10 @@
+i01|D|¿Usted firmó esto?|¿Usted firmó esto?
+i02|C|Es mi firma… pero yo no recuerdo haber firmado eso.|Es mi firma… pero yo no recuerdo haber firmado eso.
+i03|D|Su firma está en un acta, en un pagaré y en un contrato. ¿Cuál firmó usted… y cuál no?|Su firma está en un acta, en un pagaré y en un contrato. ¿Cuál firmó usted… y cuál no?
+i04|C|¡Es que mi firma la tiene medio mundo en el WhatsApp!|¡Es que mi firma la tiene medio mundo en el WhatsApp!
+i05|P|¿Podrías decir qué firmaste… y qué no?|¿Podrías decir qué firmaste… y qué no?
+i06|P|Permiso, detective.|Permiso, detective.
+i07|P|Con Pascal Sáin firmas tus pe de efe desde el celular: con el dedo, con una imagen o con una foto. Y tus firmas se guardan solo en tu dispositivo.|Con Pascal Sign firmas tus PDF desde el celular: con el dedo, con una imagen o con una foto. Y tus firmas se guardan solo en tu dispositivo.
+i08|P|Cada firma queda registrada con fecha, razón y número único. ¿Ve? Ese pagaré no está en su historial.|Cada firma queda registrada con fecha, razón y número único. ¿Ve? Ese pagaré no está en su historial.
+i09|D|Caso cerrado.|Caso cerrado.
+i10|P|Tu firma es tu palabra. Que nadie hable por ti. Pascal Sáin, de PascalIA. Pruébalo gratis por siete días.|Tu firma es tu palabra. Que nadie hable por ti. Pascal Sign, de PascalIA. Pruébalo gratis por 7 días.
