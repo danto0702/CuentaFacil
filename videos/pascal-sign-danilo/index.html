@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="es-CO">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="assets/vendor/gsap.min.js"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: #0F0F0F; }
+      #root { position: relative; width: 100%; height: 100%; overflow: hidden; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="62.99" data-width="1080" data-height="1920">
+      <div id="bframe" class="clip" data-composition-id="bframe" data-composition-src="compositions/frames/bframe.html" data-start="0" data-duration="59.39" data-track-index="0" data-width="1080" data-height="1920"></div>
+      <div id="vwin" style="position:absolute;left:180px;top:1000px;width:720px;height:880px;overflow:hidden;border-radius:36px"><video id="danilo" class="clip" src="assets/video/danilo.mp4" data-start="0" data-duration="59.39" data-track-index="2" data-has-audio="true" data-volume="1" data-layout-allow-overflow style="position:absolute;left:0;top:-140px;width:720px;height:1280px;object-fit:cover"></video></div>
+      <div id="ta" class="clip" data-composition-id="ta" data-composition-src="compositions/frames/ta.html" data-start="0.00" data-duration="2.74" data-track-index="1" data-width="1080" data-height="1920"></div>
+      <div id="tb" class="clip" data-composition-id="tb" data-composition-src="compositions/frames/tb.html" data-start="2.74" data-duration="8.50" data-track-index="1" data-width="1080" data-height="1920"></div>
+      <div id="tc" class="clip" data-composition-id="tc" data-composition-src="compositions/frames/tc.html" data-start="11.24" data-duration="4.84" data-track-index="1" data-width="1080" data-height="1920"></div>
+      <div id="td" class="clip" data-composition-id="td" data-composition-src="compositions/frames/td.html" data-start="16.08" data-duration="5.84" data-track-index="1" data-width="1080" data-height="1920"></div>
+      <div id="te" class="clip" data-composition-id="te" data-composition-src="compositions/frames/te.html" data-start="21.92" data-duration="2.62" data-track-index="1" data-width="1080" data-height="1920"></div>
+      <div id="tf" class="clip" data-composition-id="tf" data-composition-src="compositions/frames/tf.html" data-start="24.54" data-duration="9.04" data-track-index="1" data-width="1080" data-height="1920"></div>
+      <div id="tg" class="clip" data-composition-id="tg" data-composition-src="compositions/frames/tg.html" data-start="33.58" data-duration="4.84" data-track-index="1" data-width="1080" data-height="1920"></div>
+      <div id="th" class="clip" data-composition-id="th" data-composition-src="compositions/frames/th.html" data-start="38.42" data-duration="11.40" data-track-index="1" data-width="1080" data-height="1920"></div>
+      <div id="ti" class="clip" data-composition-id="ti" data-composition-src="compositions/frames/ti.html" data-start="49.82" data-duration="5.74" data-track-index="1" data-width="1080" data-height="1920"></div>
+      <div id="tj" class="clip" data-composition-id="tj" data-composition-src="compositions/frames/tj.html" data-start="55.56" data-duration="3.83" data-track-index="1" data-width="1080" data-height="1920"></div>
+      <div id="lname" class="clip" data-composition-id="lname" data-composition-src="compositions/frames/lname.html" data-start="0" data-duration="5" data-track-index="5" data-width="1080" data-height="1920"></div>
+      <div id="caps" class="clip" data-composition-id="caps" data-composition-src="compositions/frames/caps.html" data-start="0" data-duration="59.39" data-track-index="6" data-width="1080" data-height="1920"></div>
+      <div id="endcard" class="clip" data-composition-id="endcard" data-composition-src="compositions/frames/endcard.html" data-start="59.39" data-duration="3.6" data-track-index="7" data-width="1080" data-height="1920"></div>
+      <audio id="music" src="assets/audio/music.wav" data-start="0" data-duration="62.99" data-track-index="4" data-volume="0.35"></audio>
+    </div>
+    <script>
+      window.__timelines = window.__timelines || {};
+      window.__timelines["main"] = gsap.timeline({ paused: true });
+    </script>
+  </body>
+</html>
