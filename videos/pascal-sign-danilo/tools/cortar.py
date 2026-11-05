@@ -1,4 +1,4 @@
-# Cuts long pauses out of the owner's talking-head recording (silences > 0.38 s keep 0.12 s on each side) and transcodes to H.264.
+# Cuts long pauses out of the owner's talking-head recording (afterwards "social" in "la razón social" was removed by hand: 41.93–42.36 s of the cut file, owner request) (silences > 0.38 s keep 0.12 s on each side) and transcodes to H.264.
 # Usage: python cortar.py <input.mp4> <output.mp4>   — writes tools/cortes.json with the kept segments.
 import sys, json, subprocess, re, os
 src, out = sys.argv[1:3]
