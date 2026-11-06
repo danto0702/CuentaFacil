@@ -89,7 +89,7 @@ EXTRA2 = EXTRA2 + """
 """
 
 EXTRA2 = EXTRA2 + """
-.ilu{position:absolute;right:40px;top:40px;padding:8px 16px;border-radius:999px;background:rgba(0,0,0,.35);color:#fff;font:700 20px/1 "Inter",sans-serif}
+.ilu{position:absolute;right:40px;top:40px;padding:10px 18px;border-radius:999px;background:#1F1F1F;color:#fff;font:700 24px/1 "Inter",sans-serif}
 .quote{position:absolute;left:70px;right:70px;padding:40px 44px;border-radius:34px;background:#fff;box-shadow:0 30px 60px -24px rgba(0,0,0,.6)}
 .quote b{display:block;font:800 52px/1.15 "Montserrat",sans-serif;color:#1F1F1F}
 .quote small{display:block;margin-top:16px;font:600 28px/1 "Inter",sans-serif;color:#757575}
@@ -109,7 +109,7 @@ EXTRA2 = EXTRA2 + """
 .myth .x{flex:none;width:70px;height:70px;border-radius:50%;background:#E5484D;display:grid;place-items:center;color:#fff;font:800 40px/1 "Montserrat",sans-serif}
 .myth .ok{position:static;flex:none;width:70px;height:70px;border-radius:50%;background:#25A55F;padding:15px;box-shadow:none}
 .myth b{font:800 36px/1.15 "Montserrat",sans-serif;color:#1F1F1F}
-.myth s{color:#9E9E9E;font-weight:700}
+.myth s{color:#6B6B6B;font-weight:700}
 .tlb{position:absolute;left:70px;right:70px}
 .tlb b{display:block;font:800 34px/1 "Montserrat",sans-serif;color:#1F1F1F;margin-bottom:12px}
 .tlb .tr{height:70px;border-radius:20px;background:#EDEDED;overflow:hidden}
@@ -197,7 +197,7 @@ tl.from("#X-c",{{y:700,duration:.5,ease:"back.out(1.3)"}},{s + d * .6:.2f});
 tl.from("#X-doc",{{opacity:0,scale:.6,duration:.4,ease:"back.out(2)"}},{s + d * .75:.2f});"""))
 S.append(('e07', 'tl', .5, """
 #X-t{top:190px;font-size:70px}
-#X-o{top:500px;background:#EDEDED;color:#9E9E9E}
+#X-o{top:500px;background:#EDEDED;color:#6B6B6B}
 #X-n{top:820px;background:#1F1F1F;color:#FFC107}
 #X-ln{left:140px;top:560px;width:800px;height:12px;border-radius:6px;background:#E5484D;transform-origin:0 50%}
 """, CHT('El cambio') + ILU.replace('rgba(0,0,0,.35)', '#1F1F1F') + '<h1 id="X-t" class="h g">Cambia <span class="mk">la pregunta</span></h1>'
