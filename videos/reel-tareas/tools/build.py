@@ -166,7 +166,7 @@ MAILS = [('¿Cómo pido un certificado laboral?', 'Talento humano'), ('¿En qué
 S.append(('c05', 'td', .35, """
 #X-t{top:200px;font-size:70px;left:200px;right:70px;text-align:left}
 #X-n{left:70px;top:180px;width:110px;height:110px;font-size:66px}
-#X-cnt{left:760px;top:420px;padding:12px 24px;border-radius:999px;background:#E5484D;color:#fff;font:800 34px/1 "Montserrat",sans-serif}
+#X-cnt{left:110px;top:405px;white-space:nowrap;padding:12px 24px;border-radius:999px;background:#E5484D;color:#fff;font:800 34px/1 "Montserrat",sans-serif}
 """, CHT('Tarea 2 · Solicitudes') + '<h1 id="X-t" class="h w">Las mismas<br><span class="yy">preguntas</span></h1><div id="X-n" class="num">2</div>'
  + '<div id="X-cnt" class="abs">Bandeja · sin responder</div>'
  + ''.join(f'<div class="mail X-m" style="top:{500 + i * 135}px"><i>{icon("user", "#757575")}</i><div><b>{q}</b><small>Correo entrante</small></div><em>{h}</em></div>' for i, ((q, _), h) in enumerate(zip(MAILS, ['8:02', '8:05', '8:11', '8:20', '8:26']))),

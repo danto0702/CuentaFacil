@@ -113,7 +113,7 @@
 
 #fc05-t{top:200px;font-size:70px;left:200px;right:70px;text-align:left}
 #fc05-n{left:70px;top:180px;width:110px;height:110px;font-size:66px}
-#fc05-cnt{left:760px;top:420px;padding:12px 24px;border-radius:999px;background:#E5484D;color:#fff;font:800 34px/1 "Montserrat",sans-serif}
+#fc05-cnt{left:110px;top:405px;white-space:nowrap;padding:12px 24px;border-radius:999px;background:#E5484D;color:#fff;font:800 34px/1 "Montserrat",sans-serif}
 
 </style>
 <div id="root" data-composition-id="fc05" data-width="1080" data-height="1920">
@@ -123,16 +123,16 @@
 const tl = gsap.timeline({ paused: true });
 tl.from("#fc05-t",{opacity:0,y:-30,duration:.35,ease:"back.out(1.8)"},0);
 tl.from("#fc05-n",{scale:0,rotation:-120,duration:.4,ease:"back.out(2.2)"},.1);
-tl.from(".fc05-m",{opacity:0,y:-80,duration:.3,ease:"back.out(1.8)",stagger:0.95},0.98);
-tl.from("#fc05-cnt",{scale:0,duration:.3,ease:"back.out(2.5)"},3.02);
-tl.to("#fc05-cnt",{scale:1.1,duration:.3,yoyo:true,repeat:10,ease:"sine.inOut"},3.70);tl.set("#fc05-c0",{opacity:1},0.30);
-tl.set("#fc05-c0",{opacity:0},2.81);
-tl.set("#fc05-c1",{opacity:1},2.81);
-tl.set("#fc05-c1",{opacity:0},4.80);
-tl.set("#fc05-c2",{opacity:1},4.80);
-tl.set("#fc05-c2",{opacity:0},6.15);
-tl.set("#fc05-c3",{opacity:1},6.15);
-tl.set("#fc05-c3",{opacity:0},7.41);
+tl.from(".fc05-m",{opacity:0,y:-80,duration:.3,ease:"back.out(1.8)",stagger:1.40},1.30);
+tl.from("#fc05-cnt",{scale:0,duration:.3,ease:"back.out(2.5)"},4.31);
+tl.to("#fc05-cnt",{scale:1.1,duration:.3,yoyo:true,repeat:16,ease:"sine.inOut"},5.31);tl.set("#fc05-c0",{opacity:1},0.30);
+tl.set("#fc05-c0",{opacity:0},3.99);
+tl.set("#fc05-c1",{opacity:1},3.99);
+tl.set("#fc05-c1",{opacity:0},6.92);
+tl.set("#fc05-c2",{opacity:1},6.92);
+tl.set("#fc05-c2",{opacity:0},8.91);
+tl.set("#fc05-c3",{opacity:1},8.91);
+tl.set("#fc05-c3",{opacity:0},10.63);
 
 window.__timelines["fc05"] = tl;
 </script>
