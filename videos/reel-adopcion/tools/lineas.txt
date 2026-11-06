@@ -1,4 +1,4 @@
-b01|P|Tu empresa compró licencias de chat yi pi ti para todo el equipo… y anunció: ya tenemos inteligencia artificial.|Tu empresa compró licencias de ChatGPT para todo el equipo… y anunció: «ya tenemos inteligencia artificial».
+b01|P|Tu empresa compró licencias de Chat G P T para todo el equipo… y anunció: ya tenemos inteligencia artificial.|Tu empresa compró licencias de ChatGPT para todo el equipo… y anunció: «ya tenemos inteligencia artificial».
 b02|P|Error. Dar acceso a una herramienta… no es implementar inteligencia artificial.|Error. Dar acceso a una herramienta… no es implementar IA.
 b03|P|La primera semana, todos la prueban. Al mes, pocos la abren. A los tres meses… nadie se acuerda de la contraseña.|La primera semana, todos la prueban. Al mes, pocos la abren. A los tres meses… nadie se acuerda de la contraseña.
 b04|P|¿Por qué? Porque nadie les enseñó a usarla en su trabajo. Contabilidad, ventas y talento humano no necesitan lo mismo.|¿Por qué? Porque nadie les enseñó a usarla en su trabajo. Contabilidad, ventas y talento humano no necesitan lo mismo.

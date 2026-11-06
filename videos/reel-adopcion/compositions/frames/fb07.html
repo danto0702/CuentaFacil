@@ -127,16 +127,16 @@ const tl = gsap.timeline({ paused: true });
 tl.from("#fb07-t",{opacity:0,y:-30,duration:.35,ease:"back.out(1.8)"},0);
 tl.from("#fb07-src",{opacity:0,y:-60,duration:.35,ease:"back.out(2)"},.2);
 tl.from("#fb07-hub",{scale:0,duration:.45,ease:"back.out(2)"},.4);
-tl.to("#fb07-hub",{scale:1.06,duration:.4,yoyo:true,repeat:12,ease:"sine.inOut"},.9);
+tl.to("#fb07-hub",{scale:1.06,duration:.4,yoyo:true,repeat:16,ease:"sine.inOut"},.9);
 tl.fromTo(".fb07-w",{strokeDasharray:400,strokeDashoffset:400},{strokeDashoffset:0,duration:.4,stagger:.15},0.30);
-tl.from("#fb07-o1",{opacity:0,scale:.5,duration:.35,ease:"back.out(2)"},1.01);
-tl.from("#fb07-o2",{opacity:0,scale:.5,duration:.35,ease:"back.out(2)"},2.65);
-tl.from("#fb07-o3",{opacity:0,scale:.5,duration:.35,ease:"back.out(2)"},4.12);tl.set("#fb07-c0",{opacity:1},0.30);
-tl.set("#fb07-c0",{opacity:0},2.15);
-tl.set("#fb07-c1",{opacity:1},2.15);
-tl.set("#fb07-c1",{opacity:0},4.90);
-tl.set("#fb07-c2",{opacity:1},4.90);
-tl.set("#fb07-c2",{opacity:0},6.48);
+tl.from("#fb07-o1",{opacity:0,scale:.5,duration:.35,ease:"back.out(2)"},1.16);
+tl.from("#fb07-o2",{opacity:0,scale:.5,duration:.35,ease:"back.out(2)"},3.18);
+tl.from("#fb07-o3",{opacity:0,scale:.5,duration:.35,ease:"back.out(2)"},4.97);tl.set("#fb07-c0",{opacity:1},0.30);
+tl.set("#fb07-c0",{opacity:0},2.57);
+tl.set("#fb07-c1",{opacity:1},2.57);
+tl.set("#fb07-c1",{opacity:0},5.93);
+tl.set("#fb07-c2",{opacity:1},5.93);
+tl.set("#fb07-c2",{opacity:0},7.79);
 
 window.__timelines["fb07"] = tl;
 </script>
