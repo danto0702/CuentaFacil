@@ -73,6 +73,7 @@ EXTRA2 = EXTRA2 + """
 .card h3 em{margin-left:auto;font:800 20px/1 "Montserrat",sans-serif;font-style:normal;color:#1F1F1F;background:#25D366;padding:8px 12px;border-radius:999px}
 .card p{display:flex;justify-content:space-between;gap:12px;padding:16px 24px;border-top:2px solid #EFEFEF;font:700 28px/1.2 "Inter",sans-serif;color:#1F1F1F}
 .card p.hit{background:#FFF6D6}
+.card p.hit b{color:#14522E}
 .card p b{color:#1E7B45}
 .ho{position:absolute;padding:24px 28px;border-radius:28px;background:#fff;box-shadow:inset 0 0 0 3px #25A55F,0 24px 50px -24px rgba(31,31,31,.4)}
 .ho b{display:block;font:800 34px/1.1 "Montserrat",sans-serif;color:#1F1F1F}
@@ -91,7 +92,7 @@ S = []
 S.append(('d01', 'td', .4, """
 #X-t{top:200px;font-size:68px}
 #X-ph{left:90px;top:440px;width:900px}
-#X-x{left:780px;top:1180px;width:150px;height:150px;border-radius:50%;background:#E5484D;display:grid;place-items:center;font:800 100px/1 "Montserrat",sans-serif;color:#fff}
+#X-x{left:465px;top:1330px;width:150px;height:150px;border-radius:50%;background:#E5484D;display:grid;place-items:center;font:800 100px/1 "Montserrat",sans-serif;color:#fff}
 """, CHT('Consejo PascalIA') + '<h1 id="X-t" class="h w">¿Bots que <span class="red">desesperan</span>?</h1>'
  + chat('X-ph', 'left:90px;top:440px;width:900px', [
    ('X-m1', True, '🤖 Marque 1 para ventas<br>Marque 2 para soporte<br>Marque 3 para facturación<br>…<br>Marque 9 para hablar con un humano', '10:02 a. m. <b>✓✓</b>'),
@@ -146,7 +147,7 @@ S.append(('d04', 'tl', .4, """
 #X-n{left:70px;top:170px}
 #X-cat{left:70px;top:420px;width:540px}
 #X-ag{left:640px;top:420px;width:370px}
-#X-sync{left:560px;top:560px;width:110px;height:110px;border-radius:50%;background:#25D366;padding:26px;box-shadow:0 12px 24px -10px rgba(0,0,0,.4)}
+#X-sync{left:575px;top:685px;width:110px;height:110px;border-radius:50%;background:#25D366;padding:26px;box-shadow:0 12px 24px -10px rgba(0,0,0,.4)}
 """, CHT('Ingrediente 2 · Tiempo real') + '<h1 id="X-t" class="h g">Datos reales,<br><span class="mk">al instante</span></h1><div id="X-n" class="num">2</div>'
  + '<div id="X-cat" class="card"><h3>Catálogo<em>EN VIVO</em></h3>' + ''.join(f'<p class="{"hit X-hit" if j == 1 else ""}"><span>{a}</span><b>{b}</b></p>' for j, (a, b) in enumerate(STOCK)) + '</div>'
  + '<div id="X-ag" class="card"><h3>Agenda</h3><p><span>Mar · 9:00</span><b>Libre</b></p><p><span>Mar · 10:30</span><span>Ocupado</span></p></div>'
@@ -209,7 +210,7 @@ S.append(('d07', 'td', .5, """
 .X-q{background:#fff}
 .X-q i{box-shadow:inset 0 0 0 4px #1F1F1F}
 """, CHT('Haz la prueba') + '<img id="X-p" class="ch" src="assets/chars/pascal-celular.webp" alt=""><h1 id="X-t" class="h w">Evalúa <span class="yy">tu chat</span> hoy</h1>'
- + ''.join(f'<div class="q5 X-q" style="top:{430 + i * 150}px;width:{620 if i != 2 else 680}px"><i></i>{q}</div>' for i, q in enumerate(QS)),
+ + ''.join(f'<div class="q5 X-q" style="top:{430 + i * 150}px;width:720px"><i></i>{q}</div>' for i, q in enumerate(QS)),
  lambda D, s, d: f"""tl.from("#X-t",{{opacity:0,y:-30,duration:.35,ease:"back.out(1.8)"}},0);
 tl.from("#X-p",{{x:500,duration:.5,ease:"power3.out"}},.2);
 tl.from(".X-q",{{opacity:0,x:-300,duration:.32,ease:"back.out(1.6)",stagger:{d * .14:.2f}}},{s + d * .3:.2f});"""))
