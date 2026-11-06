@@ -72,6 +72,8 @@
 .m.me{background:#005C4B;align-self:flex-end}
 .m small{display:block;text-align:right;font-size:18px;color:#8696A0;margin-top:4px}
 .m small b{color:#53BDEB;font-weight:600}
+.m.me small{color:#CFE9E2}
+.m.me small b{color:#A8E6FF}
 .badge{position:absolute;display:grid;place-items:center;border-radius:999px;background:#25D366;color:#fff;font:800 40px/1 "Montserrat",sans-serif;padding:10px 22px;box-shadow:0 10px 24px -8px rgba(0,0,0,.5)}
 .clockbig{position:absolute;left:0;right:0;text-align:center;font:800 120px/1 "Montserrat",sans-serif;letter-spacing:-.03em}
 
@@ -82,26 +84,26 @@
 
 </style>
 <div id="root" data-composition-id="fa07" data-width="1080" data-height="1920">
-<div class="light"></div><div class="chip3"><span><img src="assets/brand/flower.svg" alt="">Consejo PascalIA</span></div><p id="fa07-day" class="clockbig">Sábado 11:07 p. m.</p><div id="fa07-ph" class="wa" style="left:140px;top:350px;width:800px"><div class="top"><i></i><div>Tu negocio<small>responde al instante</small></div></div><div class="body"><div id="fa07-m1" class="m">Hola 👋 ¿Qué precio tiene? ¿Tienen cita para el lunes?<small>11:07 p. m.</small></div><div id="fa07-m2" class="m me">¡Hola! 😊 La consulta cuesta $ 80.000. Atendemos de lunes a sábado, 8 a. m. a 6 p. m.<small>11:07 p. m. <b>✓✓</b></small></div><div id="fa07-m3" class="m me">Tengo disponible el lunes a las 9:00 a. m. ¿Te la agendo?<small>11:07 p. m. <b>✓✓</b></small></div><div id="fa07-m4" class="m">¡Sí, por favor!<small>11:08 p. m.</small></div></div></div><div id="fa07-sec" class="abs">En segundos</div><div id="fa07-cal" class="abs">Cita agendada<small>Lunes · 9:00 a. m.</small></div><div class="cap"><span id="fa07-c0" style="background:#FFC107;color:#1F1F1F">Sábado, 11 de la noche:</span></div><div class="cap"><span id="fa07-c1" style="background:#FFC107;color:#1F1F1F">el cliente pregunta…</span></div><div class="cap"><span id="fa07-c2" style="background:#FFC107;color:#1F1F1F">y en segundos recibe respuesta.</span></div><div class="cap"><span id="fa07-c3" style="background:#FFC107;color:#1F1F1F">Precios, horarios, dudas…</span></div><div class="cap"><span id="fa07-c4" style="background:#FFC107;color:#1F1F1F">y su cita agendada.</span></div>
+<div class="light"></div><div class="chip3"><span><img src="assets/brand/flower.svg" alt="">Consejo PascalIA</span></div><p id="fa07-day" class="clockbig">Sábado 11:07 p. m.</p><div id="fa07-ph" class="wa" style="left:140px;top:350px;width:800px"><div class="top"><i></i><div>Tu negocio<small>responde al instante</small></div></div><div class="body"><div id="fa07-m1" class="m">Hola 👋 ¿Qué precio tiene? ¿Tienen cita para el lunes?<small>11:07 p. m.</small></div><div id="fa07-m2" class="m me">¡Hola! 😊 Te envío la lista de precios. Atendemos de lunes a sábado, 8 a. m. a 6 p. m.<small>11:07 p. m. <b>✓✓</b></small></div><div id="fa07-m3" class="m me">Tengo disponible el lunes a las 9:00 a. m. ¿Te la agendo?<small>11:07 p. m. <b>✓✓</b></small></div><div id="fa07-m4" class="m">¡Sí, por favor!<small>11:08 p. m.</small></div></div></div><div id="fa07-sec" class="abs">En segundos</div><div id="fa07-cal" class="abs">Cita agendada<small>Lunes · 9:00 a. m.</small></div><div class="cap"><span id="fa07-c0" style="background:#FFC107;color:#1F1F1F">Sábado, 11 de la noche:</span></div><div class="cap"><span id="fa07-c1" style="background:#FFC107;color:#1F1F1F">el cliente pregunta…</span></div><div class="cap"><span id="fa07-c2" style="background:#FFC107;color:#1F1F1F">y en segundos recibe respuesta.</span></div><div class="cap"><span id="fa07-c3" style="background:#FFC107;color:#1F1F1F">Precios, horarios, dudas…</span></div><div class="cap"><span id="fa07-c4" style="background:#FFC107;color:#1F1F1F">y su cita agendada.</span></div>
 </div>
 <script>
 const tl = gsap.timeline({ paused: true });
 tl.from("#fa07-day",{opacity:0,y:-30,duration:.35},0);
 tl.from("#fa07-ph",{y:900,duration:.5,ease:"power3.out"},.1);
-tl.from("#fa07-m2",{opacity:0,scale:.7,duration:.3,ease:"back.out(2)"},2.43);
-tl.from("#fa07-sec",{opacity:0,x:-200,duration:.35,ease:"back.out(1.8)"},2.59);
-tl.from("#fa07-m3",{opacity:0,scale:.7,duration:.3,ease:"back.out(2)"},4.49);
-tl.from("#fa07-m4",{opacity:0,scale:.7,duration:.3,ease:"back.out(2)"},5.79);
-tl.from("#fa07-cal",{scale:0,rotation:-8,duration:.4,ease:"back.out(2.2)"},6.55);tl.set("#fa07-c0",{opacity:1},0.30);
-tl.set("#fa07-c0",{opacity:0},1.79);
-tl.set("#fa07-c1",{opacity:1},1.79);
-tl.set("#fa07-c1",{opacity:0},3.08);
-tl.set("#fa07-c2",{opacity:1},3.08);
-tl.set("#fa07-c2",{opacity:0},5.08);
-tl.set("#fa07-c3",{opacity:1},5.08);
-tl.set("#fa07-c3",{opacity:0},6.69);
-tl.set("#fa07-c4",{opacity:1},6.69);
-tl.set("#fa07-c4",{opacity:0},8.22);
+tl.from("#fa07-m2",{opacity:0,scale:.7,duration:.3,ease:"back.out(2)"},2.60);
+tl.from("#fa07-sec",{opacity:0,x:-200,duration:.35,ease:"back.out(1.8)"},2.77);
+tl.from("#fa07-m3",{opacity:0,scale:.7,duration:.3,ease:"back.out(2)"},4.82);
+tl.from("#fa07-m4",{opacity:0,scale:.7,duration:.3,ease:"back.out(2)"},6.22);
+tl.from("#fa07-cal",{scale:0,rotation:-8,duration:.4,ease:"back.out(2.2)"},7.04);tl.set("#fa07-c0",{opacity:1},0.30);
+tl.set("#fa07-c0",{opacity:0},1.90);
+tl.set("#fa07-c1",{opacity:1},1.90);
+tl.set("#fa07-c1",{opacity:0},3.30);
+tl.set("#fa07-c2",{opacity:1},3.30);
+tl.set("#fa07-c2",{opacity:0},5.45);
+tl.set("#fa07-c3",{opacity:1},5.45);
+tl.set("#fa07-c3",{opacity:0},7.20);
+tl.set("#fa07-c4",{opacity:1},7.20);
+tl.set("#fa07-c4",{opacity:0},8.82);
 
 window.__timelines["fa07"] = tl;
 </script>

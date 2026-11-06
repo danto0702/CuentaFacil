@@ -5,5 +5,5 @@ a04|P|Les respondes… pero ya es tarde. Ese cliente se enfrió, o ya le compró
 a05|P|Ese es el costo oculto: pagas por atraer clientes… y los dejas en visto.|Ese es el costo oculto: pagas por atraer clientes… y los dejas en visto.
 a06|P|Ahora imagina un agente de inteligencia artificial, entrenado con la información de tu negocio.|Ahora imagina un agente de inteligencia artificial, entrenado con la información de tu negocio.
 a07|P|Sábado, once de la noche: el cliente pregunta… y en segundos recibe respuesta. Precios, horarios, dudas… y su cita agendada.|Sábado, 11 de la noche: el cliente pregunta… y en segundos recibe respuesta. Precios, horarios, dudas… y su cita agendada.
-a08|P|El lunes no llegas a apagar incendios: llegas a atender citas confirmadas.|El lunes no llegas a apagar incendios: llegas a atender citas confirmadas.
+a08|P|El lunes ya no llegas… a apagar incendios. Llegas a atender citas confirmadas.|El lunes no llegas a apagar incendios: llegas a atender citas confirmadas.
 a09|P|Tu negocio, atendiendo veinticuatro siete. Pide una demostración y míralo funcionando con tu propio negocio. PascalIA.|Tu negocio, atendiendo 24/7. Pide una demostración y míralo funcionando con tu propio negocio. PascalIA.

@@ -72,6 +72,8 @@
 .m.me{background:#005C4B;align-self:flex-end}
 .m small{display:block;text-align:right;font-size:18px;color:#8696A0;margin-top:4px}
 .m small b{color:#53BDEB;font-weight:600}
+.m.me small{color:#CFE9E2}
+.m.me small b{color:#A8E6FF}
 .badge{position:absolute;display:grid;place-items:center;border-radius:999px;background:#25D366;color:#fff;font:800 40px/1 "Montserrat",sans-serif;padding:10px 22px;box-shadow:0 10px 24px -8px rgba(0,0,0,.5)}
 .clockbig{position:absolute;left:0;right:0;text-align:center;font:800 120px/1 "Montserrat",sans-serif;letter-spacing:-.03em}
 
@@ -91,16 +93,16 @@ const tl = gsap.timeline({ paused: true });
 tl.from("#fa03-day",{opacity:0,scale:1.4,duration:.4,ease:"back.out(1.6)"},0);
 tl.from("#fa03-sub",{opacity:0,y:20,duration:.3},.2);
 tl.from("#fa03-c",{y:700,duration:.5,ease:"back.out(1.3)"},.3);
-tl.from(".fa03-ic",{scale:0,rotation:-30,duration:.3,ease:"back.out(2.5)",stagger:.12},2.50);
-tl.from("#fa03-b",{scale:0,duration:.3,ease:"back.out(2.5)"},3.33);
+tl.from(".fa03-ic",{scale:0,rotation:-30,duration:.3,ease:"back.out(2.5)",stagger:.12},2.24);
+tl.from("#fa03-b",{scale:0,duration:.3,ease:"back.out(2.5)"},2.97);
 const fa03_n={v:0};
-tl.to(fa03_n,{v:37,duration:1.2,ease:"power2.out",onUpdate:()=>{document.querySelector("#fa03-n").textContent=Math.round(fa03_n.v);}},3.33);
-tl.to("#fa03-c",{x:8,duration:.07,yoyo:true,repeat:32,ease:"none"},3.60);tl.set("#fa03-c0",{opacity:1},0.30);
-tl.set("#fa03-c0",{opacity:0},1.71);
-tl.set("#fa03-c1",{opacity:1},1.71);
-tl.set("#fa03-c1",{opacity:0},4.33);
-tl.set("#fa03-c2",{opacity:1},4.33);
-tl.set("#fa03-c2",{opacity:0},6.10);
+tl.to(fa03_n,{v:37,duration:1.2,ease:"power2.out",onUpdate:()=>{document.querySelector("#fa03-n").textContent=Math.round(fa03_n.v);}},2.97);
+tl.to("#fa03-c",{x:8,duration:.07,yoyo:true,repeat:28,ease:"none"},3.22);tl.set("#fa03-c0",{opacity:1},0.30);
+tl.set("#fa03-c0",{opacity:0},1.54);
+tl.set("#fa03-c1",{opacity:1},1.54);
+tl.set("#fa03-c1",{opacity:0},3.86);
+tl.set("#fa03-c2",{opacity:1},3.86);
+tl.set("#fa03-c2",{opacity:0},5.46);
 
 window.__timelines["fa03"] = tl;
 </script>

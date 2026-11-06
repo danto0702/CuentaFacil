@@ -47,6 +47,8 @@ CHAT_CSS = '''
 .m.me{background:#005C4B;align-self:flex-end}
 .m small{display:block;text-align:right;font-size:18px;color:#8696A0;margin-top:4px}
 .m small b{color:#53BDEB;font-weight:600}
+.m.me small{color:#CFE9E2}
+.m.me small b{color:#A8E6FF}
 .badge{position:absolute;display:grid;place-items:center;border-radius:999px;background:#25D366;color:#fff;font:800 40px/1 "Montserrat",sans-serif;padding:10px 22px;box-shadow:0 10px 24px -8px rgba(0,0,0,.5)}
 .clockbig{position:absolute;left:0;right:0;text-align:center;font:800 120px/1 "Montserrat",sans-serif;letter-spacing:-.03em}
 '''
@@ -66,7 +68,7 @@ S.append(('a01', 'td', .3, '''
  lambda D, s, d: f'''tl.from("#X-day",{{opacity:0,scale:1.4,duration:.4,ease:"back.out(1.6)"}},0);
 tl.from("#X-sub",{{opacity:0,y:20,duration:.3}},.2);
 tl.from("#X-ad",{{opacity:0,x:-200,duration:.35,ease:"back.out(1.8)"}},.4);
-tl.from("#X-ph",{{y:900,duration:.5,ease:"power3.out"}},{s + d * .4:.2f});
+tl.from("#X-ph",{{y:900,opacity:0,duration:.5,ease:"power3.out"}},{s + d * .4:.2f});
 tl.from("#X-m1",{{opacity:0,scale:.7,duration:.3,ease:"back.out(2)"}},{s + d * .75:.2f});'''))
 S.append(('a02', 'td', .5, '''
 #X-t{top:240px;font-size:110px}
@@ -97,7 +99,7 @@ S.append(('a04', 'td', .45, '''
 #X-t{top:200px;font-size:84px}
 #X-ice{left:820px;top:500px;width:170px;height:170px;border-radius:50%;background:#38BDF8;display:grid;place-items:center;font:800 90px/1 "Montserrat",sans-serif;color:#fff}
 ''', CH2() + '<h1 id="X-t" class="h w">Ya es <span class="red">tarde</span></h1>'
- + chat('X-ph', 'left:120px;top:480px;width:700px', [('X-m1', False, 'Hola 👋 ¿Qué precio tiene? ¿Tienen cita para el lunes?', 'sábado 11:07 p. m.'), ('X-m2', True, '¡Hola! Disculpa la demora 🙏 El precio es…', 'lunes 8:15 a. m. <b>✓✓</b>'), ('X-m3', False, 'Gracias, ya conseguí en otro lado.', '8:16 a. m.')])
+ + chat('X-ph', 'left:120px;top:480px;width:700px', [('X-m1', False, 'Hola 👋 ¿Qué precio tiene? ¿Tienen cita para el lunes?', 'sábado 11:07 p. m.'), ('X-m2', True, '¡Hola! Disculpa la demora 🙏 Te cuento…', 'lunes 8:15 a. m. <b>✓✓</b>'), ('X-m3', False, 'Gracias, ya conseguí en otro lado.', '8:16 a. m.')])
  + '<div id="X-ice" class="abs" style="font-size:34px">FRÍO</div>',
  lambda D, s, d: f'''tl.from("#X-t",{{opacity:0,y:-30,duration:.35,ease:"back.out(1.8)"}},{s + d * .4:.2f});
 tl.from("#X-m2",{{opacity:0,scale:.7,duration:.3,ease:"back.out(2)"}},{s + d * .1:.2f});
@@ -141,7 +143,7 @@ S.append(('a07', 'tl', .45, '''
 #X-cal small{display:block;font:600 24px/1.2 "Inter",sans-serif;color:#1E7B45}
 #X-sec{left:70px;top:1210px;padding:16px 26px;border-radius:999px;background:#1F1F1F;color:#FFC107;font:800 34px/1 "Montserrat",sans-serif}
 ''', CH() + '<p id="X-day" class="clockbig">Sábado 11:07 p. m.</p>'
- + chat('X-ph', 'left:140px;top:350px;width:800px', [('X-m1', False, 'Hola 👋 ¿Qué precio tiene? ¿Tienen cita para el lunes?', '11:07 p. m.'), ('X-m2', True, '¡Hola! 😊 La consulta cuesta $ 80.000. Atendemos de lunes a sábado, 8 a. m. a 6 p. m.', '11:07 p. m. <b>✓✓</b>'), ('X-m3', True, 'Tengo disponible el lunes a las 9:00 a. m. ¿Te la agendo?', '11:07 p. m. <b>✓✓</b>'), ('X-m4', False, '¡Sí, por favor!', '11:08 p. m.')], 'Tu negocio', 'responde al instante')
+ + chat('X-ph', 'left:140px;top:350px;width:800px', [('X-m1', False, 'Hola 👋 ¿Qué precio tiene? ¿Tienen cita para el lunes?', '11:07 p. m.'), ('X-m2', True, '¡Hola! 😊 Te envío la lista de precios. Atendemos de lunes a sábado, 8 a. m. a 6 p. m.', '11:07 p. m. <b>✓✓</b>'), ('X-m3', True, 'Tengo disponible el lunes a las 9:00 a. m. ¿Te la agendo?', '11:07 p. m. <b>✓✓</b>'), ('X-m4', False, '¡Sí, por favor!', '11:08 p. m.')], 'Tu negocio', 'responde al instante')
  + '<div id="X-sec" class="abs">En segundos</div><div id="X-cal" class="abs">Cita agendada<small>Lunes · 9:00 a. m.</small></div>',
  lambda D, s, d: f'''tl.from("#X-day",{{opacity:0,y:-30,duration:.35}},0);
 tl.from("#X-ph",{{y:900,duration:.5,ease:"power3.out"}},.1);

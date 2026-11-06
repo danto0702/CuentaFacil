@@ -72,6 +72,8 @@
 .m.me{background:#005C4B;align-self:flex-end}
 .m small{display:block;text-align:right;font-size:18px;color:#8696A0;margin-top:4px}
 .m small b{color:#53BDEB;font-weight:600}
+.m.me small{color:#CFE9E2}
+.m.me small b{color:#A8E6FF}
 .badge{position:absolute;display:grid;place-items:center;border-radius:999px;background:#25D366;color:#fff;font:800 40px/1 "Montserrat",sans-serif;padding:10px 22px;box-shadow:0 10px 24px -8px rgba(0,0,0,.5)}
 .clockbig{position:absolute;left:0;right:0;text-align:center;font:800 120px/1 "Montserrat",sans-serif;letter-spacing:-.03em}
 
@@ -80,19 +82,19 @@
 
 </style>
 <div id="root" data-composition-id="fa04" data-width="1080" data-height="1920">
-<div class="dark"></div><div class="chip3"><span><img src="assets/brand/flower.svg" alt="">Historia PascalIA</span></div><h1 id="fa04-t" class="h w">Ya es <span class="red">tarde</span></h1><div id="fa04-ph" class="wa" style="left:120px;top:480px;width:700px"><div class="top"><i></i><div>Cliente nuevo<small>en línea</small></div></div><div class="body"><div id="fa04-m1" class="m">Hola 👋 ¿Qué precio tiene? ¿Tienen cita para el lunes?<small>sábado 11:07 p. m.</small></div><div id="fa04-m2" class="m me">¡Hola! Disculpa la demora 🙏 El precio es…<small>lunes 8:15 a. m. <b>✓✓</b></small></div><div id="fa04-m3" class="m">Gracias, ya conseguí en otro lado.<small>8:16 a. m.</small></div></div></div><div id="fa04-ice" class="abs" style="font-size:34px">FRÍO</div><div class="cap"><span id="fa04-c0" style="background:#FFC107;color:#1F1F1F">Les respondes… pero ya es tarde.</span></div><div class="cap"><span id="fa04-c1" style="background:#FFC107;color:#1F1F1F">Ese cliente se enfrió,</span></div><div class="cap"><span id="fa04-c2" style="background:#FFC107;color:#1F1F1F">o ya le compró a otro.</span></div>
+<div class="dark"></div><div class="chip3"><span><img src="assets/brand/flower.svg" alt="">Historia PascalIA</span></div><h1 id="fa04-t" class="h w">Ya es <span class="red">tarde</span></h1><div id="fa04-ph" class="wa" style="left:120px;top:480px;width:700px"><div class="top"><i></i><div>Cliente nuevo<small>en línea</small></div></div><div class="body"><div id="fa04-m1" class="m">Hola 👋 ¿Qué precio tiene? ¿Tienen cita para el lunes?<small>sábado 11:07 p. m.</small></div><div id="fa04-m2" class="m me">¡Hola! Disculpa la demora 🙏 Te cuento…<small>lunes 8:15 a. m. <b>✓✓</b></small></div><div id="fa04-m3" class="m">Gracias, ya conseguí en otro lado.<small>8:16 a. m.</small></div></div></div><div id="fa04-ice" class="abs" style="font-size:34px">FRÍO</div><div class="cap"><span id="fa04-c0" style="background:#FFC107;color:#1F1F1F">Les respondes… pero ya es tarde.</span></div><div class="cap"><span id="fa04-c1" style="background:#FFC107;color:#1F1F1F">Ese cliente se enfrió,</span></div><div class="cap"><span id="fa04-c2" style="background:#FFC107;color:#1F1F1F">o ya le compró a otro.</span></div>
 </div>
 <script>
 const tl = gsap.timeline({ paused: true });
-tl.from("#fa04-t",{opacity:0,y:-30,duration:.35,ease:"back.out(1.8)"},2.25);
-tl.from("#fa04-m2",{opacity:0,scale:.7,duration:.3,ease:"back.out(2)"},0.79);
-tl.from("#fa04-m3",{opacity:0,scale:.7,duration:.3,ease:"back.out(2)"},2.98);
-tl.from("#fa04-ice",{scale:0,rotation:-90,duration:.4,ease:"back.out(2.2)"},2.74);tl.set("#fa04-c0",{opacity:1},0.30);
-tl.set("#fa04-c0",{opacity:0},2.35);
-tl.set("#fa04-c1",{opacity:1},2.35);
-tl.set("#fa04-c1",{opacity:0},3.77);
-tl.set("#fa04-c2",{opacity:1},3.77);
-tl.set("#fa04-c2",{opacity:0},5.48);
+tl.from("#fa04-t",{opacity:0,y:-30,duration:.35,ease:"back.out(1.8)"},2.51);
+tl.from("#fa04-m2",{opacity:0,scale:.7,duration:.3,ease:"back.out(2)"},0.85);
+tl.from("#fa04-m3",{opacity:0,scale:.7,duration:.3,ease:"back.out(2)"},3.34);
+tl.from("#fa04-ice",{scale:0,rotation:-90,duration:.4,ease:"back.out(2.2)"},3.06);tl.set("#fa04-c0",{opacity:1},0.30);
+tl.set("#fa04-c0",{opacity:0},2.63);
+tl.set("#fa04-c1",{opacity:1},2.63);
+tl.set("#fa04-c1",{opacity:0},4.23);
+tl.set("#fa04-c2",{opacity:1},4.23);
+tl.set("#fa04-c2",{opacity:0},6.13);
 
 window.__timelines["fa04"] = tl;
 </script>

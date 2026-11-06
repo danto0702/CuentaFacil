@@ -72,6 +72,8 @@
 .m.me{background:#005C4B;align-self:flex-end}
 .m small{display:block;text-align:right;font-size:18px;color:#8696A0;margin-top:4px}
 .m small b{color:#53BDEB;font-weight:600}
+.m.me small{color:#CFE9E2}
+.m.me small b{color:#A8E6FF}
 .badge{position:absolute;display:grid;place-items:center;border-radius:999px;background:#25D366;color:#fff;font:800 40px/1 "Montserrat",sans-serif;padding:10px 22px;box-shadow:0 10px 24px -8px rgba(0,0,0,.5)}
 .clockbig{position:absolute;left:0;right:0;text-align:center;font:800 120px/1 "Montserrat",sans-serif;letter-spacing:-.03em}
 
@@ -93,13 +95,13 @@ const tl = gsap.timeline({ paused: true });
 tl.fromTo("#fa06-flash",{opacity:1},{opacity:0,duration:.4},0);
 tl.from("#fa06-t",{opacity:0,scale:1.4,duration:.4,ease:"back.out(1.6)"},.1);
 tl.from("#fa06-p",{x:600,duration:.6,ease:"power2.out"},.2);
-tl.from("#fa06-ag",{opacity:0,scale:.8,duration:.4,ease:"back.out(1.8)"},3.27);
-tl.from(".fa06-li",{opacity:0,x:-40,duration:.25,stagger:.18},3.98);tl.set("#fa06-c0",{opacity:1},0.30);
-tl.set("#fa06-c0",{opacity:0},2.79);
-tl.set("#fa06-c1",{opacity:1},2.79);
-tl.set("#fa06-c1",{opacity:0},5.54);
-tl.set("#fa06-c2",{opacity:1},5.54);
-tl.set("#fa06-c2",{opacity:0},6.54);
+tl.from("#fa06-ag",{opacity:0,scale:.8,duration:.4,ease:"back.out(1.8)"},3.01);
+tl.from(".fa06-li",{opacity:0,x:-40,duration:.25,stagger:.18},3.66);tl.set("#fa06-c0",{opacity:1},0.30);
+tl.set("#fa06-c0",{opacity:0},2.57);
+tl.set("#fa06-c1",{opacity:1},2.57);
+tl.set("#fa06-c1",{opacity:0},5.08);
+tl.set("#fa06-c2",{opacity:1},5.08);
+tl.set("#fa06-c2",{opacity:0},6.02);
 
 window.__timelines["fa06"] = tl;
 </script>
