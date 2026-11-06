@@ -1,0 +1,9 @@
+e01|P|Eso de la inteligencia artificial es para las multinacionales… no para una empresa como la mía.|«Eso de la IA es para las multinacionales… no para una empresa como la mía».
+e02|P|Así piensan muchos gerentes de pequeñas y medianas empresas. Y es normal: lo desconocido da miedo.|Así piensan muchos gerentes de pequeñas y medianas empresas. Y es normal: lo desconocido da miedo.
+e03|P|¿Cuánto me va a costar? ¿Tengo que contratar ingenieros? ¿Y si mi equipo no la sabe usar?|¿Cuánto me va a costar? ¿Tengo que contratar ingenieros? ¿Y si mi equipo no la sabe usar?
+e04|P|Ahora imagina que ese gerente decide empezar con algo pequeño: una sola herramienta, sencilla y de bajo costo, para la tarea que más se repite… armar las cotizaciones.|Ahora imagina que ese gerente decide empezar con algo pequeño: una sola herramienta, sencilla y de bajo costo, para la tarea que más se repite: armar las cotizaciones.
+e05|P|Sin cambiar sus sistemas. Sin contratar ingenieros. Y su equipo aprende a usarla en una sola sesión.|Sin cambiar sus sistemas. Sin contratar ingenieros. Y su equipo aprende a usarla en una sola sesión.
+e06|P|Muy pronto se nota: la cotización que antes tardaba días… ahora sale el mismo día.|Muy pronto se nota: la cotización que antes tardaba días… ahora sale el mismo día.
+e07|P|Y ahí cambia la pregunta. Ya no es: ¿la inteligencia artificial es para mí? Ahora es: ¿qué más podemos hacer?|Y ahí cambia la pregunta. Ya no es «¿la IA es para mí?». Ahora es «¿qué más podemos hacer?».
+e08|P|La inteligencia artificial no es solo para las grandes empresas. Es para las que se atreven a dar el primer paso.|La IA no es solo para las grandes empresas. Es para las que se atreven a dar el primer paso.
+e09|P|Agenda una sesión exploratoria con PascalIA. Sin compromiso, y sin tecnicismos: solo una conversación sobre tu negocio.|Agenda una sesión exploratoria con PascalIA. Sin compromiso y sin tecnicismos: solo una conversación sobre tu negocio.
