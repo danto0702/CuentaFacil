@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="es-CO">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="assets/vendor/gsap.min.js"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: #0B0B0B; }
+      #root { position: relative; width: 100%; height: 100%; overflow: hidden; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="63.46" data-width="1080" data-height="1920">
+      <div id="fr01" class="clip" data-composition-id="fr01" data-composition-src="compositions/frames/fr01.html" data-start="0.00" data-duration="7.23" data-track-index="1" data-width="1080" data-height="1920"></div>
+      <audio id="vo-r01" src="assets/audio/vo/r01.wav" data-start="0.30" data-duration="6.63" data-track-index="3" data-volume="1"></audio>
+      <div id="fr02" class="clip" data-composition-id="fr02" data-composition-src="compositions/frames/fr02.html" data-start="7.23" data-duration="7.97" data-track-index="1" data-width="1080" data-height="1920"></div>
+      <audio id="vo-r02" src="assets/audio/vo/r02.wav" data-start="7.53" data-duration="7.32" data-track-index="3" data-volume="1"></audio>
+      <div id="fr03" class="clip" data-composition-id="fr03" data-composition-src="compositions/frames/fr03.html" data-start="15.20" data-duration="4.41" data-track-index="1" data-width="1080" data-height="1920"></div>
+      <audio id="vo-r03" src="assets/audio/vo/r03.wav" data-start="15.50" data-duration="3.71" data-track-index="3" data-volume="1"></audio>
+      <div id="fr04" class="clip" data-composition-id="fr04" data-composition-src="compositions/frames/fr04.html" data-start="19.61" data-duration="4.57" data-track-index="1" data-width="1080" data-height="1920"></div>
+      <audio id="vo-r04" src="assets/audio/vo/r04.wav" data-start="19.91" data-duration="3.87" data-track-index="3" data-volume="1"></audio>
+      <div id="fr05" class="clip" data-composition-id="fr05" data-composition-src="compositions/frames/fr05.html" data-start="24.18" data-duration="9.17" data-track-index="1" data-width="1080" data-height="1920"></div>
+      <audio id="vo-r05" src="assets/audio/vo/r05.wav" data-start="24.48" data-duration="8.42" data-track-index="3" data-volume="1"></audio>
+      <div id="fr06" class="clip" data-composition-id="fr06" data-composition-src="compositions/frames/fr06.html" data-start="33.35" data-duration="12.26" data-track-index="1" data-width="1080" data-height="1920"></div>
+      <audio id="vo-r06" src="assets/audio/vo/r06.wav" data-start="33.65" data-duration="11.46" data-track-index="3" data-volume="1"></audio>
+      <div id="fr07" class="clip" data-composition-id="fr07" data-composition-src="compositions/frames/fr07.html" data-start="45.61" data-duration="5.00" data-track-index="1" data-width="1080" data-height="1920"></div>
+      <audio id="vo-r07" src="assets/audio/vo/r07.wav" data-start="45.91" data-duration="4.2" data-track-index="3" data-volume="1"></audio>
+      <div id="fr08" class="clip" data-composition-id="fr08" data-composition-src="compositions/frames/fr08.html" data-start="50.61" data-duration="12.85" data-track-index="1" data-width="1080" data-height="1920"></div>
+      <audio id="vo-r08" src="assets/audio/vo/r08.wav" data-start="50.91" data-duration="10.35" data-track-index="3" data-volume="1"></audio>
+      <audio id="music" src="assets/audio/music.wav" data-start="0" data-duration="63.46" data-track-index="4" data-volume="0.45"></audio>
+    </div>
+    <script>
+      window.__timelines = window.__timelines || {};
+      window.__timelines["main"] = gsap.timeline({ paused: true });
+    </script>
+  </body>
+</html>

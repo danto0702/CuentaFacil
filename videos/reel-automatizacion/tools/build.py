@@ -31,7 +31,7 @@ EXTRA = '''
 .tk{position:absolute;padding:20px 26px;border-radius:22px;background:#fff;color:#1F1F1F;font:700 32px/1.15 "Montserrat",sans-serif;box-shadow:0 16px 34px -14px rgba(31,31,31,.35)}
 .xl{position:absolute;border-radius:22px;background:#fff;overflow:hidden;box-shadow:0 24px 50px -20px rgba(31,31,31,.4)}
 .xl .hd{background:#1E7B45;color:#fff;font:800 26px/1 "Montserrat",sans-serif;padding:14px 20px}
-.xl .r{display:grid;grid-template-columns:1.2fr 1fr .9fr;border-top:2px solid #E5E5E5;font:600 24px/1 "Inter",sans-serif;color:#1F1F1F}
+.xl .r{display:grid;grid-template-columns:1.25fr .6fr 1.25fr;border-top:2px solid #E5E5E5;font:600 24px/1 "Inter",sans-serif;color:#1F1F1F}
 .xl .r span{padding:14px 16px;border-left:2px solid #E5E5E5}
 .xl .r span:first-child{border-left:0}
 '''
@@ -127,7 +127,7 @@ S.append(('r06', 'tl', .5, '''
  + f'<div id="X-pdf" class="abs">{icon("doc", "#fff")}</div><div id="X-mail" class="abs">{icon("chat", "#fff")}</div>'
  + '<svg id="X-arr" class="abs" viewBox="0 0 140 60"><path d="M6 30 L120 30 M96 10 L124 30 L96 50" stroke="#1F1F1F" stroke-width="10" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>'
  + '<div id="X-xl" class="xl"><div class="hd">Excel · Facturas</div>' + ''.join(f'<div class="r X-row"><span>{a}</span><span>{b}</span><span>{c}</span></div>' for a, b, c in ROWS) + '</div>'
- + ''.join(f'<div id="X-c{i}" class="X-ck" style="left:{x}px"><i>{icon("check", "#fff")}</i>{t}</div>' for i, (t, x) in enumerate([('+5 min', 70), ('Diario', 380), ('Reglas fijas', 650)]))
+ + ''.join(f'<div id="X-ch{i}" class="X-ck" style="left:{x}px"><i>{icon("check", "#fff")}</i>{t}</div>' for i, (t, x) in enumerate([('+5 min', 70), ('Diario', 380), ('Reglas fijas', 650)]))
  + '<h2 id="X-first" class="abs">¡Tu primera<br><span class="mk">automatización</span>!</h2>',
  lambda D, s, d: f'''tl.from("#X-t",{{opacity:0,y:-30,duration:.4,ease:"back.out(1.8)"}},0);
 tl.from("#X-pdf",{{scale:0,rotation:-20,duration:.4,ease:"back.out(2)"}},{s + d * .1:.2f});
@@ -135,9 +135,9 @@ tl.from("#X-mail",{{scale:0,rotation:20,duration:.4,ease:"back.out(2)"}},{s + d 
 tl.from("#X-arr",{{opacity:0,x:-40,duration:.35}},{s + d * .3:.2f});
 tl.from("#X-xl",{{opacity:0,scale:.8,duration:.4,ease:"back.out(1.6)"}},{s + d * .33:.2f});
 tl.from(".X-row",{{opacity:0,x:-40,duration:.25,stagger:.2}},{s + d * .38:.2f});
-tl.from("#X-c0",{{scale:0,duration:.3,ease:"back.out(2.5)"}},{s + d * .55:.2f});
-tl.from("#X-c1",{{scale:0,duration:.3,ease:"back.out(2.5)"}},{s + d * .63:.2f});
-tl.from("#X-c2",{{scale:0,duration:.3,ease:"back.out(2.5)"}},{s + d * .72:.2f});
+tl.from("#X-ch0",{{scale:0,duration:.3,ease:"back.out(2.5)"}},{s + d * .55:.2f});
+tl.from("#X-ch1",{{scale:0,duration:.3,ease:"back.out(2.5)"}},{s + d * .63:.2f});
+tl.from("#X-ch2",{{scale:0,duration:.3,ease:"back.out(2.5)"}},{s + d * .72:.2f});
 tl.from("#X-first",{{opacity:0,scale:1.4,duration:.4,ease:"back.out(1.8)"}},{s + d * .82:.2f});'''))
 # 7 · 5 min = 20 h
 S.append(('r07', 'td', .5, '''

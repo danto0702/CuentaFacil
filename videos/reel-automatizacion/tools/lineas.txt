@@ -1,6 +1,6 @@
 r01|P|¿Quieres usar inteligencia artificial en tu trabajo… y no sabes por dónde empezar?|¿Quieres usar inteligencia artificial en tu trabajo… y no sabes por dónde empezar?
 r02|P|No empieces por un proyecto gigante. Empieza por una tarea pequeña. Te comparto mi filtro de tres preguntas.|No empieces por un proyecto gigante. Empieza por una tarea pequeña. Te comparto mi filtro de tres preguntas.
-r03|P|Uno: ¿esa tarea te toma más de cinco minutos?|Uno: ¿esa tarea te toma más de 5 minutos?
+r03|P|Número uno… ¿esa tarea te toma más de cinco minutos?|Número uno… ¿esa tarea te toma más de 5 minutos?
 r04|P|Dos: ¿la haces todos los días, o varias veces al día?|Dos: ¿la haces todos los días, o varias veces al día?
 r05|P|Tres: ¿sigue reglas fijas, sin que tengas que decidir nada? Si siempre es copiar esto y pegarlo allá, cumple. Si necesita tu criterio, por ahora no.|Tres: ¿sigue reglas fijas, sin que tengas que decidir nada? Si siempre es "copiar esto y pegarlo allá", cumple. Si necesita tu criterio, por ahora no.
 r06|P|Por ejemplo: pasar los datos de facturas en pe de efe, o de correos, a un Excel. Más de cinco minutos, todos los días, y siempre igual. Esa es tu primera automatización.|Por ejemplo: pasar los datos de facturas en PDF, o de correos, a un Excel. Más de 5 minutos, todos los días, y siempre igual. Esa es tu primera automatización.
