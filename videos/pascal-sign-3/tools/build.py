@@ -128,15 +128,15 @@ EXTRA2 = EXTRA2 + """
 .sc small i{width:30px;height:30px}
 .sc svg{width:100%;display:block}
 .ph{position:absolute;width:440px;height:840px;border-radius:60px;background:#151515;padding:16px;box-shadow:0 40px 80px -30px rgba(0,0,0,.6)}
-.ph .scr{position:relative;width:100%;height:100%;border-radius:46px;background:#F7F7F7;overflow:hidden}
+.ph .pscr{position:relative;width:100%;height:100%;border-radius:46px;background:#F7F7F7;overflow:hidden}
 .ph .bar{display:flex;align-items:center;gap:12px;padding:44px 22px 18px;background:#1F1F1F;color:#FFC107;font:800 28px/1 "Montserrat",sans-serif}
 .ph .bar img{width:44px;height:44px;border-radius:12px}
-.ph .doc{margin:22px;padding:22px;border-radius:18px;background:#fff;box-shadow:0 6px 16px -8px rgba(0,0,0,.25)}
-.ph .doc b{display:block;font:800 24px/1.1 "Montserrat",sans-serif;color:#1F1F1F;margin-bottom:14px}
-.ph .doc s{display:block;height:12px;border-radius:6px;background:#E3E3E3;margin-bottom:12px;text-decoration:none}
+.ph .pdoc{margin:22px;padding:22px;border-radius:18px;background:#fff;box-shadow:0 6px 16px -8px rgba(0,0,0,.25)}
+.ph .pdoc b{display:block;font:800 24px/1.1 "Montserrat",sans-serif;color:#1F1F1F;margin-bottom:14px}
+.ph .pdoc s{display:block;height:12px;border-radius:6px;background:#E3E3E3;margin-bottom:12px;text-decoration:none}
 .ph .pad{position:relative;margin:0 22px;height:190px;border-radius:18px;border:3px dashed #BDBDBD;background:#fff}
 .ph .pad svg{position:absolute;left:20px;right:20px;top:30px;width:calc(100% - 40px)}
-.ph .ok{position:absolute;left:22px;right:22px;bottom:30px;padding:20px;border-radius:18px;background:#25A55F;color:#fff;text-align:center;font:800 30px/1 "Montserrat",sans-serif}
+.ph .pok{position:absolute;left:22px;right:22px;bottom:30px;padding:20px;border-radius:18px;background:#25A55F;color:#fff;text-align:center;font:800 30px/1 "Montserrat",sans-serif}
 .tagw{position:absolute;padding:16px 26px;border-radius:999px;background:#1F1F1F;color:#FFC107;font:800 34px/1 "Montserrat",sans-serif;box-shadow:0 14px 28px -12px rgba(0,0,0,.5)}
 .fing{position:absolute;width:90px;height:90px;border-radius:50%;background:rgba(255,193,7,.55);box-shadow:0 0 0 10px rgba(255,193,7,.25)}
 .gal{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:22px}
@@ -159,45 +159,45 @@ EXTRA2 = EXTRA2 + """
 .reg p{display:flex;justify-content:space-between;gap:16px;padding:22px 28px;border-top:2px solid #EFEFEF;font:600 30px/1.2 "Inter",sans-serif;color:#5C5C5C}
 .reg p b{color:#1F1F1F;font-weight:800;text-align:right}
 .tbl{position:absolute;left:70px;width:640px;border-radius:26px;background:#fff;overflow:hidden;box-shadow:0 24px 50px -24px rgba(31,31,31,.4)}
-.tbl .h{display:grid;grid-template-columns:1.1fr 1.6fr 1fr;padding:18px 22px;background:#1F1F1F;color:#FFC107;font:800 24px/1 "Montserrat",sans-serif}
-.tbl .r{display:grid;grid-template-columns:1.1fr 1.6fr 1fr;padding:18px 22px;border-top:2px solid #EFEFEF;font:600 24px/1.2 "Inter",sans-serif;color:#1F1F1F}
+.tbl .th{display:grid;grid-template-columns:1.1fr 1.6fr 1fr;padding:18px 22px;background:#1F1F1F;color:#FFC107;font:800 24px/1 "Montserrat",sans-serif}
+.tbl .tr2{display:grid;grid-template-columns:1.1fr 1.6fr 1fr;padding:18px 22px;border-top:2px solid #EFEFEF;font:600 24px/1.2 "Inter",sans-serif;color:#1F1F1F}
 .dl{position:absolute;left:70px;display:flex;align-items:center;gap:14px;padding:22px 30px;border-radius:999px;background:#25A55F;color:#fff;font:800 34px/1 "Montserrat",sans-serif;box-shadow:0 16px 32px -14px rgba(0,0,0,.4)}
 .dl i{width:46px;height:46px}
 """
 def phone(id_, style, inner):
-    return f'<div id="{id_}" class="ph" style="{style}"><div class="scr"><div class="bar"><img src="assets/brand/pascal-sign-logo.webp" alt="">Pascal Sign</div>{inner}</div></div>'
+    return f'<div id="{id_}" class="ph" style="{style}"><div class="pscr"><div class="bar"><img src="assets/brand/pascal-sign-logo.webp" alt="">Pascal Sign</div>{inner}</div></div>'
 STEPS = [('printer', 'Imprime'), ('pen', 'Firma'), ('scan', 'Escanea'), ('upload', 'Envía')]
 S = []
 S.append(('k01', 'td', .4, """
 #X-t{top:200px;font-size:64px}
-#X-big{top:1000px}
+#X-big{top:960px;left:70px;right:auto;width:540px;text-align:left;font-size:68px}
 #X-c{left:620px;height:860px}
 """, CHS('Así se firma hoy') + '<img id="X-c" class="ch" src="assets/chars/hernando-papeles.webp" alt=""><h1 id="X-t" class="h w">Firmar <span class="yy">a la antigua</span></h1>'
  + ''.join(f'<div id="X-s{i}" class="stp" style="left:{40 + (i % 2) * 260}px;top:{430 + (i // 2) * 270}px"><i>{icon(ic, "#BDBDBD")}</i>{t}</div>' for i, (ic, t) in enumerate(STEPS))
- + '<p id="X-big" class="big abs">Media mañana perdida</p>',
+ + '<p id="X-big" class="big abs">Media mañana<br>perdida</p>',
  lambda D, s, d: f"""tl.from("#X-t",{{opacity:0,y:-30,duration:.35,ease:"back.out(1.8)"}},0);
 tl.from("#X-c",{{y:700,duration:.5,ease:"back.out(1.3)"}},.2);
 """ + ''.join(f'tl.from("#X-s{i}",{{opacity:0,scale:.4,duration:.3,ease:"back.out(2.2)"}},{s + d * (.2 + i * .14):.2f});\ntl.to("#X-s{i}",{{color:"#FFC107",duration:.2}},{s + d * (.2 + i * .14):.2f});\n' for i in range(4)) + f"""tl.from("#X-big",{{opacity:0,scale:.6,duration:.4,ease:"back.out(2)"}},{s + d * .8:.2f});"""))
 SC = [('bell', 'Correo', 80, 440, -6), ('chat', 'Chat', 420, 470, 5), ('people', 'Chat grupal', 120, 760, 4), ('folder', 'Descargas', 450, 800, -5)]
 S.append(('k02', 'td', .4, """
 #X-t{top:200px;font-size:62px}
-#X-cp{left:70px;right:70px;top:1100px;text-align:center;font:800 54px/1.1 "Montserrat",sans-serif;color:#FF5A5A}
+#X-cp{left:70px;width:600px;top:1000px;text-align:left;font:800 54px/1.1 "Montserrat",sans-serif;color:#FF5A5A}
 #X-c{left:700px;height:780px}
 """, CHS('El problema') + '<img id="X-c" class="ch" src="assets/chars/hernando-confundido.webp" alt=""><h1 id="X-t" class="h w">Tu firma, <span class="red">suelta</span></h1>'
  + ''.join(f'<div class="sc X-sc" style="left:{x}px;top:{y}px;transform:rotate({r}deg)"><small><i>{icon(ic, "#757575")}</i>{t}</small>{sig(0)}</div>' for ic, t, x, y, r in SC)
- + '<p id="X-cp" class="abs">Cualquiera la puede copiar</p>',
+ + '<p id="X-cp" class="abs">Cualquiera la<br>puede copiar</p>',
  lambda D, s, d: f"""tl.from("#X-t",{{opacity:0,y:-30,duration:.35,ease:"back.out(1.8)"}},0);
 tl.from(".X-sc",{{opacity:0,scale:.3,x:200,duration:.35,ease:"back.out(1.8)",stagger:{d * .12:.2f}}},{s + d * .1:.2f});
 tl.from("#X-c",{{y:700,duration:.5,ease:"back.out(1.3)"}},{s + d * .3:.2f});
 tl.from("#X-cp",{{opacity:0,y:30,duration:.35,ease:"back.out(1.8)"}},{s + d * .6:.2f});"""))
 S.append(('k03', 'ty', .45, """
 #X-t{top:190px;font-size:60px}
-#X-tag{left:70px;top:1150px}
+#X-tag{left:70px;top:1290px}
 #X-fg{left:200px;top:790px}
 #X-c{left:600px;height:820px}
 #X-flash{inset:0;background:#fff;opacity:0}
 """, CHS('Forma 1 · Con el dedo') + '<img id="X-c" class="ch" src="assets/chars/valentina-feliz.webp" alt=""><h1 id="X-t" class="h g">Desde el celular, <span class="mk">en segundos</span></h1>'
- + phone('X-ph', 'left:90px;top:380px', '<div class="doc"><b>Contrato.pdf</b><s></s><s></s><s style="width:70%"></s></div><div class="pad">' + sig(1, 'X-sg', '', '#1B2A6B', 6) + '</div><div id="X-ok" class="ok">✓ Firmado</div>')
+ + phone('X-ph', 'left:90px;top:380px', '<div class="pdoc"><b>Contrato.pdf</b><s></s><s></s><s style="width:70%"></s></div><div class="pad">' + sig(1, 'X-sg', '', '#1B2A6B', 6) + '</div><div id="X-ok" class="pok">✓ Firmado</div>')
  + '<div id="X-fg" class="fing"></div><div id="X-tag" class="tagw">Firma con el dedo</div><div id="X-flash" class="abs"></div>',
  lambda D, s, d: f"""tl.fromTo("#X-flash",{{opacity:1}},{{opacity:0,duration:.4}},0);
 tl.from("#X-t",{{opacity:0,scale:1.3,duration:.4,ease:"back.out(1.6)"}},.1);
@@ -209,10 +209,10 @@ tl.from("#X-ok",{{opacity:0,scale:.6,duration:.3,ease:"back.out(2.2)"}},{s + d *
 tl.from("#X-tag",{{opacity:0,x:-200,duration:.35,ease:"back.out(1.8)"}},{s + d * .5:.2f});"""))
 S.append(('k04', 'tl', .45, """
 #X-t{top:190px;font-size:60px}
-#X-tag{left:70px;top:1150px}
+#X-tag{left:70px;top:1290px}
 #X-c{left:580px;height:860px}
 """, CHS('Forma 2 · Sube una imagen') + '<img id="X-c" class="ch" src="assets/chars/andres-muestra.webp" alt=""><h1 id="X-t" class="h g">Desde la calle, <span class="mk">también</span></h1>'
- + phone('X-ph', 'left:90px;top:380px', '<div class="doc" style="margin-bottom:0"><b>Elige tu firma</b></div><div class="gal">' + '<div></div>' * 4 + '<div id="X-pk" class="pick">' + sig(2, '', '', '#1B2A6B', 7) + '</div>' + '<div></div>' * 4 + '</div><div id="X-ok" class="ok">✓ Firma cargada</div>')
+ + phone('X-ph', 'left:90px;top:380px', '<div class="pdoc" style="margin-bottom:0"><b>Elige tu firma</b></div><div class="gal">' + '<div></div>' * 4 + '<div id="X-pk" class="pick">' + sig(2, '', '', '#1B2A6B', 7) + '</div>' + '<div></div>' * 4 + '</div><div id="X-ok" class="pok">✓ Firma cargada</div>')
  + '<div id="X-tag" class="tagw">Sube la imagen de tu firma</div>',
  lambda D, s, d: f"""tl.from("#X-t",{{opacity:0,y:-30,duration:.35,ease:"back.out(1.8)"}},0);
 tl.from("#X-ph",{{y:900,duration:.5,ease:"power3.out"}},.15);
@@ -222,7 +222,7 @@ tl.from("#X-ok",{{opacity:0,scale:.6,duration:.3,ease:"back.out(2.2)"}},{s + d *
 tl.from("#X-tag",{{opacity:0,x:-200,duration:.35,ease:"back.out(1.8)"}},{s + d * .35:.2f});"""))
 S.append(('k05', 'tl', .45, """
 #X-t{top:190px;font-size:60px}
-#X-tag{left:70px;top:1150px}
+#X-tag{left:70px;top:1290px}
 #X-c{left:600px;height:860px}
 """, CHS('Forma 3 · Tómale una foto') + '<img id="X-c" class="ch" src="assets/chars/marcela-idea.webp" alt=""><h1 id="X-t" class="h g">¿Firma en papel? <span class="mk">Foto</span></h1>'
  + phone('X-ph', 'left:90px;top:380px', '<div id="X-cam" class="cam"><div class="paper">' + sig(0, '', '', '#2B2B6B', 6) + '</div>'
@@ -272,7 +272,7 @@ S.append(('k08', 'tl', .45, """
 #X-dl{top:900px}
 #X-p{left:620px;height:900px}
 """, CHS('Control total') + '<img id="X-p" class="ch" src="assets/chars/pascal-muestra.webp" alt=""><h1 id="X-t" class="h g">Descarga <span class="mk">el detallado</span></h1>'
- + '<div id="X-tb" class="tbl"><div class="h"><span>Fecha</span><span>Razón</span><span>Número</span></div>' + ''.join(f'<div class="r X-r"><span>{a}</span><span>{b}</span><span>{c}</span></div>' for a, b, c in ROWS) + '</div>'
+ + '<div id="X-tb" class="tbl"><div class="th"><span>Fecha</span><span>Razón</span><span>Número</span></div>' + ''.join(f'<div class="tr2 X-r"><span>{a}</span><span>{b}</span><span>{c}</span></div>' for a, b, c in ROWS) + '</div>'
  + f'<div id="X-dl" class="dl"><i>{icon("upload", "#fff")}</i>Descargar detallado</div>',
  lambda D, s, d: f"""tl.from("#X-t",{{opacity:0,y:-30,duration:.35,ease:"back.out(1.8)"}},0);
 tl.from("#X-tb",{{opacity:0,x:-300,duration:.4,ease:"back.out(1.5)"}},.2);
@@ -286,7 +286,7 @@ S.append(('k09', 'tl', 2.4, """
 #X-qr img{width:100%;display:block}
 #X-qr b{display:block;margin-top:14px;font:800 30px/1 "Montserrat",sans-serif;color:#1F1F1F}
 #X-demo{left:560px;top:980px;width:460px;padding:24px;border-radius:28px;background:#1F1F1F;color:#FFC107;text-align:center;font:800 40px/1.1 "Montserrat",sans-serif}
-#X-by{left:560px;top:1150px;width:460px;text-align:center;font:800 36px/1 "Montserrat",sans-serif;color:#1F1F1F;display:flex;justify-content:center;align-items:center;gap:12px}
+#X-by{left:540px;top:1150px;width:500px;text-align:center;font:800 30px/1 "Montserrat",sans-serif;color:#1F1F1F;display:flex;justify-content:center;align-items:center;gap:12px}
 #X-by img{width:60px;height:60px;border-radius:14px}
 #X-p{left:10px;height:1000px}
 """, CHS('Pascal Sign') + '<img id="X-p" class="ch" src="assets/chars/pascal-celular.webp" alt=""><h1 id="X-t" class="h g">Deja de imprimir<br><span class="mk">para firmar</span></h1>'
