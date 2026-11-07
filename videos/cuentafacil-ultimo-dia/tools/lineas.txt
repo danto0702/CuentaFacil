@@ -1,0 +1,9 @@
+m01|P|Último día del mes. Once de la noche. Y tú, tratando de recordar qué hiciste el día cuatro.|Último día del mes. Once de la noche. Y tú, tratando de recordar qué hiciste el día 4.
+m02|P|Informe de actividades, cuenta de cobro, planilla, antecedentes, certificados… y todo, para mañana.|Informe de actividades, cuenta de cobro, planilla, antecedentes, certificados… y todo, para mañana.
+m03|P|Con CuentaFácil, eso se acabó. Cada día le cuentas a Pascal, por WhatsApp, qué hiciste. Por texto… o con una nota de voz.|Con CuentaFácil, eso se acabó. Cada día le cuentas a Pascal, por WhatsApp, qué hiciste. Por texto… o con una nota de voz.
+m04|P|Pascal organiza tus actividades según las obligaciones de tu contrato. Sin inventar nada: solo lo que tú le cuentas.|Pascal organiza tus actividades según las obligaciones de tu contrato. Sin inventar nada: solo lo que tú le cuentas.
+m05|P|Al cierre, te pide los soportes: tu planilla de seguridad social, los antecedentes y los certificados de afiliación. Y los revisa contigo.|Al cierre, te pide los soportes: tu planilla de seguridad social, los antecedentes y los certificados de afiliación. Y los revisa contigo.
+m06|P|Con eso, prepara el borrador de tu informe y de tu cuenta de cobro. Tú lo revisas en el chat… y lo apruebas.|Con eso, prepara el borrador de tu informe y de tu cuenta de cobro. Tú lo revisas en el chat… y lo apruebas.
+m07|P|Y recibes todo listo, en un solo archivo, para cargarlo en el sécop.|Y recibes todo listo, en un solo archivo, para cargarlo en el SECOP.
+m08|P|Tú sigues siendo responsable de lo que firmas. Pascal te quita el afán.|Tú sigues siendo responsable de lo que firmas. Pascal te quita el afán.
+m09|P|CuentaFácil, de PascalIA: tu cuenta de cobro, sin sustos de último día. Escanea el código, y empieza hoy.|CuentaFácil, de PascalIA: tu cuenta de cobro, sin sustos de último día. Escanea el código y empieza hoy.
