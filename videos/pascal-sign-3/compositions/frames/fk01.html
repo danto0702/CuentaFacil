@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="es-CO">
+<head><meta charset="UTF-8" /></head>
+<body>
+<template>
+<style>
+
+@font-face{font-family:"Montserrat";font-weight:700;src:url("assets/fonts/montserrat-latin-700-normal.woff2") format("woff2")}
+@font-face{font-family:"Montserrat";font-weight:800;src:url("assets/fonts/montserrat-latin-800-normal.woff2") format("woff2")}
+@font-face{font-family:"Inter";font-weight:500;src:url("assets/fonts/inter-latin-500-normal.woff2") format("woff2")}
+@font-face{font-family:"Inter";font-weight:600;src:url("assets/fonts/inter-latin-600-normal.woff2") format("woff2")}
+
+#root{position:absolute;inset:0;overflow:hidden}
+
+#root{font-family:"Inter",sans-serif;color:#fff}
+.abs{position:absolute}
+.dark{position:absolute;inset:0;background:radial-gradient(90% 60% at 50% 30%,#2B2B2B 0%,#151515 60%,#0B0B0B 100%)}
+.light{position:absolute;inset:0;background:radial-gradient(80% 45% at 50% 12%,rgba(255,193,7,.28),transparent 70%),linear-gradient(180deg,#FFF8E1 0%,#FFFDF5 55%,#FFFFFF 100%)}
+.yel{position:absolute;inset:0;background:#FFC107}
+.h{position:absolute;left:60px;right:60px;text-align:center;font-family:"Montserrat",sans-serif;font-weight:800;letter-spacing:-.02em;line-height:1.05}
+.h.w{color:#fff}.h.g{color:#1F1F1F}
+.mk{background:linear-gradient(transparent 58%,#FFC107 58%,#FFC107 90%,transparent 90%);padding:0 .06em}
+.yy{color:#FFC107}
+.red{color:#FF5A5A}
+.ic{width:100%;height:100%;fill:none;stroke-width:1.85;stroke-linecap:round;stroke-linejoin:round}
+.phone{position:absolute;border-radius:64px;background:#0E0E0E;border:12px solid #2A2A2A;box-shadow:0 40px 80px -30px rgba(0,0,0,.8),0 0 0 2px #444;overflow:hidden}
+.phone.lite{border-color:#1F1F1F;box-shadow:0 40px 80px -30px rgba(31,31,31,.45)}
+.scr{position:absolute;inset:0;overflow:hidden}
+.wa-top{height:120px;background:#1F2C34;display:flex;align-items:flex-end;padding:0 26px 18px;gap:16px;color:#E9EDEF;font:700 34px/1 "Inter",sans-serif}
+.wa-search{margin:22px 22px 0;height:76px;border-radius:40px;background:#202C33;display:flex;align-items:center;gap:16px;padding:0 26px;color:#E9EDEF;font:500 36px/1 "Inter",sans-serif}
+.wa-search .ic{width:36px;height:36px}
+.caret{display:inline-block;width:3px;height:40px;background:#25D366;margin-left:4px;vertical-align:middle}
+.tile-sig{position:absolute;width:190px;height:150px;border-radius:14px;background:#F1EEE6;display:grid;place-items:center;box-shadow:0 6px 16px rgba(0,0,0,.5)}
+.tile-sig .sig{width:160px}
+.doc{position:absolute;width:300px;height:400px;border-radius:18px;background:#FAFAF7;color:#1F1F1F;padding:26px;box-shadow:0 20px 40px -12px rgba(0,0,0,.7)}
+.doc b{display:block;font:800 30px/1 "Montserrat",sans-serif;letter-spacing:.06em}
+.doc s{display:block;height:12px;border-radius:6px;background:#DDD;margin-top:14px}
+.doc .sig{position:absolute;left:30px;bottom:40px;width:220px}
+.chip{display:inline-flex;align-items:center;gap:12px;padding:16px 30px;border-radius:999px;font:800 34px/1 "Montserrat",sans-serif}
+.cap{position:absolute;left:70px;right:70px;bottom:300px;display:flex;justify-content:center}
+.cap span{display:inline-block;max-width:940px;padding:18px 28px;border-radius:24px;background:rgba(15,15,15,.88);color:#fff;font:700 40px/1.25 "Montserrat",sans-serif;text-align:center;opacity:0}
+.card{position:absolute;border-radius:36px;background:#fff;box-shadow:inset 0 0 0 3px #F3E7BE,0 30px 60px -24px rgba(31,31,31,.35);color:#1F1F1F}
+.row{display:grid;grid-template-columns:160px 1fr 230px;gap:16px;align-items:center;padding:20px 28px;border-top:2px solid #EFEFEF;font:600 28px/1.2 "Inter",sans-serif}
+.row b{font:800 28px/1 "Montserrat",sans-serif;color:#8A6100;text-align:right}
+.row i{font-style:normal;color:#5C5C5C}
+.char{position:absolute;filter:drop-shadow(0 26px 30px rgba(31,31,31,.3))}
+
+
+.chip3{position:absolute;left:0;right:0;top:110px;text-align:center}
+.chip3 span{display:inline-flex;align-items:center;gap:12px;padding:12px 26px 12px 14px;border-radius:999px;background:#1F1F1F;color:#fff;font:800 30px/1 "Montserrat",sans-serif}
+.chip3 img{width:40px;height:40px}
+.crit{position:absolute;left:70px;right:70px;display:flex;align-items:center;gap:26px;padding:30px 34px;border-radius:34px;background:#fff;box-shadow:inset 0 0 0 3px #F3E7BE,0 24px 50px -24px rgba(31,31,31,.35)}
+.crit .n{flex:none;width:110px;height:110px;border-radius:50%;background:#FFC107;display:grid;place-items:center;font:800 62px/1 "Montserrat",sans-serif;color:#1F1F1F}
+.crit b{display:block;font:800 52px/1.08 "Montserrat",sans-serif;color:#1F1F1F;letter-spacing:-.01em}
+.crit small{display:block;margin-top:8px;font:600 30px/1.25 "Inter",sans-serif;color:#5C5C5C}
+.ok{position:absolute;width:76px;height:76px;border-radius:50%;background:#25A55F;padding:16px;box-shadow:0 10px 20px -8px rgba(0,0,0,.4)}
+.no{position:absolute;width:76px;height:76px;border-radius:50%;background:#E5484D;display:grid;place-items:center;color:#fff;font:800 48px/1 "Montserrat",sans-serif}
+.ch{position:absolute;bottom:20px;filter:drop-shadow(0 26px 30px rgba(31,31,31,.3))}
+.tk{position:absolute;padding:20px 26px;border-radius:22px;background:#fff;color:#1F1F1F;font:700 32px/1.15 "Montserrat",sans-serif;box-shadow:0 16px 34px -14px rgba(31,31,31,.35)}
+.xl{position:absolute;border-radius:22px;background:#fff;overflow:hidden;box-shadow:0 24px 50px -20px rgba(31,31,31,.4)}
+.xl .hd{background:#1E7B45;color:#fff;font:800 26px/1 "Montserrat",sans-serif;padding:14px 20px}
+.xl .r{display:grid;grid-template-columns:1.25fr .6fr 1.25fr;border-top:2px solid #E5E5E5;font:600 24px/1 "Inter",sans-serif;color:#1F1F1F}
+.xl .r span{padding:14px 16px;border-left:2px solid #E5E5E5}
+.xl .r span:first-child{border-left:0}
+
+.wa{position:absolute;border-radius:40px;background:#0B141A;overflow:hidden;box-shadow:0 30px 60px -20px rgba(0,0,0,.6);border:10px solid #1F1F1F}
+.wa .top{display:flex;align-items:center;gap:14px;padding:20px 22px;background:#1F2C34;color:#E9EDEF;font:700 30px/1 "Inter",sans-serif}
+.wa .top i{width:52px;height:52px;border-radius:50%;background:#6B7C85;flex:none}
+.wa .top small{display:block;font:500 22px/1.2 "Inter",sans-serif;color:#8696A0;margin-top:4px}
+.wa .body{padding:20px;display:flex;flex-direction:column;gap:14px}
+.m{max-width:88%;padding:14px 18px;border-radius:18px;font:500 28px/1.3 "Inter",sans-serif;color:#E9EDEF;background:#1F2C34;align-self:flex-start}
+.m.me{background:#005C4B;align-self:flex-end}
+.m small{display:block;text-align:right;font-size:18px;color:#8696A0;margin-top:4px}
+.m small b{color:#53BDEB;font-weight:600}
+.m.me small{color:#CFE9E2}
+.m.me small b{color:#A8E6FF}
+.badge{position:absolute;display:grid;place-items:center;border-radius:999px;background:#25D366;color:#fff;font:800 40px/1 "Montserrat",sans-serif;padding:10px 22px;box-shadow:0 10px 24px -8px rgba(0,0,0,.5)}
+.clockbig{position:absolute;left:0;right:0;text-align:center;font:800 120px/1 "Montserrat",sans-serif;letter-spacing:-.03em}
+
+.num{position:absolute;width:110px;height:110px;border-radius:50%;background:#FFC107;display:grid;place-items:center;font:800 66px/1 "Montserrat",sans-serif;color:#1F1F1F;box-shadow:0 18px 36px -14px rgba(0,0,0,.45)}
+.ing{position:absolute;left:70px;right:70px;display:flex;align-items:center;gap:26px;padding:24px 30px;border-radius:30px;background:#fff;box-shadow:0 24px 50px -24px rgba(0,0,0,.55)}
+.ing i{flex:none;width:96px;height:96px;border-radius:50%;background:#FFC107;padding:22px}
+.ing b{display:block;font:800 44px/1.05 "Montserrat",sans-serif;color:#1F1F1F}
+.ing small{display:block;margin-top:6px;font:600 27px/1.2 "Inter",sans-serif;color:#5C5C5C}
+.tag{position:absolute;padding:12px 22px;border-radius:999px;font:800 28px/1 "Montserrat",sans-serif}
+.cmp{position:absolute;left:70px;right:70px;padding:24px 28px;border-radius:28px}
+.cmp p{font:500 32px/1.35 "Inter",sans-serif}
+.card{position:absolute;border-radius:28px;background:#fff;overflow:hidden;box-shadow:inset 0 0 0 3px #F3E7BE,0 24px 50px -24px rgba(31,31,31,.4)}
+.card h3{margin:0;padding:18px 24px;background:#1F1F1F;color:#FFC107;font:800 30px/1 "Montserrat",sans-serif;display:flex;align-items:center;gap:12px}
+.card h3 em{margin-left:auto;font:800 20px/1 "Montserrat",sans-serif;font-style:normal;color:#1F1F1F;background:#25D366;padding:8px 12px;border-radius:999px}
+.card p{display:flex;justify-content:space-between;gap:12px;padding:16px 24px;border-top:2px solid #EFEFEF;font:700 28px/1.2 "Inter",sans-serif;color:#1F1F1F}
+.card p.hit{background:#FFF6D6}
+.card p.hit b{color:#14522E}
+.card p b{color:#1E7B45}
+.ho{position:absolute;padding:24px 28px;border-radius:28px;background:#fff;box-shadow:inset 0 0 0 3px #25A55F,0 24px 50px -24px rgba(31,31,31,.4)}
+.ho b{display:block;font:800 34px/1.1 "Montserrat",sans-serif;color:#1F1F1F}
+.ho small{display:block;margin-top:4px;font:600 24px/1.2 "Inter",sans-serif;color:#1E7B45}
+.ho li{list-style:none;margin-top:12px;font:600 26px/1.25 "Inter",sans-serif;color:#1F1F1F}
+.ho li:before{content:"✓ ";color:#1E7B45;font-weight:800}
+.vs{position:absolute;width:440px;padding:30px 24px;border-radius:32px;text-align:center}
+.vs i{display:block;margin:0 auto 16px;width:110px;height:110px;border-radius:50%;padding:26px}
+.vs b{display:block;font:800 44px/1.05 "Montserrat",sans-serif}
+.vs small{display:block;margin-top:10px;font:600 26px/1.25 "Inter",sans-serif}
+.q5{position:absolute;left:70px;width:640px;display:flex;align-items:center;gap:20px;padding:20px 24px;border-radius:24px;background:#fff;box-shadow:0 20px 40px -20px rgba(31,31,31,.35);font:700 32px/1.15 "Montserrat",sans-serif;color:#1F1F1F}
+.q5 i{flex:none;width:52px;height:52px;border-radius:12px;box-shadow:inset 0 0 0 4px #1F1F1F}
+
+.ilu{position:absolute;right:40px;top:40px;padding:10px 18px;border-radius:999px;background:#1F1F1F;color:#fff;font:700 24px/1 "Inter",sans-serif}
+.quote{position:absolute;left:70px;right:70px;padding:40px 44px;border-radius:34px;background:#fff;box-shadow:0 30px 60px -24px rgba(0,0,0,.6)}
+.quote b{display:block;font:800 52px/1.15 "Montserrat",sans-serif;color:#1F1F1F}
+.quote small{display:block;margin-top:16px;font:600 28px/1 "Inter",sans-serif;color:#757575}
+.quote:before{content:"“";position:absolute;left:30px;top:-70px;font:800 200px/1 "Montserrat",sans-serif;color:#FFC107}
+.bld{position:absolute;text-align:center;font:800 30px/1.1 "Montserrat",sans-serif;color:#fff}
+.bld i{display:block;margin:0 auto 14px;border-radius:30px;background:#2A2A2A;box-shadow:inset 0 0 0 3px #3A3A3A}
+.qm{position:absolute;font:800 140px/1 "Montserrat",sans-serif;color:#FFC107}
+.fear{position:absolute;left:70px;width:640px;display:flex;align-items:center;gap:22px;padding:24px 28px;border-radius:28px;background:#2A2A2A;box-shadow:inset 0 0 0 3px #3A3A3A}
+.fear i{flex:none;width:84px;height:84px;border-radius:50%;background:#3A3A3A;padding:20px}
+.fear b{font:800 38px/1.1 "Montserrat",sans-serif;color:#fff}
+.tool{position:absolute;left:70px;width:600px;padding:30px;border-radius:34px;background:#fff;box-shadow:inset 0 0 0 3px #F3E7BE,0 24px 50px -24px rgba(31,31,31,.35)}
+.tool h3{display:flex;align-items:center;gap:16px;margin:0 0 10px;font:800 40px/1.1 "Montserrat",sans-serif;color:#1F1F1F}
+.tool h3 i{flex:none;width:80px;height:80px;border-radius:22px;background:#FFC107;padding:18px}
+.tool p{display:flex;align-items:center;gap:14px;margin-top:16px;font:700 32px/1.2 "Montserrat",sans-serif;color:#1F1F1F}
+.tool p span{flex:none;width:42px;height:42px;border-radius:50%;background:#25A55F;padding:9px}
+.myth{position:absolute;left:70px;right:70px;display:flex;align-items:center;gap:20px;padding:22px 28px;border-radius:28px;background:#fff;box-shadow:0 20px 40px -20px rgba(31,31,31,.35)}
+.myth .x{flex:none;width:70px;height:70px;border-radius:50%;background:#E5484D;display:grid;place-items:center;color:#fff;font:800 40px/1 "Montserrat",sans-serif}
+.myth .ok{position:static;flex:none;width:70px;height:70px;border-radius:50%;background:#25A55F;padding:15px;box-shadow:none}
+.myth b{font:800 36px/1.15 "Montserrat",sans-serif;color:#1F1F1F}
+.myth s{color:#6B6B6B;font-weight:700}
+.tlb{position:absolute;left:70px;right:70px}
+.tlb b{display:block;font:800 34px/1 "Montserrat",sans-serif;color:#1F1F1F;margin-bottom:12px}
+.tlb .tr{height:70px;border-radius:20px;background:#EDEDED;overflow:hidden}
+.tlb .fl{height:100%;border-radius:20px;display:flex;align-items:center;padding-left:24px;font:800 32px/1 "Montserrat",sans-serif;color:#fff;white-space:nowrap}
+.qq{position:absolute;left:70px;right:70px;text-align:center;padding:34px;border-radius:32px;font:800 56px/1.15 "Montserrat",sans-serif}
+
+.stp{position:absolute;width:210px;text-align:center;font:800 30px/1.1 "Montserrat",sans-serif;color:#9E9E9E}
+.stp i{display:block;margin:0 auto 12px;width:130px;height:130px;border-radius:34px;background:#2A2A2A;padding:32px;box-shadow:inset 0 0 0 3px #3A3A3A}
+.big{position:absolute;left:0;right:0;text-align:center;font:800 76px/1.1 "Montserrat",sans-serif;color:#FF5A5A}
+.sc{position:absolute;width:300px;padding:16px 16px 10px;border-radius:18px;background:#F4F1E8;box-shadow:0 18px 36px -14px rgba(0,0,0,.6)}
+.sc small{display:flex;align-items:center;gap:8px;margin-bottom:6px;font:800 22px/1 "Montserrat",sans-serif;color:#5C5C5C}
+.sc small i{width:30px;height:30px}
+.sc svg{width:100%;display:block}
+.ph{position:absolute;width:440px;height:840px;border-radius:60px;background:#151515;padding:16px;box-shadow:0 40px 80px -30px rgba(0,0,0,.6)}
+.ph .scr{position:relative;width:100%;height:100%;border-radius:46px;background:#F7F7F7;overflow:hidden}
+.ph .bar{display:flex;align-items:center;gap:12px;padding:44px 22px 18px;background:#1F1F1F;color:#FFC107;font:800 28px/1 "Montserrat",sans-serif}
+.ph .bar img{width:44px;height:44px;border-radius:12px}
+.ph .doc{margin:22px;padding:22px;border-radius:18px;background:#fff;box-shadow:0 6px 16px -8px rgba(0,0,0,.25)}
+.ph .doc b{display:block;font:800 24px/1.1 "Montserrat",sans-serif;color:#1F1F1F;margin-bottom:14px}
+.ph .doc s{display:block;height:12px;border-radius:6px;background:#E3E3E3;margin-bottom:12px;text-decoration:none}
+.ph .pad{position:relative;margin:0 22px;height:190px;border-radius:18px;border:3px dashed #BDBDBD;background:#fff}
+.ph .pad svg{position:absolute;left:20px;right:20px;top:30px;width:calc(100% - 40px)}
+.ph .ok{position:absolute;left:22px;right:22px;bottom:30px;padding:20px;border-radius:18px;background:#25A55F;color:#fff;text-align:center;font:800 30px/1 "Montserrat",sans-serif}
+.tagw{position:absolute;padding:16px 26px;border-radius:999px;background:#1F1F1F;color:#FFC107;font:800 34px/1 "Montserrat",sans-serif;box-shadow:0 14px 28px -12px rgba(0,0,0,.5)}
+.fing{position:absolute;width:90px;height:90px;border-radius:50%;background:rgba(255,193,7,.55);box-shadow:0 0 0 10px rgba(255,193,7,.25)}
+.gal{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:22px}
+.gal div{aspect-ratio:1;border-radius:14px;background:#DADADA}
+.gal div.pick{background:#fff;box-shadow:inset 0 0 0 5px #FFC107;display:grid;place-items:center;padding:8px}
+.cam{position:absolute;inset:0;background:#2B2B2B}
+.cam .paper{position:absolute;left:60px;right:60px;top:220px;height:300px;border-radius:12px;background:#EDE6D3;transform:rotate(-4deg);padding:70px 30px}
+.cam .cr{position:absolute;width:60px;height:60px;border:6px solid #FFC107}
+.cam .shut{position:absolute;left:50%;bottom:60px;width:110px;height:110px;margin-left:-55px;border-radius:50%;background:#fff;box-shadow:0 0 0 10px rgba(255,255,255,.35)}
+.res{position:absolute;left:22px;right:22px;top:250px;padding:30px;border-radius:18px;background:#fff;box-shadow:inset 0 0 0 4px #25A55F}
+.res small{display:block;margin-top:12px;text-align:center;font:800 26px/1 "Montserrat",sans-serif;color:#1E7B45}
+.nope{position:absolute;display:flex;align-items:center;gap:14px;padding:18px 26px;border-radius:24px;background:#fff;font:800 34px/1 "Montserrat",sans-serif;color:#6B6B6B;box-shadow:0 16px 32px -16px rgba(31,31,31,.4)}
+.nope i{width:56px;height:56px;border-radius:14px;padding:12px;background:#BDBDBD}
+.nope:after{content:"";position:absolute;left:14px;right:14px;top:50%;height:7px;border-radius:4px;background:#E5484D}
+.reg{position:absolute;left:70px;right:70px;border-radius:30px;background:#fff;overflow:hidden;box-shadow:inset 0 0 0 3px #F3E7BE,0 24px 50px -24px rgba(31,31,31,.4)}
+.reg h3{margin:0;display:flex;align-items:center;gap:14px;padding:22px 28px;background:#1F1F1F;color:#FFC107;font:800 34px/1 "Montserrat",sans-serif}
+.reg h3 img{width:48px;height:48px;border-radius:12px}
+.reg .sgn{padding:20px 28px 6px}
+.reg .sgn svg{width:60%;display:block}
+.reg p{display:flex;justify-content:space-between;gap:16px;padding:22px 28px;border-top:2px solid #EFEFEF;font:600 30px/1.2 "Inter",sans-serif;color:#5C5C5C}
+.reg p b{color:#1F1F1F;font-weight:800;text-align:right}
+.tbl{position:absolute;left:70px;width:640px;border-radius:26px;background:#fff;overflow:hidden;box-shadow:0 24px 50px -24px rgba(31,31,31,.4)}
+.tbl .h{display:grid;grid-template-columns:1.1fr 1.6fr 1fr;padding:18px 22px;background:#1F1F1F;color:#FFC107;font:800 24px/1 "Montserrat",sans-serif}
+.tbl .r{display:grid;grid-template-columns:1.1fr 1.6fr 1fr;padding:18px 22px;border-top:2px solid #EFEFEF;font:600 24px/1.2 "Inter",sans-serif;color:#1F1F1F}
+.dl{position:absolute;left:70px;display:flex;align-items:center;gap:14px;padding:22px 30px;border-radius:999px;background:#25A55F;color:#fff;font:800 34px/1 "Montserrat",sans-serif;box-shadow:0 16px 32px -14px rgba(0,0,0,.4)}
+.dl i{width:46px;height:46px}
+
+#fk01-t{top:200px;font-size:64px}
+#fk01-big{top:1000px}
+#fk01-c{left:620px;height:860px}
+
+</style>
+<div id="root" data-composition-id="fk01" data-width="1080" data-height="1920">
+<div class="dark"></div><div class="chip3"><span><img src="assets/brand/pascal-sign-logo.webp" alt="" style="border-radius:10px">Así se firma hoy</span></div><img id="fk01-c" class="ch" src="assets/chars/hernando-papeles.webp" alt=""><h1 id="fk01-t" class="h w">Firmar <span class="yy">a la antigua</span></h1><div id="fk01-s0" class="stp" style="left:40px;top:430px"><i><svg class="ic" viewBox="0 0 24 24" style="stroke:#BDBDBD" aria-hidden="true"><path d="M7 9V3h10v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M7 14h10v7H7z"/></svg></i>Imprime</div><div id="fk01-s1" class="stp" style="left:300px;top:430px"><i><svg class="ic" viewBox="0 0 24 24" style="stroke:#BDBDBD" aria-hidden="true"><path d="M15 4l5 5L9 20H4v-5z"/><path d="M13 6l5 5"/></svg></i>Firma</div><div id="fk01-s2" class="stp" style="left:40px;top:700px"><i><svg class="ic" viewBox="0 0 24 24" style="stroke:#BDBDBD" aria-hidden="true"><path d="M4 8V5.5A1.5 1.5 0 015.5 4H8M16 4h2.5A1.5 1.5 0 0120 5.5V8M20 16v2.5a1.5 1.5 0 01-1.5 1.5H16M8 20H5.5A1.5 1.5 0 014 18.5V16"/><path d="M8 10h8M8 14h5"/></svg></i>Escanea</div><div id="fk01-s3" class="stp" style="left:300px;top:700px"><i><svg class="ic" viewBox="0 0 24 24" style="stroke:#BDBDBD" aria-hidden="true"><path d="M12 15V4M7.5 8.5L12 4l4.5 4.5"/><path d="M4 15v3.5A2.5 2.5 0 006.5 21h11a2.5 2.5 0 002.5-2.5V15"/></svg></i>Envía</div><p id="fk01-big" class="big abs">Media mañana perdida</p><div class="cap"><span id="fk01-c0" style="background:#FFC107;color:#1F1F1F">Don Hernando necesita firmar un documento.</span></div><div class="cap"><span id="fk01-c1" style="background:#FFC107;color:#1F1F1F">Lo imprime… lo firma…</span></div><div class="cap"><span id="fk01-c2" style="background:#FFC107;color:#1F1F1F">lo escanea… y lo envía.</span></div><div class="cap"><span id="fk01-c3" style="background:#FFC107;color:#1F1F1F">Media mañana perdida.</span></div>
+</div>
+<script>
+const tl = gsap.timeline({ paused: true });
+tl.from("#fk01-t",{opacity:0,y:-30,duration:.35,ease:"back.out(1.8)"},0);
+tl.from("#fk01-c",{y:700,duration:.5,ease:"back.out(1.3)"},.2);
+tl.from("#fk01-s0",{opacity:0,scale:.4,duration:.3,ease:"back.out(2.2)"},1.68);
+tl.to("#fk01-s0",{color:"#FFC107",duration:.2},1.68);
+tl.from("#fk01-s1",{opacity:0,scale:.4,duration:.3,ease:"back.out(2.2)"},2.64);
+tl.to("#fk01-s1",{color:"#FFC107",duration:.2},2.64);
+tl.from("#fk01-s2",{opacity:0,scale:.4,duration:.3,ease:"back.out(2.2)"},3.60);
+tl.to("#fk01-s2",{color:"#FFC107",duration:.2},3.60);
+tl.from("#fk01-s3",{opacity:0,scale:.4,duration:.3,ease:"back.out(2.2)"},4.57);
+tl.to("#fk01-s3",{color:"#FFC107",duration:.2},4.57);
+tl.from("#fk01-big",{opacity:0,scale:.6,duration:.4,ease:"back.out(2)"},5.80);tl.set("#fk01-c0",{opacity:1},0.30);
+tl.set("#fk01-c0",{opacity:0},3.00);
+tl.set("#fk01-c1",{opacity:1},3.00);
+tl.set("#fk01-c1",{opacity:0},4.35);
+tl.set("#fk01-c2",{opacity:1},4.35);
+tl.set("#fk01-c2",{opacity:0},5.83);
+tl.set("#fk01-c3",{opacity:1},5.83);
+tl.set("#fk01-c3",{opacity:0},7.48);
+
+window.__timelines["fk01"] = tl;
+</script>
+</template>
+</body>
+</html>

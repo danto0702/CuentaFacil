@@ -1,0 +1,9 @@
+k01|P|Don Hernando necesita firmar un documento. Lo imprime… lo firma… lo escanea… y lo envía. Media mañana perdida.|Don Hernando necesita firmar un documento. Lo imprime… lo firma… lo escanea… y lo envía. Media mañana perdida.
+k02|P|Y su firma escaneada queda dando vueltas en correos y chats. Cualquiera la puede copiar.|Y su firma escaneada queda dando vueltas en correos y chats. Cualquiera la puede copiar.
+k03|P|Ahora mira a Valentina. Le llega el mismo documento… y lo firma desde su celular, con el dedo, en segundos.|Ahora mira a Valentina. Le llega el mismo documento… y lo firma desde su celular, con el dedo, en segundos.
+k04|P|Andrés está en la calle, cerrando una venta: sube la imagen de su firma… y listo.|Andrés está en la calle, cerrando una venta: sube la imagen de su firma… y listo.
+k05|P|Y Marcela le toma una foto a su firma en papel… y queda lista para usar.|Y Marcela le toma una foto a su firma en papel… y queda lista para usar.
+k06|P|Con Pascal Sáin, tus firmas se guardan solo en tu dispositivo. No en un chat. No en un correo.|Con Pascal Sign, tus firmas se guardan solo en tu dispositivo. No en un chat. No en un correo.
+k07|P|Y cada firma queda registrada: la fecha, la razón por la que la usaste, y un número único de identificación.|Y cada firma queda registrada: la fecha, la razón por la que la usaste y un número único de identificación.
+k08|P|Cuando lo necesites, descargas el detallado de todas tus firmas. Control total.|Cuando lo necesites, descargas el detallado de todas tus firmas. Control total.
+k09|P|Deja de imprimir para firmar. Prueba Pascal Sáin gratis por siete días: escanea el código. Pascal Sáin, de PascalIA.|Deja de imprimir para firmar. Prueba Pascal Sign gratis por 7 días: escanea el código. Pascal Sign, de PascalIA.
