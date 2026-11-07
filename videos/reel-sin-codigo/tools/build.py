@@ -228,8 +228,8 @@ tl.to("#X-lp",{{x:40,y:-20,rotation:8,duration:.6,yoyo:true,repeat:{k(D, s + d *
 RULES = [('CUANDO', '#1F1F1F', 'llega el pago al banco'), ('ENTONCES', '#25A55F', 'se avisa a bodega'), ('Y ADEMÁS', '#F97316', 'se actualiza el Excel')]
 S.append(('g07', 'tl', .4, """
 #X-t{top:190px;font-size:64px}
-#X-p{left:300px;height:620px}
-""", CHT('Flujo automático') + '<img id="X-p" class="ch" src="assets/chars/pascal-explica.webp" alt=""><h1 id="X-t" class="h g">Lo traducimos<br>en <span class="mk">reglas claras</span></h1>'
+#X-p{left:560px;height:820px}
+""", CHT('Flujo automático') + '<img id="X-p" class="ch" src="assets/chars/pascal-senala.webp" alt=""><h1 id="X-t" class="h g">Lo traducimos<br>en <span class="mk">reglas claras</span></h1>'
  + ''.join(f'<div class="rule X-r" style="top:{480 + i * 160}px"><em style="background:{c}">{w}</em><b>{t}</b></div>' for i, (w, c, t) in enumerate(RULES)),
  lambda D, s, d: f"""tl.from("#X-t",{{opacity:0,y:-30,duration:.35,ease:"back.out(1.8)"}},0);
 tl.from(".X-r",{{opacity:0,x:-300,duration:.35,ease:"back.out(1.6)",stagger:{d * .2:.2f}}},{s + d * .25:.2f});
@@ -243,8 +243,8 @@ S.append(('g08', 'tl', .5, """
 #X-b b{color:#FFC107}
 #X-b small{color:#fff}
 #X-h{left:60px;height:820px}
-#X-p{left:600px;height:600px}
-""", CHT('PascalIA') + '<img id="X-h" class="ch" src="assets/chars/hernando-pulgar.webp" alt=""><img id="X-p" class="ch" src="assets/chars/pascal-seguro.webp" alt=""><h1 id="X-t" class="h g">El equipo <span class="mk">perfecto</span></h1>'
+#X-p{left:560px;height:820px}
+""", CHT('PascalIA') + '<img id="X-h" class="ch" src="assets/chars/hernando-pulgar.webp" alt=""><img id="X-p" class="ch" src="assets/chars/pascal-muestra.webp" alt=""><h1 id="X-t" class="h g">El equipo <span class="mk">perfecto</span></h1>'
  + '<div id="X-a" class="half"><b>Tú</b><small>El conocimiento de tu negocio</small></div><div id="X-b" class="half"><b>Nosotros</b><small>La técnica</small></div>',
  lambda D, s, d: f"""tl.from("#X-t",{{opacity:0,y:-30,duration:.35,ease:"back.out(1.8)"}},0);
 tl.from("#X-a",{{opacity:0,x:-300,duration:.4,ease:"back.out(1.6)"}},{s:.2f});

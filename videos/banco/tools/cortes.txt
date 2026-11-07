@@ -44,7 +44,6 @@ vida-personal 80 1510 606 2360 personajes/julian-comedor-2
 vida-personal 698 1429 1211 2360 personajes/julian-sale
 vida-personal 1241 1605 1686 2360 personajes/julian-trofeo
 pascal-poses 19 12 220 519 personajes/pascal-pensando
-pascal-poses 248 11 673 260 personajes/pascal-tablero
 pascal-poses 217 254 473 522 personajes/pascal-portatil
 pascal-poses 449 256 673 522 personajes/pascal-tablet
 pascal-poses 33 516 255 1024 personajes/pascal-explica
