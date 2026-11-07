@@ -151,7 +151,7 @@ S.append(('g01', 'td', .4, """
 #X-t{top:200px;font-size:66px}
 #X-c{left:520px;height:880px}
 """, CHT('Pregunta PascalIA') + '<img id="X-c" class="ch" src="assets/chars/hernando-confundido.webp" alt=""><h1 id="X-t" class="h w">¿Automatizar<br>sin saber <span class="yy">programar</span>?</h1>'
- + ''.join(f'<div class="code X-cd" style="left:{x}px;top:{y}px">{t}</div>' for t, x, y in [('if (x) {', 80, 520), ('</div>', 150, 700), ('{ "api": … }', 70, 880), ('for (i=0;', 160, 1060), ('return null;', 90, 1240)]),
+ + ''.join(f'<div class="code X-cd" style="left:{x}px;top:{y}px">{t}</div>' for t, x, y in [('if (x) {', 80, 520), ('&lt;/div&gt;', 150, 700), ('{ "api": … }', 70, 880), ('for (i=0;', 160, 1060), ('return null;', 90, 1240)]),
  lambda D, s, d: f"""tl.from("#X-t",{{opacity:0,y:-30,duration:.35,ease:"back.out(1.8)"}},0);
 tl.from("#X-c",{{y:700,duration:.5,ease:"back.out(1.3)"}},.2);
 tl.from(".X-cd",{{opacity:0,scale:.3,rotation:-15,duration:.3,ease:"back.out(2.2)",stagger:{d * .12:.2f}}},{s + d * .25:.2f});
@@ -165,7 +165,7 @@ S.append(('g02', 'td', .4, """
  + ''.join(f'<div class="role X-r" style="top:{620 + i * 160}px"><i style="background:#25A55F">{icon("check", "#fff")}</i><b>{t}</b></div>' for i, t in enumerate(ROLE_OK)),
  lambda D, s, d: f"""tl.from("#X-t",{{opacity:0,y:-30,duration:.35,ease:"back.out(1.8)"}},{s + d * .45:.2f});
 tl.from("#X-c",{{y:700,duration:.5,ease:"back.out(1.3)"}},.2);
-tl.from("#X-n",{{opacity:0,x:-300,duration:.35,ease:"back.out(1.6)"}},{s + d * .2:.2f});
+tl.from(".X-n",{{opacity:0,x:-300,duration:.35,ease:"back.out(1.6)"}},{s + d * .2:.2f});
 tl.from(".X-r",{{opacity:0,x:-300,duration:.32,ease:"back.out(1.6)",stagger:.2}},{s + d * .55:.2f});"""))
 S.append(('g03', 'td', .4, """
 #X-t{top:200px;font-size:60px}
@@ -201,7 +201,7 @@ tl.from("#X-hub",{{scale:0,duration:.45,ease:"back.out(2)"}},{s + d * .05:.2f});
 tl.from(".X-tl",{{opacity:0,scale:.4,duration:.3,ease:"back.out(2.2)",stagger:{d * .1:.2f}}},{s + d * .3:.2f});
 tl.from(".X-w",{{opacity:0,duration:.3,stagger:{d * .1:.2f}}},{s + d * .32:.2f});
 tl.fromTo(".X-w",{{strokeDashoffset:0}},{{strokeDashoffset:-220,duration:{max(1, D - s - d * .7):.2f},ease:"none"}},{s + d * .7:.2f});
-tl.to("#X-hub",{{rotation:360,duration:{max(1, D - s - d * .7):.2f},ease:"none"}},{s + d * .7:.2f});"""))
+tl.to("#X-hub i",{{rotation:360,duration:{max(1, D - s - d * .7):.2f},ease:"none"}},{s + d * .7:.2f});"""))
 FLOW = [('bell', '#D93025', 'Llega un correo', 'Nuevo pedido · Cliente ABC'), ('list-check', '#1E7B45', 'Pasa solo a Excel', 'Fila nueva con los datos'), ('whatsapp', '#25A55F', 'Aviso por WhatsApp', '«Nuevo pedido para despachar»')]
 S.append(('g05', 'tl', .4, """
 #X-t{top:190px;font-size:66px}
