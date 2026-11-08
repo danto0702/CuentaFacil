@@ -1,5 +1,5 @@
 e01|P|Tu firma está en más chats de los que crees.|Tu firma está en más chats de los que crees.
-e02|P|Te muestro tres errores que cometes al firmar documentos… y cómo evitarlos desde tu celular, en segundos.|Te muestro 3 errores que cometes al firmar documentos… y cómo evitarlos desde tu celular, en segundos.
+e02|P|En este video, te voy a mostrar tres errores que cometes al firmar documentos… y cómo evitarlos desde tu celular.|En este video te voy a mostrar 3 errores que cometes al firmar documentos… y cómo evitarlos desde tu celular.
 e03|P|Error uno: mandar la foto de tu firma por WhatsApp o por correo. Esa imagen se queda en chats y descargas… y cualquiera la copia y la pega en un documento que nunca viste.|Error 1: mandar la foto de tu firma por WhatsApp o por correo. Esa imagen se queda en chats y descargas… y cualquiera la copia y la pega en un documento que nunca viste.
 e04|P|Pero ese no es el que más te cuesta.|Pero ese no es el que más te cuesta.
 e05|P|Error dos: imprimir, firmar y escanear. Media mañana perdida por un papel. Con Pascal Sáin abres el pe de efe, firmas con el dedo… o con una foto de tu firma, y la pones donde va. Listo.|Error 2: imprimir, firmar y escanear. Media mañana perdida por un papel. Con Pascal Sign abres el PDF, firmas con el dedo… o con una foto de tu firma, y la pones donde va. Listo.

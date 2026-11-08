@@ -149,7 +149,7 @@ EXTRA2 = EXTRA2 + f"""
 .reg p b{{color:#1F1F1F;font-weight:800;text-align:right}}
 .qm{{position:absolute;font:800 150px/1 "Montserrat",sans-serif;color:#E5484D}}
 """
-SC = [('bell', 'Correo', 90, 470, -6), ('chat', 'Chat', 690, 450, 5), ('people', 'Chat grupal', 110, 800, 4), ('folder', 'Descargas', 680, 830, -5)]
+SC = [('bell', 'Correo', 80, 640, -6), ('chat', 'Chat', 700, 620, 5), ('people', 'Chat grupal', 90, 930, 4), ('folder', 'Descargas', 690, 960, -5)]
 S = []
 S.append(('e01', 'td', .25, """
 #X-t{top:240px}
@@ -194,7 +194,7 @@ tl.to("#X-t",{{scale:1.06,duration:{D - .6:.2f},ease:"none"}},.5);"""))
 STEPS = [('printer', 'Imprime'), ('pen', 'Firma'), ('scan', 'Escanea')]
 S.append(('e05', 'td', .6, """
 #X-c{left:620px;height:860px}
-#X-sl{left:80px;top:690px;width:820px}
+#X-sl{left:80px;top:596px;width:660px}
 #X-mm{left:70px;top:950px;font:800 60px/1.1 "Montserrat",sans-serif;color:#FF5A5A}
 #X-tg{left:70px;top:1420px}
 """, CHS('Error 2') + '<div class="err"><b>2</b><span>Imprimir, firmar y escanear</span></div>'
