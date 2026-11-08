@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="es-CO">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="assets/vendor/gsap.min.js"></script>
+    <style>
+@font-face{font-family:"Montserrat";font-weight:700;src:url("assets/fonts/montserrat-latin-700-normal.woff2") format("woff2")}
+@font-face{font-family:"Montserrat";font-weight:800;src:url("assets/fonts/montserrat-latin-800-normal.woff2") format("woff2")}
+@font-face{font-family:"Inter";font-weight:500;src:url("assets/fonts/inter-latin-500-normal.woff2") format("woff2")}
+@font-face{font-family:"Inter";font-weight:600;src:url("assets/fonts/inter-latin-600-normal.woff2") format("woff2")}
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { width:1080px; height:1920px; overflow:hidden; background:#FFF8E1; }
+#root { position:relative; width:100%; height:100%; overflow:hidden; }
+.abs { position:absolute; }
+#bg { position:absolute; inset:0; background:radial-gradient(70% 45% at 50% 30%,#FFE58A 0%,#FFF3C4 45%,#FFF8E1 80%); }
+.chip { position:absolute; left:0; right:0; top:96px; text-align:center; }
+.chip span { display:inline-flex; align-items:center; gap:12px; padding:12px 26px 12px 14px; border-radius:999px; background:#1F1F1F; color:#fff; font:800 30px/1 "Montserrat",sans-serif; }
+.chip img { width:42px; height:42px; border-radius:10px; }
+#intro-t { left:60px; right:60px; top:330px; text-align:center; font:800 104px/1.04 "Montserrat",sans-serif; color:#1F1F1F; letter-spacing:-.02em; }
+#intro-t em { font-style:normal; background:linear-gradient(transparent 62%,#FFC107 62%); }
+#intro-s { left:80px; right:80px; top:600px; text-align:center; font:600 40px/1.3 "Inter",sans-serif; color:#5C5C5C; }
+#intro-logo { left:390px; top:760px; width:300px; height:300px; border-radius:66px; box-shadow:0 30px 60px -24px rgba(31,31,31,.45); }
+#intro-p { left:300px; bottom:0; height:760px; filter:drop-shadow(0 26px 30px rgba(31,31,31,.3)); }
+#step { left:60px; right:60px; top:170px; height:110px; display:flex; align-items:center; justify-content:center; gap:20px; }
+#step b { flex:none; width:84px; height:84px; border-radius:50%; background:#FFC107; display:grid; place-items:center; font:800 48px/1 "Montserrat",sans-serif; color:#1F1F1F; box-shadow:0 10px 22px -10px rgba(0,0,0,.4); }
+.st { position:absolute; left:0; right:0; top:0; height:110px; display:flex; align-items:center; justify-content:center; gap:20px; opacity:0; }
+.st span { font:800 54px/1.05 "Montserrat",sans-serif; color:#1F1F1F; letter-spacing:-.01em; }
+#phone { left:164px; top:284px; width:752px; height:1258px; border-radius:76px; background:#151515; padding:16px; box-shadow:0 50px 90px -40px rgba(31,31,31,.65),inset 0 0 0 3px #2B2B2B; }
+#scr { position:relative; width:720px; height:1226px; border-radius:60px; overflow:hidden; background:#fff; }
+#scr video { position:absolute; left:0; top:0; width:720px; height:1226px; object-fit:cover; }
+#dim { position:absolute; inset:0; background:rgba(31,31,31,.72); opacity:0; }
+.pg { position:absolute; background:#fff; border-radius:10px; box-shadow:0 30px 60px -20px rgba(0,0,0,.6); }
+.lab { position:absolute; left:60px; right:60px; text-align:center; font:800 44px/1.15 "Montserrat",sans-serif; color:#fff; }
+.lab small { display:block; margin-top:10px; font:600 28px/1.3 "Inter",sans-serif; color:#FFE58A; }
+.cap { position:absolute; left:60px; right:60px; top:1612px; text-align:center; }
+.cap span { display:inline-block; padding:12px 24px; border-radius:18px; background:#1F1F1F; color:#fff; font:800 36px/1.25 "Montserrat",sans-serif; opacity:0; white-space:nowrap; }
+#end-t { left:60px; right:60px; top:200px; text-align:center; font:800 84px/1.05 "Montserrat",sans-serif; color:#1F1F1F; }
+#end-t em { font-style:normal; background:linear-gradient(transparent 62%,#FFC107 62%); }
+#qr { left:560px; top:470px; width:460px; padding:28px 28px 20px; border-radius:36px; background:#fff; text-align:center; box-shadow:inset 0 0 0 3px #E9E9E9,0 24px 50px -24px rgba(31,31,31,.35); }
+#qr img { width:100%; display:block; }
+#qr b { display:block; margin-top:14px; font:800 30px/1 "Montserrat",sans-serif; color:#1F1F1F; }
+#demo { left:560px; top:1030px; width:460px; padding:24px; border-radius:28px; background:#1F1F1F; color:#FFC107; text-align:center; font:800 42px/1.1 "Montserrat",sans-serif; }
+#by { left:540px; top:1190px; width:500px; display:flex; justify-content:center; align-items:center; gap:12px; font:800 32px/1 "Montserrat",sans-serif; color:#1F1F1F; }
+#by img { width:60px; height:60px; border-radius:14px; }
+#end-p { left:10px; bottom:0; height:1000px; filter:drop-shadow(0 26px 30px rgba(31,31,31,.3)); }
+</style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="69.23" data-width="1080" data-height="1920">
+      <div id="scene" class="clip" data-start="0" data-duration="69.23" data-track-index="1" style="position:absolute;inset:0"><div id="bg"></div><div id="chip" class="chip"><span><img src="assets/brand/pascal-sign-logo.webp" alt="">Pascal Sign · en acción</span></div><h1 id="intro-t" class="abs">Así se firma,<br><em>de verdad</em></h1><p id="intro-s" class="abs">La app real, paso a paso</p><img id="intro-logo" class="abs" src="assets/brand/pascal-sign-logo.webp" alt=""><img id="intro-p" class="abs" src="assets/chars/pascal-senala.webp" alt=""><div id="step" class="abs"><div id="st0" class="st"><b>1</b><span>Entra a la app</span></div><div id="st1" class="st"><b>2</b><span>Abre tu PDF</span></div><div id="st2" class="st"><b>3</b><span>Dibuja tu firma</span></div><div id="st3" class="st"><b>4</b><span>Nombre, objeto y radicado</span></div><div id="st4" class="st"><b>5</b><span>Arrástrala a su lugar</span></div><div id="st5" class="st"><b>5</b><span>Ajusta el tamaño</span></div><div id="st6" class="st"><b>6</b><span>Guarda el PDF firmado</span></div><div id="st7" class="st"><b>7</b><span>Descarga el consolidado</span></div><div id="st8" class="st"><b>8</b><span>Delega tu firma</span></div></div><div id="phone" class="abs"><div id="scr"><video id="app" class="clip" src="assets/video/app.mp4" data-start="3.60" data-duration="58.43" data-track-index="2" muted playsinline data-layout-allow-overflow></video><div id="dim"></div></div></div><img id="r1a" class="pg" src="assets/resultado/firmado.png" alt="" style="left:220px;top:510px;width:380px"><img id="r1b" class="pg" src="assets/resultado/evidencia.png" alt="" style="left:480px;top:580px;width:380px"><p id="r1l" class="lab" style="top:1160px">Tu PDF firmado<small>con nombre, fecha, consecutivo y hoja de evidencia</small></p><img id="r2a" class="pg" src="assets/resultado/consolidado.png" alt="" style="left:200px;top:600px;width:680px"><p id="r2l" class="lab" style="top:1200px">Consolidado de firmas<small>en PDF, Excel (CSV) o TXT</small></p><div class="cap"><span id="c-n01-0">Así se firma un documento con Pascal</span></div><div class="cap"><span id="c-n01-1">Sign. Sin trucos: mira.</span></div><div class="cap"><span id="c-n02-0">Entras a pascalia.lat/PascalSign… y</span></div><div class="cap"><span id="c-n02-1">abres el PDF que necesitas firmar.</span></div><div class="cap"><span id="c-n03-0">Tocas «Firmar»… y dibujas tu firma con</span></div><div class="cap"><span id="c-n03-1">el dedo.</span></div><div class="cap"><span id="c-n04-0">Escribes tu nombre, el objeto del</span></div><div class="cap"><span id="c-n04-1">documento y, si quieres, el radicado.</span></div><div class="cap"><span id="c-n05-0">La firma aparece en la página: la</span></div><div class="cap"><span id="c-n05-1">arrastras hasta su lugar… y con el</span></div><div class="cap"><span id="c-n05-2">círculo amarillo ajustas el tamaño.</span></div><div class="cap"><span id="c-n06-0">Tocas «Listo» y guardas tu PDF firmado:</span></div><div class="cap"><span id="c-n06-1">con tu nombre, la fecha, el consecutivo…</span></div><div class="cap"><span id="c-n06-2">y una hoja de evidencia.</span></div><div class="cap"><span id="c-n07-0">En «Mi cuenta» descargas el consolidado</span></div><div class="cap"><span id="c-n07-1">de todas tus firmas.</span></div><div class="cap"><span id="c-n08-0">Y si alguien firma por ti, le delegas tu</span></div><div class="cap"><span id="c-n08-1">firma: eliges a la persona, por cuánto</span></div><div class="cap"><span id="c-n08-2">tiempo y para qué documentos. Y la</span></div><div class="cap"><span id="c-n08-3">suspendes o la revocas cuando quieras.</span></div><div class="cap"><span id="c-n09-0">Pascal Sign, de PascalIA. Pruébalo</span></div><div class="cap"><span id="c-n09-1">gratis por 7 días: escanea el código.</span></div><h2 id="end-t" class="abs">Firma desde<br>tu celular, <em>hoy</em></h2><div id="qr" class="abs"><img src="assets/brand/qr-pascal-sign.svg" alt=""><b>Escanea y pruébalo</b></div><div id="demo" class="abs">7 días gratis</div><div id="by" class="abs"><img src="assets/brand/pascal-sign-logo.webp" alt=""><em style="font-style:normal">Pascal Sign · Pascal<span style="color:#A87600">IA</span></em></div><img id="end-p" class="abs" src="assets/chars/pascal-celular.webp" alt=""></div>
+    </div>
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+      tl.set("#c-n01-0",{opacity:1},0.35);tl.set("#c-n01-0",{opacity:0},2.79);
+tl.set("#c-n01-1",{opacity:1},2.79);tl.set("#c-n01-1",{opacity:0},4.60);
+tl.set("#c-n02-0",{opacity:1},4.00);tl.set("#c-n02-0",{opacity:0},6.37);
+tl.set("#c-n02-1",{opacity:1},6.37);tl.set("#c-n02-1",{opacity:0},8.92);
+tl.set("#c-n03-0",{opacity:1},12.20);tl.set("#c-n03-0",{opacity:0},14.79);
+tl.set("#c-n03-1",{opacity:1},14.79);tl.set("#c-n03-1",{opacity:0},15.58);
+tl.set("#c-n04-0",{opacity:1},18.30);tl.set("#c-n04-0",{opacity:0},20.53);
+tl.set("#c-n04-1",{opacity:1},20.53);tl.set("#c-n04-1",{opacity:0},23.28);
+tl.set("#c-n05-0",{opacity:1},24.35);tl.set("#c-n05-0",{opacity:0},26.59);
+tl.set("#c-n05-1",{opacity:1},26.59);tl.set("#c-n05-1",{opacity:0},28.90);
+tl.set("#c-n05-2",{opacity:1},28.90);tl.set("#c-n05-2",{opacity:0},31.53);
+tl.set("#c-n06-0",{opacity:1},33.70);tl.set("#c-n06-0",{opacity:0},36.35);
+tl.set("#c-n06-1",{opacity:1},36.35);tl.set("#c-n06-1",{opacity:0},39.07);
+tl.set("#c-n06-2",{opacity:1},39.07);tl.set("#c-n06-2",{opacity:0},40.95);
+tl.set("#c-n07-0",{opacity:1},41.35);tl.set("#c-n07-0",{opacity:0},43.99);
+tl.set("#c-n07-1",{opacity:1},43.99);tl.set("#c-n07-1",{opacity:0},45.60);
+tl.set("#c-n08-0",{opacity:1},47.20);tl.set("#c-n08-0",{opacity:0},49.92);
+tl.set("#c-n08-1",{opacity:1},49.92);tl.set("#c-n08-1",{opacity:0},52.50);
+tl.set("#c-n08-2",{opacity:1},52.50);tl.set("#c-n08-2",{opacity:0},54.82);
+tl.set("#c-n08-3",{opacity:1},54.82);tl.set("#c-n08-3",{opacity:0},57.65);
+tl.set("#c-n09-0",{opacity:1},62.63);tl.set("#c-n09-0",{opacity:0},64.93);
+tl.set("#c-n09-1",{opacity:1},64.93);tl.set("#c-n09-1",{opacity:0},67.68);
+tl.from("#chip",{opacity:0,y:-30,duration:.4,ease:"back.out(1.8)"},0.05);
+tl.from("#intro-t",{opacity:0,y:40,duration:.5,ease:"back.out(1.6)"},0.15);
+tl.from("#intro-s",{opacity:0,y:20,duration:.4},0.5);
+tl.from("#intro-logo",{opacity:0,scale:.4,rotation:-12,duration:.55,ease:"back.out(1.8)"},0.7);
+tl.from("#intro-p",{y:800,duration:.6,ease:"back.out(1.2)"},0.9);
+tl.to(["#intro-t","#intro-s","#intro-logo"],{opacity:0,y:-60,duration:.4,ease:"power2.in",stagger:.05},3.05);
+tl.to("#intro-p",{x:600,opacity:0,duration:.45,ease:"power2.in"},3.05);
+tl.from("#phone",{y:1500,duration:.7,ease:"power3.out"},3.15);
+tl.set("#chip span",{},0);
+tl.fromTo("#st0",{opacity:0,y:24},{opacity:1,y:0,duration:.35,ease:"back.out(1.8)"},3.70);
+tl.to("#st0",{opacity:0,y:-20,duration:.25},7.00);
+tl.fromTo("#st1",{opacity:0,y:24},{opacity:1,y:0,duration:.35,ease:"back.out(1.8)"},7.20);
+tl.to("#st1",{opacity:0,y:-20,duration:.25},11.95);
+tl.fromTo("#st2",{opacity:0,y:24},{opacity:1,y:0,duration:.35,ease:"back.out(1.8)"},12.15);
+tl.to("#st2",{opacity:0,y:-20,duration:.25},18.05);
+tl.fromTo("#st3",{opacity:0,y:24},{opacity:1,y:0,duration:.35,ease:"back.out(1.8)"},18.25);
+tl.to("#st3",{opacity:0,y:-20,duration:.25},24.04);
+tl.fromTo("#st4",{opacity:0,y:24},{opacity:1,y:0,duration:.35,ease:"back.out(1.8)"},24.24);
+tl.to("#st4",{opacity:0,y:-20,duration:.25},28.03);
+tl.fromTo("#st5",{opacity:0,y:24},{opacity:1,y:0,duration:.35,ease:"back.out(1.8)"},28.23);
+tl.to("#st5",{opacity:0,y:-20,duration:.25},33.44);
+tl.fromTo("#st6",{opacity:0,y:24},{opacity:1,y:0,duration:.35,ease:"back.out(1.8)"},33.64);
+tl.to("#st6",{opacity:0,y:-20,duration:.25},41.06);
+tl.fromTo("#st7",{opacity:0,y:24},{opacity:1,y:0,duration:.35,ease:"back.out(1.8)"},41.26);
+tl.to("#st7",{opacity:0,y:-20,duration:.25},46.91);
+tl.fromTo("#st8",{opacity:0,y:24},{opacity:1,y:0,duration:.35,ease:"back.out(1.8)"},47.11);
+tl.to("#st8",{opacity:0,y:-20,duration:.25},61.83);
+tl.to("#phone",{scale:1.2,transformOrigin:"32% 60%",duration:.6,ease:"power2.inOut"},25.50);
+tl.to("#phone",{scale:1,duration:.6,ease:"power2.inOut"},33.20);
+tl.to("#dim",{opacity:1,duration:.3},38.05);tl.to("#dim",{opacity:0,duration:.3},41.05);
+tl.fromTo(["#r1a", "#r1b"],{opacity:0,scale:.6,y:80},{opacity:1,scale:1,y:0,rotation:(i)=>[-4,5][i]||0,duration:.45,ease:"back.out(1.6)",stagger:.12},38.15);
+tl.fromTo("#r1l",{opacity:0,y:30},{opacity:1,y:0,duration:.35},38.40);
+tl.to(["#r1a", "#r1b", "#r1l"],{opacity:0,y:-40,duration:.3,ease:"power2.in"},41.00);
+tl.to("#dim",{opacity:1,duration:.3},44.30);tl.to("#dim",{opacity:0,duration:.3},46.95);
+tl.fromTo(["#r2a"],{opacity:0,scale:.6,y:80},{opacity:1,scale:1,y:0,rotation:(i)=>[-4,5][i]||0,duration:.45,ease:"back.out(1.6)",stagger:.12},44.40);
+tl.fromTo("#r2l",{opacity:0,y:30},{opacity:1,y:0,duration:.35},44.65);
+tl.to(["#r2a", "#r2l"],{opacity:0,y:-40,duration:.3,ease:"power2.in"},46.90);
+tl.to("#phone",{y:1500,duration:.6,ease:"power2.in"},61.93);
+tl.fromTo("#end-t",{opacity:0,y:-30},{opacity:1,y:0,duration:.45,ease:"back.out(1.8)"},62.33);
+tl.fromTo("#end-p",{x:-500},{x:0,duration:.5,ease:"power3.out"},62.38);
+tl.fromTo("#qr",{opacity:0,scale:.5},{opacity:1,scale:1,duration:.45,ease:"back.out(1.8)"},62.63);
+tl.fromTo("#demo",{opacity:0,y:30},{opacity:1,y:0,duration:.35,ease:"back.out(2)"},63.03);
+tl.to("#demo",{scale:1.06,duration:.35,yoyo:true,repeat:15,ease:"sine.inOut"},63.43);
+tl.fromTo("#by",{opacity:0},{opacity:1,duration:.35},63.33);
+tl.set(["#end-t","#end-p","#qr","#demo","#by"],{opacity:0},0);tl.set(["#end-t","#end-p","#qr","#demo","#by"],{opacity:1},62.32);
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>
