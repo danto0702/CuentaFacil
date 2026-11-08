@@ -27,12 +27,15 @@ A = 3.6                       # app video starts
 E = round(A + APP, 2)         # app video ends
 TOTAL = round(E + 7.2, 2)
 # narration starts (absolute seconds); app-time marks come from tools/grabacion/record.js
-VOSTART = {'n01': 0.15, 'n02': A + 0.4, 'n03': A + 8.6, 'n04': A + 14.7, 'n05': A + 20.75, 'n06': A + 30.1, 'n07': A + 37.75, 'n08': A + 43.6, 'n09': E + 0.6}
-STEPS = [(0.3, '1', 'Entra a la app'), (3.6, '2', 'Abre tu PDF'), (8.55, '3', 'Dibuja tu firma'), (14.65, '4', 'Nombre, objeto y radicado'),
-         (20.64, '5', 'Arrástrala a su lugar'), (24.63, '5', 'Ajusta el tamaño'), (30.04, '6', 'Guarda el PDF firmado'),
-         (37.66, '7', 'Descarga el consolidado'), (43.51, '8', 'Delega tu firma')]
-R1 = (A + 34.45, A + 37.45)   # signed PDF + evidence insert
-R2 = (A + 40.7, A + 43.35)    # consolidated history insert
+M = json.load(open(os.path.join(ROOT, 'tools', 'grabacion', 'marks.json')))  # app-time step marks from the recording
+VOSTART = {'n01': 0.15, 'n02': A + M['home'] + 0.1, 'n03': A + M['firmar'] + 0.05, 'n03b': A + M['imagen'] + 0.15, 'n04': A + M['datos'] + 0.05,
+           'n05': A + M['usar'] + 0.1, 'n06': A + M['listo'] + 0.06, 'n07': A + M['cuenta'] + 0.09, 'n08': A + M['delegar'] + 0.09, 'n09': E + 0.6}
+STEPS = [(M['home'], '1', 'Entra a la app'), (M['abrir'], '2', 'Abre tu PDF'), (M['firmar'], '3', 'Dibuja tu firma'),
+         (M['imagen'], '3', 'O sube una imagen'), (M['foto'], '3', 'O tómale una foto'), (M['volver'], '3', 'Dibuja tu firma'),
+         (M['datos'], '4', 'Nombre, objeto y radicado'), (M['usar'], '5', 'Arrástrala a su lugar'), (M['tamano'], '5', 'Ajusta el tamaño'),
+         (M['listo'], '6', 'Guarda el PDF firmado'), (M['cuenta'], '7', 'Descarga el consolidado'), (M['delegar'], '8', 'Delega tu firma')]
+R1 = (A + M['firmado'] - 0.05, A + M['firmado'] + 2.95)   # signed PDF + evidence insert
+R2 = (A + M['historial'] + 0.44, A + M['historial'] + 3.09)    # consolidated history insert
 PW, PH = 720, round(720 * 1726 / 1014)  # phone screen
 PX, PY = (1080 - PW) // 2, 300
 

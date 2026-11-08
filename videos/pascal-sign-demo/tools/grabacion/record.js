@@ -7,8 +7,8 @@ const OUT = __dirname + '/frames';
 fs.rmSync(OUT, { recursive: true, force: true }); fs.mkdirSync(OUT);
 
 (async () => {
-  const b = await chromium.launch();
-  const ctx = await b.newContext({ ...devices['iPhone 13'], locale: 'es-CO', timezoneId: 'America/Bogota', serviceWorkers: 'block', acceptDownloads: true });
+  const b = await chromium.launch({ args: ['--use-fake-ui-for-media-stream', '--use-fake-device-for-media-stream', `--use-file-for-fake-video-capture=${__dirname}/camara.y4m`] });
+  const ctx = await b.newContext({ ...devices['iPhone 13'], locale: 'es-CO', timezoneId: 'America/Bogota', serviceWorkers: 'block', acceptDownloads: true, permissions: ['camera'] });
   await ctx.addInitScript(() => {
     try { localStorage.setItem('pascalia_consentimiento', JSON.stringify({ v: 1, fecha: new Date().toISOString(), necesarias: true, preferencias: true, analitica: false })); } catch (e) {}
     // Finger indicator: a soft circle while pressed, a ripple on tap
@@ -102,6 +102,23 @@ fs.rmSync(OUT, { recursive: true, force: true }); fs.mkdirSync(OUT);
   await glide(flour[0][0], flour[0][1], 8); await p.mouse.down();
   for (const [X, Y] of flour) { await p.mouse.move(X, Y); await wait(9); }
   await p.mouse.up(); cur = flour[flour.length - 1]; await wait(600);
+  // 2b · the other ways: upload an image of the signature, or take a photo of it
+  mark('imagen');
+  await tap('[data-tab="imagen"]', 800);
+  { const [ix, iy] = await center('label.subir'); await glide(ix, iy);
+    const fc = p.waitForEvent('filechooser', { timeout: 8000 });
+    await p.mouse.down(); await wait(120); await p.mouse.up();
+    let ch; try { ch = await fc; } catch (e) { const c2 = p.waitForEvent('filechooser'); await p.click('label.subir'); ch = await c2; }
+    await wait(500); await ch.setFiles(__dirname + '/firma-foto.jpg'); }
+  await wait(2000);
+  mark('foto');
+  await p.locator('#camara').scrollIntoViewIfNeeded(); await wait(300);
+  await tap('#camara', 2200);
+  await tap('[data-tomar]', 1800);
+  await wait(600);
+  await p.locator('[data-tab="dibujar"]').scrollIntoViewIfNeeded(); await wait(300);
+  mark('volver');
+  await tap('[data-tab="dibujar"]', 900);
   mark('datos');
   await typeIn('#nombre', 'Carlos Pérez');
   await p.locator('#sello-objeto').scrollIntoViewIfNeeded(); await wait(300);

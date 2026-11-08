@@ -1,6 +1,7 @@
 n01|P|Así se firma un documento con Pascal Sáin. Sin trucos: mira.|Así se firma un documento con Pascal Sign. Sin trucos: mira.
 n02|P|Entras a pascalia punto lat, barra Pascal Sáin… y abres el pe de efe que necesitas firmar.|Entras a pascalia.lat/PascalSign… y abres el PDF que necesitas firmar.
 n03|P|Tocas Firmar… y dibujas tu firma con el dedo.|Tocas «Firmar»… y dibujas tu firma con el dedo.
+n03b|P|¿No quieres dibujarla? Sube una foto de tu firma… o tómale una foto con la cámara. La app quita el fondo y las sombras, y deja solo el trazo.|¿No quieres dibujarla? Sube una foto de tu firma… o tómale una foto con la cámara. La app quita el fondo y las sombras, y deja solo el trazo.
 n04|P|Escribes tu nombre, el objeto del documento y, si quieres, el radicado.|Escribes tu nombre, el objeto del documento y, si quieres, el radicado.
 n05|P|La firma aparece en la página: la arrastras hasta su lugar… y con el círculo amarillo, ajustas el tamaño.|La firma aparece en la página: la arrastras hasta su lugar… y con el círculo amarillo ajustas el tamaño.
 n06|P|Tocas Listo, y guardas tu pe de efe firmado: con tu nombre, la fecha, el consecutivo… y una hoja de evidencia.|Tocas «Listo» y guardas tu PDF firmado: con tu nombre, la fecha, el consecutivo… y una hoja de evidencia.
