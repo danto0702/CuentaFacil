@@ -1,9 +1,9 @@
 n01|P|Así se firma un documento con Pascal Sáin. Sin trucos: mira.|Así se firma un documento con Pascal Sign. Sin trucos: mira.
-n02|P|Entras a pascalia punto lat, barra, Pascal Sáin… y abres el pe de efe que necesitas firmar.|Entras a pascalia.lat/PascalSign… y abres el PDF que necesitas firmar.
+n02|P|Entras a pascalia punto lat, barra Pascal Sáin… y abres el pe de efe que necesitas firmar.|Entras a pascalia.lat/PascalSign… y abres el PDF que necesitas firmar.
 n03|P|Tocas Firmar… y dibujas tu firma con el dedo.|Tocas «Firmar»… y dibujas tu firma con el dedo.
 n04|P|Escribes tu nombre, el objeto del documento y, si quieres, el radicado.|Escribes tu nombre, el objeto del documento y, si quieres, el radicado.
 n05|P|La firma aparece en la página: la arrastras hasta su lugar… y con el círculo amarillo, ajustas el tamaño.|La firma aparece en la página: la arrastras hasta su lugar… y con el círculo amarillo ajustas el tamaño.
 n06|P|Tocas Listo, y guardas tu pe de efe firmado: con tu nombre, la fecha, el consecutivo… y una hoja de evidencia.|Tocas «Listo» y guardas tu PDF firmado: con tu nombre, la fecha, el consecutivo… y una hoja de evidencia.
 n07|P|En Mi cuenta, descargas el consolidado de todas tus firmas.|En «Mi cuenta» descargas el consolidado de todas tus firmas.
 n08|P|Y si alguien firma por ti, le delegas tu firma: eliges a la persona, por cuánto tiempo y para qué documentos. Y la suspendes o la revocas cuando quieras.|Y si alguien firma por ti, le delegas tu firma: eliges a la persona, por cuánto tiempo y para qué documentos. Y la suspendes o la revocas cuando quieras.
-n09|P|Pascal Sáin, de PascalIA. Pruébalo gratis por siete días: escanea el código.|Pascal Sign, de PascalIA. Pruébalo gratis por 7 días: escanea el código.
+n09|P|Pascal Sáin, de PascalIA. Pruébalo gratis, durante siete días. Escanea el código.|Pascal Sign, de PascalIA. Pruébalo gratis durante 7 días: escanea el código.

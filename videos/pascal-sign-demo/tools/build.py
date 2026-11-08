@@ -27,7 +27,7 @@ A = 3.6                       # app video starts
 E = round(A + APP, 2)         # app video ends
 TOTAL = round(E + 7.2, 2)
 # narration starts (absolute seconds); app-time marks come from tools/grabacion/record.js
-VOSTART = {'n01': 0.35, 'n02': A + 0.4, 'n03': A + 8.6, 'n04': A + 14.7, 'n05': A + 20.75, 'n06': A + 30.1, 'n07': A + 37.75, 'n08': A + 43.6, 'n09': E + 0.6}
+VOSTART = {'n01': 0.15, 'n02': A + 0.4, 'n03': A + 8.6, 'n04': A + 14.7, 'n05': A + 20.75, 'n06': A + 30.1, 'n07': A + 37.75, 'n08': A + 43.6, 'n09': E + 0.6}
 STEPS = [(0.3, '1', 'Entra a la app'), (3.6, '2', 'Abre tu PDF'), (8.55, '3', 'Dibuja tu firma'), (14.65, '4', 'Nombre, objeto y radicado'),
          (20.64, '5', 'Arrástrala a su lugar'), (24.63, '5', 'Ajusta el tamaño'), (30.04, '6', 'Guarda el PDF firmado'),
          (37.66, '7', 'Descarga el consolidado'), (43.51, '8', 'Delega tu firma')]
@@ -98,6 +98,7 @@ def build():
     body.append(f'<p id="r2l" class="lab" style="top:{PY + 900}px">Consolidado de firmas<small>en PDF, Excel (CSV) o TXT</small></p>')
     # captions
     for n, st in VOSTART.items():
+        if n in ('n01', 'n09'): continue  # title and end card already say it on screen
         d = vdur(n); parts = chunks(LINES[n]); tot = sum(len(p) for p in parts); c = st
         for j, part in enumerate(parts):
             pd = d * len(part) / tot; cid = f'c-{n}-{j}'
@@ -118,16 +119,13 @@ def build():
     js.append('tl.from("#intro-p",{y:800,duration:.6,ease:"back.out(1.2)"},0.9);')
     js.append(f'tl.to(["#intro-t","#intro-s","#intro-logo"],{{opacity:0,y:-60,duration:.4,ease:"power2.in",stagger:.05}},{T(A - 0.55)});')
     js.append(f'tl.to("#intro-p",{{x:600,opacity:0,duration:.45,ease:"power2.in"}},{T(A - 0.55)});')
-    js.append(f'tl.from("#phone",{{y:1500,duration:.7,ease:"power3.out"}},{T(A - 0.45)});')
+    js.append(f'tl.fromTo("#phone",{{y:1800,opacity:0}},{{y:0,opacity:1,duration:.7,ease:"power3.out"}},{T(A - 0.45)});')
     js.append(f'tl.set("#chip span",{{}},0);')
     for i, (s, _, _) in enumerate(STEPS):
         t = A + s if i else A + 0.1
         js.append(f'tl.fromTo("#st{i}",{{opacity:0,y:24}},{{opacity:1,y:0,duration:.35,ease:"back.out(1.8)"}},{T(t)});')
         end = (A + STEPS[i + 1][0]) if i + 1 < len(STEPS) else E
         js.append(f'tl.to("#st{i}",{{opacity:0,y:-20,duration:.25}},{T(end - 0.2)});')
-    # punch-in while the signature is placed and resized
-    js.append(f'tl.to("#phone",{{scale:1.2,transformOrigin:"32% 60%",duration:.6,ease:"power2.inOut"}},{T(A + 21.9)});')
-    js.append(f'tl.to("#phone",{{scale:1,duration:.6,ease:"power2.inOut"}},{T(A + 29.6)});')
     # inserts
     for a, b, els, lab in [(R1[0], R1[1], ['#r1a', '#r1b'], '#r1l'), (R2[0], R2[1], ['#r2a'], '#r2l')]:
         js.append(f'tl.to("#dim",{{opacity:1,duration:.3}},{T(a)});tl.to("#dim",{{opacity:0,duration:.3}},{T(b)});')
@@ -135,7 +133,7 @@ def build():
         js.append(f'tl.fromTo("{lab}",{{opacity:0,y:30}},{{opacity:1,y:0,duration:.35}},{T(a + .35)});')
         js.append(f'tl.to({json.dumps(els + [lab])},{{opacity:0,y:-40,duration:.3,ease:"power2.in"}},{T(b - .05)});')
     # end card
-    js.append(f'tl.to("#phone",{{y:1500,duration:.6,ease:"power2.in"}},{T(E - 0.1)});')
+    js.append(f'tl.to("#phone",{{y:1800,duration:.6,ease:"power2.in"}},{T(E - 0.1)});tl.set("#phone",{{opacity:0}},{T(E + .55)});')
     js.append(f'tl.fromTo("#end-t",{{opacity:0,y:-30}},{{opacity:1,y:0,duration:.45,ease:"back.out(1.8)"}},{T(E + .3)});')
     js.append(f'tl.fromTo("#end-p",{{x:-500}},{{x:0,duration:.5,ease:"power3.out"}},{T(E + .35)});')
     js.append(f'tl.fromTo("#qr",{{opacity:0,scale:.5}},{{opacity:1,scale:1,duration:.45,ease:"back.out(1.8)"}},{T(E + .6)});')
