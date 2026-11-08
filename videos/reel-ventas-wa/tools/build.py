@@ -224,7 +224,7 @@ S.append(('d08', 'tl', 2.4, """
 #X-by img{width:54px;height:54px}
 #X-p{left:10px;height:1000px}
 """, CHT('Consejo PascalIA') + '<img id="X-p" class="ch" src="assets/chars/pascal-muestra.webp" alt=""><h1 id="X-t" class="h g">¿Cómo sonaría<br><span class="mk">tu asistente</span>?</h1>'
- + '<div id="X-qr" class="abs"><img src="assets/brand/qr-whatsapp.svg" alt=""><b>312 388 5012</b></div><div id="X-demo" class="abs">Pide tu prueba con la voz de tu marca</div>'
+ + '<div id="X-qr" class="abs"><img src="assets/brand/qr-pascalia.svg" alt=""><b>pascalia.lat</b></div><div id="X-demo" class="abs">Pide tu prueba con la voz de tu marca</div>'
  + '<div id="X-by" class="abs"><img src="assets/brand/flower.svg" alt=""><em style="font-style:normal">Pascal<span style="color:#A87600">IA</span></em></div>',
  lambda D, s, d: f"""tl.from("#X-t",{{opacity:0,y:-30,duration:.4,ease:"back.out(1.8)"}},0);
 tl.from("#X-p",{{x:-500,duration:.5,ease:"power3.out"}},.2);

@@ -168,7 +168,7 @@ S.append(('r08', 'tl', 2.2, '''
 #X-p{left:20px;height:880px}
 ''', CH() + '<h1 id="X-t" class="h g">Guarda esta <span class="mk">guía</span></h1>'
  + f'<div id="X-save" class="abs"><h3>{icon("check")}¿Tu tarea cumple?</h3>' + ''.join(f'<p class="X-li"><i>{i + 1}</i>{t}</p>' for i, (t, _, _) in enumerate(CRITS)) + '</div>'
- + '<div id="X-qr" class="abs"><img src="assets/brand/qr-whatsapp.svg" alt=""><b>Escríbenos</b><small>312 388 5012</small></div><div id="X-diag" class="abs">Pide tu diagnóstico</div>'
+ + '<div id="X-qr" class="abs"><img src="assets/brand/qr-pascalia.svg" alt=""><b>Visítanos</b><small>pascalia.lat</small></div><div id="X-diag" class="abs">Pide tu diagnóstico</div>'
  + '<img id="X-p" class="ch" src="assets/chars/pascal-senala.webp" alt="">',
  lambda D, s, d: f'''tl.from("#X-t",{{opacity:0,y:-30,duration:.4,ease:"back.out(1.8)"}},0);
 tl.from("#X-save",{{opacity:0,x:-200,duration:.45,ease:"back.out(1.6)"}},.15);
