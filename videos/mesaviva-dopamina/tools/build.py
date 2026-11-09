@@ -215,7 +215,7 @@ tl.from(".X-c",{{opacity:0,scale:.3,y:200,rotation:"+=40",duration:.35,ease:"bac
 tl.from("#X-n1",{{opacity:0,y:60,duration:.35,ease:"back.out(1.8)"}},{s + d * .78:.2f});"""))
 S.append(('h03', 'nx', .45, """
 #X-t{top:190px;font-size:76px}
-#X-pin{left:70px;top:420px;font:800 36px/1 "Montserrat",sans-serif;color:#fff}
+#X-pin{left:0;right:0;top:376px;text-align:center;font:800 36px/1 "Montserrat",sans-serif;color:#fff}
 #X-e0{left:40px}#X-e1{left:164px}#X-e2{left:288px}
 #X-fg{left:200px;top:480px}
 """, CHM('MesaViva') + '<h1 id="X-t" class="neo">Starbucks <span class="r">copió</span><br>la fórmula</h1><p id="X-pin" class="abs">📍 Kuala Lumpur</p>'
@@ -256,7 +256,7 @@ tl.from("#X-sl",{{scale:.5,opacity:0,duration:.4,ease:"back.out(1.8)"}},.15);
 tl.fromTo("#X-br",{{scale:.3,opacity:0}},{{scale:1,opacity:1,duration:.4,ease:"back.out(2)"}},{s + d * .48:.2f});
 tl.from(".X-k",{{scale:0,rotation:-30,duration:.25,ease:"back.out(3)",stagger:.08}},{s + d * .55:.2f});
 tl.from("#X-dp",{{opacity:0,scale:.6,duration:.3,ease:"back.out(2)"}},{s + d * .62:.2f});
-tl.to(["#X-br",".X-k","#X-dp"],{{y:-330,scale:.6,duration:.4,ease:"power2.inOut"}},{s + d * .78:.2f});
+tl.to(["#X-br",".X-k","#X-dp"],{{y:-150,scale:.6,duration:.4,ease:"power2.inOut"}},{s + d * .78:.2f});
 tl.from(".X-b",{{scaleY:0,transformOrigin:"50% 100%",duration:.35,ease:"back.out(1.6)",stagger:.12}},{s + d * .8:.2f});
 tl.from("#X-ch .bl",{{opacity:0,duration:.25,stagger:.12}},{s + d * .82:.2f});"""))
 STORE = f'<svg viewBox="0 0 780 600"><rect x="40" y="120" width="700" height="460" rx="20" fill="#14141B" stroke="{NE["v"]}" stroke-width="5"/><path d="M20 120 H760 L730 40 H50 Z" fill="{NE["r"]}"/>' + ''.join(f'<path d="M{50 + i * 85} 120 L{80 + i * 85} 40 H{122 + i * 85} L{92 + i * 85} 120 Z" fill="#fff" opacity=".85"/>' for i in range(8)) + f'<rect x="230" y="150" width="320" height="60" rx="12" fill="#0B0B0F" stroke="{NE["g"]}" stroke-width="3"/><text x="390" y="190" text-anchor="middle" font-family="Montserrat" font-weight="800" font-size="30" fill="{NE["g"]}">TU RESTAURANTE</text><rect x="100" y="430" width="580" height="22" rx="8" fill="#3A2A20"/><rect x="140" y="452" width="16" height="110" fill="#3A2A20"/><rect x="624" y="452" width="16" height="110" fill="#3A2A20"/><circle cx="160" cy="300" r="34" fill="#E8D2B8"/><rect x="118" y="336" width="84" height="100" rx="30" fill="{NE["r"]}"/></svg>'
