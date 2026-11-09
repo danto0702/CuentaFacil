@@ -284,7 +284,7 @@ S.append(('h06', 'nx', 2.4, """
 #X-wh{left:390px;top:850px;width:300px}
 #X-cm{top:1200px}
 """, '<img id="X-lg" class="abs" src="assets/brand/mesaviva-logo.webp" alt=""><h1 id="X-t" class="neo">MesaViva<br><span class="g">juega y gana</span></h1>' + wheel('X-wh', 300)
- + '<div id="X-cm" class="cmt">💬 Comenta <span id="X-cw" style="color:#FF2E4D">CARTA</span></div>'
+ + '<div id="X-cm" class="cmt">💬 Comenta <span id="X-cw" style="color:#FF2E4D">MESA</span></div>'
  + '<p class="legal">La ruleta de premios se activa conforme a la normativa de juegos promocionales.</p>',
  lambda D, s, d: f"""tl.from("#X-lg",{{scale:0,rotation:-20,duration:.45,ease:"back.out(2)"}},0.05);
 tl.from("#X-t",{{opacity:0,scale:1.4,duration:.35,ease:"back.out(2)"}},.2);
