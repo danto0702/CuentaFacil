@@ -132,7 +132,7 @@ EXTRA2 = EXTRA2 + f"""
 .pg p{{font:500 30px/1.5 "Inter",sans-serif;color:#1F1F1F;margin:16px 0}}
 .sel{{background:rgba(255,193,7,.45);border-radius:6px;padding:0 4px}}
 .caret{{display:inline-block;width:4px;height:36px;background:#1F1F1F;vertical-align:-6px;margin-left:2px}}
-.tool{{position:absolute;padding:14px 20px;border-radius:16px;background:#1C1C22;box-shadow:inset 0 0 0 2px #34343E;color:#fff;font:700 26px/1 "Inter",sans-serif;display:flex;align-items:center;gap:10px}}
+.tool{{position:absolute;width:max-content;padding:14px 20px;border-radius:16px;background:#1C1C22;box-shadow:inset 0 0 0 2px #34343E;color:#fff;font:700 26px/1 "Inter",sans-serif;display:flex;align-items:center;gap:10px}}
 .tool i{{width:34px;height:34px}}
 .cnt{{position:absolute;left:0;right:0;text-align:center;font:800 150px/1 "Montserrat",sans-serif;color:{Y};text-shadow:0 0 30px rgba(255,193,7,.6);font-variant-numeric:tabular-nums}}
 .cons{{position:absolute;padding:10px 16px;border-radius:10px;background:#fff;color:#1F1F1F;font:700 24px/1 ui-monospace,Menlo,monospace}}
@@ -173,8 +173,8 @@ S.append(('q02', 'qx', .35, """
 #X-n{top:1040px}
 #X-st{left:330px;top:560px;width:420px;height:420px;border-radius:50%;border:12px solid #FFC107;display:grid;place-items:center;text-align:center;font:800 54px/1.05 "Montserrat",sans-serif;color:#FFC107;transform:rotate(-14deg);background:rgba(17,17,17,.6)}
 """, CHQ() + '<h1 id="X-t" class="q">¿Firmar <em>100</em><br>como si fuera <em>1</em>?</h1>'
- + ''.join(doc(f'X-p{i}', 240 + i * 14, 540 + i * 12, 600, 'DOCUMENTO', '<div class="ln"></div><div class="ln"></div><div class="ln" style="width:60%"></div>').replace('class="pg"', 'class="pg X-p"') for i in range(6))
- + '<div id="X-st" class="abs">FIRMADO<br><small style="font-size:30px">×100</small></div>'
+ + ''.join(doc(f'X-p{i}', 240 + i * 14, 540 + i * 12, 600, 'DOCUMENTO' if i == 5 else '&nbsp;', '<div class="ln"></div><div class="ln"></div><div class="ln" style="width:60%"></div>').replace('class="pg"', 'class="pg X-p"') for i in range(6))
+ + '<div id="X-st" class="abs" data-layout-allow-overlap>FIRMADO<br><small style="font-size:30px">×100</small></div>'
  + '<p id="X-n" class="cnt"><span id="X-k">1</span><small style="font-size:56px"> / 100</small></p>'
  + ''.join(f'<div class="cons X-cs" style="left:{x}px;top:{y}px">CP-{n:04d}-2026</div>' for n, x, y in [(1, 90, 1250), (37, 420, 1310), (100, 740, 1250)]),
  lambda D, s, d: f"""tl.from("#X-t",{{opacity:0,y:-40,duration:.35,ease:"back.out(2)"}},0);
@@ -233,7 +233,7 @@ S.append(('q05', 'qx', .4, """
  lambda D, s, d: f"""tl.from("#X-t",{{opacity:0,y:-40,duration:.35,ease:"back.out(2)"}},0);
 tl.from(".X-tl",{{opacity:0,scale:.3,duration:.25,ease:"back.out(2.5)",stagger:{d * .05:.2f}}},{s:.2f});
 tl.from("#X-bx",{{scale:0,duration:.4,ease:"back.out(2)"}},{s + d * .55:.2f});
-tl.to(".X-tl",{{left:470,top:880,scale:.2,opacity:0,duration:.5,ease:"power2.in",stagger:.04}},{s + d * .65:.2f});
+tl.to(".X-tl",{{x:(i)=>[{",".join(str(470 - t[2]) for t in TOOLS)}][i],y:(i)=>[{",".join(str(880 - t[3]) for t in TOOLS)}][i],scale:.2,opacity:0,duration:.5,ease:"power2.in",stagger:.04}},{s + d * .65:.2f});
 tl.to("#X-bx",{{scale:1.12,duration:.15,yoyo:true,repeat:5,ease:"sine.inOut"}},{s + d * .8:.2f});"""))
 CLOUD = '<svg viewBox="0 0 260 170"><path d="M60 150 C20 150 10 100 45 88 C40 45 95 30 115 60 C130 20 200 25 205 75 C250 78 255 150 205 150 Z" fill="#2A2A33" stroke="#4A4A55" stroke-width="5"/><path d="M95 70 L165 130 M165 70 L95 130" stroke="#FF5A5A" stroke-width="12" stroke-linecap="round"/></svg>'
 S.append(('q06', 'qx', .4, """
@@ -256,9 +256,9 @@ S.append(('q07', 'bk', .9, """
 #X-t{top:820px;font-size:92px}
 #X-d0{left:470px;top:1060px}#X-d1{left:527px;top:1060px}#X-d2{left:584px;top:1060px}
 """, '<h1 id="X-t" class="q">Deja de<br><em>imaginarlo.</em></h1>' + ''.join(f'<div id="X-d{i}" class="dot X-dt"></div>' for i in range(3)),
- lambda D, s, d: f"""tl.from("#X-t",{{opacity:0,letterSpacing:"0.4em",duration:.6,ease:"power3.out"}},{s:.2f});
+ lambda D, s, d: f"""tl.from("#X-t",{{opacity:0,scale:1.6,duration:.6,ease:"power3.out"}},{s:.2f});
 tl.from(".X-dt",{{opacity:0,scale:0,duration:.2,stagger:.2}},{s + d + .05:.2f});
-tl.to("#X-t",{{scale:1.08,duration:{D - s:.2f},ease:"none"}},{s:.2f});"""))
+tl.to("#X-t",{{scale:1.08,duration:{max(.3, D - s - .6):.2f},ease:"none"}},{s + .6:.2f});"""))
 FEATS = [('pen', 'Edita'), ('doc', 'Firma'), ('lock', 'Protege'), ('hash', 'Consecutivo'), ('people', 'Delega'), ('file-check', 'Verifica')]
 S.append(('q08', 'qx', 2.6, """
 #X-fl{opacity:0}

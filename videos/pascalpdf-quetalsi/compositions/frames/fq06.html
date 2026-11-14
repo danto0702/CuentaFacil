@@ -139,7 +139,7 @@
 .pg p{font:500 30px/1.5 "Inter",sans-serif;color:#1F1F1F;margin:16px 0}
 .sel{background:rgba(255,193,7,.45);border-radius:6px;padding:0 4px}
 .caret{display:inline-block;width:4px;height:36px;background:#1F1F1F;vertical-align:-6px;margin-left:2px}
-.tool{position:absolute;padding:14px 20px;border-radius:16px;background:#1C1C22;box-shadow:inset 0 0 0 2px #34343E;color:#fff;font:700 26px/1 "Inter",sans-serif;display:flex;align-items:center;gap:10px}
+.tool{position:absolute;width:max-content;padding:14px 20px;border-radius:16px;background:#1C1C22;box-shadow:inset 0 0 0 2px #34343E;color:#fff;font:700 26px/1 "Inter",sans-serif;display:flex;align-items:center;gap:10px}
 .tool i{width:34px;height:34px}
 .cnt{position:absolute;left:0;right:0;text-align:center;font:800 150px/1 "Montserrat",sans-serif;color:#FFC107;text-shadow:0 0 30px rgba(255,193,7,.6);font-variant-numeric:tabular-nums}
 .cons{position:absolute;padding:10px 16px;border-radius:10px;background:#fff;color:#1F1F1F;font:700 24px/1 ui-monospace,Menlo,monospace}
@@ -174,16 +174,16 @@
 const tl = gsap.timeline({ paused: true });
 tl.from("#fq06-t",{opacity:0,y:-40,duration:.35,ease:"back.out(2)"},0);
 tl.from("#fq06-lp",{opacity:0,y:200,duration:.45,ease:"power3.out"},.2);
-tl.from("#fq06-dc",{opacity:0,scale:.5,duration:.35,ease:"back.out(2)"},1.68);
-tl.from("#fq06-cl",{opacity:0,y:-80,duration:.35},3.74);
-tl.to("#fq06-dc",{y:-40,duration:.25,yoyo:true,repeat:1,ease:"power2.out"},4.08);
-tl.to("#fq06-cl",{x:8,duration:.06,yoyo:true,repeat:5},4.57);
-tl.from("#fq06-tg",{opacity:0,scale:.6,duration:.35,ease:"back.out(2)"},5.25);tl.set("#fq06-c0",{opacity:1},0.30);
-tl.set("#fq06-c0",{opacity:0},2.78);
-tl.set("#fq06-c1",{opacity:1},2.78);
-tl.set("#fq06-c1",{opacity:0},4.70);
-tl.set("#fq06-c2",{opacity:1},4.70);
-tl.set("#fq06-c2",{opacity:0},7.48);
+tl.from("#fq06-dc",{opacity:0,scale:.5,duration:.35,ease:"back.out(2)"},1.70);
+tl.from("#fq06-cl",{opacity:0,y:-80,duration:.35},3.79);
+tl.to("#fq06-dc",{y:-40,duration:.25,yoyo:true,repeat:1,ease:"power2.out"},4.14);
+tl.to("#fq06-cl",{x:8,duration:.06,yoyo:true,repeat:5},4.63);
+tl.from("#fq06-tg",{opacity:0,scale:.6,duration:.35,ease:"back.out(2)"},5.33);tl.set("#fq06-c0",{opacity:1},0.30);
+tl.set("#fq06-c0",{opacity:0},2.82);
+tl.set("#fq06-c1",{opacity:1},2.82);
+tl.set("#fq06-c1",{opacity:0},4.76);
+tl.set("#fq06-c2",{opacity:1},4.76);
+tl.set("#fq06-c2",{opacity:0},7.58);
 
 window.__timelines["fq06"] = tl;
 </script>

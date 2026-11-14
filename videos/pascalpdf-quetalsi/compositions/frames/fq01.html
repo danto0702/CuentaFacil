@@ -139,7 +139,7 @@
 .pg p{font:500 30px/1.5 "Inter",sans-serif;color:#1F1F1F;margin:16px 0}
 .sel{background:rgba(255,193,7,.45);border-radius:6px;padding:0 4px}
 .caret{display:inline-block;width:4px;height:36px;background:#1F1F1F;vertical-align:-6px;margin-left:2px}
-.tool{position:absolute;padding:14px 20px;border-radius:16px;background:#1C1C22;box-shadow:inset 0 0 0 2px #34343E;color:#fff;font:700 26px/1 "Inter",sans-serif;display:flex;align-items:center;gap:10px}
+.tool{position:absolute;width:max-content;padding:14px 20px;border-radius:16px;background:#1C1C22;box-shadow:inset 0 0 0 2px #34343E;color:#fff;font:700 26px/1 "Inter",sans-serif;display:flex;align-items:center;gap:10px}
 .tool i{width:34px;height:34px}
 .cnt{position:absolute;left:0;right:0;text-align:center;font:800 150px/1 "Montserrat",sans-serif;color:#FFC107;text-shadow:0 0 30px rgba(255,193,7,.6);font-variant-numeric:tabular-nums}
 .cons{position:absolute;padding:10px 16px;border-radius:10px;background:#fff;color:#1F1F1F;font:700 24px/1 ui-monospace,Menlo,monospace}
@@ -171,13 +171,13 @@
 const tl = gsap.timeline({ paused: true });
 tl.from("#fq01-t",{opacity:0,scale:1.25,duration:.35,ease:"back.out(2)"},0.05);
 tl.from("#fq01-d",{opacity:0,y:400,rotation:6,duration:.5,ease:"power3.out"},.3);
-tl.from(".tool",{opacity:0,scale:.4,duration:.3,ease:"back.out(2.5)"},1.94);
-tl.to("#fq01-c",{opacity:0,duration:.01,yoyo:true,repeat:11,repeatDelay:.44},0);
-tl.to("#fq01-w",{background:"rgba(255,193,7,.9)",duration:.2},2.41);
-tl.set("#fq01-w",{textContent:"2"},3.02);tl.set("#fq01-w",{textContent:"20"},3.21);tl.set("#fq01-w",{textContent:"202"},3.40);tl.set("#fq01-w",{textContent:"2026",background:"rgba(43,255,136,.35)"},3.58);tl.set("#fq01-c0",{opacity:1},0.30);
-tl.set("#fq01-c0",{opacity:0},3.09);
-tl.set("#fq01-c1",{opacity:1},3.09);
-tl.set("#fq01-c1",{opacity:0},5.29);
+tl.from(".tool",{opacity:0,scale:.4,duration:.3,ease:"back.out(2.5)"},2.30);
+tl.to("#fq01-c",{opacity:0,duration:.01,yoyo:true,repeat:14,repeatDelay:.44},0);
+tl.to("#fq01-w",{background:"rgba(255,193,7,.9)",duration:.2},2.87);
+tl.set("#fq01-w",{textContent:"2"},3.62);tl.set("#fq01-w",{textContent:"20"},3.85);tl.set("#fq01-w",{textContent:"202"},4.08);tl.set("#fq01-w",{textContent:"2026",background:"rgba(43,255,136,.35)"},4.30);tl.set("#fq01-c0",{opacity:1},0.30);
+tl.set("#fq01-c0",{opacity:0},3.70);
+tl.set("#fq01-c1",{opacity:1},3.70);
+tl.set("#fq01-c1",{opacity:0},6.32);
 
 window.__timelines["fq01"] = tl;
 </script>
