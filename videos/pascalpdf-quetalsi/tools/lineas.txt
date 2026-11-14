@@ -1,0 +1,8 @@
+q01|P|¿Y qué tal si… pudieras corregir un pe de efe, como si fuera un documento de Word?|¿Y qué tal si… pudieras corregir un PDF como si fuera un documento de Word?
+q02|P|¿Qué tal si firmar cien documentos… te tomara lo mismo que firmar uno? Cada uno, con su propio consecutivo.|¿Qué tal si firmar cien documentos… te tomara lo mismo que firmar uno? Cada uno, con su propio consecutivo.
+q03|P|¿Y si pudieras pedirle la firma a otra persona… y que tu documento viajara cifrado, con una llave que solo ella tiene?|¿Y si pudieras pedirle la firma a otra persona… y que tu documento viajara cifrado, con una llave que solo ella tiene?
+q04|P|¿Y si pudieras comprobar que nadie cambió ni una coma… después de firmar?|¿Y si pudieras comprobar que nadie cambió ni una coma… después de firmar?
+q05|P|Unir, dividir, comprimir, proteger con contraseña, ponerle marca de agua… ¿qué tal si todo estuviera en un solo lugar?|Unir, dividir, comprimir, proteger con contraseña, ponerle marca de agua… ¿qué tal si todo estuviera en un solo lugar?
+q06|P|Y lo mejor: ¿qué tal si editar y firmar pasara en tu propio navegador… sin subir tus documentos a ningún lado?|Y lo mejor: ¿qué tal si editar y firmar pasara en tu propio navegador… sin subir tus documentos a ningún lado?
+q07|P|Deja de imaginarlo.|Deja de imaginarlo.
+q08|P|Esto es Pascal pe de efe Studio, de PascalIA. Edita, firma y protege tus pe de efe… con todo el poder de Pascal Sáin adentro. Pruébalo gratis: escanea el código.|Esto es PascalPDF Studio, de PascalIA. Edita, firma y protege tus PDF… con todo el poder de Pascal Sign adentro. Pruébalo gratis: escanea el código.
