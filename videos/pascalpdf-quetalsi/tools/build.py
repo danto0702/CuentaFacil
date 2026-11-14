@@ -236,22 +236,49 @@ tl.from("#X-bx",{{scale:0,duration:.4,ease:"back.out(2)"}},{s + d * .55:.2f});
 tl.to(".X-tl",{{x:(i)=>[{",".join(str(470 - t[2]) for t in TOOLS)}][i],y:(i)=>[{",".join(str(880 - t[3]) for t in TOOLS)}][i],scale:.2,opacity:0,duration:.5,ease:"power2.in",stagger:.04}},{s + d * .65:.2f});
 tl.to("#X-bx",{{scale:1.12,duration:.15,yoyo:true,repeat:5,ease:"sine.inOut"}},{s + d * .8:.2f});"""))
 CLOUD = '<svg viewBox="0 0 260 170"><path d="M60 150 C20 150 10 100 45 88 C40 45 95 30 115 60 C130 20 200 25 205 75 C250 78 255 150 205 150 Z" fill="#2A2A33" stroke="#4A4A55" stroke-width="5"/><path d="M95 70 L165 130 M165 70 L95 130" stroke="#FF5A5A" stroke-width="12" stroke-linecap="round"/></svg>'
-S.append(('q06', 'qx', .4, """
-#X-t{top:170px;font-size:70px}
-#X-lp{left:190px;top:700px}
-#X-dc{left:390px;top:760px;width:300px;padding:24px}
-#X-cl{left:410px;top:470px}
-#X-tg{left:0;right:0;top:1260px;text-align:center;font:800 44px/1.2 "Montserrat",sans-serif;color:#FFC107}
-""", CHQ() + '<h1 id="X-t" class="q">¿Y si todo pasara<br><em>en tu navegador</em>?</h1>'
- + '<div id="X-lp" class="laptop"></div>' + doc('X-dc', 0, 0, 300, 'PDF', f'<div class="ln"></div><div class="ln" style="width:70%"></div><div style="width:70%;margin-top:10px">{sig(2, "", "", "#1B2A6B", 7)}</div>').replace('style="left:0px;top:0px;width:300px;padding:40px 44px"', '')
- + f'<div id="X-cl" class="cloud">{CLOUD}</div><p id="X-tg" class="abs">Sin subir tus documentos</p>',
+MOBC = """
+.mob{position:absolute;border-radius:70px;background:#0E0E12;box-shadow:inset 0 0 0 12px #2A2A33,0 0 0 3px #FFC107,0 0 80px rgba(255,193,7,.45),0 40px 80px -30px rgba(0,0,0,.9);overflow:hidden}
+.mob .nt{position:absolute;left:50%;top:26px;width:130px;height:34px;margin-left:-65px;border-radius:20px;background:#000}
+.mob .sc{position:absolute;inset:12px;border-radius:58px;background:#F4F4F6;padding:84px 28px 28px}
+.mob .mp{background:#fff;border-radius:16px;padding:22px 24px;box-shadow:0 10px 24px -12px rgba(0,0,0,.35)}
+.mob .mp .t{font:800 22px/1.2 "Montserrat",sans-serif;color:#1F1F1F;text-align:center}
+.mob .mp .ln{height:12px;margin:16px 0;border-radius:6px;background:#E3E3E3}
+.mob .pgs{display:flex;gap:14px;margin-top:22px}
+.mob .pgs i{flex:1;height:120px;border-radius:12px;background:#fff;box-shadow:0 6px 16px -8px rgba(0,0,0,.35),inset 0 0 0 2px #E6E6E6}
+.mob .pgs i.on{box-shadow:0 6px 16px -8px rgba(0,0,0,.35),inset 0 0 0 4px #FFC107}
+.mob .tb{display:flex;justify-content:space-between;margin-top:22px}
+.mob .tb i{width:66px;height:66px;border-radius:18px;background:#1C1C22;padding:16px}
+.mob .bt{margin-top:22px;padding:20px;border-radius:20px;background:#FFC107;text-align:center;font:800 30px/1 "Montserrat",sans-serif;color:#111}
+.tap{position:absolute;width:90px;height:90px;border-radius:50%;background:rgba(255,193,7,.35);box-shadow:0 0 0 6px rgba(255,255,255,.85)}
+.nox{position:absolute;width:120px;height:120px;border-radius:50%;background:#E5484D;display:grid;place-items:center;color:#fff;font:800 74px/1 "Montserrat",sans-serif;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+.pil{display:inline-flex;align-items:center;gap:10px;margin:0 8px;padding:14px 22px;border-radius:999px;background:#1C1C22;box-shadow:inset 0 0 0 2px #3A3A44;color:#fff;font:700 30px/1 "Inter",sans-serif}
+.pil b{color:#FF6B6B}
+"""
+S.append(('q06', 'qx', .4, MOBC + """
+#X-t{top:170px;font-size:72px}
+#X-lp{left:190px;top:640px}
+#X-nx{left:840px;top:560px}
+#X-ph{left:320px;top:420px;width:440px;height:860px}
+#X-tp{left:500px;top:935px}
+#X-ok{left:690px;top:470px;width:110px;height:110px}
+#X-tg{left:0;right:0;top:1320px;text-align:center}
+""", CHQ() + '<h1 id="X-t" class="q">¿Y si todo cupiera<br>en tu <em>celular</em>?</h1>'
+ + '<div id="X-lp" class="laptop"></div><div id="X-nx" class="nox">×</div>'
+ + '<div id="X-ph" class="mob" data-layout-allow-overlap><div class="nt"></div><div class="sc"><div class="mp"><div class="t">CUENTA DE COBRO</div><div class="ln"></div><div class="ln" style="width:70%"></div><div class="ln"></div><div class="ln" style="width:85%"></div><div class="ln" style="width:50%"></div>'
+ + f'<div id="X-sg" style="width:62%;margin-top:6px">{sig(2, "", "", "#1B2A6B", 7)}</div></div>'
+ + '<div class="tb">' + ''.join(f'<i>{icon(ic, Y)}</i>' for ic in ['pen', 'doc', 'lock', 'hash']) + '</div><div class="bt">Firmar</div><div class="pgs"><i class="on"></i><i></i><i></i></div></div></div>'
+ + f'<div id="X-tp" class="tap" data-layout-allow-overlap></div><div id="X-ok" class="ok" data-layout-allow-overlap>{icon("check", "#fff")}</div>'
+ + '<p id="X-tg" class="abs"><span class="pil"><b>✕</b>Sin computador</span><span class="pil"><b>✕</b>Sin instalar nada</span></p>',
  lambda D, s, d: f"""tl.from("#X-t",{{opacity:0,y:-40,duration:.35,ease:"back.out(2)"}},0);
-tl.from("#X-lp",{{opacity:0,y:200,duration:.45,ease:"power3.out"}},.2);
-tl.from("#X-dc",{{opacity:0,scale:.5,duration:.35,ease:"back.out(2)"}},{s + d * .2:.2f});
-tl.from("#X-cl",{{opacity:0,y:-80,duration:.35}},{s + d * .5:.2f});
-tl.to("#X-dc",{{y:-40,duration:.25,yoyo:true,repeat:1,ease:"power2.out"}},{s + d * .55:.2f});
-tl.to("#X-cl",{{x:8,duration:.06,yoyo:true,repeat:5}},{s + d * .62:.2f});
-tl.from("#X-tg",{{opacity:0,scale:.6,duration:.35,ease:"back.out(2)"}},{s + d * .72:.2f});"""))
+tl.from("#X-lp",{{opacity:0,y:200,duration:.4,ease:"power3.out"}},.15);
+tl.from("#X-nx",{{scale:0,rotation:-90,duration:.3,ease:"back.out(2.5)"}},{s + d * .2:.2f});
+tl.to(["#X-lp","#X-nx"],{{opacity:0,scale:.3,y:-200,duration:.35,ease:"power2.in"}},{s + d * .3:.2f});
+tl.from("#X-ph",{{opacity:0,y:900,rotation:12,duration:.55,ease:"back.out(1.4)"}},{s + d * .32:.2f});
+tl.from("#X-sg",{{clipPath:"inset(0 100% 0 0)",duration:.6,ease:"power1.inOut"}},{s + d * .5:.2f});
+tl.fromTo("#X-tp",{{opacity:0,scale:1.6}},{{opacity:1,scale:.8,duration:.25,ease:"power2.out"}},{s + d * .62:.2f});
+tl.to("#X-tp",{{opacity:0,duration:.3}},{s + d * .62 + .35:.2f});
+tl.from("#X-ok",{{scale:0,duration:.35,ease:"back.out(2.5)"}},{s + d * .66:.2f});
+tl.from("#X-tg .pil",{{opacity:0,y:40,scale:.6,duration:.3,ease:"back.out(2)",stagger:{d * .1:.2f}}},{s + d * .68:.2f});"""))
 S.append(('q07', 'bk', .9, """
 #X-t{top:820px;font-size:92px}
 #X-d0{left:470px;top:1060px}#X-d1{left:527px;top:1060px}#X-d2{left:584px;top:1060px}
@@ -259,22 +286,23 @@ S.append(('q07', 'bk', .9, """
  lambda D, s, d: f"""tl.from("#X-t",{{opacity:0,scale:1.6,duration:.6,ease:"power3.out"}},{s:.2f});
 tl.from(".X-dt",{{opacity:0,scale:0,duration:.2,stagger:.2}},{s + d + .05:.2f});
 tl.to("#X-t",{{scale:1.08,duration:{max(.3, D - s - .6):.2f},ease:"none"}},{s + .6:.2f});"""))
-FEATS = [('pen', 'Edita'), ('doc', 'Firma'), ('lock', 'Protege'), ('hash', 'Consecutivo'), ('people', 'Delega'), ('file-check', 'Verifica')]
+FEATS = [('devices', 'Desde tu celular'), ('pen', 'Edita'), ('doc', 'Firma'), ('lock', 'Protege'), ('hash', 'Consecutivo'), ('people', 'Delega'), ('file-check', 'Verifica')]
 S.append(('q08', 'qx', 2.6, """
 #X-fl{opacity:0}
 #X-rs{opacity:.0}
 #X-lg{left:365px;top:200px;width:350px;height:350px;border-radius:80px;box-shadow:0 0 0 4px #FFC107,0 0 90px rgba(255,193,7,.6)}
 #X-t{top:590px;font-size:96px}
-#X-s{top:810px;left:60px;right:60px;text-align:center;font:700 40px/1.2 "Inter",sans-serif;color:#CFCFCF}
+#X-s{top:810px;left:40px;right:40px;text-align:center;font:700 38px/1.2 "Inter",sans-serif;color:#CFCFCF}
+#X-s em{font-style:normal;color:#FFC107}
 #X-ps{left:0;right:0;top:890px;text-align:center}
 #X-ps span{display:inline-flex;align-items:center;gap:14px;padding:14px 26px;border-radius:999px;background:#FFC107;color:#111;font:800 36px/1 "Montserrat",sans-serif}
 #X-ps img{width:56px;height:56px;border-radius:14px}
 #X-ft{left:40px;right:40px;top:1000px;text-align:center}
-#X-qr{left:390px;top:1150px;width:300px;padding:20px 20px 12px;border-radius:28px;background:#fff;text-align:center}
+#X-qr{left:400px;top:1200px;width:280px;padding:20px 20px 12px;border-radius:28px;background:#fff;text-align:center}
 #X-qr img{width:100%;display:block}
 #X-qr b{display:block;margin-top:8px;font:800 24px/1.1 "Montserrat",sans-serif;color:#1F1F1F}
 """, '<div id="X-rs" class="rays"></div><img id="X-lg" class="abs" src="assets/brand/pascalpdf-logo.png" alt=""><h1 id="X-t" class="q">PascalPDF <em>Studio</em></h1>'
- + '<p id="X-s" class="abs">Edita, firma y protege tus PDF</p>'
+ + '<p id="X-s" class="abs">Edita, firma y protege tus PDF <em>desde tu celular</em></p>'
  + '<div id="X-ps" class="abs"><span><img src="assets/brand/pascal-sign-logo.webp" alt="">con Pascal Sign adentro</span></div>'
  + '<div id="X-ft" class="abs">' + ''.join(f'<span class="feat X-f"><i>{icon(ic, Y)}</i>{t}</span>' for ic, t in FEATS) + '</div>'
  + '<div id="X-qr" class="abs"><img src="assets/brand/qr-pascalpdf.svg" alt=""><b>Pruébalo gratis</b></div><div id="X-fl" class="flashw"></div>',
