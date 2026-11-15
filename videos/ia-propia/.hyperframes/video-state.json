@@ -906,7 +906,6 @@
         {
           "id": "4b514e7d-95ad-4bd0-9f2f-ba8edef1de2c",
           "scope": "project",
-          "report": "/home/user/CuentaFacil/videos/ia-propia/.hyperframes/artifacts/checks/4b514e7d-95ad-4bd0-9f2f-ba8edef1de2c.json",
           "metadata": {
             "ok": true,
             "browserSkipped": false,
@@ -928,7 +927,9 @@
           "revision": "77f3edff-774a-4cfa-bee8-be72b5184e27",
           "inputFingerprint": "987bf9afbd19bb953a0f050b0cd37fa212b514d1927a1bf00a803edbec3449b9",
           "inputScope": "local-project-files",
-          "attribution": "recorded-revision"
+          "attribution": "recorded-revision",
+          "status": "cleaned",
+          "cleanedAfterRender": "07e282f3-37c0-455f-9b5e-90952c845327"
         }
       ],
       "00d558cd-0a4c-4af0-bd9a-ca8263eb894b": [
@@ -1796,5 +1797,18 @@
         "attribution": "unversioned"
       }
     ]
-  }
+  },
+  "renders": {
+    "latest": {
+      "id": "07e282f3-37c0-455f-9b5e-90952c845327",
+      "completedAt": 1794752458773,
+      "output": "/home/user/CuentaFacil/videos/ia-propia/renders/raw.mp4",
+      "status": "completed",
+      "revision": "00d558cd-0a4c-4af0-bd9a-ca8263eb894b"
+    },
+    "retainedRevisions": [
+      "00d558cd-0a4c-4af0-bd9a-ca8263eb894b"
+    ]
+  },
+  "pendingArtifactCleanup": []
 }
