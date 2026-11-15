@@ -1,0 +1,577 @@
+{
+  "ok": true,
+  "strict": false,
+  "browserSkipped": false,
+  "lint": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": [],
+    "filesScanned": 8
+  },
+  "runtime": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": []
+  },
+  "layout": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 14,
+    "findings": [
+      {
+        "code": "text_occluded",
+        "severity": "info",
+        "time": 41.702,
+        "selector": "#fp05 > div:nth-of-type(1) > div:nth-of-type(2) > span:nth-of-type(1)",
+        "message": "Text is hidden beneath an opaque element.",
+        "rect": {
+          "left": 456.5,
+          "top": 128,
+          "right": 673.5,
+          "bottom": 167,
+          "width": 217,
+          "height": 39
+        },
+        "containerSelector": "#fp05-sh2",
+        "text": "Cero fricción",
+        "fixHint": "Give the text its own zone, raise its stacking order above the covering element, or mark intentional layering with data-layout-allow-occlusion.",
+        "coveredFraction": 1,
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/fp05.html",
+        "bbox": {
+          "x": 456.5,
+          "y": 128,
+          "width": 217,
+          "height": 39
+        },
+        "firstSeen": 41.702,
+        "lastSeen": 41.702,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          41.702
+        ]
+      },
+      {
+        "code": "text_occluded",
+        "severity": "info",
+        "time": 41.702,
+        "selector": "#fp05 > div:nth-of-type(1) > div:nth-of-type(2) > span:nth-of-type(1) > b:nth-of-type(1)",
+        "message": "Text is hidden beneath an opaque element.",
+        "rect": {
+          "left": 406.84,
+          "top": 128,
+          "right": 426.14,
+          "bottom": 167,
+          "width": 19.3,
+          "height": 39
+        },
+        "containerSelector": "#fp05-sh2",
+        "text": "3",
+        "fixHint": "Give the text its own zone, raise its stacking order above the covering element, or mark intentional layering with data-layout-allow-occlusion.",
+        "coveredFraction": 1,
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/fp05.html",
+        "bbox": {
+          "x": 406.84,
+          "y": 128,
+          "width": 19.3,
+          "height": 39
+        },
+        "firstSeen": 41.702,
+        "lastSeen": 41.702,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          41.702
+        ]
+      },
+      {
+        "code": "text_occluded",
+        "severity": "info",
+        "time": 41.702,
+        "selector": "#fp05-t > s:nth-of-type(1)",
+        "message": "Text is hidden beneath an opaque element.",
+        "rect": {
+          "left": 202.7,
+          "top": 195,
+          "right": 877.3,
+          "bottom": 268,
+          "width": 674.59,
+          "height": 73
+        },
+        "containerSelector": "#fp05-sh2",
+        "text": "«Búscalo en internet»",
+        "fixHint": "Give the text its own zone, raise its stacking order above the covering element, or mark intentional layering with data-layout-allow-occlusion.",
+        "coveredFraction": 1,
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/fp05.html",
+        "bbox": {
+          "x": 202.7,
+          "y": 195,
+          "width": 674.59,
+          "height": 73
+        },
+        "firstSeen": 41.702,
+        "lastSeen": 41.702,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          41.702
+        ]
+      },
+      {
+        "code": "text_occluded",
+        "severity": "info",
+        "time": 41.702,
+        "selector": "div.top > div:nth-of-type(1)",
+        "message": "Text is hidden beneath an opaque element.",
+        "rect": {
+          "left": 218,
+          "top": 386,
+          "right": 585.16,
+          "bottom": 427,
+          "width": 367.16,
+          "height": 41
+        },
+        "containerSelector": "#fp05-sh2",
+        "text": "Valentina · compañera",
+        "fixHint": "Give the text its own zone, raise its stacking order above the covering element, or mark intentional layering with data-layout-allow-occlusion.",
+        "coveredFraction": 1,
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/fp05.html",
+        "bbox": {
+          "x": 218,
+          "y": 386,
+          "width": 367.16,
+          "height": 41
+        },
+        "firstSeen": 41.702,
+        "lastSeen": 41.702,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          41.702
+        ]
+      },
+      {
+        "code": "text_occluded",
+        "severity": "info",
+        "time": 41.702,
+        "selector": "div.top > div:nth-of-type(1) > small:nth-of-type(1)",
+        "message": "Text is hidden beneath an opaque element.",
+        "rect": {
+          "left": 218,
+          "top": 428,
+          "right": 299.98,
+          "bottom": 454,
+          "width": 81.98,
+          "height": 26
+        },
+        "containerSelector": "#fp05-sh2",
+        "text": "en línea",
+        "fixHint": "Give the text its own zone, raise its stacking order above the covering element, or mark intentional layering with data-layout-allow-occlusion.",
+        "coveredFraction": 1,
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/fp05.html",
+        "bbox": {
+          "x": 218,
+          "y": 428,
+          "width": 81.98,
+          "height": 26
+        },
+        "firstSeen": 41.702,
+        "lastSeen": 41.702,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          41.702
+        ]
+      },
+      {
+        "code": "text_occluded",
+        "severity": "info",
+        "time": 41.702,
+        "selector": "#fp05-m1",
+        "message": "Text is hidden beneath an opaque element.",
+        "rect": {
+          "left": 261.61,
+          "top": 509.39,
+          "right": 906.64,
+          "bottom": 604.78,
+          "width": 645.03,
+          "height": 95.39
+        },
+        "containerSelector": "#fp05-sh2",
+        "text": "Mira cómo firmé la cuenta de cobro 👇",
+        "fixHint": "Give the text its own zone, raise its stacking order above the covering element, or mark intentional layering with data-layout-allow-occlusion.",
+        "coveredFraction": 1,
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/fp05.html",
+        "bbox": {
+          "x": 261.61,
+          "y": 509.39,
+          "width": 645.03,
+          "height": 95.39
+        },
+        "firstSeen": 41.702,
+        "lastSeen": 41.702,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          41.702
+        ]
+      },
+      {
+        "code": "text_occluded",
+        "severity": "info",
+        "time": 41.702,
+        "selector": "#fp05-m1 > small:nth-of-type(1)",
+        "message": "Text is hidden beneath an opaque element.",
+        "rect": {
+          "left": 824.3,
+          "top": 612.17,
+          "right": 873.08,
+          "bottom": 638.17,
+          "width": 48.78,
+          "height": 26
+        },
+        "containerSelector": "#fp05-sh2",
+        "text": "8:15",
+        "fixHint": "Give the text its own zone, raise its stacking order above the covering element, or mark intentional layering with data-layout-allow-occlusion.",
+        "coveredFraction": 1,
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/fp05.html",
+        "bbox": {
+          "x": 824.3,
+          "y": 612.17,
+          "width": 48.78,
+          "height": 26
+        },
+        "firstSeen": 41.702,
+        "lastSeen": 41.702,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          41.702
+        ]
+      },
+      {
+        "code": "text_occluded",
+        "severity": "info",
+        "time": 41.702,
+        "selector": "#fp05-m1 > small:nth-of-type(1) > b:nth-of-type(1)",
+        "message": "Text is hidden beneath an opaque element.",
+        "rect": {
+          "left": 873.08,
+          "top": 612.17,
+          "right": 912,
+          "bottom": 638.17,
+          "width": 38.92,
+          "height": 26
+        },
+        "containerSelector": "#fp05-sh2",
+        "text": "✓✓",
+        "fixHint": "Give the text its own zone, raise its stacking order above the covering element, or mark intentional layering with data-layout-allow-occlusion.",
+        "coveredFraction": 1,
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/fp05.html",
+        "bbox": {
+          "x": 873.08,
+          "y": 612.17,
+          "width": 38.92,
+          "height": 26
+        },
+        "firstSeen": 41.702,
+        "lastSeen": 41.702,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          41.702
+        ]
+      },
+      {
+        "code": "text_occluded",
+        "severity": "info",
+        "time": 41.702,
+        "selector": "#fp05-m2",
+        "message": "Text is hidden beneath an opaque element.",
+        "rect": {
+          "left": 261.61,
+          "top": 682.77,
+          "right": 893.83,
+          "bottom": 876.94,
+          "width": 632.22,
+          "height": 194.17
+        },
+        "containerSelector": "#fp05-sh2",
+        "text": "¿Sigues imprimiendo para firmar la cuenta de cobro? 🙈Yo firmo desde el celular en un minuto 👉",
+        "fixHint": "Give the text its own zone, raise its stacking order above the covering element, or mark intentional layering with data-layout-allow-occlusion.",
+        "coveredFraction": 1,
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/fp05.html",
+        "bbox": {
+          "x": 261.61,
+          "y": 682.77,
+          "width": 632.22,
+          "height": 194.17
+        },
+        "firstSeen": 41.702,
+        "lastSeen": 41.702,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          41.702
+        ]
+      },
+      {
+        "code": "text_occluded",
+        "severity": "info",
+        "time": 41.702,
+        "selector": "#fp05-m2 > b:nth-of-type(1)",
+        "message": "Text is hidden beneath an opaque element.",
+        "rect": {
+          "left": 453.84,
+          "top": 830.94,
+          "right": 881.19,
+          "bottom": 876.94,
+          "width": 427.34,
+          "height": 46
+        },
+        "containerSelector": "#fp05-sh2",
+        "text": "pascalia.lat/PascalSign",
+        "fixHint": "Give the text its own zone, raise its stacking order above the covering element, or mark intentional layering with data-layout-allow-occlusion.",
+        "coveredFraction": 1,
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/fp05.html",
+        "bbox": {
+          "x": 453.84,
+          "y": 830.94,
+          "width": 427.34,
+          "height": 46
+        },
+        "firstSeen": 41.702,
+        "lastSeen": 41.702,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          41.702
+        ]
+      },
+      {
+        "code": "text_occluded",
+        "severity": "info",
+        "time": 41.702,
+        "selector": "#fp05-m2 > small:nth-of-type(1)",
+        "message": "Text is hidden beneath an opaque element.",
+        "rect": {
+          "left": 824.3,
+          "top": 884.33,
+          "right": 873.08,
+          "bottom": 910.33,
+          "width": 48.78,
+          "height": 26
+        },
+        "containerSelector": "#fp05-sh2",
+        "text": "8:15",
+        "fixHint": "Give the text its own zone, raise its stacking order above the covering element, or mark intentional layering with data-layout-allow-occlusion.",
+        "coveredFraction": 1,
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/fp05.html",
+        "bbox": {
+          "x": 824.3,
+          "y": 884.33,
+          "width": 48.78,
+          "height": 26
+        },
+        "firstSeen": 41.702,
+        "lastSeen": 41.702,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          41.702
+        ]
+      },
+      {
+        "code": "text_occluded",
+        "severity": "info",
+        "time": 41.702,
+        "selector": "#fp05-m2 > small:nth-of-type(1) > b:nth-of-type(1)",
+        "message": "Text is hidden beneath an opaque element.",
+        "rect": {
+          "left": 873.08,
+          "top": 884.33,
+          "right": 912,
+          "bottom": 910.33,
+          "width": 38.92,
+          "height": 26
+        },
+        "containerSelector": "#fp05-sh2",
+        "text": "✓✓",
+        "fixHint": "Give the text its own zone, raise its stacking order above the covering element, or mark intentional layering with data-layout-allow-occlusion.",
+        "coveredFraction": 1,
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/fp05.html",
+        "bbox": {
+          "x": 873.08,
+          "y": 884.33,
+          "width": 38.92,
+          "height": 26
+        },
+        "firstSeen": 41.702,
+        "lastSeen": 41.702,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          41.702
+        ]
+      },
+      {
+        "code": "container_overflow",
+        "severity": "info",
+        "time": 56.867,
+        "selector": "#fp07-rs",
+        "message": "Element extends outside a clipping layout container.",
+        "rect": {
+          "left": -545.64,
+          "top": -145.64,
+          "right": 1625.64,
+          "bottom": 2025.64,
+          "width": 2171.29,
+          "height": 2171.29
+        },
+        "containerSelector": "#fp07 > div:nth-of-type(1)",
+        "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1080,
+          "bottom": 1920,
+          "width": 1080,
+          "height": 1920
+        },
+        "overflow": {
+          "left": 545.64,
+          "right": 545.64,
+          "top": 145.64,
+          "bottom": 105.64
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/fp07.html",
+        "bbox": {
+          "x": -545.64,
+          "y": -145.64,
+          "width": 2171.29,
+          "height": 2171.29
+        },
+        "firstSeen": 56.867,
+        "lastSeen": 64.449,
+        "occurrences": 2,
+        "heldMs": 0,
+        "times": [
+          56.867,
+          64.449
+        ]
+      },
+      {
+        "code": "escaped_container",
+        "severity": "info",
+        "time": 64.449,
+        "selector": "#fp07-rs",
+        "message": "Positioned element renders far outside its offset parent — its coordinates were likely computed in a different frame (canvas/viewport pixels).",
+        "rect": {
+          "left": -871.78,
+          "top": -471.78,
+          "right": 1951.78,
+          "bottom": 2351.78,
+          "width": 2823.56,
+          "height": 2823.56
+        },
+        "containerSelector": "#fp07 > div:nth-of-type(1)",
+        "text": "",
+        "fixHint": "Compute left/top in the offset parent's frame (subtract its rect), or mark intentional placement with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1080,
+          "bottom": 1920,
+          "width": 1080,
+          "height": 1920
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/fp07.html",
+        "bbox": {
+          "x": -871.78,
+          "y": -471.78,
+          "width": 2823.56,
+          "height": 2823.56
+        },
+        "firstSeen": 64.449,
+        "lastSeen": 64.449,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          64.449
+        ]
+      }
+    ],
+    "duration": 68.24,
+    "samples": [
+      3.791,
+      11.373,
+      18.956,
+      26.538,
+      34.12,
+      41.702,
+      49.284,
+      56.867,
+      64.449
+    ],
+    "transitionSamples": [],
+    "transitionSamplesDropped": 0,
+    "tolerance": 2,
+    "totalIssueCount": 14,
+    "truncated": false
+  },
+  "motion": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": [],
+    "enabled": false,
+    "samples": 0
+  },
+  "contrast": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": [],
+    "enabled": true,
+    "samples": [
+      3.791,
+      18.956,
+      34.12,
+      49.284,
+      64.449
+    ],
+    "checked": 36,
+    "passed": 36
+  },
+  "hdr": {
+    "autoPromotion": null,
+    "inspection": "available"
+  },
+  "snapshots": {
+    "enabled": false,
+    "files": [],
+    "times": [],
+    "findingFiles": []
+  }
+}

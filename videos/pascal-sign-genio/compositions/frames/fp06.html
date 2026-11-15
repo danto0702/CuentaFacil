@@ -221,17 +221,17 @@
 .ask b{color:#111;background:#FFC107;padding:6px 14px;border-radius:12px}
 
 .tabs{display:flex;gap:10px;margin-top:20px}
-.tabs span{flex:1;padding:16px 6px;border-radius:16px;background:#fff;box-shadow:inset 0 0 0 2px #E3E3E3;text-align:center;font:800 24px/1 "Montserrat",sans-serif;color:#1F1F1F}
+.tabs span{flex:1;white-space:nowrap;padding:16px 4px;border-radius:16px;background:#fff;box-shadow:inset 0 0 0 2px #E3E3E3;text-align:center;font:800 22px/1 "Montserrat",sans-serif;color:#1F1F1F}
 .tabs span.on{background:#FFC107;box-shadow:none}
 .tmr{position:absolute;left:0;right:0;text-align:center}
 .tmr span{display:inline-flex;align-items:center;gap:12px;padding:18px 30px;border-radius:999px;background:#1F1F1F;color:#fff;font:800 38px/1 "Montserrat",sans-serif}
 .tmr i{width:44px;height:44px}
 .pk{position:absolute;left:0;right:0;text-align:center;font:800 40px/1 "Montserrat",sans-serif;color:#FFC107;letter-spacing:.08em}
 .ekg{position:absolute;left:60px;width:960px;height:200px}
-.vs2{position:absolute;width:440px;padding:30px 26px;border-radius:32px}
-.vs2 h3{margin:0 0 18px;font:800 40px/1 "Montserrat",sans-serif}
-.vs2 p{display:flex;align-items:center;gap:14px;margin:16px 0;font:700 32px/1.15 "Inter",sans-serif}
-.vs2 p i{flex:none;width:58px;height:58px;border-radius:16px;padding:12px}
+.vs2{position:absolute;width:450px;padding:36px 30px;border-radius:32px}
+.vs2 h3{margin:0 0 22px;font:800 54px/1 "Montserrat",sans-serif}
+.vs2 p{display:flex;align-items:center;gap:16px;margin:22px 0;font:700 40px/1.15 "Inter",sans-serif}
+.vs2 p i{flex:none;width:70px;height:70px;border-radius:18px;padding:14px}
 .shr{position:absolute;left:0;right:0;text-align:center}
 .shr span{display:inline-flex;align-items:center;gap:12px;padding:22px 34px;border-radius:22px;background:#1F1F1F;color:#fff;font:800 36px/1 "Montserrat",sans-serif;box-shadow:0 16px 34px -12px rgba(0,0,0,.5)}
 .shot{position:absolute;inset:0;background:#fff}
@@ -254,16 +254,16 @@ const tl = gsap.timeline({ paused: true });
 tl.from("#fp06-t",{opacity:0,y:-30,duration:.4,ease:"back.out(2)"},0);
 tl.from("#fp06-v1",{opacity:0,x:-250,duration:.45,ease:"power3.out"},.15);
 tl.from("#fp06-c",{opacity:0,x:250,duration:.45,ease:"power3.out"},.25);
-tl.to("#fp06-v1",{opacity:0,scale:.9,duration:.35},2.56);
-tl.fromTo("#fp06-v2",{opacity:0,scale:.9},{opacity:1,scale:1,duration:.4,ease:"back.out(1.8)"},2.56);
-tl.from("#fp06-cr",{opacity:0,y:-80,scale:.4,duration:.4,ease:"back.out(2.5)"},3.92);tl.set("#fp06-c0",{opacity:1},0.30);
-tl.set("#fp06-c0",{opacity:0},1.90);
-tl.set("#fp06-c1",{opacity:1},1.90);
-tl.set("#fp06-c1",{opacity:0},4.64);
-tl.set("#fp06-c2",{opacity:1},4.64);
-tl.set("#fp06-c2",{opacity:0},6.94);
-tl.set("#fp06-c3",{opacity:1},6.94);
-tl.set("#fp06-c3",{opacity:0},9.66);
+tl.to("#fp06-v1",{opacity:0,scale:.9,duration:.35},2.64);
+tl.fromTo("#fp06-v2",{opacity:0,scale:.9},{opacity:1,scale:1,duration:.4,ease:"back.out(1.8)"},2.64);
+tl.from("#fp06-cr",{opacity:0,y:-80,scale:.4,duration:.4,ease:"back.out(2.5)"},4.04);tl.set("#fp06-c0",{opacity:1},0.30);
+tl.set("#fp06-c0",{opacity:0},1.95);
+tl.set("#fp06-c1",{opacity:1},1.95);
+tl.set("#fp06-c1",{opacity:0},4.78);
+tl.set("#fp06-c2",{opacity:1},4.78);
+tl.set("#fp06-c2",{opacity:0},7.15);
+tl.set("#fp06-c3",{opacity:1},7.15);
+tl.set("#fp06-c3",{opacity:0},9.95);
 
 window.__timelines["fp06"] = tl;
 </script>

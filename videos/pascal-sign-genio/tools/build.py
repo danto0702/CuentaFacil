@@ -216,17 +216,17 @@ EXTRA2 = EXTRA2 + f"""
 """
 EXTRA2 = EXTRA2 + f"""
 .tabs{{display:flex;gap:10px;margin-top:20px}}
-.tabs span{{flex:1;padding:16px 6px;border-radius:16px;background:#fff;box-shadow:inset 0 0 0 2px #E3E3E3;text-align:center;font:800 24px/1 "Montserrat",sans-serif;color:#1F1F1F}}
+.tabs span{{flex:1;white-space:nowrap;padding:16px 4px;border-radius:16px;background:#fff;box-shadow:inset 0 0 0 2px #E3E3E3;text-align:center;font:800 22px/1 "Montserrat",sans-serif;color:#1F1F1F}}
 .tabs span.on{{background:{Y};box-shadow:none}}
 .tmr{{position:absolute;left:0;right:0;text-align:center}}
 .tmr span{{display:inline-flex;align-items:center;gap:12px;padding:18px 30px;border-radius:999px;background:#1F1F1F;color:#fff;font:800 38px/1 "Montserrat",sans-serif}}
 .tmr i{{width:44px;height:44px}}
 .pk{{position:absolute;left:0;right:0;text-align:center;font:800 40px/1 "Montserrat",sans-serif;color:{Y};letter-spacing:.08em}}
 .ekg{{position:absolute;left:60px;width:960px;height:200px}}
-.vs2{{position:absolute;width:440px;padding:30px 26px;border-radius:32px}}
-.vs2 h3{{margin:0 0 18px;font:800 40px/1 "Montserrat",sans-serif}}
-.vs2 p{{display:flex;align-items:center;gap:14px;margin:16px 0;font:700 32px/1.15 "Inter",sans-serif}}
-.vs2 p i{{flex:none;width:58px;height:58px;border-radius:16px;padding:12px}}
+.vs2{{position:absolute;width:450px;padding:36px 30px;border-radius:32px}}
+.vs2 h3{{margin:0 0 22px;font:800 54px/1 "Montserrat",sans-serif}}
+.vs2 p{{display:flex;align-items:center;gap:16px;margin:22px 0;font:700 40px/1.15 "Inter",sans-serif}}
+.vs2 p i{{flex:none;width:70px;height:70px;border-radius:18px;padding:14px}}
 .shr{{position:absolute;left:0;right:0;text-align:center}}
 .shr span{{display:inline-flex;align-items:center;gap:12px;padding:22px 34px;border-radius:22px;background:#1F1F1F;color:#fff;font:800 36px/1 "Montserrat",sans-serif;box-shadow:0 16px 34px -12px rgba(0,0,0,.5)}}
 .shot{{position:absolute;inset:0;background:#fff}}
@@ -239,7 +239,7 @@ S = []
 S.append(('p01', 'td', .4, """
 #X-t{top:170px;font-size:80px}
 #X-s1{top:450px}#X-s2{top:570px}#X-s3{top:690px}#X-s4{top:810px}
-.X-x{position:absolute;left:80px;width:520px;height:8px;border-radius:4px;background:#E5484D}
+.X-x{position:absolute;left:80px;width:440px;height:8px;border-radius:4px;background:#E5484D}
 #X-x1{top:487px}#X-x2{top:607px}#X-x3{top:727px}#X-x4{top:847px}
 #X-c{left:640px;top:560px;height:930px}
 """, '<h1 id="X-t" class="q">¿Todavía<br>firmas <em>así</em>?</h1>'
@@ -252,9 +252,9 @@ tl.from("#X-t",{{opacity:0,scale:1.4,duration:.45,ease:"back.out(2)"}},{s + d * 
 tl.from(".X-x",{{scaleX:0,transformOrigin:"0 50%",duration:.25,stagger:.12}},{s + d * .78:.2f});"""))
 S.append(('p02', 'ty', .4, """
 #X-t{top:150px;font-size:70px}
-#X-ph{left:290px;top:360px;width:500px;height:980px}
+#X-ph{left:290px;top:380px;width:500px;height:860px}
 #X-sg{width:62%;margin-top:6px}
-#X-tm{top:1390px}
+#X-tm{top:1300px}
 """, '<h1 id="X-t" class="qd">Firma desde<br>tu <em>celular</em></h1>'
  + '<div id="X-ph" class="mob2"><div class="sc"><div class="hdr"><img src="assets/brand/pascal-sign-logo.webp" alt="">Pascal Sign</div><div class="mp2"><div class="t">CUENTA DE COBRO</div><div class="ln"></div><div class="ln" style="width:72%"></div><div class="ln"></div><div class="ln" style="width:85%"></div><div class="ln" style="width:50%"></div>'
  + f'<div id="X-sg">{sig(0, "", "", "#1B2A6B", 7)}</div></div>'
@@ -286,13 +286,13 @@ tl.from("#X-b",{{opacity:0,scale:.3,transformOrigin:"20% 100%",duration:.35,ease
 tl.to("#X-c",{{scale:1.04,duration:.25,yoyo:true,repeat:3,ease:"sine.inOut"}},{s + d * .6:.2f});"""))
 S.append(('p04', 'tl', .4, """
 #X-t{top:200px;font-size:72px}
-#X-a{left:70px;top:430px;background:#ECECEC;color:#5C5C5C;transform:rotate(-2deg)}
+#X-a{left:50px;top:430px;background:#ECECEC;color:#5C5C5C;transform:rotate(-2deg)}
 #X-a h3{color:#5C5C5C}
 #X-a i{background:#D6D6D6}
-#X-b{left:570px;top:470px;background:#1F1F1F;color:#fff;box-shadow:0 0 0 5px #FFC107,0 30px 60px -20px rgba(0,0,0,.5);transform:rotate(2deg)}
+#X-b{left:580px;top:480px;background:#1F1F1F;color:#fff;box-shadow:0 0 0 5px #FFC107,0 30px 60px -20px rgba(0,0,0,.5);transform:rotate(2deg)}
 #X-b h3{color:#FFC107}
 #X-b i{background:#FFC107}
-#X-sh{top:1250px}
+#X-sh{top:1080px}
 """, STEP(2, 'Trofeo visual') + '<h1 id="X-t" class="qd">Tu <em>antes y después</em></h1>'
  + f'<div id="X-a" class="vs2"><h3>ANTES</h3><p><i>{icon("printer", "#5C5C5C")}</i>Impresora</p><p><i>{icon("scan", "#5C5C5C")}</i>Escáner</p><p><i>{icon("clock", "#5C5C5C")}</i>Carreras</p></div>'
  + f'<div id="X-b" class="vs2"><h3>AHORA</h3><p><i>{icon("devices", "#111")}</i>Tu celular</p><p><i>{icon("clock", "#111")}</i>Un minuto</p><p><i>{icon("check", "#111")}</i>Firmado</p></div>'
@@ -307,16 +307,16 @@ tl.from("#X-sh",{{opacity:0,scale:.5,duration:.4,ease:"back.out(2.2)"}},{s + d *
 S.append(('p05', 'tl', .5, """
 #X-t{top:200px;font-size:60px}
 #X-t s{text-decoration-thickness:8px;text-decoration-color:#E5484D}
-#X-ch{left:120px;top:360px;width:840px;height:820px}
-#X-ch .m{font-size:38px;line-height:1.3}
+#X-ch{left:120px;top:380px;width:840px;height:700px}
+#X-ch .m{font-size:42px;line-height:1.3}
 #X-ch .m small{font-size:22px}
 #X-ch .top{font-size:34px}
 #X-m2{box-shadow:0 0 0 5px #FFC107}
-#X-n1{left:110px;top:350px;transform:none;border-right:0;border-bottom:0}
-#X-n2{left:880px;top:350px;border-left:0;border-bottom:0}
-#X-n3{left:110px;top:1110px;border-right:0;border-top:0}
-#X-n4{left:880px;top:1110px;border-left:0;border-top:0}
-#X-sv{top:1250px}
+#X-n1{left:100px;top:360px;transform:none;border-right:0;border-bottom:0}
+#X-n2{left:890px;top:360px;border-left:0;border-bottom:0}
+#X-n3{left:100px;top:1010px;border-right:0;border-top:0}
+#X-n4{left:890px;top:1010px;border-left:0;border-top:0}
+#X-sv{top:1150px}
 """, STEP(3, 'Cero fricción') + '<h1 id="X-t" class="qd"><s>«Búscalo en internet»</s></h1>'
  + chat('X-ch', '', [('X-m1', True, 'Mira cómo firmé la cuenta de cobro 👇', '8:15 <b>✓✓</b>'),
                      ('X-m2', True, '¿Sigues imprimiendo para firmar la cuenta de cobro? 🙈<br>Yo firmo desde el celular en un minuto 👉 <b>pascalia.lat/PascalSign</b>', '8:15 <b>✓✓</b>')], who='Valentina · compañera', sub='en línea')
