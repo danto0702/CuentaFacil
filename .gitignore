@@ -21,3 +21,4 @@ next-env.d.ts
 # brag: intermediate files
 brag-output*/work/
 teaser-*/work/
+videos/*/renders/work-*/
