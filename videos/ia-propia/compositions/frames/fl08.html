@@ -246,7 +246,7 @@
 .logoS i{font-style:normal;color:#FFE08A}
 .gpt{position:absolute;padding:12px 22px;border-radius:14px;background:#fff;color:#1F1F1F;font:800 34px/1 "Inter",sans-serif;box-shadow:0 0 0 4px #1F1F1F}
 .ban{position:absolute;left:70px;right:70px;padding:24px 26px;border-radius:24px;text-align:center;font:800 44px/1.15 "Montserrat",sans-serif}
-.ban.red{background:#E5484D;color:#fff}.ban.grn{background:#25A55F;color:#fff}.ban.ylw{background:#FFC107;color:#111}.ban.blk{background:#1F1F1F;color:#fff}
+.ban.red{background:#E5484D;color:#fff}.ban.grn{background:#25A55F;color:#fff}.ban.ylw{background:#FFC107;color:#111}.ban.bk2{background:#1F1F1F;color:#fff}
 .shop{position:absolute;left:190px;width:700px;height:330px;border-radius:24px;overflow:hidden;background:#3B2416;box-shadow:0 30px 60px -24px rgba(0,0,0,.5)}
 .shop .aw{height:90px;background:repeating-linear-gradient(90deg,#E0952A 0 70px,#FFF4DC 70px 140px)}
 .shop b{display:block;margin-top:46px;text-align:center;font:800 76px/1 "Montserrat",sans-serif;color:#FFE08A;letter-spacing:.04em}
@@ -307,14 +307,14 @@
 .evb .tr3{height:70px;border-radius:20px;background:#2A2A33;overflow:hidden}
 .evb .fl3{height:100%;width:100%;border-radius:20px;background:#25A55F;display:flex;align-items:center;justify-content:flex-end;padding-right:24px;font:800 36px/1 "Montserrat",sans-serif;color:#fff;transform-origin:0 50%}
 .blk{position:absolute;left:250px;width:580px;height:104px;border-radius:18px;display:flex;align-items:center;gap:18px;padding:0 24px;font:800 36px/1 "Montserrat",sans-serif;color:#111;box-shadow:inset 0 -8px 0 rgba(0,0,0,.15),0 10px 20px -10px rgba(0,0,0,.5)}
-.blk span{display:grid;place-items:center;width:58px;height:58px;border-radius:50%;background:rgba(0,0,0,.18);color:#fff}
+.blk span{display:grid;place-items:center;width:58px;height:58px;border-radius:50%;background:#1F1F1F;color:#fff}
 .hat{position:absolute;font-size:110px;line-height:1}
 .cal{position:absolute;left:340px;width:400px;padding:0 0 30px;border-radius:30px;background:#fff;overflow:hidden;text-align:center;box-shadow:0 30px 60px -24px rgba(0,0,0,.6)}
 .cal h4{margin:0;padding:20px;background:#E5484D;color:#fff;font:800 40px/1 "Montserrat",sans-serif}
 .cal b{display:block;margin-top:24px;font:800 110px/1 "Montserrat",sans-serif;color:#1F1F1F}
 .cal small{display:block;margin-top:10px;font:700 36px/1 "Inter",sans-serif;color:#5C5C5C}
 .diff{position:absolute;left:70px;right:70px;padding:24px 28px;border-radius:22px;background:#0E1116;font:600 30px/1.5 ui-monospace,Menlo,monospace}
-.diff .m{color:#FF7B72}.diff .p{color:#7EE787}
+.diff .dm{color:#FF7B72}.diff .dp{color:#7EE787}
 .skip{position:absolute;left:0;right:0;text-align:center}
 .skip span{display:inline-block;padding:18px 28px;border-radius:999px;background:#E5484D;color:#fff;font:800 36px/1 "Montserrat",sans-serif}
 .big{position:absolute;left:50px;right:50px;text-align:center;font:800 96px/1.05 "Montserrat",sans-serif;color:#fff;letter-spacing:-.02em}
@@ -333,20 +333,20 @@
 <script>
 const tl = gsap.timeline({ paused: true });
 tl.from("#fl08-ch",{opacity:0,y:200,duration:.45,ease:"power3.out"},0.00);
-tl.from("#fl08-m2",{opacity:0,y:40,scale:.9,duration:.4,ease:"back.out(2)"},3.94);
-tl.from("#fl08-t1",{opacity:0,scale:.4,duration:.35,ease:"back.out(2.2)"},7.57);
-tl.from("#fl08-t2",{opacity:0,scale:.4,duration:.35,ease:"back.out(2.2)"},10.60);tl.set("#fl08-c0",{opacity:1},0.30);
-tl.set("#fl08-c0",{opacity:0},2.93);
-tl.set("#fl08-c1",{opacity:1},2.93);
-tl.set("#fl08-c1",{opacity:0},5.37);
-tl.set("#fl08-c2",{opacity:1},5.37);
-tl.set("#fl08-c2",{opacity:0},6.71);
-tl.set("#fl08-c3",{opacity:1},6.71);
-tl.set("#fl08-c3",{opacity:0},9.47);
-tl.set("#fl08-c4",{opacity:1},9.47);
-tl.set("#fl08-c4",{opacity:0},11.71);
-tl.set("#fl08-c5",{opacity:1},11.71);
-tl.set("#fl08-c5",{opacity:0},12.67);
+tl.from("#fl08-m2",{opacity:0,y:40,scale:.9,duration:.4,ease:"back.out(2)"},3.52);
+tl.from("#fl08-t1",{opacity:0,scale:.4,duration:.35,ease:"back.out(2.2)"},6.74);
+tl.from("#fl08-t2",{opacity:0,scale:.4,duration:.35,ease:"back.out(2.2)"},9.42);tl.set("#fl08-c0",{opacity:1},0.30);
+tl.set("#fl08-c0",{opacity:0},2.63);
+tl.set("#fl08-c1",{opacity:1},2.63);
+tl.set("#fl08-c1",{opacity:0},4.79);
+tl.set("#fl08-c2",{opacity:1},4.79);
+tl.set("#fl08-c2",{opacity:0},5.98);
+tl.set("#fl08-c3",{opacity:1},5.98);
+tl.set("#fl08-c3",{opacity:0},8.42);
+tl.set("#fl08-c4",{opacity:1},8.42);
+tl.set("#fl08-c4",{opacity:0},10.41);
+tl.set("#fl08-c5",{opacity:1},10.41);
+tl.set("#fl08-c5",{opacity:0},11.28);
 
 window.__timelines["fl08"] = tl;
 </script>

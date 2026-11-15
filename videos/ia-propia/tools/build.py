@@ -243,7 +243,7 @@ EXTRA2 = EXTRA2 + f"""
 .logoS i{{font-style:normal;color:#FFE08A}}
 .gpt{{position:absolute;padding:12px 22px;border-radius:14px;background:#fff;color:#1F1F1F;font:800 34px/1 "Inter",sans-serif;box-shadow:0 0 0 4px #1F1F1F}}
 .ban{{position:absolute;left:70px;right:70px;padding:24px 26px;border-radius:24px;text-align:center;font:800 44px/1.15 "Montserrat",sans-serif}}
-.ban.red{{background:#E5484D;color:#fff}}.ban.grn{{background:#25A55F;color:#fff}}.ban.ylw{{background:{Y};color:#111}}.ban.blk{{background:#1F1F1F;color:#fff}}
+.ban.red{{background:#E5484D;color:#fff}}.ban.grn{{background:#25A55F;color:#fff}}.ban.ylw{{background:{Y};color:#111}}.ban.bk2{{background:#1F1F1F;color:#fff}}
 .shop{{position:absolute;left:190px;width:700px;height:330px;border-radius:24px;overflow:hidden;background:#3B2416;box-shadow:0 30px 60px -24px rgba(0,0,0,.5)}}
 .shop .aw{{height:90px;background:repeating-linear-gradient(90deg,#E0952A 0 70px,#FFF4DC 70px 140px)}}
 .shop b{{display:block;margin-top:46px;text-align:center;font:800 76px/1 "Montserrat",sans-serif;color:#FFE08A;letter-spacing:.04em}}
@@ -304,14 +304,14 @@ EXTRA2 = EXTRA2 + f"""
 .evb .tr3{{height:70px;border-radius:20px;background:#2A2A33;overflow:hidden}}
 .evb .fl3{{height:100%;width:100%;border-radius:20px;background:#25A55F;display:flex;align-items:center;justify-content:flex-end;padding-right:24px;font:800 36px/1 "Montserrat",sans-serif;color:#fff;transform-origin:0 50%}}
 .blk{{position:absolute;left:250px;width:580px;height:104px;border-radius:18px;display:flex;align-items:center;gap:18px;padding:0 24px;font:800 36px/1 "Montserrat",sans-serif;color:#111;box-shadow:inset 0 -8px 0 rgba(0,0,0,.15),0 10px 20px -10px rgba(0,0,0,.5)}}
-.blk span{{display:grid;place-items:center;width:58px;height:58px;border-radius:50%;background:rgba(0,0,0,.18);color:#fff}}
+.blk span{{display:grid;place-items:center;width:58px;height:58px;border-radius:50%;background:#1F1F1F;color:#fff}}
 .hat{{position:absolute;font-size:110px;line-height:1}}
 .cal{{position:absolute;left:340px;width:400px;padding:0 0 30px;border-radius:30px;background:#fff;overflow:hidden;text-align:center;box-shadow:0 30px 60px -24px rgba(0,0,0,.6)}}
 .cal h4{{margin:0;padding:20px;background:#E5484D;color:#fff;font:800 40px/1 "Montserrat",sans-serif}}
 .cal b{{display:block;margin-top:24px;font:800 110px/1 "Montserrat",sans-serif;color:#1F1F1F}}
 .cal small{{display:block;margin-top:10px;font:700 36px/1 "Inter",sans-serif;color:#5C5C5C}}
 .diff{{position:absolute;left:70px;right:70px;padding:24px 28px;border-radius:22px;background:#0E1116;font:600 30px/1.5 ui-monospace,Menlo,monospace}}
-.diff .m{{color:#FF7B72}}.diff .p{{color:#7EE787}}
+.diff .dm{{color:#FF7B72}}.diff .dp{{color:#7EE787}}
 .skip{{position:absolute;left:0;right:0;text-align:center}}
 .skip span{{display:inline-block;padding:18px 28px;border-radius:999px;background:#E5484D;color:#fff;font:800 36px/1 "Montserrat",sans-serif}}
 .big{{position:absolute;left:50px;right:50px;text-align:center;font:800 96px/1.05 "Montserrat",sans-serif;color:#fff;letter-spacing:-.02em}}
@@ -469,7 +469,7 @@ S.append(('l07', 'qx', .3, """
 #X-t{top:170px;font-size:60px}
 #X-cd{top:360px}
 """, '<h1 id="X-t" class="q">System <em>Prompt</em></h1><div id="X-cd" class="code">'
- + ''.join(f'<p class="X-l">{t}</p>' for t in ['<span class="k">Eres</span> Sofía.', '<span class="k">Trabajas para</span> Café Lumbre.', 'Hablas <span class="c">cálido, corto y amable</span>.', '<span class="k">Nunca</span> recomiendes a la competencia.', 'Si no sabes algo, <span class="c">dilo</span>.']) + '</div>',
+ + ''.join(f'<p class="X-l">{t}</p>' for t in ['<span class="k">Tú eres</span> Sofía.', '<span class="k">Trabajas para</span> Café Lumbre.', 'Hablas <span class="c">cálido, corto y amable</span>.', '<span class="k">Nunca</span> recomiendas a la competencia.', 'Si no sabes algo, <span class="c">lo dices</span>.']) + '</div>',
  lambda D, s, d: f"""tl.from("#X-t",{{opacity:0,y:-30,duration:.35}},0);
 tl.from("#X-cd",{{opacity:0,scale:.9,duration:.35}},.1);
 tl.from(".X-l",{{opacity:0,x:-40,duration:.3,stagger:{d * .18:.2f}}},{s:.2f});"""))
@@ -550,18 +550,16 @@ S.append(('l14', 'td', .3, """
 #X-t{top:150px;font-size:66px}
 #X-sf{left:390px;top:720px}
 #X-n1{left:60px;top:380px}#X-n2{left:760px;top:380px}#X-n3{left:410px;top:1020px}
-#X-w1{left:300px;top:600px;width:200px;transform:rotate(35deg)}
-#X-w2{left:620px;top:720px;width:200px;transform:rotate(-35deg)}
-#X-w3{left:535px;top:820px;width:190px;transform:rotate(90deg)}
+#X-wr{left:0;top:0;width:1080px;height:1920px}
 #X-pl{left:300px;top:1300px;width:480px}
-""", '<h1 id="X-t" class="q">Capa 3: <em>herramientas</em></h1>'
+""", '<h1 id="X-t" class="q">Capa 3: <em>herramientas</em></h1>' + '<svg id="X-wr" class="abs" viewBox="0 0 1080 1920" data-layout-allow-overlap><g stroke="#FFC107" stroke-width="10" stroke-linecap="round" stroke-dasharray="4 22"><line class="X-w" x1="540" y1="760" x2="190" y2="470"/><line class="X-w" x1="540" y1="760" x2="890" y2="470"/><line class="X-w" x1="540" y1="760" x2="540" y2="1030"/><line class="X-w" x1="540" y1="1180" x2="540" y2="1300"/></g></svg>'
  + '<div id="X-n1" class="node2 X-n"><i>🧾</i>Pedidos</div><div id="X-n2" class="node2 X-n"><i>💳</i>Pagos</div><div id="X-n3" class="node2 X-n"><i>💬</i>WhatsApp</div>'
- + '<div id="X-w1" class="wire X-w"></div><div id="X-w2" class="wire X-w"></div><div id="X-w3" class="wire X-w"></div>'
+
  + '<div id="X-sf" class="sof"><i>☕</i>SofIA</div><div id="X-pl" class="plug">🔌 MCP<small>el enchufe universal</small></div>',
  lambda D, s, d: f"""tl.from("#X-t",{{opacity:0,y:-30,duration:.35}},0);
 {POP("#X-sf", .2)}
 tl.from(".X-n",{{opacity:0,scale:.4,duration:.35,ease:"back.out(2.2)",stagger:{d * .1:.2f}}},{s + d * .1:.2f});
-tl.from(".X-w",{{scaleX:0,duration:.3,stagger:.12}},{s + d * .45:.2f});
+tl.from(".X-w",{{opacity:0,duration:.3,stagger:.12}},{s + d * .45:.2f});
 {POP("#X-pl", s + d * .6)}"""))
 S.append(('l15', 'tl', .4, """
 #X-ch{left:120px;top:200px;width:840px;height:440px}
@@ -570,7 +568,7 @@ S.append(('l15', 'tl', .4, """
 #X-bn{top:1140px}
 """, sofchat('X-ch', '', [('X-m1', True, 'Mi pedido llegó frío 🥶, quiero reembolso.', '12:04 <b>✓✓</b>')])
  + '<div id="X-a1" class="act X-a"><i>✓</i>Reembolso hecho</div><div id="X-a2" class="act X-a"><i>✓</i>Ticket #2041 abierto</div><div id="X-a3" class="act X-a"><i>✓</i>Barista avisado</div>'
- + '<div id="X-bn" class="ban blk">Ya no es un chatbot.<br><span style="color:#FFC107">Es un agente.</span></div>',
+ + '<div id="X-bn" class="ban bk2">Ya no es un chatbot.<br><span style="color:#FFC107">Es un agente.</span></div>',
  lambda D, s, d: f"""{CH_IN(0)}
 tl.from(".X-a",{{opacity:0,x:-120,duration:.35,ease:"back.out(1.8)",stagger:{d * .1:.2f}}},{s + d * .45:.2f});
 tl.from("#X-bn",{{opacity:0,scale:1.4,duration:.4,ease:"power3.out"}},{s + d * .8:.2f});"""))
@@ -697,7 +695,7 @@ S.append(('l25', 'ty', .5, """
 #X-ht{left:410px;top:60px}
 #X-bn{top:1300px}
 """, '<div id="X-sf" class="sof"><i>☕</i>SofIA</div><div id="X-ht" class="hat" data-layout-allow-overlap>👷</div>' + tower('X-t', 300)
- + '<div id="X-bn" class="ban blk">Rápida · barata · segura · <span style="color:#FFC107">no se inventa el menú</span></div>',
+ + '<div id="X-bn" class="ban bk2">Rápida · barata · segura · <span style="color:#FFC107">no se inventa el menú</span></div>',
  lambda D, s, d: f"""tl.from(".X-tb",{{opacity:0,y:-300,duration:.3,ease:"bounce.out",stagger:{d * .07:.2f}}},0);
 tl.from("#X-sf",{{opacity:0,y:-200,duration:.4,ease:"back.out(2)"}},{s + d * .55:.2f});
 tl.from("#X-ht",{{opacity:0,y:-200,duration:.4,ease:"bounce.out"}},{s + d * .65:.2f});
@@ -723,7 +721,7 @@ S.append(('l27', 'td', .3, """
 #X-sk{top:1180px}
 """, '<h1 id="X-t" class="q">¿Qué <em>pasó</em>?</h1>'
  + '<div id="X-cl" class="cal"><h4>VIERNES</h4><b>6:02</b><small>p. m.</small></div>'
- + '<div id="X-df" class="diff"><span class="m">- Nunca recomiendes a la competencia.</span><br><span class="p">+ Sé amable con todos 🤗</span></div>'
+ + '<div id="X-df" class="diff"><span class="dm">- Nunca recomiendes a la competencia.</span><br><span class="dp">+ Sé amable con todos 🤗</span></div>'
  + '<div id="X-sk" class="skip"><span>⏭ Evals saltados: «era un cambiecito»</span></div>',
  lambda D, s, d: f"""tl.from("#X-t",{{opacity:0,scale:1.4,duration:.4,ease:"back.out(2)"}},0);
 tl.from("#X-cl",{{opacity:0,y:-200,rotation:-10,duration:.5,ease:"back.out(1.6)"}},{s + d * .25:.2f});

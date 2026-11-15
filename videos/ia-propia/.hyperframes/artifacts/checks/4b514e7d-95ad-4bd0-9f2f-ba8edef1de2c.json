@@ -1,0 +1,281 @@
+{
+  "ok": true,
+  "strict": false,
+  "browserSkipped": false,
+  "lint": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": [],
+    "filesScanned": 31
+  },
+  "runtime": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": []
+  },
+  "layout": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": [],
+    "duration": 286.35,
+    "samples": [
+      15.908,
+      47.725,
+      79.542,
+      111.358,
+      143.175,
+      174.992,
+      206.808,
+      238.625,
+      270.442
+    ],
+    "transitionSamples": [],
+    "transitionSamplesDropped": 0,
+    "tolerance": 2,
+    "totalIssueCount": 0,
+    "truncated": false
+  },
+  "motion": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": [],
+    "enabled": false,
+    "samples": 0
+  },
+  "contrast": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 8,
+    "infoCount": 0,
+    "findings": [
+      {
+        "code": "contrast_aa_failure",
+        "severity": "warning",
+        "message": "Contrast is 2.65:1; WCAG AA requires 3:1.",
+        "text": "IA",
+        "fg": "rgb(255,224,138)",
+        "bg": "rgb(194,123,38)",
+        "ratio": 2.65,
+        "requiredRatio": 3,
+        "suggestedColor": "rgb(73,64,40)",
+        "large": true,
+        "selector": "div > div:nth-of-type(2) > div > div:nth-of-type(5) > i",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/fl02.html",
+        "bbox": {
+          "x": 519.03125,
+          "y": 1013,
+          "width": 72,
+          "height": 78
+        },
+        "time": 15.908,
+        "times": [
+          15.908
+        ]
+      },
+      {
+        "code": "contrast_aa_failure",
+        "severity": "warning",
+        "message": "Contrast is 2.53:1; WCAG AA requires 3:1.",
+        "text": "1",
+        "fg": "rgb(255,255,255)",
+        "bg": "rgb(209,147,147)",
+        "ratio": 2.53,
+        "requiredRatio": 3,
+        "suggestedColor": "rgb(83,83,83)",
+        "large": true,
+        "selector": "div > div:nth-of-type(28) > div > div:nth-of-type(3) > span",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/fl28.html",
+        "bbox": {
+          "x": 274,
+          "y": 1057,
+          "width": 58,
+          "height": 58
+        },
+        "time": 270.442,
+        "times": [
+          270.442
+        ]
+      },
+      {
+        "code": "contrast_aa_failure",
+        "severity": "warning",
+        "message": "Contrast is 2.13:1; WCAG AA requires 3:1.",
+        "text": "2",
+        "fg": "rgb(255,255,255)",
+        "bg": "rgb(209,174,64)",
+        "ratio": 2.13,
+        "requiredRatio": 3,
+        "suggestedColor": "rgb(94,94,94)",
+        "large": true,
+        "selector": "div > div:nth-of-type(28) > div > div:nth-of-type(4) > span",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/fl28.html",
+        "bbox": {
+          "x": 274,
+          "y": 945,
+          "width": 58,
+          "height": 58
+        },
+        "time": 270.442,
+        "times": [
+          270.442
+        ]
+      },
+      {
+        "code": "contrast_aa_failure",
+        "severity": "warning",
+        "message": "Contrast is 2.68:1; WCAG AA requires 3:1.",
+        "text": "3",
+        "fg": "rgb(255,255,255)",
+        "bg": "rgb(209,146,0)",
+        "ratio": 2.68,
+        "requiredRatio": 3,
+        "suggestedColor": "rgb(80,80,80)",
+        "large": true,
+        "selector": "div > div:nth-of-type(28) > div > div:nth-of-type(5) > span",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/fl28.html",
+        "bbox": {
+          "x": 274,
+          "y": 833,
+          "width": 58,
+          "height": 58
+        },
+        "time": 270.442,
+        "times": [
+          270.442
+        ]
+      },
+      {
+        "code": "contrast_aa_failure",
+        "severity": "warning",
+        "message": "Contrast is 1.96:1; WCAG AA requires 3:1.",
+        "text": "4",
+        "fg": "rgb(255,255,255)",
+        "bg": "rgb(209,183,106)",
+        "ratio": 1.96,
+        "requiredRatio": 3,
+        "suggestedColor": "rgb(100,100,100)",
+        "large": true,
+        "selector": "div > div:nth-of-type(28) > div > div:nth-of-type(6) > span",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/fl28.html",
+        "bbox": {
+          "x": 274,
+          "y": 721,
+          "width": 58,
+          "height": 58
+        },
+        "time": 270.442,
+        "times": [
+          270.442
+        ]
+      },
+      {
+        "code": "contrast_aa_failure",
+        "severity": "warning",
+        "message": "Contrast is 2.3:1; WCAG AA requires 3:1.",
+        "text": "5",
+        "fg": "rgb(255,255,255)",
+        "bg": "rgb(209,165,32)",
+        "ratio": 2.3,
+        "requiredRatio": 3,
+        "suggestedColor": "rgb(89,89,89)",
+        "large": true,
+        "selector": "div > div:nth-of-type(28) > div > div:nth-of-type(7) > span",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/fl28.html",
+        "bbox": {
+          "x": 274,
+          "y": 609,
+          "width": 58,
+          "height": 58
+        },
+        "time": 270.442,
+        "times": [
+          270.442
+        ]
+      },
+      {
+        "code": "contrast_aa_failure",
+        "severity": "warning",
+        "message": "Contrast is 2.11:1; WCAG AA requires 3:1.",
+        "text": "7",
+        "fg": "rgb(255,255,255)",
+        "bg": "rgb(209,176,52)",
+        "ratio": 2.11,
+        "requiredRatio": 3,
+        "suggestedColor": "rgb(95,95,95)",
+        "large": true,
+        "selector": "div > div:nth-of-type(28) > div > div:nth-of-type(9) > span",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/fl28.html",
+        "bbox": {
+          "x": 274,
+          "y": 385,
+          "width": 58,
+          "height": 58
+        },
+        "time": 270.442,
+        "times": [
+          270.442
+        ]
+      },
+      {
+        "code": "contrast_aa_failure",
+        "severity": "warning",
+        "message": "Contrast is 2.53:1; WCAG AA requires 3:1.",
+        "text": "8",
+        "fg": "rgb(255,255,255)",
+        "bg": "rgb(209,147,147)",
+        "ratio": 2.53,
+        "requiredRatio": 3,
+        "suggestedColor": "rgb(83,83,83)",
+        "large": true,
+        "selector": "div > div:nth-of-type(28) > div > div:nth-of-type(10) > span",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/fl28.html",
+        "bbox": {
+          "x": 274,
+          "y": 273,
+          "width": 58,
+          "height": 58
+        },
+        "time": 270.442,
+        "times": [
+          270.442
+        ]
+      }
+    ],
+    "enabled": true,
+    "samples": [
+      15.908,
+      79.542,
+      143.175,
+      206.808,
+      270.442
+    ],
+    "checked": 43,
+    "passed": 35
+  },
+  "hdr": {
+    "autoPromotion": null,
+    "inspection": "available"
+  },
+  "snapshots": {
+    "enabled": false,
+    "files": [],
+    "times": [],
+    "findingFiles": []
+  }
+}
