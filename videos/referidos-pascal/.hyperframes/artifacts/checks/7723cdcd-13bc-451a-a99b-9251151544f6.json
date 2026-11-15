@@ -1,0 +1,375 @@
+{
+  "ok": true,
+  "strict": false,
+  "browserSkipped": false,
+  "lint": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 2,
+    "infoCount": 0,
+    "findings": [
+      {
+        "code": "duplicate_media_discovery_risk",
+        "severity": "warning",
+        "message": "Detected 2 matching img entries with the same source/start/duration.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/user/CuentaFacil/videos/referidos-pascal/compositions/frames/fr05.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Avoid duplicated media nodes that can be discovered twice during compilation."
+      },
+      {
+        "code": "duplicate_media_discovery_risk",
+        "severity": "warning",
+        "message": "Detected 2 matching img entries with the same source/start/duration.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/user/CuentaFacil/videos/referidos-pascal/compositions/frames/fr06.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Avoid duplicated media nodes that can be discovered twice during compilation."
+      }
+    ],
+    "filesScanned": 10
+  },
+  "runtime": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": []
+  },
+  "layout": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 6,
+    "findings": [
+      {
+        "code": "text_box_overflow",
+        "severity": "info",
+        "time": 55.764,
+        "selector": "#fr06-wm",
+        "message": "Text extends outside its nearest visual/container box.",
+        "rect": {
+          "left": 226.26,
+          "top": 917.25,
+          "right": 853.72,
+          "bottom": 1185.38,
+          "width": 627.46,
+          "height": 268.13
+        },
+        "containerSelector": "#fr06-pd",
+        "text": "ANDRÉS · REMODELA",
+        "fixHint": "Text is 627px x 268px inside 580px x 727px and overflows by up to 24px; widen the container to at least ~627px or shrink font-size from 54px to ~50px, or allow wrapping with max-width/fitTextFontSize.",
+        "containerRect": {
+          "left": 250,
+          "top": 690,
+          "right": 830,
+          "bottom": 1416.8,
+          "width": 580,
+          "height": 726.8
+        },
+        "overflow": {
+          "left": 23.74,
+          "right": 23.72
+        },
+        "dataAttributes": {
+          "data-layout-allow-overlap": ""
+        },
+        "sourceFile": "compositions/frames/fr06.html",
+        "bbox": {
+          "x": 226.26,
+          "y": 917.25,
+          "width": 627.46,
+          "height": 268.13
+        },
+        "firstSeen": 55.764,
+        "lastSeen": 55.764,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          55.764
+        ]
+      },
+      {
+        "code": "text_occluded",
+        "severity": "info",
+        "time": 55.764,
+        "selector": "#fr06-wm",
+        "message": "Text is hidden beneath an opaque element.",
+        "rect": {
+          "left": 226.26,
+          "top": 887.46,
+          "right": 853.72,
+          "bottom": 1215.17,
+          "width": 627.46,
+          "height": 327.71
+        },
+        "containerSelector": "#fr06 > div:nth-of-type(1) > div:nth-of-type(1)",
+        "text": "ANDRÉS · REMODELA",
+        "fixHint": "Give the text its own zone, raise its stacking order above the covering element, or mark intentional layering with data-layout-allow-occlusion.",
+        "coveredFraction": 0.85,
+        "dataAttributes": {
+          "data-layout-allow-overlap": ""
+        },
+        "sourceFile": "compositions/frames/fr06.html",
+        "bbox": {
+          "x": 226.26,
+          "y": 887.46,
+          "width": 627.46,
+          "height": 327.71
+        },
+        "firstSeen": 55.764,
+        "lastSeen": 55.764,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          55.764
+        ]
+      },
+      {
+        "code": "container_overflow",
+        "severity": "info",
+        "time": 55.764,
+        "selector": "#fr06-wm",
+        "message": "Element extends outside a clipping layout container.",
+        "rect": {
+          "left": 227.55,
+          "top": 892.42,
+          "right": 852.45,
+          "bottom": 1210.2,
+          "width": 624.9,
+          "height": 317.78
+        },
+        "containerSelector": "#fr06-pd",
+        "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 250,
+          "top": 690,
+          "right": 830,
+          "bottom": 1416.8,
+          "width": 580,
+          "height": 726.8
+        },
+        "overflow": {
+          "left": 22.45,
+          "right": 22.45
+        },
+        "dataAttributes": {
+          "data-layout-allow-overlap": ""
+        },
+        "sourceFile": "compositions/frames/fr06.html",
+        "bbox": {
+          "x": 227.55,
+          "y": 892.42,
+          "width": 624.9,
+          "height": 317.78
+        },
+        "firstSeen": 55.764,
+        "lastSeen": 55.764,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          55.764
+        ]
+      },
+      {
+        "code": "container_overflow",
+        "severity": "info",
+        "time": 76.042,
+        "selector": "#fr09-rs",
+        "message": "Element extends outside a clipping layout container.",
+        "rect": {
+          "left": -502.77,
+          "top": -102.77,
+          "right": 1582.77,
+          "bottom": 1982.77,
+          "width": 2085.55,
+          "height": 2085.55
+        },
+        "containerSelector": "#fr09 > div:nth-of-type(1)",
+        "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1080,
+          "bottom": 1920,
+          "width": 1080,
+          "height": 1920
+        },
+        "overflow": {
+          "left": 502.77,
+          "right": 502.77,
+          "top": 102.77,
+          "bottom": 62.77
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/fr09.html",
+        "bbox": {
+          "x": -502.77,
+          "y": -102.77,
+          "width": 2085.55,
+          "height": 2085.55
+        },
+        "firstSeen": 76.042,
+        "lastSeen": 86.181,
+        "occurrences": 2,
+        "heldMs": 0,
+        "times": [
+          76.042,
+          86.181
+        ]
+      },
+      {
+        "code": "container_overflow",
+        "severity": "info",
+        "time": 76.042,
+        "selector": "#fr09-pl",
+        "message": "Element extends outside a clipping layout container.",
+        "rect": {
+          "left": -118.42,
+          "top": 245.13,
+          "right": 1198.42,
+          "bottom": 354.87,
+          "width": 1316.84,
+          "height": 109.74
+        },
+        "containerSelector": "#fr09 > div:nth-of-type(1)",
+        "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1080,
+          "bottom": 1920,
+          "width": 1080,
+          "height": 1920
+        },
+        "overflow": {
+          "left": 118.42,
+          "right": 118.42
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/fr09.html",
+        "bbox": {
+          "x": -118.42,
+          "y": 245.13,
+          "width": 1316.84,
+          "height": 109.74
+        },
+        "firstSeen": 76.042,
+        "lastSeen": 76.042,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          76.042
+        ]
+      },
+      {
+        "code": "escaped_container",
+        "severity": "info",
+        "time": 86.181,
+        "selector": "#fr09-rs",
+        "message": "Positioned element renders far outside its offset parent — its coordinates were likely computed in a different frame (canvas/viewport pixels).",
+        "rect": {
+          "left": -870.4,
+          "top": -470.4,
+          "right": 1950.4,
+          "bottom": 2350.4,
+          "width": 2820.81,
+          "height": 2820.81
+        },
+        "containerSelector": "#fr09 > div:nth-of-type(1)",
+        "text": "",
+        "fixHint": "Compute left/top in the offset parent's frame (subtract its rect), or mark intentional placement with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1080,
+          "bottom": 1920,
+          "width": 1080,
+          "height": 1920
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/fr09.html",
+        "bbox": {
+          "x": -870.4,
+          "y": -470.4,
+          "width": 2820.81,
+          "height": 2820.81
+        },
+        "firstSeen": 86.181,
+        "lastSeen": 86.181,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          86.181
+        ]
+      }
+    ],
+    "duration": 91.25,
+    "samples": [
+      5.069,
+      15.208,
+      25.347,
+      35.486,
+      45.625,
+      55.764,
+      65.903,
+      76.042,
+      86.181
+    ],
+    "transitionSamples": [],
+    "transitionSamplesDropped": 0,
+    "tolerance": 2,
+    "totalIssueCount": 6,
+    "truncated": false
+  },
+  "motion": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": [],
+    "enabled": false,
+    "samples": 0
+  },
+  "contrast": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": [],
+    "enabled": true,
+    "samples": [
+      5.069,
+      25.347,
+      45.625,
+      65.903,
+      86.181
+    ],
+    "checked": 47,
+    "passed": 47
+  },
+  "hdr": {
+    "autoPromotion": null,
+    "inspection": "available"
+  },
+  "snapshots": {
+    "enabled": false,
+    "files": [],
+    "times": [],
+    "findingFiles": []
+  }
+}

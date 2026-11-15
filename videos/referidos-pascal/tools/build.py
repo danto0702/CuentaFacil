@@ -232,19 +232,19 @@ tl.from("#X-b",{{opacity:0,scale:.3,transformOrigin:"80% 100%",duration:.35,ease
 tl.from("#X-s",{{opacity:0,scale:2.6,duration:.3,ease:"power4.in"}},{s + d * .78:.2f});"""))
 S.append(('r02', 'td', .4, """
 #X-t{top:150px;font-size:78px}
-#X-c1{top:430px}#X-c2{top:640px}#X-c3{top:850px}
-#X-c2{background:#DCEBFF}
+#X-g1{top:430px}#X-g2{top:640px}#X-g3{top:850px}
+#X-g2{background:#DCEBFF}
 #X-a{left:640px;top:1010px;height:500px}
 """, '<h1 id="X-t" class="q">Punto <em>muerto</em></h1>'
- + f'<div id="X-c1" class="ing"><i>{icon("check")}</i><div><b>La entrega se acaba</b><small>Proyecto terminado, cliente feliz</small></div></div>'
- + f'<div id="X-c2" class="ing"><i style="background:#8AB6F0">{icon("clock")}</i><div><b>La relación se enfría</b><small>Pasan las semanas y nadie escribe</small></div></div>'
- + f'<div id="X-c3" class="ing"><i style="background:#D9D9D9">{icon("search")}</i><div><b>Vuelves a cero</b><small>A buscar clientes fríos otra vez</small></div></div>'
+ + f'<div id="X-g1" class="ing"><i>{icon("check")}</i><div><b>La entrega se acaba</b><small>Proyecto terminado, cliente feliz</small></div></div>'
+ + f'<div id="X-g2" class="ing"><i style="background:#8AB6F0">{icon("clock")}</i><div><b>La relación se enfría</b><small>Pasan las semanas y nadie escribe</small></div></div>'
+ + f'<div id="X-g3" class="ing"><i style="background:#D9D9D9">{icon("search")}</i><div><b>Vuelves a cero</b><small>A buscar clientes fríos otra vez</small></div></div>'
  + '<img id="X-a" class="char" src="assets/chars/andres-llamada.webp" alt="" data-layout-allow-overlap><div id="X-cold" class="cold"></div>',
  lambda D, s, d: f"""tl.from("#X-t",{{opacity:0,y:-40,duration:.4,ease:"back.out(2)"}},0);
-tl.from("#X-c1",{{opacity:0,x:-200,duration:.4,ease:"power3.out"}},{s + d * .12:.2f});
-tl.from("#X-c2",{{opacity:0,x:-200,duration:.4,ease:"power3.out"}},{s + d * .3:.2f});
+tl.from("#X-g1",{{opacity:0,x:-200,duration:.4,ease:"power3.out"}},{s + d * .12:.2f});
+tl.from("#X-g2",{{opacity:0,x:-200,duration:.4,ease:"power3.out"}},{s + d * .3:.2f});
 tl.from("#X-cold",{{opacity:0,duration:{d * .4:.2f}}},{s + d * .3:.2f});
-tl.from("#X-c3",{{opacity:0,x:-200,duration:.4,ease:"power3.out"}},{s + d * .55:.2f});
+tl.from("#X-g3",{{opacity:0,x:-200,duration:.4,ease:"power3.out"}},{s + d * .55:.2f});
 tl.from("#X-a",{{opacity:0,y:200,duration:.45,ease:"power3.out"}},{s + d * .62:.2f});"""))
 S.append(('r03', 'qx', .4, """
 #X-t{top:150px;font-size:76px}
@@ -271,7 +271,7 @@ S.append(('r04', 'ty', .4, """
 #X-ph{left:580px;top:520px;width:430px;height:840px}
 #X-sg{width:60%;margin-top:8px}
 #X-ok{opacity:1}
-#X-pl{left:0;right:0;top:1400px;text-align:center}
+#X-pl{left:0;right:0;top:1450px;text-align:center}
 """, STEP(1, 'El momento exacto') + '<h1 id="X-t" class="qd">Cuando dice<br>«<em>quedó increíble</em>»</h1>'
  + '<img id="X-m" class="char" src="assets/chars/marcela-celebra.webp" alt="">'
  + '<div id="X-b" class="bub l" data-layout-allow-overlap>¡Esto quedó increíble! 😍</div>'
@@ -289,14 +289,14 @@ tl.from("#X-pl .pl2",{{opacity:0,y:40,duration:.3,ease:"back.out(2)",stagger:.25
 S.append(('r05', 'tl', .4, """
 #X-t{top:200px;font-size:72px}
 #X-ba{left:90px;top:420px;width:900px;height:620px}
-#X-c1{left:70px;top:1110px}
-#X-c2{left:330px;top:1220px}
-#X-c3{left:110px;top:1340px}
+#X-g1{left:70px;top:1110px}
+#X-g2{left:330px;top:1220px}
+#X-g3{left:110px;top:1340px}
 #X-j{left:760px;top:1060px;height:440px}
 """, STEP(2, 'Dale un trofeo') + '<h1 id="X-t" class="qd">Un <em>antes y después</em></h1>'
  + '<div id="X-ba" class="ba"><img class="bf" src="assets/chars/tienda.webp" alt=""><span class="lb" style="left:24px;background:#1F1F1F;color:#fff">ANTES</span>'
  + '<img id="X-af" class="af" src="assets/chars/tienda.webp" alt=""><span id="X-la" class="lb" style="right:24px;background:#FFC107;color:#111">DESPUÉS</span><div id="X-hd" class="hd"></div></div>'
- + '<div id="X-c1" class="cmt">❤️ <b>48</b> me gusta</div><div id="X-c2" class="cmt">¡Qué lindo quedó! 😍</div><div id="X-c3" class="cmt hit"><b>¿Quién te lo hizo?</b> 👀</div>'
+ + '<div id="X-g1" class="cmt">❤️ <b>48</b> me gusta</div><div id="X-g2" class="cmt">¡Qué lindo quedó! 😍</div><div id="X-g3" class="cmt hit"><b>¿Quién te lo hizo?</b> 👀</div>'
  + '<img id="X-j" class="char" src="assets/chars/julian-trofeo.webp" alt="" data-layout-allow-overlap>',
  lambda D, s, d: f"""tl.from(".stepn",{{opacity:0,y:-30,duration:.3}},0);
 tl.from("#X-t",{{opacity:0,y:-30,duration:.4,ease:"back.out(2)"}},.1);
@@ -305,7 +305,7 @@ tl.fromTo("#X-af",{{clipPath:"inset(0 0 0 100%)"}},{{clipPath:"inset(0 0 0 50%)"
 tl.fromTo("#X-hd",{{x:450}},{{x:0,duration:.9,ease:"power2.inOut"}},{s + d * .15:.2f});
 tl.from("#X-la",{{opacity:0,scale:.5,duration:.3,ease:"back.out(2)"}},{s + d * .3:.2f});
 tl.from("#X-j",{{opacity:0,y:200,duration:.45,ease:"back.out(1.6)"}},{s + d * .45:.2f});
-tl.from(["#X-c1","#X-c2","#X-c3"],{{opacity:0,y:40,scale:.6,duration:.3,ease:"back.out(2.2)",stagger:{d * .1:.2f}}},{s + d * .55:.2f});"""))
+tl.from(["#X-g1","#X-g2","#X-g3"],{{opacity:0,y:40,scale:.6,duration:.3,ease:"back.out(2.2)",stagger:{d * .1:.2f}}},{s + d * .55:.2f});"""))
 S.append(('r06', 'qx', .4, """
 #X-lg{left:150px;top:150px;width:120px;height:120px;border-radius:30px}
 #X-t{top:165px;left:290px;right:60px;text-align:left;font-size:66px}
@@ -314,7 +314,7 @@ S.append(('r06', 'qx', .4, """
 #X-fc{top:1400px}
 """, '<img id="X-lg" class="abs" src="assets/brand/pascalpdf-logo.png" alt=""><h1 id="X-t" class="q">PascalPDF<br><em>Studio</em></h1>'
  + f'<div id="X-s1" class="stp2 X-s"><b>1</b><i>{icon("camera", Y)}</i>Imágenes a PDF</div><div id="X-s2" class="stp2 X-s"><b>2</b><i>{icon("sparkle", Y)}</i>Marca de agua con tu nombre</div><div id="X-s3" class="stp2 X-s"><b>3</b><i>{icon("zip", Y)}</i>Comprimir para WhatsApp</div>'
- + '<div id="X-pd" class="pdfc"><div class="t">Remodelación · Tienda de Marcela</div><div class="im"><img style="filter:grayscale(1) brightness(.55)" src="assets/chars/tienda.webp" alt=""><span>ANTES</span></div><div class="im"><img src="assets/chars/tienda.webp" alt=""><span style="background:#FFC107;color:#111">DESPUÉS</span></div><div id="X-wm" class="wm">ANDRÉS · REMODELA</div></div>'
+ + '<div id="X-pd" class="pdfc"><div class="t">Remodelación · Tienda de Marcela</div><div class="im"><img style="filter:grayscale(1) brightness(.55)" src="assets/chars/tienda.webp" alt=""><span>ANTES</span></div><div class="im"><img src="assets/chars/tienda.webp" alt=""><span style="background:#FFC107;color:#111">DESPUÉS</span></div><div id="X-wm" class="wm" data-layout-allow-overlap>ANDRÉS · REMODELA</div></div>'
  + '<div id="X-fc" class="fchip"><span>✓ antes-y-despues.pdf · listo para WhatsApp</span></div>',
  lambda D, s, d: f"""tl.from("#X-lg",{{opacity:0,scale:.3,rotation:-20,duration:.45,ease:"back.out(2)"}},0);
 tl.from("#X-t",{{opacity:0,x:60,duration:.4}},.15);
@@ -328,11 +328,15 @@ tl.from("#X-fc",{{opacity:0,scale:.5,duration:.35,ease:"back.out(2.2)"}},{s + d 
 S.append(('r07', 'tl', .4, """
 #X-t{top:200px;font-size:64px}
 #X-t s{text-decoration-thickness:8px;text-decoration-color:#E5484D}
-#X-ch{left:120px;top:380px;width:840px;height:1000px}
+#X-ch{left:120px;top:380px;width:840px;height:900px}
 #X-fw{left:640px;top:1110px}
-#X-se{top:1410px}
+#X-se{top:1320px}
+#X-ch .m{font-size:36px;line-height:1.3}
+#X-ch .m small{font-size:22px}
+#X-ch .top{font-size:34px}
+#X-m3{box-shadow:0 0 0 5px #FFC107}
 """, STEP(3, 'Cero fricción') + '<h1 id="X-t" class="qd"><s>«Pásale mi número»</s></h1>'
- + chat('X-ch', '', [('X-m1', True, '<span class="pdfm" style="display:flex;align-items:center;gap:14px"><i style="flex:none;width:56px;height:64px;border-radius:8px;background:#E5484D;color:#fff;display:grid;place-items:center;font:800 16px/1 Montserrat">PDF</i>antes-y-despues.pdf</span>', '10:42 <b>✓✓</b>'),
+ + chat('X-ch', '', [('X-m1', True, '<span class="pdfm" style="display:flex;align-items:center;gap:14px"><i style="flex:none;width:56px;height:64px;border-radius:8px;background:#B42318;color:#fff;display:grid;place-items:center;font:800 16px/1 Montserrat">PDF</i>antes-y-despues.pdf</span>', '10:42 <b>✓✓</b>'),
                         ('X-m2', True, 'Te dejo este mensaje listo, por si alguien te pregunta 👇', '10:42 <b>✓✓</b>'),
                         ('X-m3', True, '<b>¿Buscas quién te renueve el local?</b> Andrés hizo el mío, mira el antes y después 👆 Su WhatsApp: <b>[tu número]</b>', '10:43 <b>✓✓</b>')], who='Marcela · Tienda', sub='en línea')
  + '<div id="X-fw" class="fwd" data-layout-allow-overlap>↪ Reenviar</div><div id="X-se" class="sent"><span><b>✓</b>Reenviado a «Emprendedores del barrio»</span></div>',
