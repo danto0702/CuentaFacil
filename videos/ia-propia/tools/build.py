@@ -277,8 +277,8 @@ EXTRA2 = EXTRA2 + f"""
 .pay h4{{margin:0 0 16px;font:800 34px/1 "Montserrat",sans-serif;color:#5C5C5C}}
 .pay p{{display:flex;justify-content:space-between;padding:14px 0;border-top:2px solid #EEE;font:700 34px/1 "Inter",sans-serif;color:#1F1F1F}}
 .pay p b{{color:#B42318}}
-.half{{position:absolute;top:360px;width:470px;height:1050px;border-radius:30px;padding:24px;text-align:center}}
-.half img{{height:560px;display:block;margin:0 auto}}
+.half{{position:absolute;top:360px;width:470px;height:1050px;border-radius:30px;padding:24px;text-align:center;color:#1F1F1F}}
+.hfig{{height:560px;width:240px;margin:0 auto}}
 .res{{display:inline-block;margin-top:18px;padding:18px 24px;border-radius:20px;font:800 34px/1.1 "Montserrat",sans-serif}}
 .mail{{position:absolute;left:70px;right:70px;padding:30px 34px;border-radius:24px;background:#fff;box-shadow:0 30px 60px -24px rgba(0,0,0,.6);font:600 36px/1.4 "Inter",sans-serif;color:#1F1F1F}}
 .mail h4{{margin:0 0 14px;font:700 26px/1.3 "Inter",sans-serif;color:#6B6B6B}}
@@ -318,6 +318,58 @@ EXTRA2 = EXTRA2 + f"""
 .big em{{font-style:normal;color:{Y}}}
 .crk{{box-shadow:inset 0 0 0 6px #E5484D !important;background:#FFB4B4 !important}}
 """
+# ---------------------------------------------------------------- characters drawn in code (SVG)
+def _hair(style, c):
+    if style == 'long':
+        return f'<path d="M52 128 C44 50 90 30 120 32 C160 30 200 52 190 130 L196 250 C180 236 172 200 172 150 C150 110 92 108 70 150 C68 200 60 236 44 250 Z" fill="{c}"/>'
+    if style == 'bun':
+        return f'<circle cx="120" cy="40" r="30" fill="{c}"/><path d="M58 118 C56 64 90 44 120 44 C150 44 186 64 182 118 C170 92 150 80 120 80 C90 80 70 92 58 118 Z" fill="{c}"/><path d="M56 92 C80 70 160 70 184 92 L184 100 C160 82 80 82 56 100 Z" fill="#C0392B"/>'
+    return f'<path d="M58 112 C54 60 92 42 122 44 C156 44 188 64 182 112 C172 86 150 76 120 76 C94 76 72 86 58 112 Z" fill="{c}"/>'
+def person(skin='#E8B48A', shirt='#2F6FD6', pants='#26324A', hair='#3B2416', style='short', extra='', mood='smile'):
+    mouth = {'smile': '<path d="M100 142 Q120 160 140 142" stroke="#5A2E1A" stroke-width="6" fill="none" stroke-linecap="round"/>',
+             'o': '<ellipse cx="120" cy="148" rx="11" ry="14" fill="#5A2E1A"/>',
+             'hmm': '<path d="M104 148 L136 144" stroke="#5A2E1A" stroke-width="6" stroke-linecap="round"/>'}[mood]
+    return (f'<svg viewBox="0 0 240 560" style="width:100%;height:100%;overflow:visible">'
+            f'<ellipse cx="120" cy="548" rx="80" ry="10" fill="rgba(0,0,0,.18)"/>'
+            f'<rect x="80" y="360" width="34" height="175" rx="14" fill="{pants}"/><rect x="126" y="360" width="34" height="175" rx="14" fill="{pants}"/>'
+            f'<ellipse cx="94" cy="538" rx="26" ry="12" fill="#222"/><ellipse cx="146" cy="538" rx="26" ry="12" fill="#222"/>'
+            f'<rect x="30" y="205" width="34" height="150" rx="17" fill="{shirt}" transform="rotate(8 47 205)"/><rect x="176" y="205" width="34" height="150" rx="17" fill="{shirt}" transform="rotate(-8 193 205)"/>'
+            f'<circle cx="36" cy="356" r="17" fill="{skin}"/><circle cx="204" cy="356" r="17" fill="{skin}"/>'
+            f'<rect x="56" y="190" width="128" height="195" rx="42" fill="{shirt}"/>'
+            f'<rect x="104" y="168" width="32" height="34" fill="{skin}"/>'
+            + extra +
+            f'<circle cx="120" cy="118" r="62" fill="{skin}"/>' + _hair(style, hair) +
+            f'<circle cx="98" cy="118" r="7" fill="#2A1A10"/><circle cx="142" cy="118" r="7" fill="#2A1A10"/>' + mouth + '</svg>')
+APRON = '<path d="M78 230 L162 230 L172 380 L68 380 Z" fill="#F2B705"/><path d="M84 230 L100 196 M156 230 L140 196" stroke="#F2B705" stroke-width="8"/><rect x="104" y="300" width="32" height="28" rx="4" fill="#fff" opacity=".85"/>'
+BADGE = '<rect x="132" y="236" width="36" height="46" rx="6" fill="#fff"/><rect x="138" y="244" width="24" height="6" fill="#2F6FD6"/>'
+BLAZER = '<path d="M56 230 C56 200 80 190 104 190 L120 260 L136 190 C160 190 184 200 184 230 L184 385 L56 385 Z" fill="#1F4E79"/><path d="M104 190 L120 260 L136 190 Z" fill="#F5F0E6"/>'
+GLASSES = '<g fill="none" stroke="#2A1A10" stroke-width="5"><circle cx="98" cy="118" r="17"/><circle cx="142" cy="118" r="17"/><path d="M115 118 L125 118"/></g>'
+PHONE = '<rect x="188" y="300" width="34" height="58" rx="7" fill="#1F1F1F"/><rect x="192" y="306" width="26" height="44" rx="4" fill="#8FD3FF"/>'
+def robot(mood='ok'):
+    eyes = ('<circle cx="118" cy="110" r="22" fill="#7FE7FF"/><circle cx="182" cy="110" r="22" fill="#7FE7FF"/><circle cx="118" cy="110" r="9" fill="#0B2A33"/><circle cx="182" cy="110" r="9" fill="#0B2A33"/>'
+            if mood == 'ok' else
+            '<g fill="none" stroke="#7FE7FF" stroke-width="5"><circle cx="118" cy="110" r="20"/><circle cx="118" cy="110" r="11"/><circle cx="182" cy="110" r="20"/><circle cx="182" cy="110" r="11"/></g>')
+    mouth = '<path d="M126 148 Q150 164 174 148" stroke="#7FE7FF" stroke-width="6" fill="none" stroke-linecap="round"/>' if mood == 'ok' else '<path d="M126 156 Q150 142 174 156" stroke="#7FE7FF" stroke-width="6" fill="none" stroke-linecap="round"/>'
+    keys = ''.join(f'<rect x="{112 + c * 28}" y="{238 + r * 28}" width="20" height="20" rx="4" fill="#E6E6E6"/>' for r in range(3) for c in range(3))
+    return (f'<svg viewBox="0 0 300 440" style="width:100%;height:100%;overflow:visible">'
+            f'<ellipse cx="150" cy="430" rx="90" ry="10" fill="rgba(0,0,0,.2)"/>'
+            f'<line x1="150" y1="40" x2="150" y2="8" stroke="#6B7580" stroke-width="8"/><circle cx="150" cy="8" r="12" fill="#E5484D"/>'
+            f'<rect x="102" y="345" width="30" height="70" rx="10" fill="#6B7580"/><rect x="168" y="345" width="30" height="70" rx="10" fill="#6B7580"/>'
+            f'<rect x="34" y="210" width="34" height="110" rx="17" fill="#8A949E" transform="rotate(14 51 210)"/><rect x="232" y="210" width="34" height="110" rx="17" fill="#8A949E" transform="rotate(-14 249 210)"/>'
+            f'<rect x="72" y="198" width="156" height="156" rx="26" fill="#9AA3AD"/>' + keys +
+            f'<rect x="60" y="40" width="180" height="142" rx="32" fill="#9AA3AD"/><rect x="78" y="60" width="144" height="104" rx="22" fill="#1E2A33"/>' + eyes + mouth +
+            f'<rect x="44" y="90" width="18" height="40" rx="8" fill="#6B7580"/><rect x="238" y="90" width="18" height="40" rx="8" fill="#6B7580"/></svg>')
+FIG = {
+    'marcela': (240 / 560, person(skin='#E8B48A', shirt='#F5F0E6', pants='#2B2B33', hair='#4A2A18', style='long', extra=BLAZER + GLASSES.replace('<g', '<g style="display:none"'), mood='smile')),
+    'marcela-g': (240 / 560, person(skin='#E8B48A', shirt='#F5F0E6', pants='#2B2B33', hair='#4A2A18', style='long', extra=BLAZER, mood='smile')),
+    'rosa': (240 / 560, person(skin='#C98E66', shirt='#F4F4F4', pants='#3A4A6B', hair='#2A1A10', style='bun', extra=APRON, mood='o')),
+    'andres': (240 / 560, person(skin='#D9A07A', shirt='#2F6FD6', pants='#26324A', hair='#1F140C', style='short', extra=BADGE + PHONE, mood='hmm')),
+    'bot': (300 / 440, robot('ok')),
+    'bot-err': (300 / 440, robot('err')),
+}
+def fig(id_, name, extra_cls='', attrs=''):
+    return f'<div id="{id_}" class="abs figc {extra_cls}" style="aspect-ratio:{FIG[name][0]:.4f}" {attrs}>{FIG[name][1]}</div>'
+
 SOF = '<span class="sof" style="position:static"><i>☕</i>SofIA</span>'
 def sofchat(id_, style, msgs):
     return chat(id_, style, msgs, who='Sofía · Café Lumbre', sub='asistente con IA')
@@ -343,18 +395,18 @@ S.append(('l01', 'tl', .3, """
 #X-m{left:330px;top:700px;height:820px}
 """, '<h1 id="X-t" class="qd">Todos quieren<br>su propia <em>IA</em></h1><div class="board" style="top:350px;height:330px"></div>'
  + '<div id="X-p1" class="pit X-pt">INNOVACIÓN</div><div id="X-p2" class="pit X-pt">IA PROPIA</div><div id="X-p3" class="pit X-pt">SOMOS EL FUTURO</div>'
- + '<img id="X-m" class="char" src="assets/chars/marcela-idea.webp" alt="" data-layout-allow-overlap>',
+ + '' + fig('X-m', 'marcela', attrs='data-layout-allow-overlap') + '',
  lambda D, s, d: f"""tl.from("#X-t",{{opacity:0,scale:1.3,duration:.45,ease:"back.out(2)"}},0);
 tl.from(".X-pt",{{opacity:0,scale:.3,rotation:20,duration:.35,ease:"back.out(2.5)",stagger:.18}},{s + d * .15:.2f});
 tl.from("#X-m",{{opacity:0,y:300,duration:.5,ease:"power3.out"}},{s + d * .45:.2f});"""))
 S.append(('l02', 'tl', .3, """
 #X-b{left:300px;top:560px;height:860px}
-#X-g{left:420px;top:450px}
-#X-s{left:380px;top:860px}
+#X-g{left:430px;top:1020px}
+#X-s{left:375px;top:1000px}
 #X-q{left:60px;top:200px;right:60px;text-align:center}
 #X-q .bub{position:relative;display:inline-block}
 """, '<div id="X-q" class="abs"><div class="bub l">«Ya tenemos nuestra IA propia,<br>100 % hecha en casa» 🎉</div></div>'
- + '<img id="X-b" class="char" src="assets/chars/bot-marque.webp" alt=""><div id="X-g" class="gpt" data-layout-allow-overlap>ChatGPT</div>'
+ + '' + fig('X-b', 'bot', attrs='') + '<div id="X-g" class="gpt" data-layout-allow-overlap>ChatGPT</div>'
  + '<div id="X-s" class="logoS" data-layout-allow-overlap>Sof<i>IA</i></div>',
  lambda D, s, d: f"""tl.from("#X-b",{{opacity:0,y:300,duration:.5,ease:"back.out(1.4)"}},.05);
 {POP("#X-g", s + d * .02)}
@@ -364,12 +416,12 @@ tl.to("#X-g",{{opacity:0,duration:.2}},{s + d * .3:.2f});
 S.append(('l03', 'td', .4, """
 #X-t{top:190px;font-size:96px}
 #X-b{left:270px;top:560px;height:860px}
-#X-s{left:380px;top:860px}
+#X-s{left:375px;top:1000px}
 #X-w{left:375px;top:500px;width:340px;height:200px}
-#X-g{left:430px;top:780px}
-#X-bn{top:1440px}
+#X-g{left:430px;top:1020px}
+#X-bn{top:1300px}
 """, '<h1 id="X-t" class="q">Spoiler: <em>no</em>.</h1>'
- + '<img id="X-b" class="char" src="assets/chars/bot-marque.webp" alt="">'
+ + '' + fig('X-b', 'bot', attrs='') + ''
  + '<svg id="X-w" class="abs" viewBox="0 0 340 200" data-layout-allow-overlap><path d="M20 190 C0 120 30 40 100 30 C130 0 210 0 240 30 C310 40 340 120 320 190 C300 150 290 110 260 100 C220 120 120 120 80 100 C50 110 40 150 20 190 Z" fill="#B5651D" stroke="#7A3E10" stroke-width="6"/><circle cx="60" cy="80" r="26" fill="#C97A2B"/><circle cx="280" cy="80" r="26" fill="#C97A2B"/><circle cx="170" cy="30" r="30" fill="#C97A2B"/></svg>'
  + '<div id="X-g" class="gpt" data-layout-allow-overlap>ChatGPT</div><div id="X-s" class="logoS" data-layout-allow-overlap>Sof<i>IA</i></div>'
  + '<div id="X-bn" class="ban ylw">SofIA = ChatGPT con logo</div>',
@@ -436,10 +488,10 @@ tl.from("#X-m2",{{opacity:0,y:40,scale:.9,duration:.4,ease:"back.out(2)"}},{s + 
 S.append(('l09', 'tl', .3, """
 #X-r{left:20px;top:380px;height:760px}
 #X-q{left:330px;top:260px}
-#X-w{top:620px;left:330px;right:30px;text-align:center}
+#X-w{top:640px;left:300px;right:20px;text-align:center;font-size:118px}
 #X-mn{left:440px;top:930px}
-#X-x{left:330px;right:30px;top:690px;height:14px;border-radius:7px;background:#1F1F1F;transform:rotate(-8deg)}
-""", '<img id="X-r" class="char" src="assets/chars/rosa-pedidos.webp" alt="">'
+#X-x{left:330px;right:40px;top:690px;height:14px;border-radius:7px;background:#1F1F1F;transform:rotate(-8deg)}
+""", '' + fig('X-r', 'rosa', attrs='') + ''
  + '<div id="X-q" class="bub l" data-layout-allow-overlap>¿Cuánto reembolsamos<br>si un domicilio llega frío?</div>'
  + '<p id="X-w" class="wrong" data-layout-allow-overlap>$200.000</p><div id="X-x" class="abs" data-layout-allow-overlap></div>'
  + '<div id="X-mn" class="man" data-layout-allow-overlap>📘 Manual real<br><b>$30.000</b></div>',
@@ -453,7 +505,7 @@ S.append(('l10', 'qx', .3, """
 #X-b{left:330px;top:780px;height:620px}
 #X-bb{left:110px;top:720px}
 """, CAPA('X-c', 2, 'RAG', 'Sin documentos, la IA no dice «no sé». Inventa con confianza.', 300)
- + '<img id="X-b" class="char" src="assets/chars/bot-error.webp" alt=""><div id="X-bb" class="bub l" data-layout-allow-overlap>¡Segurísimo! 😎</div>',
+ + '' + fig('X-b', 'bot-err', attrs='') + '<div id="X-bb" class="bub l" data-layout-allow-overlap>¡Segurísimo! 😎</div>',
  lambda D, s, d: f"""tl.from("#X-c",{{opacity:0,x:-300,duration:.45,ease:"power3.out"}},{s:.2f});
 tl.from("#X-b",{{opacity:0,y:200,duration:.45,ease:"back.out(1.6)"}},{s + d * .35:.2f});
 {POP("#X-bb", s + d * .55)}"""))
@@ -529,7 +581,7 @@ S.append(('l16', 'qx', .3, """
 #X-q{left:80px;top:820px}
 #X-d1{left:640px;top:660px;background:#FFC107;color:#111}
 """, CAPA('X-c', 4, 'Accesos', 'Aquí es donde la mayoría la riega.', 250)
- + '<img id="X-a" class="char" src="assets/chars/andres-escribe.webp" alt=""><span id="X-d1" class="tagx" data-layout-allow-overlap>Día 1</span>'
+ + '' + fig('X-a', 'andres', attrs='') + '<span id="X-d1" class="tagx" data-layout-allow-overlap>Día 1</span>'
  + '<div id="X-q" class="bub r" data-layout-allow-overlap>¿Cuánto gana<br>la gerente? 🤔</div>',
  lambda D, s, d: f"""tl.from("#X-c",{{opacity:0,x:-300,duration:.45,ease:"power3.out"}},{s + d * .1:.2f});
 tl.from("#X-a",{{opacity:0,x:300,duration:.45,ease:"power3.out"}},{s + d * .4:.2f});
@@ -553,8 +605,8 @@ S.append(('l18', 'tl', .4, """
 #X-h2{left:560px;background:#FFF6D6;box-shadow:inset 0 0 0 4px #FFC107}
 #X-oa{left:330px;top:1450px;background:#1F1F1F;color:#fff}
 """, '<h1 id="X-t" class="qd">Con <em>OAuth</em>: los permisos<br>de quien pregunta</h1>'
- + '<div id="X-h1" class="half"><img src="assets/chars/andres-escribe.webp" alt=""><b style="font:800 34px Montserrat">Mesero</b><br><span id="X-r1" class="res" style="background:#E5484D;color:#fff">🔒 Acceso denegado</span></div>'
- + '<div id="X-h2" class="half"><img src="assets/chars/marcela-acuerdo.webp" alt=""><b style="font:800 34px Montserrat">Gerente</b><br><span id="X-r2" class="res" style="background:#25A55F;color:#fff">✓ Visible</span></div>'
+ + '<div id="X-h1" class="half"><div class="hfig">' + FIG['andres'][1] + '</div><b style="font:800 34px Montserrat">Mesero</b><br><span id="X-r1" class="res" style="background:#E5484D;color:#fff">🔒 Acceso denegado</span></div>'
+ + '<div id="X-h2" class="half"><div class="hfig">' + FIG['marcela-g'][1] + '</div><b style="font:800 34px Montserrat">Gerente</b><br><span id="X-r2" class="res" style="background:#25A55F;color:#fff">✓ Visible</span></div>'
  + '<span id="X-oa" class="tagx">Como debe ser 👌</span>',
  lambda D, s, d: f"""tl.from("#X-t",{{opacity:0,y:-30,duration:.4,ease:"back.out(2)"}},0);
 tl.from("#X-h1",{{opacity:0,x:-200,duration:.4}},{s + d * .2:.2f});
