@@ -295,8 +295,7 @@ S.append(('p04', 'tl', .4, """
  + f'<div id="X-a" class="vs2"><h3>ANTES</h3><p><i>{icon("printer", "#5C5C5C")}</i>Impresora</p><p><i>{icon("scan", "#5C5C5C")}</i>Escáner</p><p><i>{icon("clock", "#5C5C5C")}</i>Carreras</p></div>'
  + f'<div id="X-b" class="vs2"><h3>AHORA</h3><p><i>{icon("devices", "#111")}</i>Tu celular</p><p><i>{icon("clock", "#111")}</i>Un minuto</p><p><i>{icon("check", "#111")}</i>Firmado</p></div>'
  + f'<div id="X-sh" class="shr"><span><i style="width:44px;height:44px;display:inline-block">{icon("upload", Y)}</i>Compartir PDF firmado</span></div>',
- lambda D, s, d: f"""tl.from(".stepn",{{opacity:0,y:-30,duration:.3}},0);
-tl.from("#X-t",{{opacity:0,y:-30,duration:.4,ease:"back.out(2)"}},.1);
+ lambda D, s, d: f"""tl.from("#X-t",{{opacity:0,y:-30,duration:.4,ease:"back.out(2)"}},.1);
 tl.from("#X-a",{{opacity:0,x:-300,duration:.45,ease:"power3.out"}},{s + d * .2:.2f});
 tl.from("#X-a p",{{opacity:0,y:20,duration:.25,stagger:.15}},{s + d * .25:.2f});
 tl.from("#X-b",{{opacity:0,x:300,scale:.8,duration:.5,ease:"back.out(1.6)"}},{s + d * .55:.2f});
@@ -320,8 +319,7 @@ S.append(('p05', 'tl', .5, """
                      ('X-m2', True, '¿Sigues imprimiendo para firmar documentos? 🙈<br>Yo los firmo desde el celular en un minuto 👉 <b>pascalia.lat/PascalSign</b>', '8:15 <b>✓✓</b>')], who='Valentina · compañera', sub='en línea')
  + ''.join(f'<div id="X-n{i}" class="crn X-cn" data-layout-allow-overlap></div>' for i in range(1, 5))
  + '<div id="X-sh2" class="shot" style="opacity:0"></div>',
- lambda D, s, d: f"""tl.from(".stepn",{{opacity:0,y:-30,duration:.3}},0);
-tl.from("#X-t",{{opacity:0,y:-30,duration:.4,ease:"back.out(2)"}},.1);
+ lambda D, s, d: f"""tl.from("#X-t",{{opacity:0,y:-30,duration:.4,ease:"back.out(2)"}},.1);
 tl.from("#X-ch",{{opacity:0,y:300,duration:.5,ease:"power3.out"}},.25);
 tl.from("#X-m1",{{opacity:0,y:30,duration:.3}},{s + d * .3:.2f});
 tl.from("#X-m2",{{opacity:0,y:30,scale:.9,duration:.4,ease:"back.out(2)"}},{s + d * .45:.2f});
