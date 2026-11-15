@@ -1,8 +1,8 @@
-e01|P|Te llega el documento para firmar… y tiene un error. La fecha está mal.|Te llega el documento para firmar… y tiene un error. La fecha está mal.
+e01|P|Te mandan un documento para que lo firmes… y tiene un error. La fecha está mal.|Te mandan un documento para que lo firmes… y tiene un error. La fecha está mal.
 e02|P|Con Pascal Sáin lo firmas en un minuto. Pero si además necesitas corregirlo, ahí entra Pascal pe de efe Studio.|Con Pascal Sign lo firmas en un minuto. Pero si además necesitas corregirlo, ahí entra PascalPDF Studio.
 e03|P|Lo abres, y lo editas como si fuera un Word: cambias el texto, agregas lo que falta, y quedó.|Lo abres y lo editas como si fuera un Word: cambias el texto, agregas lo que falta, y quedó.
 e04|P|Y como Pascal Sáin está adentro, lo firmas ahí mismo, con tus mismas firmas guardadas.|Y como Pascal Sign está adentro, lo firmas ahí mismo, con tus mismas firmas guardadas.
 e05|P|Corregido, firmado y enviado en minutos. Sin pedirle a nadie que te lo vuelva a mandar.|Corregido, firmado y enviado en minutos. Sin pedirle a nadie que te lo vuelva a mandar.
-e06|P|De un documento con errores… a uno listo y firmado.|De un documento con errores… a uno listo y firmado.
+e06|P|De un documento con errores… a un documento listo, y firmado.|De un documento con errores… a un documento listo y firmado.
 e07|P|Y cuando tu compañero te pregunte cómo lo hiciste, ya sabes qué reenviarle.|Y cuando tu compañero te pregunte cómo lo hiciste, ya sabes qué reenviarle.
 e08|P|Pascal Sáin para firmar. Pascal pe de efe Studio para editar y firmar. Los dos, de PascalIA. Pruébalo gratis siete días: escanea el código. Y mándale este video a quien siempre pide: «¿me corriges el pe de efe?».|Pascal Sign para firmar. PascalPDF Studio para editar y firmar. Los dos, de PascalIA. Pruébalo gratis 7 días: escanea el código. Y mándale este video a quien siempre pide «¿me corriges el PDF?».

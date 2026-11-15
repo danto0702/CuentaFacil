@@ -303,11 +303,11 @@ tl.to("#X-a2",{{scale:1.06,duration:.3,yoyo:true,repeat:3,ease:"sine.inOut"}},{s
 PHONE_HDR = '<div class="hdr"><img src="assets/brand/pascalpdf-logo.png" alt="">PascalPDF Studio</div>'
 S.append(('e03', 'qx', .4, """
 #X-t{top:160px;font-size:74px}
-#X-ph{left:280px;top:370px;width:520px;height:980px}
+#X-ph{left:270px;top:400px;width:540px;height:820px}
 #X-ad{opacity:1}
 """, '<h1 id="X-t" class="q">Edítalo como<br>un <em>Word</em></h1>'
  + '<div id="X-ph" class="mob2"><div class="sc">' + PHONE_HDR
- + f'<div class="tb2"><i id="X-i1">{icon("pen", Y)}</i><i>{icon("doc", Y)}</i><i id="X-i3">{icon("plus", Y)}</i><i>{icon("sparkle", Y)}</i></div>'
+ + f'<div class="tb2"><i id="X-i1">{icon("pen", "#fff")}</i><i>{icon("doc", "#fff")}</i><i id="X-i3">{icon("plus", "#fff")}</i><i>{icon("sparkle", "#fff")}</i></div>'
  + '<div class="mp2">' + DOCX('15 de noviembre de <span id="X-w" class="sel2">2025</span><span id="X-cr" class="car2"></span>', '<div id="X-ad" class="addt">Anexo: cronograma de entregas</div>') + '</div></div></div>',
  lambda D, s, d: f"""tl.from("#X-t",{{opacity:0,y:-40,duration:.4,ease:"back.out(2)"}},0);
 tl.from("#X-ph",{{opacity:0,y:700,duration:.55,ease:"back.out(1.3)"}},.15);
@@ -320,9 +320,9 @@ tl.to("#X-i3",{{backgroundColor:"#FFC107",duration:.2}},{s + d * .6:.2f});
 tl.from("#X-ad",{{opacity:0,scale:.6,duration:.35,ease:"back.out(2.2)"}},{s + d * .66:.2f});"""))
 S.append(('e04', 'qx', .4, """
 #X-t{top:160px;font-size:74px}
-#X-ph{left:280px;top:370px;width:520px;height:980px}
+#X-ph{left:270px;top:400px;width:540px;height:820px}
 #X-sg{width:58%;margin-top:4px}
-#X-in{top:1390px}
+#X-in{top:1270px}
 """, '<h1 id="X-t" class="q">Y fírmalo<br><em>ahí mismo</em></h1>'
  + '<div id="X-ph" class="mob2"><div class="sc">' + PHONE_HDR
  + '<div class="mp2">' + DOCX('15 de noviembre de <span style="background:rgba(43,255,136,.35);border-radius:6px;padding:0 4px">2026</span>', f'<div id="X-sg">{sig(1, "", "", "#1B2A6B", 7)}</div>') + '</div>'

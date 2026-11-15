@@ -1,0 +1,169 @@
+{
+  "ok": true,
+  "strict": false,
+  "browserSkipped": false,
+  "lint": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": [],
+    "filesScanned": 9
+  },
+  "runtime": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": []
+  },
+  "layout": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 2,
+    "findings": [
+      {
+        "code": "container_overflow",
+        "severity": "info",
+        "time": 52.125,
+        "selector": "#fe08-rs",
+        "message": "Element extends outside a clipping layout container.",
+        "rect": {
+          "left": -764.64,
+          "top": -364.64,
+          "right": 1844.64,
+          "bottom": 2244.64,
+          "width": 2609.28,
+          "height": 2609.28
+        },
+        "containerSelector": "#fe08 > div:nth-of-type(1)",
+        "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1080,
+          "bottom": 1920,
+          "width": 1080,
+          "height": 1920
+        },
+        "overflow": {
+          "left": 764.64,
+          "right": 764.64,
+          "top": 364.64,
+          "bottom": 324.64
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/fe08.html",
+        "bbox": {
+          "x": -764.64,
+          "y": -364.64,
+          "width": 2609.28,
+          "height": 2609.28
+        },
+        "firstSeen": 52.125,
+        "lastSeen": 59.075,
+        "occurrences": 2,
+        "heldMs": 0,
+        "times": [
+          52.125,
+          59.075
+        ]
+      },
+      {
+        "code": "escaped_container",
+        "severity": "info",
+        "time": 59.075,
+        "selector": "#fe08-rs",
+        "message": "Positioned element renders far outside its offset parent — its coordinates were likely computed in a different frame (canvas/viewport pixels).",
+        "rect": {
+          "left": -872.94,
+          "top": -472.94,
+          "right": 1952.94,
+          "bottom": 2352.94,
+          "width": 2825.88,
+          "height": 2825.88
+        },
+        "containerSelector": "#fe08 > div:nth-of-type(1)",
+        "text": "",
+        "fixHint": "Compute left/top in the offset parent's frame (subtract its rect), or mark intentional placement with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1080,
+          "bottom": 1920,
+          "width": 1080,
+          "height": 1920
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/fe08.html",
+        "bbox": {
+          "x": -872.94,
+          "y": -472.94,
+          "width": 2825.88,
+          "height": 2825.88
+        },
+        "firstSeen": 59.075,
+        "lastSeen": 59.075,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          59.075
+        ]
+      }
+    ],
+    "duration": 62.55,
+    "samples": [
+      3.475,
+      10.425,
+      17.375,
+      24.325,
+      31.275,
+      38.225,
+      45.175,
+      52.125,
+      59.075
+    ],
+    "transitionSamples": [],
+    "transitionSamplesDropped": 0,
+    "tolerance": 2,
+    "totalIssueCount": 2,
+    "truncated": false
+  },
+  "motion": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": [],
+    "enabled": false,
+    "samples": 0
+  },
+  "contrast": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": [],
+    "enabled": true,
+    "samples": [
+      3.475,
+      17.375,
+      31.275,
+      45.175,
+      59.075
+    ],
+    "checked": 35,
+    "passed": 35
+  },
+  "hdr": {
+    "autoPromotion": null,
+    "inspection": "available"
+  },
+  "snapshots": {
+    "enabled": false,
+    "files": [],
+    "times": [],
+    "findingFiles": []
+  }
+}
