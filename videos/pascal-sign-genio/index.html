@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="es-CO">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="assets/vendor/gsap.min.js"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: #0B0B0B; }
+      #root { position: relative; width: 100%; height: 100%; overflow: hidden; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="60.9" data-width="1080" data-height="1920">
+      <div id="fp01" class="clip" data-composition-id="fp01" data-composition-src="compositions/frames/fp01.html" data-start="0.00" data-duration="6.82" data-track-index="1" data-width="1080" data-height="1920"></div>
+      <div id="fp02" class="clip" data-composition-id="fp02" data-composition-src="compositions/frames/fp02.html" data-start="6.82" data-duration="8.70" data-track-index="1" data-width="1080" data-height="1920"></div>
+      <div id="fp03" class="clip" data-composition-id="fp03" data-composition-src="compositions/frames/fp03.html" data-start="15.52" data-duration="7.80" data-track-index="1" data-width="1080" data-height="1920"></div>
+      <div id="fp04" class="clip" data-composition-id="fp04" data-composition-src="compositions/frames/fp04.html" data-start="23.32" data-duration="7.58" data-track-index="1" data-width="1080" data-height="1920"></div>
+      <div id="fp05" class="clip" data-composition-id="fp05" data-composition-src="compositions/frames/fp05.html" data-start="30.90" data-duration="8.36" data-track-index="1" data-width="1080" data-height="1920"></div>
+      <div id="fp06" class="clip" data-composition-id="fp06" data-composition-src="compositions/frames/fp06.html" data-start="39.26" data-duration="9.86" data-track-index="1" data-width="1080" data-height="1920"></div>
+      <div id="fp07" class="clip" data-composition-id="fp07" data-composition-src="compositions/frames/fp07.html" data-start="49.12" data-duration="11.78" data-track-index="1" data-width="1080" data-height="1920"></div>
+    </div>
+    <script>
+      window.__timelines = window.__timelines || {};
+      window.__timelines["main"] = gsap.timeline({ paused: true });
+    </script>
+  </body>
+</html>
