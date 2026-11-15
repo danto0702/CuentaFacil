@@ -1,5 +1,6 @@
 # Builds "Pascal Sign · quedas como genio": the referral principle applied to Pascal Sign (emotional peak when the PDF is signed,
 # before/after trophy, a 2-line WhatsApp message ready to screenshot) told with Camila and Valentina; ends on logo, QR and a share CTA.
+# The method stays implicit on screen and in the voice (no step names); always "documentos", never "cuenta de cobro".
 # One scene per voice line (Pascal, owner's cloned voice); reuses the drawing helpers of videos/pascal-sign/tools/build.py.
 import os, json, subprocess, importlib.util
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -256,7 +257,7 @@ S.append(('p02', 'ty', .4, """
 #X-sg{width:62%;margin-top:6px}
 #X-tm{top:1300px}
 """, '<h1 id="X-t" class="qd">Firma desde<br>tu <em>celular</em></h1>'
- + '<div id="X-ph" class="mob2"><div class="sc"><div class="hdr"><img src="assets/brand/pascal-sign-logo.webp" alt="">Pascal Sign</div><div class="mp2"><div class="t">CUENTA DE COBRO</div><div class="ln"></div><div class="ln" style="width:72%"></div><div class="ln"></div><div class="ln" style="width:85%"></div><div class="ln" style="width:50%"></div>'
+ + '<div id="X-ph" class="mob2"><div class="sc"><div class="hdr"><img src="assets/brand/pascal-sign-logo.webp" alt="">Pascal Sign</div><div class="mp2"><div class="t">CONTRATO</div><div class="ln"></div><div class="ln" style="width:72%"></div><div class="ln"></div><div class="ln" style="width:85%"></div><div class="ln" style="width:50%"></div>'
  + f'<div id="X-sg">{sig(0, "", "", "#1B2A6B", 7)}</div></div>'
  + '<div class="tabs"><span id="X-a1">✍️ Dedo</span><span id="X-a2">Aa Escrita</span><span id="X-a3">📷 Foto</span></div><div id="X-ok" class="sgok">✓ Firmado</div></div></div>'
  + f'<div id="X-tm" class="tmr"><span><i>{icon("clock", Y)}</i>En un minuto</span></div>',
@@ -272,16 +273,13 @@ tl.from("#X-ok",{{opacity:0,scale:.5,duration:.35,ease:"back.out(2.5)"}},{s + d 
 tl.from("#X-tm",{{opacity:0,y:40,duration:.35,ease:"back.out(2)"}},{s + d * .86:.2f});"""))
 S.append(('p03', 'qx', .5, """
 #X-pk{top:250px}
-#X-eg{top:300px}
+#X-eg{top:230px}
 #X-c{left:330px;top:560px;height:940px}
 #X-b{left:120px;top:440px}
-""", STEP(1, 'Pico emocional') + '<p id="X-pk" class="pk">EL SEGUNDO EXACTO</p>'
- + f'<div id="X-eg" class="ekg">{EKG}</div><img id="X-c" class="char" src="assets/chars/camila-feliz.webp" alt="">'
+""", f'<div id="X-eg" class="ekg">{EKG}</div><img id="X-c" class="char" src="assets/chars/camila-feliz.webp" alt="">'
  + '<div id="X-b" class="bub l" data-layout-allow-overlap>¡Esto quedó increíble! 😍</div>',
- lambda D, s, d: f"""tl.from(".stepn",{{opacity:0,y:-30,duration:.3}},0);
-tl.from("#X-c",{{opacity:0,y:300,scale:.9,duration:.5,ease:"back.out(1.6)"}},.1);
+ lambda D, s, d: f"""tl.from("#X-c",{{opacity:0,y:300,scale:.9,duration:.5,ease:"back.out(1.6)"}},.1);
 tl.from("#X-eg",{{clipPath:"inset(0 100% 0 0)",duration:{d * .45:.2f},ease:"none"}},{s:.2f});
-tl.from("#X-pk",{{opacity:0,scale:.6,duration:.35,ease:"back.out(2)"}},{s + d * .25:.2f});
 tl.from("#X-b",{{opacity:0,scale:.3,transformOrigin:"20% 100%",duration:.35,ease:"back.out(2.5)"}},{s + d * .55:.2f});
 tl.to("#X-c",{{scale:1.04,duration:.25,yoyo:true,repeat:3,ease:"sine.inOut"}},{s + d * .6:.2f});"""))
 S.append(('p04', 'tl', .4, """
@@ -293,7 +291,7 @@ S.append(('p04', 'tl', .4, """
 #X-b h3{color:#FFC107}
 #X-b i{background:#FFC107}
 #X-sh{top:1080px}
-""", STEP(2, 'Trofeo visual') + '<h1 id="X-t" class="qd">Tu <em>antes y después</em></h1>'
+""", '<h1 id="X-t" class="qd">De esto…<br><em>a esto</em></h1>'
  + f'<div id="X-a" class="vs2"><h3>ANTES</h3><p><i>{icon("printer", "#5C5C5C")}</i>Impresora</p><p><i>{icon("scan", "#5C5C5C")}</i>Escáner</p><p><i>{icon("clock", "#5C5C5C")}</i>Carreras</p></div>'
  + f'<div id="X-b" class="vs2"><h3>AHORA</h3><p><i>{icon("devices", "#111")}</i>Tu celular</p><p><i>{icon("clock", "#111")}</i>Un minuto</p><p><i>{icon("check", "#111")}</i>Firmado</p></div>'
  + f'<div id="X-sh" class="shr"><span><i style="width:44px;height:44px;display:inline-block">{icon("upload", Y)}</i>Compartir PDF firmado</span></div>',
@@ -317,11 +315,11 @@ S.append(('p05', 'tl', .5, """
 #X-n3{left:100px;top:1010px;border-right:0;border-top:0}
 #X-n4{left:890px;top:1010px;border-left:0;border-top:0}
 #X-sv{top:1150px}
-""", STEP(3, 'Cero fricción') + '<h1 id="X-t" class="qd"><s>«Búscalo en internet»</s></h1>'
- + chat('X-ch', '', [('X-m1', True, 'Mira cómo firmé la cuenta de cobro 👇', '8:15 <b>✓✓</b>'),
-                     ('X-m2', True, '¿Sigues imprimiendo para firmar la cuenta de cobro? 🙈<br>Yo firmo desde el celular en un minuto 👉 <b>pascalia.lat/PascalSign</b>', '8:15 <b>✓✓</b>')], who='Valentina · compañera', sub='en línea')
+""", '<h1 id="X-t" class="qd">«¿Cómo <em>hiciste</em> eso?»</h1>'
+ + chat('X-ch', '', [('X-m1', False, '¡¿Ya firmaste?! ¿Cómo hiciste tan rápido? 😮', '8:14'),
+                     ('X-m2', True, '¿Sigues imprimiendo para firmar documentos? 🙈<br>Yo los firmo desde el celular en un minuto 👉 <b>pascalia.lat/PascalSign</b>', '8:15 <b>✓✓</b>')], who='Valentina · compañera', sub='en línea')
  + ''.join(f'<div id="X-n{i}" class="crn X-cn" data-layout-allow-overlap></div>' for i in range(1, 5))
- + '<div id="X-sh2" class="shot" style="opacity:0"></div><div id="X-sv" class="sent"><span><b>📸</b>Tómale pantallazo y reenvíalo</span></div>',
+ + '<div id="X-sh2" class="shot" style="opacity:0"></div>',
  lambda D, s, d: f"""tl.from(".stepn",{{opacity:0,y:-30,duration:.3}},0);
 tl.from("#X-t",{{opacity:0,y:-30,duration:.4,ease:"back.out(2)"}},.1);
 tl.from("#X-ch",{{opacity:0,y:300,duration:.5,ease:"power3.out"}},.25);
@@ -329,7 +327,7 @@ tl.from("#X-m1",{{opacity:0,y:30,duration:.3}},{s + d * .3:.2f});
 tl.from("#X-m2",{{opacity:0,y:30,scale:.9,duration:.4,ease:"back.out(2)"}},{s + d * .45:.2f});
 tl.from(".X-cn",{{opacity:0,scale:1.6,duration:.3,ease:"power3.out"}},{s + d * .8:.2f});
 tl.fromTo("#X-sh2",{{opacity:.85}},{{opacity:0,duration:.4,ease:"power2.out"}},{s + d * .86:.2f});
-tl.from("#X-sv",{{opacity:0,y:30,duration:.35,ease:"back.out(2)"}},{s + d * .88:.2f});"""))
+"""))
 S.append(('p06', 'ty', .5, """
 #X-t{top:160px;font-size:66px}
 #X-v1{left:30px;top:520px;height:900px}
@@ -337,7 +335,7 @@ S.append(('p06', 'ty', .5, """
 #X-c{left:600px;top:500px;height:920px}
 #X-cr{left:650px;top:420px}
 #X-q{top:1410px;left:80px;right:80px;text-align:center;font:800 36px/1.2 "Montserrat",sans-serif;color:#1F1F1F}
-""", '<h1 id="X-t" class="qd">Tú quedas<br>como la <em>genia</em></h1>'
+""", '<h1 id="X-t" class="qd">Y tú quedas<br>como la <em>genia</em></h1>'
  + '<img id="X-v1" class="char" src="assets/chars/valentina-papeles.webp" alt=""><img id="X-v2" class="char" src="assets/chars/valentina-relajada.webp" alt="" data-layout-allow-overlap>'
  + '<img id="X-c" class="char" src="assets/chars/camila-feliz.webp" alt=""><div id="X-cr" class="crown" data-layout-allow-overlap>👑 La genia</div>',
  lambda D, s, d: f"""tl.from("#X-t",{{opacity:0,y:-30,duration:.4,ease:"back.out(2)"}},0);
@@ -358,7 +356,7 @@ S.append(('p07', 'qx', 2.6, """
 #X-ak span{font-size:32px}
 """, '<div id="X-rs" class="rays" style="opacity:0"></div><img id="X-lg" class="lg2" src="assets/brand/pascal-sign-logo.webp" alt="">'
  + '<h1 id="X-t" class="q">Pascal <em>Sign</em></h1>'
- + '<p id="X-s" class="abs">Firma desde el celular en un minuto</p>'
+ + '<p id="X-s" class="abs">Firma tus documentos desde el celular</p>'
  + '<div id="X-qr" class="abs"><img src="assets/brand/qr-pascalsign.svg" alt=""><b>Pruébalo gratis 7 días</b></div>'
  + '<div id="X-ak" class="ask"><span>📤 Mándaselo a quien siempre busca impresora</span></div><div id="X-fl" class="flashw"></div>',
  lambda D, s, d: f"""tl.fromTo("#X-fl",{{opacity:1}},{{opacity:0,duration:.6,ease:"power2.out"}},0);

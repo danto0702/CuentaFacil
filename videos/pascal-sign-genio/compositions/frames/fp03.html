@@ -239,26 +239,24 @@
 .crown{position:absolute;padding:14px 24px;border-radius:999px;background:#FFC107;color:#111;font:800 38px/1 "Montserrat",sans-serif;box-shadow:0 14px 30px -10px rgba(0,0,0,.4)}
 
 #fp03-pk{top:250px}
-#fp03-eg{top:300px}
+#fp03-eg{top:230px}
 #fp03-c{left:330px;top:560px;height:940px}
 #fp03-b{left:120px;top:440px}
 
 </style>
 <div id="root" data-composition-id="fp03" data-width="1080" data-height="1920">
-<div class="abs" style="inset:0;background:#0A0A0D"></div><div class="abs" style="inset:0;background:radial-gradient(55% 32% at 50% 38%,rgba(255,193,7,.20),transparent 72%),radial-gradient(80% 50% at 50% 100%,rgba(255,193,7,.06),transparent 70%)"></div><div class="stepn"><span><b>1</b>Pico emocional</span></div><p id="fp03-pk" class="pk">EL SEGUNDO EXACTO</p><div id="fp03-eg" class="ekg"><svg viewBox="0 0 960 200"><path d="M0 120 H300 L330 120 L360 60 L390 170 L420 20 L450 190 L480 110 L510 120 H960" fill="none" stroke="#FFC107" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/></svg></div><img id="fp03-c" class="char" src="assets/chars/camila-feliz.webp" alt=""><div id="fp03-b" class="bub l" data-layout-allow-overlap>¡Esto quedó increíble! 😍</div><div class="cap"><span id="fp03-c0" style="background:#FFC107;color:#0B0B0F;box-shadow:0 0 24px rgba(255,193,7,.45)">Y en el segundo exacto en que lo ves firmado</span></div><div class="cap"><span id="fp03-c1" style="background:#FFC107;color:#0B0B0F;box-shadow:0 0 24px rgba(255,193,7,.45)">y piensas «esto quedó increíble»…</span></div><div class="cap"><span id="fp03-c2" style="background:#FFC107;color:#0B0B0F;box-shadow:0 0 24px rgba(255,193,7,.45)">ese es el momento de compartirlo.</span></div>
+<div class="abs" style="inset:0;background:#0A0A0D"></div><div class="abs" style="inset:0;background:radial-gradient(55% 32% at 50% 38%,rgba(255,193,7,.20),transparent 72%),radial-gradient(80% 50% at 50% 100%,rgba(255,193,7,.06),transparent 70%)"></div><div id="fp03-eg" class="ekg"><svg viewBox="0 0 960 200"><path d="M0 120 H300 L330 120 L360 60 L390 170 L420 20 L450 190 L480 110 L510 120 H960" fill="none" stroke="#FFC107" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/></svg></div><img id="fp03-c" class="char" src="assets/chars/camila-feliz.webp" alt=""><div id="fp03-b" class="bub l" data-layout-allow-overlap>¡Esto quedó increíble! 😍</div><div class="cap"><span id="fp03-c0" style="background:#FFC107;color:#0B0B0F;box-shadow:0 0 24px rgba(255,193,7,.45)">Un minuto después, tu documento ya está</span></div><div class="cap"><span id="fp03-c1" style="background:#FFC107;color:#0B0B0F;box-shadow:0 0 24px rgba(255,193,7,.45)">firmado y listo para enviar.</span></div><div class="cap"><span id="fp03-c2" style="background:#FFC107;color:#0B0B0F;box-shadow:0 0 24px rgba(255,193,7,.45)">¿Sentiste eso?</span></div>
 </div>
 <script>
 const tl = gsap.timeline({ paused: true });
-tl.from(".stepn",{opacity:0,y:-30,duration:.3},0);
 tl.from("#fp03-c",{opacity:0,y:300,scale:.9,duration:.5,ease:"back.out(1.6)"},.1);
 tl.from("#fp03-eg",{clipPath:"inset(0 100% 0 0)",duration:3.53,ease:"none"},0.30);
-tl.from("#fp03-pk",{opacity:0,scale:.6,duration:.35,ease:"back.out(2)"},2.26);
 tl.from("#fp03-b",{opacity:0,scale:.3,transformOrigin:"20% 100%",duration:.35,ease:"back.out(2.5)"},4.61);
 tl.to("#fp03-c",{scale:1.04,duration:.25,yoyo:true,repeat:3,ease:"sine.inOut"},5.00);tl.set("#fp03-c0",{opacity:1},0.30);
-tl.set("#fp03-c0",{opacity:0},3.44);
-tl.set("#fp03-c1",{opacity:1},3.44);
-tl.set("#fp03-c1",{opacity:0},5.79);
-tl.set("#fp03-c2",{opacity:1},5.79);
+tl.set("#fp03-c0",{opacity:0},4.07);
+tl.set("#fp03-c1",{opacity:1},4.07);
+tl.set("#fp03-c1",{opacity:0},6.78);
+tl.set("#fp03-c2",{opacity:1},6.78);
 tl.set("#fp03-c2",{opacity:0},8.44);
 
 window.__timelines["fp03"] = tl;
