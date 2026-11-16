@@ -1305,13 +1305,14 @@
   },
   "renders": {
     "latest": {
-      "id": "1c1ad374-837a-49d9-8c6d-8c70135838c6",
-      "completedAt": 1794835465559,
+      "id": "08a0bf72-9575-4289-aca7-9f182a1de4c0",
+      "completedAt": 1794837777414,
       "output": "/home/user/CuentaFacil/videos/ia-oficina/renders/raw.mp4",
       "status": "completed",
-      "revision": "82fa4c59-e954-4263-b63d-5286da18d33a"
+      "revision": "499dd14d-8b89-42e6-9fbb-a97ae7ff0098"
     },
     "retainedRevisions": [
+      "499dd14d-8b89-42e6-9fbb-a97ae7ff0098",
       "82fa4c59-e954-4263-b63d-5286da18d33a"
     ]
   },
