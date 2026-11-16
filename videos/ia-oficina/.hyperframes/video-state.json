@@ -336,10 +336,6 @@
       "hash": "83429f9bf2467557a9e4a406f63cae52f52089ea8cd3a8b5712435136e2a4ad6",
       "content": "/root/.cache/hyperframes/history/fddfe76d-ad12-4913-99a0-692aafdad049/blobs/83/83429f9bf2467557a9e4a406f63cae52f52089ea8cd3a8b5712435136e2a4ad6"
     },
-    "portada/portada.html": {
-      "hash": "b93754bcaebffa814a592e60dfdd269fc92fcf1d7cb1f19f4435c2471c8379a3",
-      "content": "/root/.cache/hyperframes/history/fddfe76d-ad12-4913-99a0-692aafdad049/blobs/b9/b93754bcaebffa814a592e60dfdd269fc92fcf1d7cb1f19f4435c2471c8379a3"
-    },
     "portada/portada-vaina-cap1-3x4.png": {
       "hash": "3c92d5cbe956a38e744b4ddc75e9fbbf753897d8e7893107c9469d110466b452",
       "content": "/root/.cache/hyperframes/history/fddfe76d-ad12-4913-99a0-692aafdad049/blobs/3c/3c92d5cbe956a38e744b4ddc75e9fbbf753897d8e7893107c9469d110466b452"
@@ -347,6 +343,10 @@
     "portada/portada-vaina-cap1.jpg": {
       "hash": "2fedd302528cb4bfc805a5aee46aabc7765e18d5144abb128fcb7c37d0f01729",
       "content": "/root/.cache/hyperframes/history/fddfe76d-ad12-4913-99a0-692aafdad049/blobs/2f/2fedd302528cb4bfc805a5aee46aabc7765e18d5144abb128fcb7c37d0f01729"
+    },
+    "portada/portada.html": {
+      "hash": "b93754bcaebffa814a592e60dfdd269fc92fcf1d7cb1f19f4435c2471c8379a3",
+      "content": "/root/.cache/hyperframes/history/fddfe76d-ad12-4913-99a0-692aafdad049/blobs/b9/b93754bcaebffa814a592e60dfdd269fc92fcf1d7cb1f19f4435c2471c8379a3"
     }
   },
   "revisions": {
