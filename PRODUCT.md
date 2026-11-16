@@ -45,7 +45,7 @@ Each entity's own formats, variables and rules are configured once and then reus
 Same commitments as CuentaFacil on pascalia.lat (confirmed 2026-11-16):
 
 - Name **CuentaFacil**, a service of **PascalIA**; the WhatsApp assistant is **Pascal**. "CuentasBot" is only an internal code name and is never shown.
-- CuentaFacil keeps its own identity as a sub-brand: green, with the calendar-with-check logo (assets in `pascalia-web/cuentafacil/`).
+- CuentaFacil uses the PascalIA palette: yellow #FFC107, graphite #1F1F1F, light gray #E9E8E9 and cream #FFF8E1, with its calendar-with-check logo (assets in `pascalia-web/cuentafacil/`). Green is not part of the palette (owner correction, 2026-11-16).
 - Voice: Spanish from Colombia, cordial, using tú.
 - Binding principle: AI assists, people decide. Nothing is presented as final without human approval.
 
