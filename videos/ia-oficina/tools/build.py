@@ -1,6 +1,6 @@
 # Builds "8 usos de la IA para tu oficina": explainer with the PascalIA character bank (Valentina, Andrés, Marcela, Julián,
 # Camila, Hernando, Pascal) and the brand formats (prompt/result cards, WhatsApp chat, Excel bar, matrix, before/after, QR).
-# Method stays implicit (peak, before/after, share CTA); "documentos", never "cuenta de cobro".
+# Series «¿Y esa vaina como pa' qué?», chapter in SERIE['cap'] (intro card + corner chip). Method stays implicit (peak, before/after, share CTA); "documentos", never "cuenta de cobro".
 # One scene per voice line (Pascal, owner's cloned voice); reuses the drawing helpers of videos/pascal-sign/tools/build.py.
 import os, json, subprocess, importlib.util
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -420,11 +420,36 @@ EXTRA2 = EXTRA2 + f"""
 .chips8 span{{padding:12px 18px;border-radius:999px;background:#1C1C22;box-shadow:inset 0 0 0 2px #3A3A44;color:#fff;font:700 28px/1 "Inter",sans-serif}}
 .chips8 b{{color:{Y};margin-right:6px}}
 """
+# ---------------------------------------------------------------- serie «¿Y esa vaina como pa' qué?»
+SERIE = {'titulo': "¿Y esa vaina como pa' qué?", 'cap': 1, 'tema': 'Los usos de la IA en la oficina'}
+EXTRA2 = EXTRA2 + f"""
+.serie{{position:absolute;left:30px;top:34px;z-index:5;display:inline-flex;align-items:center;gap:10px;padding:10px 18px 10px 10px;border-radius:999px;background:rgba(17,17,17,.88);color:#fff;font:800 24px/1 "Montserrat",sans-serif}}
+.serie b{{padding:6px 10px;border-radius:999px;background:{Y};color:#111}}
+.sx-t{{position:absolute;left:50px;right:50px;text-align:center;font:800 118px/1 "Montserrat",sans-serif;color:#fff;letter-spacing:-.03em}}
+.sx-t em{{font-style:normal;color:{Y};text-shadow:0 0 30px rgba(255,193,7,.6)}}
+.sx-cap{{position:absolute;left:0;right:0;text-align:center}}
+.sx-cap span{{display:inline-block;padding:16px 34px;border-radius:999px;background:{Y};color:#111;font:800 46px/1 "Montserrat",sans-serif}}
+.sx-tema{{position:absolute;left:60px;right:60px;text-align:center;font:700 44px/1.25 "Inter",sans-serif;color:#E6E6E6}}
+"""
+SERIE_CHIP = f'<div class="serie"><b>Cap. {SERIE["cap"]}</b>{SERIE["titulo"]}</div>'
 USO = lambda n, t: f'<div class="uso"><span><b>{n}</b>Uso {n}</span></div><h1 id="X-t" class="ut">{t}</h1>'
 USO_IN = lambda: 'tl.from(".uso",{{opacity:0,y:-30,duration:.3}},0);tl.from("#X-t",{{opacity:0,y:-20,duration:.35,ease:"back.out(2)"}},.08);'.replace('{{', '{').replace('}}', '}')
 def CHR(id_, name, css):
     return f'<img id="{id_}" class="char" src="assets/chars/{name}.webp" alt="" data-layout-allow-overlap>', f'#{id_}{{{{{css}}}}}'.replace('{{{{', '{').replace('}}}}', '}')
 S = []
+S.append(('o00', 'qx', .7, """
+#X-t{top:470px}
+#X-cp{top:1000px}
+#X-tm{top:1120px}
+#X-lg{left:470px;top:220px;width:140px;height:140px}
+""", f'<div id="X-rs" class="rays" style="opacity:0"></div><img id="X-lg" class="abs" src="assets/brand/flower.svg" alt="">'
+ + '<h1 id="X-t" class="sx-t">¿Y esa <em>vaina</em><br>como pa\' qué?</h1>'
+ + f'<p id="X-cp" class="sx-cap"><span>Capítulo {SERIE["cap"]}</span></p><p id="X-tm" class="sx-tema">{SERIE["tema"]}</p>',
+ lambda D, s, d: f"""tl.to("#X-rs",{{opacity:1,duration:.5}},0);tl.to("#X-rs",{{rotation:40,duration:{D:.2f},ease:"none"}},0);
+tl.from("#X-lg",{{opacity:0,scale:.3,rotation:-90,duration:.5,ease:"back.out(2)"}},0);
+tl.from("#X-t",{{opacity:0,scale:1.5,duration:.5,ease:"back.out(1.8)"}},.1);
+tl.from("#X-cp",{{opacity:0,y:40,scale:.6,duration:.4,ease:"back.out(2.5)"}},{s + d * .55:.2f});
+tl.from("#X-tm",{{opacity:0,y:30,duration:.4}},{s + d * .7:.2f});"""))
 S.append(('o01', 'of', .3, """
 #X-t{top:170px;font-size:80px}
 #X-v{left:20px;top:560px;height:940px}
@@ -652,7 +677,8 @@ def build():
             c += pd
         X = cid
         js = jsf(D, s, d).replace('X_n', f'{X.replace("-", "_")}_n')
-        html = page(cid, (EXTRA2 + css).replace('X-', f'{X}-'), BG[bg] + body.replace('X-', f'{X}-') + caps, js.replace('X-', f'{X}-') + cj)
+        chip = SERIE_CHIP if n not in ('o00', 'o14') else ''
+        html = page(cid, (EXTRA2 + css).replace('X-', f'{X}-'), BG[bg] + body.replace('X-', f'{X}-') + chip + caps, js.replace('X-', f'{X}-') + cj)
         html = html.replace('.cap{position:absolute;left:70px;right:70px;bottom:250px;', '.cap{position:absolute;left:70px;right:70px;bottom:300px;')
         open(os.path.join(fr, f'{cid}.html'), 'w').write(html)
         rows.append(f'      <div id="{cid}" class="clip" data-composition-id="{cid}" data-composition-src="compositions/frames/{cid}.html" data-start="{t:.2f}" data-duration="{D:.2f}" data-track-index="1" data-width="1080" data-height="1920"></div>')
