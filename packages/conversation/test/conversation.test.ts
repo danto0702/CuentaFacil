@@ -1281,3 +1281,21 @@ describe('obligation with a note too short to draft', () => {
     expect(d.sourceNoteIds).toHaveLength(2);
   });
 });
+
+describe('contractor portal (ADR-061)', () => {
+  it('links the web account with the code it shows, once', async () => {
+    const h = harness();
+    h.store.portalCodes.set('K7M4Q2', { email: 'maria@example.invalid' });
+    h.store.portalCodes.set('OLD999', { email: 'x@example.invalid', expired: true });
+    let out = show(await h.say('vincular k7m4q2'));
+    expect(out[0]).toMatch(
+      /^✅ Listo, tu cuenta web \*maria@example\.invalid\* quedó vinculada a este WhatsApp\./,
+    );
+    expect(out[0]).toContain('cuenta.pascalia.lat');
+    expect(h.store.portalLinks.get(h.store.data.users[0]!.id)).toBe('maria@example.invalid');
+    out = show(await h.say('VINCULAR K7M4Q2'));
+    expect(out[0]).toMatch(/^No encuentro ese código/);
+    out = show(await h.say('Vincular OLD999'));
+    expect(out[0]).toMatch(/^Ese código ya venció/);
+  });
+});

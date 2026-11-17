@@ -451,6 +451,18 @@ export class MemoryStore implements Store {
     this.data.charges = [...(this.data.charges ?? []).filter((c) => c.id !== charge.id), charge];
     return clone(charge);
   }
+  /** Codes shown by the portal (code → web e-mail), for tests and the simulator. */
+  portalCodes = new Map<string, { email: string; expired?: boolean; used?: boolean }>();
+  /** Linked web accounts: user id → e-mail. */
+  portalLinks = new Map<string, string>();
+  async linkPortal(userId: string, code: string) {
+    const c = this.portalCodes.get(code.trim().toUpperCase());
+    if (!c || c.used) return { status: 'invalid' as const };
+    if (c.expired) return { status: 'expired' as const };
+    c.used = true;
+    this.portalLinks.set(userId, c.email);
+    return { status: 'ok' as const, email: c.email };
+  }
   async markTransfer(chargeId: string, transfer: { supportId: string; sentAt: string } | null) {
     this.data.charges = (this.data.charges ?? []).map((x) =>
       x.id === chargeId && x.status === 'pending' ? { ...x, transfer } : x,

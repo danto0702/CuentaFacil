@@ -353,3 +353,29 @@
   - Si nunca escribió desde ese número, o si pasaron más de 23 h 50 min (10 minutos de margen), el mensaje queda guardado y se envía la plantilla de aviso. La persona lo recibe cuando toca «Ver ahora» o cuando vuelve a escribir.
   - Se mantiene la detección del error al enviar.
 - **Consecuencias:** aplica a todo lo que Pascal envía por su cuenta: mensajes del panel, pagos confirmados, transferencias y avisos de gestores. No cambia el esquema de la base de datos. El mensaje del 31/10 a la contratista sin teléfono (usuario de WhatsApp CO.…) se perdió y hay que volver a escribirlo desde el panel.
+
+## ADR-061 — Portal del contratista: cuenta.pascalia.lat (2026-11-17)
+- **Contexto:** el dueño pidió una página para que cada contratista entre con usuario y contraseña y gestione sus cuentas, como complemento del chat. Debe permitir editar actividades, cargar soportes, ver documentos y ver o pagar sus cobros.
+- **Decisión (respuestas del dueño):**
+  - **Ingreso y vinculación:** correo y contraseña (Supabase Auth). La cuenta web no ve nada hasta que se vincula. Para vincularla, la página muestra un código y el contratista lo envía desde su WhatsApp: «VINCULAR K7M4Q2» (vence en 30 minutos). Así el dueño del WhatsApp prueba que la cuenta es suya, sin plantillas ni SMS. `users.auth_user_id` queda apuntando a esa cuenta, y una vinculación nueva reemplaza la anterior.
+  - **Dirección:** cuenta.pascalia.lat, en la misma app del panel, sin servicio nuevo. Una reescritura por host (`next.config.ts`, `PORTAL_HOST`) sirve `app/mi-cuenta` en ese dominio, y el panel del equipo no se alcanza desde ahí.
+  - **Seguridad:** RLS con `current_contractor_id()`:
+    - lectura de lo propio en contratos, cuentas, obligaciones, soportes, tipos de soporte, borradores y cobros;
+    - escritura de lo propio en actividades y evidencias, y carga o retiro de soportes;
+    - Storage: carpeta `<user_id>/` en `supports` y `evidences`, y paquetes `outputs/packages/<user_id>-*`.
+    - La configuración de la entidad no se expone: el nombre sale de `portal_entities()`. El panel no usa la service role.
+  - **Funciones:**
+    - Actividades: agregar, editar (texto, fecha, obligación principal y adicionales), borrar, y agregar o quitar fotos. Las cuentas entregadas no se tocan.
+    - Soportes: cargar con tipo y fecha de expedición, y ver la vigencia. La PILA sigue por WhatsApp, porque Pascal lee sus valores.
+    - Documentos: paquetes de los últimos 30 días, y reenviar o generar por WhatsApp.
+    - Pagos: Wompi y transferencia con comprobante (ADR-055).
+    - Mis datos: la cédula y la cuenta se muestran enmascaradas; cambiarlas se hace por WhatsApp. Cambio de contraseña.
+  - **Lo que hace Pascal** (generar, ver borrador, reenviar, cambiar la cuenta bancaria): `portal_request` deja la solicitud en la cola `inbound` como evento `portal`. El worker corre el turno como si el contratista lo hubiera escrito y responde en el chat con `deliver`, que respeta la ventana de 24 horas. Se acepta una lista cerrada de textos y respuestas, y una solicitud cada 20 segundos.
+  - **«Olvidé mi contraseña»:** `portal_recovery` (anónima, no revela si el correo existe, un enlace cada 10 minutos). El worker crea el enlace con la API de administración de Supabase y Pascal lo envía por WhatsApp, sin servidor de correo.
+  - **Una actividad cambiada en el portal invalida los borradores** de esa obligación en su cuenta (trigger `activity_notes_portal`; solo para cambios del contratista, no del worker). Así Pascal la vuelve a redactar antes de generar.
+- **Consecuencias:**
+  - Migración `20261117000001_contractor_portal.sql` y prueba `supabase/tests/portal.test.sql`.
+  - Los paquetes ZIP ahora se guardan en `packages/<user_id>-<uuid>/`.
+  - Hay que agregar el dominio en Railway y el registro DNS, y desactivar «Confirm email» en Supabase Auth: el correo por defecto de Supabase no llega a terceros, y la vinculación por WhatsApp ya prueba la identidad.
+  - Opcional: compartir `WOMPI_PUBLIC_KEY` y `WOMPI_INTEGRITY_SECRET` con el panel para el botón «Pagar en línea».
+  - La política de datos debe mencionar el correo y la cuenta web en su próxima versión.

@@ -5,7 +5,7 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
 import { randomUUID } from 'node:crypto';
 import Anthropic from '@anthropic-ai/sdk';
-import { BogotaClock, BRAND, Orchestrator, TRANSFER_TICKET } from '@cuentasbot/conversation';
+import { BogotaClock, BRAND, type Inbound, Orchestrator, TRANSFER_TICKET } from '@cuentasbot/conversation';
 import { docxToPdf, extractPages } from '@cuentasbot/docgen';
 import { formatCOP } from '@cuentasbot/shared';
 import { createClient } from '@supabase/supabase-js';
@@ -21,6 +21,13 @@ import { loadConfig, sttSettings } from './runtime/config.js';
 import { type DeliverDeps, deliver, flushHeld, SHOW_HELD, SupabaseHeldStore } from './runtime/held.js';
 import { jsonLogger as log } from './runtime/log.js';
 import { InboundPipeline, type Logger, type Messenger } from './runtime/pipeline.js';
+import {
+  PORTAL_WAITING,
+  parsePortalRequest,
+  RECOVERY_WAITING,
+  recoveryMessage,
+  recoveryUrl,
+} from './runtime/portal.js';
 import { Queue } from './runtime/queue.js';
 import { processRegistryImports, queueRegistryUploads } from './runtime/registry-import.js';
 import { parseRegistryWorkbook } from './runtime/registry-xlsx.js';
@@ -28,7 +35,7 @@ import { SupabaseReminderDb, sendSupportReminders } from './runtime/reminders.js
 import { purgeExpiredFiles } from './runtime/retention.js';
 import { parseStaffMessage, STAFF_WAITING, staffOutgoing } from './runtime/staff.js';
 import { SupabasePipelineDb } from './runtime/supabase-db.js';
-import { turnId } from './runtime/turn-ids.js';
+import { turnId, withTurnIds } from './runtime/turn-ids.js';
 import { SupabaseStore } from './store/supabase-store.js';
 import { StorageTemplateProvider } from './templates.js';
 import { WhatsAppClient } from './whatsapp/client.js';
@@ -138,7 +145,9 @@ const ZIP_LINK_SECONDS = 7 * 24 * 3600;
 const outbound: Messenger = {
   async send(to, out) {
     if (out.type !== 'document' || out.mime !== 'application/zip') return messenger.send(to, out);
-    const path = `packages/${randomUUID()}/${out.filename}`;
+    // Under the contractor's id, so the portal lists their packages (ADR-061); one level, for the retention job.
+    const owner = await store.getUserByPhone(to).catch(() => null);
+    const path = `packages/${owner ? `${owner.id}-` : ''}${randomUUID()}/${out.filename}`;
     const bucket = sb.storage.from('outputs');
     const up = await bucket.upload(path, out.data, { contentType: 'application/zip' });
     if (up.error) throw new Error(`zip upload: ${up.error.message}`);
@@ -399,12 +408,56 @@ async function processStaff(inboxId: number): Promise<void> {
   await pipelineDb.markInbox(inboxId, 'processed');
 }
 
+/**
+ * Request from the contractor portal (ADR-061): a turn of the conversation, answered in the WhatsApp chat
+ * (held behind the notice template when the window is closed), or a password recovery link.
+ */
+async function processPortal(inboxId: number): Promise<void> {
+  const item = await pipelineDb.getInbox(inboxId);
+  if (!item || item.status !== 'pending') return;
+  const req = parsePortalRequest(item.body);
+  if (!req) {
+    await pipelineDb.markInbox(inboxId, 'rejected', 'invalid portal request');
+    return;
+  }
+  const user = await store.getUser(req.userId);
+  if (req.action === 'recovery') {
+    const { data: row } = await sb.from('users').select('auth_user_id').eq('id', user.id).single();
+    const authId = (row as { auth_user_id: string | null } | null)?.auth_user_id;
+    const email = authId ? (await sb.auth.admin.getUserById(authId)).data.user?.email : undefined;
+    if (!email) {
+      await pipelineDb.markInbox(inboxId, 'rejected', 'no linked web account');
+      return;
+    }
+    const { data, error } = await sb.auth.admin.generateLink({ type: 'recovery', email });
+    if (error || !data.properties?.hashed_token) throw new Error(`recovery link: ${error?.message}`);
+    const url = recoveryUrl(cfg.PORTAL_URL, data.properties.hashed_token);
+    await deliver(deliverDeps, recipient(user), [recoveryMessage(url)], RECOVERY_WAITING);
+  } else {
+    const message: Inbound = {
+      id: `portal-${inboxId}`,
+      from: user.phone,
+      at: new Date(),
+      kind: req.text ? 'text' : 'reply',
+      ...(req.text ? { text: req.text } : { replyId: req.reply! }),
+    };
+    const out = await withTurnIds(message.id, () => orchestrator.handle(message));
+    const result = await deliver(deliverDeps, recipient(user), out, PORTAL_WAITING);
+    log.info('portal.turn', { userId: user.id, result });
+  }
+  await pipelineDb.markInbox(inboxId, 'processed');
+}
+
 type InboundItem = Awaited<ReturnType<typeof inbound.read>>[number];
 
 /** Who sent a stored webhook delivery, to keep each person's messages in order. */
 async function senderOf(inboxId: number): Promise<string | null> {
-  const { data } = await sb.from('webhook_inbox').select('body').eq('id', inboxId).single();
+  const { data } = await sb.from('webhook_inbox').select('provider, body').eq('id', inboxId).single();
   if (!data) return null;
+  if (data.provider === 'portal') {
+    const req = parsePortalRequest(data.body);
+    return req ? ((await store.getUser(req.userId).catch(() => null))?.phone ?? null) : null;
+  }
   return parseWebhook(JSON.parse(data.body)).messages[0]?.from ?? null;
 }
 
@@ -415,6 +468,7 @@ async function processQueued(m: InboundItem): Promise<void> {
       else if (m.message.provider === 'wompi') await processWompi(m.message.inbox_id);
       else if (m.message.provider === 'transfer') await processTransfer(m.message.inbox_id);
       else if (m.message.provider === 'staff') await processStaff(m.message.inbox_id);
+      else if (m.message.provider === 'portal') await processPortal(m.message.inbox_id);
     });
     await inbound.delete(m.msgId);
   } catch (e) {

@@ -18,6 +18,7 @@ import type {
   Note,
   Obligation,
   Period,
+  PortalLinkStatus,
   PriorPaymentRecord,
   ProfileFlags,
   ReferralResult,
@@ -291,6 +292,15 @@ export class SupabaseStore implements Store {
       ...(c.transfer ? { transfer: { support_id: c.transfer.supportId, sent_at: c.transfer.sentAt } } : {}),
     };
     return Object.keys(raw).length ? raw : null;
+  }
+
+  async linkPortal(userId: string, code: string) {
+    const rows = must(await this.sb.rpc('portal_link', { p_user: userId, p_code: code }), 'linkPortal') as {
+      status: PortalLinkStatus;
+      email: string | null;
+    }[];
+    const r = rows[0] ?? { status: 'invalid' as const, email: null };
+    return { status: r.status, ...(r.email ? { email: r.email } : {}) };
   }
 
   async markTransfer(chargeId: string, transfer: { supportId: string; sentAt: string } | null) {

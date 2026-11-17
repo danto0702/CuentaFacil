@@ -151,6 +151,8 @@ export interface STT {
   transcribe(audio: Buffer, mime: string): Promise<string>;
 }
 
+export type PortalLinkStatus = 'ok' | 'invalid' | 'expired' | 'taken';
+
 export interface Store {
   getUserByPhone(phone: string): Promise<User | null>;
   getUser(id: string): Promise<User>;
@@ -251,6 +253,11 @@ export interface Store {
   ): Promise<void>;
   /** Records the transfer receipt (a support) of a pending charge, or clears it (null) when rejected. */
   markTransfer(chargeId: string, transfer: { supportId: string; sentAt: string } | null): Promise<void>;
+  /**
+   * Links the web account that showed this code to the user (portal, ADR-061). `email` is the web
+   * account's e-mail when linked.
+   */
+  linkPortal(userId: string, code: string): Promise<{ status: PortalLinkStatus; email?: string }>;
   /** Uses one unexpired free report of the user for this charge; false if none. */
   useFreeGrant(userId: string, chargeId: string): Promise<boolean>;
   /** Validates and uses a cash code for this charge (same user, same amount, unused, unexpired). */

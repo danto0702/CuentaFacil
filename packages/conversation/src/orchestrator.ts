@@ -875,6 +875,25 @@ export class Orchestrator {
   }
 
   // -------------------------------------------------------------------------
+  // Portal (ADR-061): the web account is linked from the WhatsApp that owns the contracts
+  // -------------------------------------------------------------------------
+  private async linkPortal(turn: Turn, code: string): Promise<void> {
+    const r = await this.deps.store.linkPortal(actorOf(turn).id, code);
+    const site = BRAND.portal.replace(/^https:\/\//, '').replace(/\/$/, '');
+    turn.out.push(
+      text(
+        {
+          ok: `✅ Listo, tu cuenta web${r.email ? ` *${r.email}*` : ''} quedó vinculada a este WhatsApp. Ya puedes entrar a ${site} para ver y editar tus actividades, cargar soportes, descargar tus documentos y ver tus pagos. Todo lo que hagas allá también lo veo yo aquí.`,
+          invalid: `No encuentro ese código. Revisa que lo escribiste bien, o pide uno nuevo en ${site}.`,
+          expired: `Ese código ya venció (duran 30 minutos). Pide uno nuevo en ${site}.`,
+          taken:
+            'Esa cuenta web ya está vinculada a otro número de WhatsApp. Si crees que es un error, escribe *soporte*.',
+        }[r.status],
+      ),
+    );
+  }
+
+  // -------------------------------------------------------------------------
   // Dispatch
   // -------------------------------------------------------------------------
   private async dispatch(turn: Turn, msg: Inbound): Promise<void> {
@@ -897,6 +916,10 @@ export class Orchestrator {
       turn.out.push(text(`🎙️ Te entendí: «${clip(transcript, 300)}»`));
       return this.dispatch(turn, { ...msg, kind: 'text', text: transcript });
     }
+
+    // «VINCULAR K7M4Q2»: the code the portal shows to link the web account (ADR-061), from any flow.
+    const link = msg.kind === 'text' ? /^\s*vincular\s+([a-z0-9]{6})\s*$/i.exec(msg.text ?? '') : null;
+    if (link) return this.linkPortal(turn, link[1]!);
 
     // Answers about the previous report used as writing style work anywhere, also during the setup.
     if (msg.replyId?.startsWith('style:')) return this.onStyleReply(turn, msg.replyId);

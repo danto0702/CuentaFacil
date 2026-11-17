@@ -15,6 +15,8 @@ const schema = z.object({
   AI_CONFIDENCE_THRESHOLD: z.coerce.number().min(0).max(1).default(0.8),
   // Voice notes: OpenAI or Groq (Whisper, OpenAI-compatible API). Only the chosen provider's key is required.
   STT_PROVIDER: z.enum(['openai', 'groq']).default('openai'),
+  /** Contractor portal (ADR-061): password recovery links point here. */
+  PORTAL_URL: z.string().url().default('https://cuenta.pascalia.lat'),
   OPENAI_API_KEY: z.string().min(20).optional(),
   GROQ_API_KEY: z.string().trim().min(20).optional(),
   STT_MODEL: z.string().optional(),
