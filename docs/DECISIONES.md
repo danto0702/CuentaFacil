@@ -379,3 +379,15 @@
   - Hay que agregar el dominio en Railway y el registro DNS, y desactivar «Confirm email» en Supabase Auth: el correo por defecto de Supabase no llega a terceros, y la vinculación por WhatsApp ya prueba la identidad.
   - Opcional: compartir `WOMPI_PUBLIC_KEY` y `WOMPI_INTEGRITY_SECRET` con el panel para el botón «Pagar en línea».
   - La política de datos debe mencionar el correo y la cuenta web en su próxima versión.
+
+## ADR-062 — Acceso al portal asignado por el superadmin (2026-11-17)
+- **Contexto:** el dueño no quiere que todos pasen por el código de WhatsApp (ADR-061). Él decide qué contratistas entran solo con correo y contraseña, y les asigna la contraseña.
+- **Decisión:** en el panel, en la ficha del contratista, la sección «Acceso a cuenta.pascalia.lat» permite:
+  - **crear el acceso:** el superadmin escribe el correo y la contraseña (el botón *Generar* propone una de 10 caracteres sin letras confusas). Se crea la cuenta en Supabase Auth ya confirmada (`app_metadata.portal_access = 'assigned'`) y queda vinculada de una vez (`users.auth_user_id`);
+  - **cambiar el correo o la contraseña;**
+  - **quitar el acceso:** se desvincula y se borra la cuenta web. Nunca se borra una cuenta del equipo.
+  - El registro propio con el código de WhatsApp sigue disponible para los demás.
+- **Seguridad:**
+  - Crear usuarios y asignar contraseñas exige la API de administración. El panel usa `SUPABASE_SERVICE_ROLE_KEY`, solo en el servidor (`lib/supabase-admin.ts`) y solo después de comprobar que quien lo pide es superadmin. Las demás páginas siguen con la sesión del usuario y RLS.
+  - La contraseña no queda en la URL, ni en la base de datos, ni en los registros. El superadmin la copia antes de guardar y se la entrega a la persona por un medio privado.
+- **Consecuencias:** hay que agregar `SUPABASE_SERVICE_ROLE_KEY` al servicio del panel en Railway, como referencia a la del worker. Una persona con acceso asignado puede recuperar la contraseña por WhatsApp como las demás.

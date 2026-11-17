@@ -1,7 +1,15 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { adminAvailable, getContractorDetail } from '@/lib/admin';
-import { deleteGeneralObligations, deleteObligation, sendStaffMessage } from '../actions';
+import { adminAuthConfigured, supabaseAdmin } from '@/lib/supabase-admin';
+import {
+  deleteGeneralObligations,
+  deleteObligation,
+  removePortalAccess,
+  sendStaffMessage,
+  setPortalAccess,
+} from '../actions';
+import { PasswordInput } from './password-input';
 
 export default async function ContractorPage({
   params,
@@ -15,6 +23,10 @@ export default async function ContractorPage({
   if (!adminAvailable()) return <p className="muted">Disponible con Supabase configurado.</p>;
   const c = await getContractorDetail(id);
   if (!c) notFound();
+  const portalEmail =
+    c.authUserId && adminAuthConfigured()
+      ? ((await supabaseAdmin().auth.admin.getUserById(c.authUserId)).data.user?.email ?? null)
+      : null;
   return (
     <>
       <p>
@@ -28,6 +40,7 @@ export default async function ContractorPage({
       {msg && <div className="banner">{msg}</div>}
 
       <StaffMessage userId={c.id} lastInboundAt={c.lastInboundAt} />
+      <PortalAccess userId={c.id} linked={Boolean(c.authUserId)} email={portalEmail} />
 
       {c.contracts.length === 0 && <p className="muted">Sin contratos configurados.</p>}
       {c.contracts.map((k) => {
@@ -126,6 +139,49 @@ function StaffMessage({ userId, lastInboundAt }: { userId: string; lastInboundAt
         </label>
         <button type="submit">Enviar por Pascal</button>
       </form>
+    </div>
+  );
+}
+
+/**
+ * Web access to cuenta.pascalia.lat (ADR-062): the superadmin assigns e-mail and password, and the contractor
+ * signs in without the WhatsApp code. Contractors who sign up by themselves link with the code instead.
+ */
+function PortalAccess({ userId, linked, email }: { userId: string; linked: boolean; email: string | null }) {
+  return (
+    <div className="card">
+      <h3>Acceso a cuenta.pascalia.lat</h3>
+      {!adminAuthConfigured() && (
+        <div className="banner">
+          Para asignar accesos, agrega en Railway la variable SUPABASE_SERVICE_ROLE_KEY al servicio del panel.
+        </div>
+      )}
+      <p className="muted">
+        {linked
+          ? `Tiene acceso${email ? ` con ${email}` : ''}. Puedes cambiarle el correo o la contraseña, o quitarle el acceso.`
+          : 'Aún no tiene acceso. Asígnale un correo y una contraseña y entra sin código de WhatsApp; o deja que se registre él mismo en la página y lo vincule con el código.'}
+      </p>
+      <form action={setPortalAccess} className="inline">
+        <input type="hidden" name="userId" value={userId} />
+        <label>
+          Correo{' '}
+          <input name="email" type="email" required defaultValue={email ?? ''} style={{ width: 240 }} />
+        </label>
+        <PasswordInput />
+        <button type="submit">{linked ? 'Cambiar acceso' : 'Crear acceso'}</button>
+      </form>
+      <p className="muted">
+        Copia la contraseña antes de guardar: después no se vuelve a mostrar. Entrégasela al contratista por
+        un medio privado.
+      </p>
+      {linked && (
+        <form action={removePortalAccess}>
+          <input type="hidden" name="userId" value={userId} />
+          <button type="submit" className="secondary">
+            Quitar acceso
+          </button>
+        </form>
+      )}
     </div>
   );
 }

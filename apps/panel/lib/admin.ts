@@ -310,6 +310,8 @@ export interface ContractorDetail {
   docIssuedIn: string;
   /** Last message the contractor sent: Pascal can write freely for 24 hours after it. */
   lastInboundAt: string | null;
+  /** Web account of the contractor portal (ADR-061/062), if any. */
+  authUserId: string | null;
   contracts: ContractDetail[];
 }
 
@@ -317,7 +319,7 @@ export async function getContractorDetail(id: string): Promise<ContractorDetail 
   const sb = await supabaseServer();
   const { data: u, error } = await sb
     .from('users')
-    .select('id, full_name, phone_e164, doc_issued_in')
+    .select('id, full_name, phone_e164, doc_issued_in, auth_user_id')
     .eq('id', id)
     .maybeSingle();
   if (error) throw error;
@@ -371,6 +373,7 @@ export async function getContractorDetail(id: string): Promise<ContractorDetail 
     phone: maskPhone(u.phone_e164),
     docIssuedIn: u.doc_issued_in ?? '',
     lastInboundAt: inbound?.[0]?.received_at ?? null,
+    authUserId: u.auth_user_id ?? null,
     contracts: (contracts ?? []).map((c) => ({
       id: c.id,
       number: c.number_full,
