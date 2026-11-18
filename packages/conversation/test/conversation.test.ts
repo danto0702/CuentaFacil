@@ -1289,6 +1289,29 @@ describe('obligation with a note too short to draft', () => {
   });
 });
 
+describe('«Escoger informe» from the menu', () => {
+  it("lists the contract's reports by number and opens the one chosen", async () => {
+    const h = harness();
+    let out = show(await h.say('menú'));
+    expect(out.at(-1)).toContain('| Escoger informe |');
+    out = show(await h.press('menu:pick_report'));
+    expect(out[0]).toMatch(/^¿De cuál contrato\?/);
+    out = show(await h.press(`c:${DEMO_IDS.salud}`));
+    expect(out[0]).toMatch(/^📑 ¿Qué informe del contrato .+ quieres trabajar\?/);
+    expect(out[0]).toContain('{Informe 03 DE 03 | Informe 02 DE 03 | Informe 01 DE 03}');
+
+    // A delivered one: offered to redo, nothing else changes.
+    out = show(await h.press(`rpt:${DEMO_IDS.salud}:1`));
+    expect(out[0]).toMatch(/^El informe 01 DE 03 .* ya te lo entregué\. ¿Quieres que lo rehaga/s);
+
+    // The one in course: Pascal drafts it.
+    out = show(await h.say('escoger informe'));
+    await h.press(`c:${DEMO_IDS.salud}`);
+    out = show(await h.press(`rpt:${DEMO_IDS.salud}:3`));
+    expect(out.join('\n')).toMatch(/redactando|metas|no tengo registros|actividad/i);
+  });
+});
+
 describe('contractor portal (ADR-061)', () => {
   it('links the web account with the code it shows, once', async () => {
     const h = harness();

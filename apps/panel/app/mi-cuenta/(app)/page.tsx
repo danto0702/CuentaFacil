@@ -141,6 +141,9 @@ export default async function HomePage({ searchParams }: { searchParams: Search 
                     <a className="pt-btn ghost" href={`/contratos/${c.id}/borrador?p=${p.number}`}>
                       {p.status === 'approved' ? 'Generar documentos' : 'Revisar el borrador'}
                     </a>
+                    <a className="pt-btn ghost" href="/informes">
+                      Otro informe
+                    </a>
                   </div>
                 </>
               ) : (

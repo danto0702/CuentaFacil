@@ -33,17 +33,20 @@ export function Submit({
 
 const TABS: [string, string][] = [
   ['/', 'Inicio'],
+  ['/informes', 'Informes'],
   ['/soportes', 'Soportes'],
   ['/documentos', 'Documentos'],
   ['/pagos', 'Pagos'],
   ['/datos', 'Mis datos'],
 ];
 
-/** Tabs; the contract pages count as «Inicio». Works with and without the /mi-cuenta prefix. */
+/** Tabs; the contract pages count as «Informes». Works with and without the /mi-cuenta prefix. */
 export function Tabs() {
   const raw = usePathname() ?? '/';
   const path = raw.replace(/^\/mi-cuenta/, '') || '/';
-  const current = TABS.find(([href]) => href !== '/' && path.startsWith(href))?.[0] ?? '/';
+  const current = path.startsWith('/contratos')
+    ? '/informes'
+    : (TABS.find(([href]) => href !== '/' && path.startsWith(href))?.[0] ?? '/');
   return (
     <nav className="pt-nav" aria-label="Secciones">
       <div className="pt-nav-in">

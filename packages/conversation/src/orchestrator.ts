@@ -1204,6 +1204,15 @@ export class Orchestrator {
       const p = c && (await this.deps.store.listPeriods(c.id)).find((x) => x.number === Number(n));
       if (c && p) return this.resetReport(turn, c, p);
     }
+    if (msg.kind === 'reply' && (msg.replyId?.startsWith('rpt:') || msg.replyId?.startsWith('rptm:'))) {
+      this.reset(turn);
+      const [kind, contractId, n] = msg.replyId.split(':');
+      const c = (await this.activeContracts(turn)).find((x) => x.id === contractId);
+      if (!c) return this.command(turn, 'pick_report');
+      if (kind === 'rptm') return this.showReports(turn, c, Number(n));
+      const p = (await this.deps.store.listPeriods(c.id)).find((x) => x.number === Number(n));
+      if (p) return this.openReport(turn, c, p, false);
+    }
     if (msg.kind === 'reply' && msg.replyId?.startsWith('dft:')) {
       this.reset(turn);
       const [contractId, n] = msg.replyId.slice(4).split(':');
@@ -1238,6 +1247,8 @@ export class Orchestrator {
         return this.onExtraObligation(turn, msg);
       case 'draft_pick_contract':
         return this.onPickContract(turn, msg, (c) => this.startDraft(turn, c));
+      case 'report_pick_contract':
+        return this.onPickContract(turn, msg, (c) => this.showReports(turn, c));
       case 'pay_wait':
       case 'pay_code':
       case 'pay_transfer':
@@ -1391,6 +1402,8 @@ export class Orchestrator {
         );
       case 'cut_mode':
         return this.withContract(turn, 'cut_pick_contract', (cs) => this.startCut(turn, cs[0]!));
+      case 'pick_report':
+        return this.withContract(turn, 'report_pick_contract', (cs) => this.showReports(turn, cs[0]!));
       case 'reset':
         return this.withContract(turn, 'reset_pick_contract', async (cs) => {
           const p = await this.currentPeriod(cs[0]!);
@@ -1520,7 +1533,7 @@ export class Orchestrator {
     if (help) {
       turn.out.push(
         text(
-          `Soy ${SIGNATURE}. Así me usas:\n1️⃣ Durante el mes, cuéntame lo que haces: texto, audio o fotos. Yo lo anoto en la obligación que corresponde.\n2️⃣ Envíame los soportes (planilla, antecedentes, afiliaciones) cuando los tengas.\n3️⃣ Al cierre escribe *genera el informe* (o *ver borrador*): redacto el informe y tú lo apruebas.\n4️⃣ Escribe *generar* y te envío los documentos listos para firmar.\n↩️ Si una nota quedó mal, escribe *borra la última nota*; para empezar un informe de cero, *reiniciar*.\n✍️ Para cargar o cambiar tu firma, escribe *firma*.\n📝 Para que redacte como tú, escribe *informe anterior* y envíame uno que ya hayas hecho.\n💳 Para ver qué debes o pagar, escribe *mis pagos*.\n🏷️ Para ponerle a cada contrato una descripción corta, escribe *describir contrato*.\n👥 Para hacer las cuentas de otra persona, escribe *agregar persona*; para cambiar entre cuentas, *cambiar persona*.`,
+          `Soy ${SIGNATURE}. Así me usas:\n1️⃣ Durante el mes, cuéntame lo que haces: texto, audio o fotos. Yo lo anoto en la obligación que corresponde.\n2️⃣ Envíame los soportes (planilla, antecedentes, afiliaciones) cuando los tengas.\n3️⃣ Al cierre escribe *genera el informe* (o *ver borrador*): redacto el informe y tú lo apruebas.\n4️⃣ Escribe *generar* y te envío los documentos listos para firmar.\n↩️ Si una nota quedó mal, escribe *borra la última nota*; para empezar un informe de cero, *reiniciar*.\n✍️ Para cargar o cambiar tu firma, escribe *firma*.\n📝 Para que redacte como tú, escribe *informe anterior* y envíame uno que ya hayas hecho.\n💳 Para ver qué debes o pagar, escribe *mis pagos*.\n🏷️ Para ponerle a cada contrato una descripción corta, escribe *describir contrato*.\n📑 Para trabajar otro informe, escribe *escoger informe*; para cambiar el corte (fin de mes o fecha a fecha), *cambiar corte*.\n👥 Para hacer las cuentas de otra persona, escribe *agregar persona*; para cambiar entre cuentas, *cambiar persona*.`,
         ),
       );
       turn.out.push(
@@ -1543,7 +1556,11 @@ export class Orchestrator {
           },
           { id: 'menu:contracts', title: 'Mis contratos' },
           { id: 'menu:add_contract', title: 'Agregar contrato', description: 'Configurar un contrato nuevo' },
-          { id: 'menu:cut_mode', title: 'Cambiar corte', description: 'Fin de mes o fecha a fecha' },
+          {
+            id: 'menu:pick_report',
+            title: 'Escoger informe',
+            description: 'Trabajar un informe por su número',
+          },
           { id: 'menu:my_data', title: 'Mis datos' },
           {
             id: 'menu:signature',
@@ -3379,6 +3396,51 @@ ${lines.join('\n')}${due.length ? '' : '\n\nNo tienes nada pendiente. 👍'}`,
       return;
     }
     const { c, p } = found[0]!;
+    return this.openReport(turn, c, p, redo, reset);
+  }
+
+  /**
+   * «Escoger informe»: the contract's reports by number, newest first; future ones stay out (nothing to edit
+   * yet). Each opens like «informe de julio».
+   */
+  private async showReports(turn: Turn, c: Contract, page = 0): Promise<void> {
+    const today = this.deps.clock.today();
+    const ps = (await this.deps.store.listPeriods(c.id))
+      .filter((p) => compareIso(p.from, today) <= 0)
+      .sort((a, b) => b.number - a.number);
+    if (!ps.length) {
+      turn.out.push(
+        text(`El contrato ${c.shortLabel} aún no tiene informes: el primero empieza más adelante.`),
+      );
+      return;
+    }
+    const state = (p: Period) =>
+      p.status === 'delivered'
+        ? 'Entregado'
+        : p.status === 'approved'
+          ? 'Borrador aprobado'
+          : p.status === 'draft_review'
+            ? 'Borrador en revisión'
+            : compareIso(today, p.to) <= 0
+              ? 'En curso'
+              : 'Pendiente';
+    const body = `📑 ¿Qué informe del contrato ${c.shortLabel} quieres trabajar?`;
+    const items = ps.map((p) => ({
+      id: `rpt:${c.id}:${p.number}`,
+      title: `Informe ${formatReportNumber(p.number, c.paymentsCount, c.reportNumberFormat)}`.slice(0, 24),
+      description: `${formatRangeLong(p.from, p.to)} · ${state(p)}`.slice(0, 72),
+    }));
+    // Always a list, so each report shows its dates and state (buttons have no room for them).
+    turn.out.push(
+      items.length <= MAX_ROWS
+        ? list(body, 'Ver informes', items)
+        : choose(body, items, page, `rptm:${c.id}`),
+    );
+  }
+
+  /** Works on one report: drafts it, or offers to redo it when it was already delivered. */
+  private async openReport(turn: Turn, c: Contract, p: Period, redo: boolean, reset = false): Promise<void> {
+    const name = MONTHS[Number(p.from.slice(5, 7)) - 1]!;
     // Activities sent from now on without a date may belong to this report: Pascal will ask.
     if (p.status !== 'delivered')
       turn.state.context = { ...turn.state.context, working: { contractId: c.id, number: p.number } };

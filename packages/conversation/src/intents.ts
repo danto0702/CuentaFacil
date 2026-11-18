@@ -9,6 +9,7 @@ export type Command =
   | 'generate'
   | 'resend'
   | 'cut_mode'
+  | 'pick_report'
   | 'support'
   | 'stop_reminders'
   | 'start_reminders'
@@ -43,6 +44,18 @@ const COMMANDS: [Command, string[]][] = [
   ['generate', ['generar', 'generar documentos', 'generar informe', 'generar cuenta']],
   ['resend', ['reenviar', 'reenviar documentos', 'enviame los documentos']],
   ['cut_mode', ['cambiar corte', 'corte', 'tipo de corte', 'cambiar periodo']],
+  [
+    'pick_report',
+    [
+      'escoger informe',
+      'elegir informe',
+      'cambiar informe',
+      'otro informe',
+      'mis informes',
+      'informes',
+      'editar informe',
+    ],
+  ],
   ['support', ['soporte', 'hablar con soporte', 'hablar con alguien', 'asesor']],
   ['stop_reminders', ['stop', 'no mas recordatorios', 'detener recordatorios', 'parar recordatorios']],
   ['start_reminders', ['activar recordatorios', 'quiero recordatorios', 'encender recordatorios']],

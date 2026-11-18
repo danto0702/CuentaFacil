@@ -429,3 +429,12 @@
 - **Consecuencias:**
   - Requiere la migración `20261118000001_portal_drafts_gestor.sql`. Mientras no esté aplicada, el portal sigue funcionando como antes: sin selector y con las solicitudes sin contrato.
   - El chat del gestor queda en la persona que pidió desde la web. Cada respuesta lleva el encabezado «👤 Nombre».
+
+## ADR-066 — Escoger el informe por su número, en WhatsApp y en el portal (2026-11-18)
+
+- **Contexto:** para trabajar un informe que no fuera el actual había que nombrar el mes («informe de julio»). No había forma de escoger el informe por su número desde el menú.
+- **Decisión — WhatsApp:**
+  - El menú trae «Escoger informe» (comando `pick_report`, también «escoger informe», «elegir informe», «otro informe»…). Pascal pregunta el contrato si hay varios y muestra sus informes por número, del más reciente al más antiguo, con fechas y estado. No incluye los que aún no empiezan.
+  - Elegir uno lo abre como «informe de julio»: si no se ha entregado, queda como el informe en trabajo y Pascal lo redacta; si ya se entregó, ofrece rehacerlo.
+  - Para no pasar de las 10 opciones que permite WhatsApp, «Cambiar corte» sale de la lista. Sigue funcionando escribiendo *cambiar corte* y aparece en la ayuda.
+- **Decisión — portal:** nueva pestaña «Informes» con todos los informes de cada contrato por número, su estado y enlaces a actividades, borrador y documentos. Las páginas de contrato cuentan como esa pestaña, y el inicio tiene el botón «Otro informe».

@@ -602,3 +602,14 @@
   color: var(--pt-warn);
   font-weight: 600;
 }
+
+/* Reports menu */
+.pt-reports li.current {
+  background: var(--pt-cream);
+  margin: 0 -16px;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+.pt-ml {
+  margin-left: 6px;
+}
