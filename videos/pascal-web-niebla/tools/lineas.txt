@@ -2,7 +2,9 @@ w01|P|¿Tu restaurante tiene una página que de verdad dé hambre? Mira esta.|¿
 w02|P|Esto es La Niebla, un bistró de ejemplo que diseñamos en Pascal Web. Abre con su logo animado, y una luz cálida que sigue tu dedo.|Esto es La Niebla, un bistró de ejemplo que diseñamos en Pascal Web. Abre con su logo animado y una luz cálida que sigue tu dedo.
 w03|P|Un menú limpio, y la página completa en español o en inglés, con un solo toque.|Un menú limpio, y la página completa en español o en inglés, con un solo toque.
 w04|P|Al bajar, la historia se va revelando: la cocina, la galería de fotos, y movimiento en cada sección.|Al bajar, la historia se va revelando: la cocina, la galería de fotos y movimiento en cada sección.
+w04b|P|Una galería que pasa sola, y una cinta con las palabras que definen la casa.|Una galería que pasa sola, y una cinta con las palabras que definen la casa.
 w05|P|La inspiración, la chef y el equipo. Cada parte cuenta quiénes son, no solo qué venden.|La inspiración, la chef y el equipo. Cada parte cuenta quiénes son, no solo qué venden.
+w05b|P|Y el equipo, con nombre y con cara. Porque la gente le compra a la gente.|Y el equipo, con nombre y con cara. Porque la gente le compra a la gente.
 w06|P|Reconocimientos, horarios, contacto y mapa. Todo a un desplazamiento.|Reconocimientos, horarios, contacto y mapa. Todo a un desplazamiento.
 w07|P|La carta, a la carta o en menú degustación, sin descargar ningún pe de efe.|La carta, a la carta o en menú degustación, sin descargar ningún PDF.
 w08|P|Y lo mejor: reservas paso a paso. Personas, fecha y hora en segundos, con aviso a tu WhatsApp.|Y lo mejor: reservas paso a paso. Personas, fecha y hora en segundos, con aviso a tu WhatsApp.

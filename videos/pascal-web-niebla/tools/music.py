@@ -151,7 +151,7 @@ groove(0.1, DUR - 2.0, shift=0, kick_gain=0.2)
 add(pad([53, 57, 60, 65], 2.0), DUR - 2.0, 0.2); add(bell(89, 2.5), DUR - 2.0, 0.07)
 for k, s in enumerate(T['scenes'][1:]):
     sfx(whoosh(0.4), s['start'] - 0.15, 0.05, pan=(-1) ** k * 0.4); sfx(pop(79 + (k % 3) * 2), s['start'] + 0.05, 0.07)
-logo = [s for s in T['scenes'] if s['id'] == 'o14'][0]['start'] + .2
+logo = [s for s in T['scenes'] if s['id'] == 'w09'][0]['start'] + .2
 sparkle(logo + 0.1, 86, 8, 0.05, 0.08); sparkle(VIDEO + 0.2, 88, 8, 0.05, 0.08); sfx(bell(84, 2.5), VIDEO + 0.1, 0.1)
 g = np.ones(N); ramp = int(0.2 * SR)
 for a, b in T['speech']:

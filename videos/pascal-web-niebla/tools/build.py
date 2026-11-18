@@ -25,7 +25,7 @@ M = json.load(open(os.path.join(ROOT, 'tools', 'grabacion', 'marks.json')))
 A = round(vdur('w01') + 0.5, 2)       # recording starts after the hook line
 E = round(A + APP, 2)
 # narration: planned start per line, pushed later if the previous line is still talking
-PLAN = [('w01', 0.15), ('w02', A + M['portada'] - 0.6), ('w03', A + M['menu'] + 0.1), ('w04', A + M['nosotros'] + 0.1), ('w05', A + M['inspiracion'] + 0.1),
+PLAN = [('w01', 0.15), ('w02', A + M['portada'] - 0.6), ('w03', A + M['menu'] + 0.1), ('w04', A + M['nosotros'] + 0.1), ('w04b', A + M['galeria'] + 0.6), ('w05', A + M['inspiracion'] + 0.1), ('w05b', A + M['equipo'] + 0.2),
         ('w06', A + M['reconocimientos'] + 0.1), ('w07', A + M['carta'] + 0.1), ('w08', A + M['reserva'] + 0.1), ('w09', E + 0.5)]
 VOS = {}; last = 0
 for n, t in PLAN:
@@ -55,14 +55,14 @@ html, body {{ width:1080px; height:1920px; overflow:hidden; background:#0A0A0D; 
 #intro-t {{ left:50px; right:50px; top:520px; text-align:center; font:800 108px/1.03 "Montserrat",sans-serif; letter-spacing:-.03em; }}
 #intro-t em {{ font-style:normal; color:{Y}; text-shadow:0 0 30px rgba(255,193,7,.6); }}
 #intro-l {{ left:240px; top:1100px; width:600px; }}
-#step {{ left:40px; right:40px; top:170px; height:100px; display:flex; align-items:center; justify-content:center; gap:18px; }}
+#step {{ left:40px; right:40px; top:140px; height:96px; display:flex; align-items:center; justify-content:center; gap:18px; }}
 #step b {{ display:grid; place-items:center; width:74px; height:74px; border-radius:50%; background:{Y}; color:#111; font:800 42px/1 "Montserrat",sans-serif; }}
 #step span {{ font:800 52px/1.05 "Montserrat",sans-serif; color:#fff; }}
 .st {{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; gap:18px; opacity:0; }}
 #phone {{ left:{PX - 16}px; top:{PY - 16}px; width:{PW + 32}px; height:{PH + 32}px; border-radius:76px; background:#16161B; box-shadow:inset 0 0 0 4px #2E2E36,0 0 0 3px {Y},0 0 90px rgba(255,193,7,.35),0 50px 90px -30px rgba(0,0,0,.9); }}
 #scr {{ left:{PX}px; top:{PY}px; width:{PW}px; height:{PH}px; border-radius:62px; overflow:hidden; background:#000; }}
 #scr video {{ width:100%; height:100%; object-fit:cover; display:block; }}
-#url {{ left:{PX + 150}px; top:{PY - 64}px; width:{PW - 300}px; text-align:center; font:600 26px/1 "Inter",sans-serif; color:#CFCFCF; }}
+#url {{ left:{PX + 150}px; top:{PY - 50}px; width:{PW - 300}px; text-align:center; font:600 26px/1 "Inter",sans-serif; color:#CFCFCF; }}
 .cap {{ position:absolute; left:60px; right:60px; bottom:120px; text-align:center; }}
 .cap span {{ display:inline-block; padding:14px 24px; border-radius:20px; background:{Y}; color:#0B0B0F; font:800 40px/1.25 "Montserrat",sans-serif; box-shadow:0 0 24px rgba(255,193,7,.45); opacity:0; }}
 #end {{ position:absolute; inset:0; opacity:0; }}

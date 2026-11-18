@@ -1,5 +1,5 @@
 // Records a real walkthrough of the La Niebla demo site (pascalia-web: /pascal-web/bistro/, served locally) on an iPhone 13,
-// as CDP screenshots with time dilation (CSS animations and JS timers slowed by SCALE, so the capture is smooth).
+// as CDP screenshots of the visible screen (no clip: clip coordinates are document-relative and break once the page scrolls) with time dilation (CSS animations and JS timers slowed by SCALE, so the capture is smooth).
 // Output: frames/*.jpg + frames.json (wall timestamps) + marks.json (app-time step marks, seconds).
 // Usage: node record.js [base_url]   (default http://127.0.0.1:8765)
 const { chromium, devices } = require('playwright');
@@ -72,7 +72,7 @@ fs.rmSync(OUT, { recursive: true, force: true }); fs.mkdirSync(OUT);
     while (capturing) {
       const t = Date.now() / 1000;
       try {
-        const { data } = await Promise.race([new Promise((_, rej) => setTimeout(() => rej(new Error('capture timeout')), 3000)), cdp.send('Page.captureScreenshot', { format: 'jpeg', quality: 90, clip: { x: 0, y: 0, width: 390, height: 664, scale: 2.6 } })]);
+        const { data } = await Promise.race([new Promise((_, rej) => setTimeout(() => rej(new Error('capture timeout')), 3000)), cdp.send('Page.captureScreenshot', { format: 'jpeg', quality: 88 })]);
         pending.push(fs.promises.writeFile(`${OUT}/${String(i).padStart(5, '0')}.jpg`, Buffer.from(data, 'base64'))); i++;
         frames.push(t);
       } catch (e) { errs++; if (errs < 5) console.log('CAPERR', e.message); }
