@@ -25,6 +25,8 @@ export interface SetupTurn {
   user: User;
   /** The gestor writing for `user` (ADR-042); progress messages go to them. */
   actor?: User;
+  /** The name the gestor gave that person when inviting them. */
+  personLabel?: string;
   state: ConversationState;
   out: Outgoing[];
 }
@@ -429,10 +431,15 @@ export class SetupFlow {
 
   async start(turn: SetupTurn, intro: 'consent' | 'first' | 'another' = 'consent'): Promise<void> {
     turn.state.context = keepActing(turn.state.context);
+    // A gestor configuring someone else's contract (ADR-042) reads whose it is.
+    const other = turn.actor && turn.actor.id !== turn.user.id;
+    const whose = other
+      ? `el contrato de *${(turn.user.fullName || turn.personLabel || 'la persona').split(/\s+/).slice(0, 3).join(' ')}*`
+      : 'tu contrato';
     const opening = {
-      consent: '✅ ¡Gracias! Ahora configuremos tu contrato.',
-      first: '📄 Para empezar necesito configurar tu contrato.',
-      another: '📄 Configuremos otro contrato.',
+      consent: `✅ ¡Gracias! Ahora configuremos ${whose}.`,
+      first: `📄 Para empezar necesito configurar ${whose}.`,
+      another: other ? `📄 Configuremos ${whose}.` : '📄 Configuremos otro contrato.',
     }[intro];
     turn.out.push(text(opening));
     await this.askEntity(turn);
@@ -773,6 +780,27 @@ export class SetupFlow {
 
   /** Applies the entity rules, stores the result and shows the summary for confirmation. */
   private async checkAndShow(turn: SetupTurn, raw: ContractExtraction, entity: Entity): Promise<void> {
+    // A contract in someone else's name never goes into these accounts nor replaces this person's name
+    // and ID (it happened with a gestor who started the setup before the person authorized, ADR-063).
+    const digits = (v: string) => v.replace(/\D/g, '');
+    const mine = digits(turn.user.docNumber);
+    const theirs = digits(raw.contractor.docNumber ?? '');
+    if (mine && theirs && mine !== theirs) {
+      turn.state.flow = 'idle';
+      turn.state.step = 'start';
+      turn.state.context = keepActing(turn.state.context);
+      const other = turn.actor && turn.actor.id !== turn.user.id;
+      turn.out.push(
+        text(
+          `⚠️ Este contrato está a nombre de *${raw.contractor.fullName || 'otra persona'}* (C.C. ${mask(theirs)}), pero ${
+            other
+              ? `la cédula de la persona con la que estamos trabajando termina en ${mine.slice(-4)}`
+              : `tu cédula termina en ${mine.slice(-4)}`
+          }. No lo guardé.\n\nSi es de otra persona, escribe *cambiar persona* (o *agregar persona* si aún no te autorizó) y configúralo desde sus cuentas. Si te equivocaste de documento, escribe *agregar contrato* y envía el correcto.`,
+        ),
+      );
+      return;
+    }
     const code = registryCode(raw.number) ?? registryCode(raw.fullNumber);
     const registry =
       code && raw.contractor.docNumber

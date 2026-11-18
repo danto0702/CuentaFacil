@@ -391,3 +391,14 @@
   - Crear usuarios y asignar contraseñas exige la API de administración. El panel usa `SUPABASE_SERVICE_ROLE_KEY`, solo en el servidor (`lib/supabase-admin.ts`) y solo después de comprobar que quien lo pide es superadmin. Las demás páginas siguen con la sesión del usuario y RLS.
   - La contraseña no queda en la URL, ni en la base de datos, ni en los registros. El superadmin la copia antes de guardar y se la entrega a la persona por un medio privado.
 - **Consecuencias:** hay que agregar `SUPABASE_SERVICE_ROLE_KEY` al servicio del panel en Railway, como referencia a la del worker. Una persona con acceso asignado puede recuperar la contraseña por WhatsApp como las demás.
+
+## ADR-063 — El gestor no queda atrapado y un contrato ajeno no cambia su identidad (2026-11-18)
+
+- **Contexto:** un gestor empezó a configurar un contrato en su propio contexto. Mientras tanto, la otra persona autorizó la delegación, y él terminó la configuración. El contrato y los datos de la cédula (nombre, número, lugar de expedición) quedaron en el usuario del gestor. Además, al trabajar para una persona sin contratos, «menú» volvía a abrir la configuración y no había salida.
+- **Decisión:**
+  - Si el gestor trabaja para una persona sin contratos, Pascal pregunta: configurar su contrato, volver a sus cuentas o cambiar de persona. Ya no abre la configuración sola.
+  - Dentro de la configuración, «menú», «cambiar persona» y los botones de persona salen del flujo.
+  - Antes de guardar un contrato, si la cédula del contrato no coincide con la del usuario al que se va a guardar, Pascal no lo guarda. Avisa a nombre de quién está y sugiere cambiar de persona.
+  - La apertura de la configuración dice de quién es el contrato cuando el gestor trabaja para otra persona.
+  - Si a un usuario le falta el número de cédula, Pascal se lo pide una vez y lo confirma antes de guardarlo.
+- **Consecuencias:** el caso que ya ocurrió se corrige en los datos: el contrato pasa a la persona correcta y se restauran los datos del gestor. Al gestor se le pide otra vez su cédula, porque el número cifrado solo lo puede escribir el worker.

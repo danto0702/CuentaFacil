@@ -346,6 +346,8 @@ export class Orchestrator {
       // asked to accept the terms in force (or declined)
     } else if (turn.state.flow === 'profile_doc_issued_in' && (await this.onDocIssuedIn(turn, msg))) {
       // answered
+    } else if (turn.state.flow === 'profile_doc_number' && (await this.onDocNumber(turn, msg))) {
+      // answered
     } else if (await this.askPendingDelegation(turn)) {
       // a gestor asked this contractor for authorization
     } else {
@@ -429,6 +431,20 @@ export class Orchestrator {
     if (!turn.actor || turn.actor.id === turn.user.id) return;
     const first = turn.out.find((o) => o.type !== 'document') as { text: string } | undefined;
     if (first) first.text = `👤 *${this.labelOf(turn)}*\n${first.text}`;
+  }
+
+  /** A gestor working for someone who has no contract yet: configure it or go back to their own accounts. */
+  private noContractsForOther(turn: Turn): void {
+    turn.out.push(
+      buttons(
+        `${this.labelOf(turn)} aún no tiene un contrato configurado. ¿Configuramos su contrato o vuelves a tus cuentas?`,
+        [
+          { id: 'menu:add_contract', title: 'Configurar su contrato' },
+          { id: 'who:me', title: 'Volver a mis cuentas' },
+          { id: 'menu:people', title: 'Cambiar persona' },
+        ],
+      ),
+    );
   }
 
   /** "Cambiar persona": the gestor's own accounts and the people they manage. */
@@ -743,16 +759,29 @@ export class Orchestrator {
    * once, after their message is handled, so the documents never go out with that field empty.
    */
   private async askMissingProfile(turn: Turn): Promise<void> {
+    const needsDoc = !turn.user.docNumber.trim();
     const needsPlace = !turn.user.docIssuedIn.trim();
     // The bank account comes from SECOP; when it was not there it is asked for (or a certificate).
     const needsBank = !turn.user.accountNumber.trim();
-    if (turn.state.flow !== 'idle' || (!needsPlace && !needsBank)) return;
+    if (turn.state.flow !== 'idle' || (!needsDoc && !needsPlace && !needsBank)) return;
     // At most once a day: not answering it must never turn into the same question after every message.
     const today = this.deps.clock.today();
     if (turn.state.context.profileAskedOn === today) return;
     if ((await this.deps.store.listContracts(turn.user.id)).length === 0) return;
     turn.state.context = { ...turn.state.context, profileAskedOn: today };
     const other = this.forOther(turn);
+    if (needsDoc) {
+      this.setFlow(turn, 'profile_doc_number', 'ask');
+      turn.out.push(
+        text(
+          `🪪 Me falta un dato para ${other ? `los documentos de ${this.labelOf(turn)}` : 'tus documentos'}: ¿cuál es el *número de cédula* de ${other ? this.labelOf(turn) : 'ti'}? Escríbelo solo con números, así: 1090123456`.replace(
+            'de ti?',
+            'tu cédula?',
+          ),
+        ),
+      );
+      return;
+    }
     if (!needsPlace) {
       // 'ask': not requested by the contractor, so a photo that is not a certificate stays an evidence.
       this.setFlow(turn, 'bank_input', 'ask');
@@ -771,6 +800,38 @@ export class Orchestrator {
           : '🪪 Me falta un dato para tus documentos: ¿en qué municipio fue *expedida tu cédula*? Escríbelo así: Ábrego, Norte de Santander',
       ),
     );
+  }
+
+  /** Answer to the ID number question (ADR-063), confirmed with a button before it is saved encrypted. */
+  private async onDocNumber(turn: Turn, msg: Inbound): Promise<boolean> {
+    const candidate = turn.state.context.candidate as string | undefined;
+    const whose = this.forOther(turn) ? `la cédula de ${this.labelOf(turn)}` : 'tu cédula';
+    if (msg.kind === 'reply' && msg.replyId === 'docn:yes' && candidate) {
+      const user = { ...turn.user, docNumber: candidate };
+      await this.deps.store.saveUserProfile(user);
+      turn.user = user;
+      this.reset(turn);
+      turn.out.push(text(`✅ Listo, guardé ${whose} terminada en ${candidate.slice(-4)}.`));
+      return true;
+    }
+    if (msg.kind === 'reply' && msg.replyId === 'docn:no') {
+      this.setFlow(turn, 'profile_doc_number', 'ask');
+      turn.out.push(text('Escríbeme de nuevo el número de cédula, solo con números.'));
+      return true;
+    }
+    const doc = msg.kind === 'text' ? (msg.text ?? '').replace(/[.\s-]/g, '') : '';
+    if (!/^\d{6,10}$/.test(doc)) {
+      this.reset(turn);
+      return false;
+    }
+    this.setFlow(turn, 'profile_doc_number', 'confirm', { candidate: doc });
+    turn.out.push(
+      buttons(`¿El número de ${whose} es *${Number(doc).toLocaleString('es-CO')}*?`, [
+        { id: 'docn:yes', title: '✅ Sí' },
+        { id: 'docn:no', title: 'Corregir' },
+      ]),
+    );
+    return true;
   }
 
   /**
@@ -984,14 +1045,23 @@ export class Orchestrator {
         cmd === 'cancel' ||
         cmd === 'menu' ||
         cmd === 'help' ||
+        cmd === 'people' ||
         msg.replyId === 'setup:leave' ||
-        (msg.replyId?.startsWith('menu:') ?? false);
+        (msg.replyId?.startsWith('menu:') ?? false) ||
+        (msg.replyId?.startsWith('who:') ?? false);
       if (leave) {
         const hadContracts = (await this.deps.store.listContracts(turn.user.id)).length > 0;
         this.reset(turn);
+        // A gestor changing person (ADR-042) leaves this person's setup without a detour.
+        if (msg.replyId?.startsWith('who:')) return this.switchPerson(turn, msg.replyId);
+        if (cmd === 'people') return this.showPeople(turn);
         turn.out.push(
           text('Listo, dejé la configuración en pausa. Cuando quieras retomarla escribe *agregar contrato*.'),
         );
+        if (!hadContracts && this.forOther(turn) && !msg.replyId?.startsWith('menu:')) {
+          this.noContractsForOther(turn);
+          return;
+        }
         if (msg.replyId?.startsWith('menu:') && msg.replyId !== 'menu:menu')
           return this.command(turn, msg.replyId.slice(5) as Command);
         if (hadContracts) await this.menu(turn, cmd === 'help');
@@ -1775,6 +1845,13 @@ ${lines.join('\n')}${due.length ? '' : '\n\nNo tienes nada pendiente. 👍'}`,
   // -------------------------------------------------------------------------
   private async onIdle(turn: Turn, msg: Inbound): Promise<void> {
     if ((await this.deps.store.listContracts(turn.user.id)).length === 0) {
+      // A gestor on a person without contracts: ask, so «menú» never traps them in that person's setup.
+      if (
+        this.forOther(turn) &&
+        !(msg.kind === 'text' && msg.text && matchCommand(msg.text) === 'add_contract')
+      ) {
+        return this.noContractsForOther(turn);
+      }
       const pending = await this.deps.store.pendingInstitutionRequest(turn.user.id);
       if (pending && !(msg.kind === 'text' && msg.text && matchCommand(msg.text) === 'add_contract')) {
         turn.out.push(

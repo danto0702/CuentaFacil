@@ -1173,10 +1173,17 @@ describe('gestor: several people from one WhatsApp (ADR-042)', () => {
     expect(out[0]).toMatch(
       /^👤 \*Ana María Pérez\*\n👥 Listo, ahora trabajamos con las cuentas de \*Ana María Pérez\*/,
     );
-    out = show(await h.say('Hola'));
-    // Ana has no contract yet: setup starts for her.
-    expect(out[0]).toMatch(/^👤 \*Ana María Pérez\*\n📄 Para empezar necesito configurar tu contrato\./);
-    expect(out[1]).toMatch(/¿Con qué institución es tu contrato\?/);
+    out = show(await h.say('menú'));
+    // Ana has no contract yet: the gestor chooses (never trapped in her setup, ADR-063).
+    expect(out[0]).toMatch(
+      /aún no tiene un contrato configurado.*\[Configurar su contr…\] \[Volver a mis cuentas\]/s,
+    );
+    out = show(await h.press('menu:add_contract'));
+    expect(out[0]).toMatch(/^👤 \*Ana María Pérez\*\n📄 Configuremos el contrato de \*Ana María Pérez\*\./);
+    // «Cambiar persona» works inside her setup too.
+    out = show(await h.say('cambiar persona'));
+    expect(out[0]).toMatch(/¿De quién son las cuentas que vamos a trabajar\?/);
+    await h.press(`who:${anaUser.id}`);
 
     // A signature is never taken from the gestor.
     await h.say('cancelar');
