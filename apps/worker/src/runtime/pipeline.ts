@@ -51,6 +51,8 @@ export interface PipelineDeps {
    * True when the message only asked for that («Ver ahora») and needs no turn.
    */
   beforeTurn?: (from: string, replyId?: string) => Promise<boolean>;
+  /** Runs after each delivery status is stored (e.g. a template Meta refused after accepting it). */
+  onStatus?: (s: StatusUpdate) => Promise<void>;
   /** Retries for a single outgoing message (rate limits, 5xx). */
   sendAttempts?: number;
   sleep?: (ms: number) => Promise<void>;
@@ -87,7 +89,12 @@ export class InboundPipeline {
       return;
     }
 
-    for (const s of parsed.statuses) await db.applyStatus(s);
+    for (const s of parsed.statuses) {
+      await db.applyStatus(s);
+      await this.deps
+        .onStatus?.(s)
+        .catch((e) => log.error('status.hook_failed', { wamid: s.wamid, error: String(e) }));
+    }
     for (const m of parsed.messages) await this.processMessage(m);
     await db.markInbox(inboxId, 'processed');
   }

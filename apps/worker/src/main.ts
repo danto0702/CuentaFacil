@@ -18,6 +18,7 @@ import { AccountGenerator } from './generator.js';
 import { checkoutUrl, diagnoseKeys, verifyEvent } from './payments/wompi.js';
 import { SupabaseAlertDb, sendDailyAlert } from './runtime/alerts.js';
 import { loadConfig, sttSettings } from './runtime/config.js';
+import { DELEGATION_TEMPLATE_TAG, onDelegationTemplateFailed } from './runtime/delegation-failed.js';
 import { type DeliverDeps, deliver, flushHeld, SHOW_HELD, SupabaseHeldStore } from './runtime/held.js';
 import { jsonLogger as log } from './runtime/log.js';
 import { InboundPipeline, type Logger, type Messenger } from './runtime/pipeline.js';
@@ -127,7 +128,7 @@ const orchestrator = new Orchestrator({
     await pipelineDb
       .logOutbound(d.personPhone, wamid, {
         type: 'text',
-        text: `[plantilla autorizar_gestor] ${body.join(' · ')}`,
+        text: `${DELEGATION_TEMPLATE_TAG} ${body.join(' · ')}`,
       })
       .catch(() => undefined);
   },
@@ -186,6 +187,22 @@ const pipeline = new InboundPipeline({
   conversation: orchestrator,
   appSecret: cfg.WA_APP_SECRET,
   log: alertLog,
+  onStatus: async (s) => {
+    await onDelegationTemplateFailed(
+      {
+        summaryOf: async (wamid) => {
+          const { data } = await sb.from('messages').select('summary').eq('wamid', wamid).maybeSingle();
+          return (data as { summary: string | null } | null)?.summary ?? null;
+        },
+        pendingDelegationsFor: (phone) => store.pendingDelegationsFor(phone),
+        notifyUser: async (userId, out) => {
+          const u = await store.getUser(userId);
+          await deliver(deliverDeps, recipient(u), [out], 'un aviso sobre una autorización');
+        },
+      },
+      s,
+    );
+  },
   beforeTurn: async (from, replyId) => {
     const user = await store.getUserByPhone(from);
     if (!user) return false;

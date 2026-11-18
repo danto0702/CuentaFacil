@@ -402,3 +402,9 @@
   - La apertura de la configuración dice de quién es el contrato cuando el gestor trabaja para otra persona.
   - Si a un usuario le falta el número de cédula, Pascal se lo pide una vez y lo confirma antes de guardarlo.
 - **Consecuencias:** el caso que ya ocurrió se corrige en los datos: el contrato pasa a la persona correcta y se restauran los datos del gestor. Al gestor se le pide otra vez su cédula, porque el número cifrado solo lo puede escribir el worker.
+
+## ADR-064 — Aviso al gestor cuando WhatsApp no entrega la solicitud de autorización (2026-11-18)
+
+- **Contexto:** Meta puede aceptar el envío de la plantilla `autorizar_gestor` y rechazarla después. Por ejemplo, el error 131049 («para mantener un ecosistema saludable») se da con números que nunca le han escrito a Pascal. El gestor ya había leído «Le escribí a…» y la persona nunca recibió nada.
+- **Decisión:** cuando llega el estado `failed` de esa plantilla, Pascal le avisa al gestor que no llegó. Le pide que la persona escriba *Hola* al número de Pascal (enlace wa.me). Si la persona tiene una autorización pendiente, Pascal se la pide en cuanto escribe (ADR-042).
+- **Consecuencias:** el enlace del estado con la plantilla depende del resumen que se guarda en `messages` (`[plantilla autorizar_gestor] …`).
