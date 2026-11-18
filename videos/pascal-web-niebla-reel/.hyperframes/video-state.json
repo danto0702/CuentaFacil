@@ -326,5 +326,16 @@
         "attribution": "unversioned"
       }
     ]
-  }
+  },
+  "renders": {
+    "latest": {
+      "id": "71fe6ee9-d7ac-41ea-b9df-47f6d9971b79",
+      "completedAt": 1794976169299,
+      "output": "/home/user/CuentaFacil/videos/pascal-web-niebla-reel/renders/raw.mp4",
+      "status": "completed",
+      "revision": null
+    },
+    "retainedRevisions": []
+  },
+  "pendingArtifactCleanup": []
 }
