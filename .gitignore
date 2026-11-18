@@ -25,3 +25,4 @@ videos/*/renders/work-*/
 videos/*/renders/.*.hf-transaction-*/
 videos/*/tools/grabacion/frames/
 videos/*/tools/grabacion/frames.txt
+videos/*/.hyperframes/render-outputs.json
