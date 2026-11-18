@@ -72,7 +72,7 @@ fs.rmSync(OUT, { recursive: true, force: true }); fs.mkdirSync(OUT);
     while (capturing) {
       const t = Date.now() / 1000;
       try {
-        const { data } = await cdp.send('Page.captureScreenshot', { format: 'jpeg', quality: 90, clip: { x: 0, y: 0, width: 390, height: 664, scale: 2.6 } });
+        const { data } = await Promise.race([new Promise((_, rej) => setTimeout(() => rej(new Error('capture timeout')), 3000)), cdp.send('Page.captureScreenshot', { format: 'jpeg', quality: 90, clip: { x: 0, y: 0, width: 390, height: 664, scale: 2.6 } })]);
         pending.push(fs.promises.writeFile(`${OUT}/${String(i).padStart(5, '0')}.jpg`, Buffer.from(data, 'base64'))); i++;
         frames.push(t);
       } catch (e) { errs++; if (errs < 5) console.log('CAPERR', e.message); }
@@ -92,9 +92,10 @@ fs.rmSync(OUT, { recursive: true, force: true }); fs.mkdirSync(OUT);
   async function scrollToSel(sel, ms, offset = 70) { const y = await p.evaluate(([s, o]) => document.querySelector(s).getBoundingClientRect().top - o, [sel, offset]); await scroll(y, ms); }
 
   await cdp.send('Animation.enable'); await cdp.send('Animation.setPlaybackRate', { playbackRate: 1 / SCALE });
-  capturing = true; const looper = loop(); T0 = Date.now() / 1000;
+  // Capture starts once the document exists (a screenshot asked mid-navigation never returns); the loader is still on screen
   await p.goto(BASE + '/pascal-web/bistro/', { waitUntil: 'domcontentloaded' });
   await cdp.send('Animation.setPlaybackRate', { playbackRate: 1 / SCALE });
+  capturing = true; const looper = loop(); T0 = Date.now() / 1000;
   mark('carga'); await wait(2600);
   mark('portada'); await glide(120, 420); await glide(300, 360, 30); await glide(200, 520, 30); await wait(1200);
 
