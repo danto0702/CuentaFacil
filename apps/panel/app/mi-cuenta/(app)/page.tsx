@@ -12,9 +12,7 @@ import {
   todayBogota,
   validUntil,
 } from '@/lib/portal';
-import { askPascal } from '../actions';
 import { Flash, flashOf, type Search, waLink } from '../parts';
-import { Submit } from '../ui';
 
 export default async function HomePage({ searchParams }: { searchParams: Search }) {
   const session = await portalSession();
@@ -49,11 +47,23 @@ export default async function HomePage({ searchParams }: { searchParams: Search 
 
   return (
     <>
-      <h1>Hola, {user.fullName.split(' ')[0]} 👋</h1>
-      <p className="pt-muted">
-        Aquí ves y corriges lo mismo que le cuentas a Pascal en WhatsApp. Lo que cambies aquí, él lo tiene en
-        cuenta en tu próximo borrador.
-      </p>
+      {session.acting ? (
+        <>
+          <h1>Cuentas de {user.fullName.split(' ').slice(0, 3).join(' ')}</h1>
+          <p className="pt-muted">
+            Trabajas con sus cuentas porque te autorizó. Lo que registres o cambies aquí queda en sus cuentas,
+            y Pascal te responde a ti por WhatsApp.
+          </p>
+        </>
+      ) : (
+        <>
+          <h1>Hola, {(session.me?.fullName ?? user.fullName).split(' ')[0]} 👋</h1>
+          <p className="pt-muted">
+            Aquí ves y corriges lo mismo que le cuentas a Pascal en WhatsApp. Lo que cambies aquí, él lo tiene
+            en cuenta en tu próximo borrador.
+          </p>
+        </>
+      )}
       <Flash {...flash} />
 
       {pending.length > 0 && (
@@ -73,8 +83,14 @@ export default async function HomePage({ searchParams }: { searchParams: Search 
 
       {contracts.length === 0 && (
         <div className="pt-card">
-          <h2>Aún no tienes contratos configurados</h2>
-          <p>Envíale a Pascal por WhatsApp tu contrato de SECOP y el clausulado para empezar.</p>
+          <h2>
+            {session.acting ? 'Aún no tiene contratos configurados' : 'Aún no tienes contratos configurados'}
+          </h2>
+          <p>
+            {session.acting
+              ? 'Escríbele a Pascal por WhatsApp «cambiar persona», elige esta persona y envíale su contrato de SECOP y el clausulado.'
+              : 'Envíale a Pascal por WhatsApp tu contrato de SECOP y el clausulado para empezar.'}
+          </p>
           <a className="pt-btn pt-wa" href={waLink('Hola Pascal')} target="_blank" rel="noopener">
             Abrir WhatsApp
           </a>
@@ -122,13 +138,9 @@ export default async function HomePage({ searchParams }: { searchParams: Search 
                     <a className="pt-btn" href={`/contratos/${c.id}`}>
                       Ver y editar actividades
                     </a>
-                    <form action={askPascal}>
-                      <input type="hidden" name="text" value="generar" />
-                      <input type="hidden" name="back" value="/" />
-                      <Submit className="pt-btn ghost" pending="Enviando…">
-                        Generar mi cuenta
-                      </Submit>
-                    </form>
+                    <a className="pt-btn ghost" href={`/contratos/${c.id}/borrador?p=${p.number}`}>
+                      {p.status === 'approved' ? 'Generar documentos' : 'Revisar el borrador'}
+                    </a>
                   </div>
                 </>
               ) : (

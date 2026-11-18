@@ -1,8 +1,9 @@
 'use server';
 import { createHash, randomUUID } from 'node:crypto';
 import { revalidatePath } from 'next/cache';
+import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { listCharges, listContracts, portalSession } from '@/lib/portal';
+import { ACTING_COOKIE, listCharges, listContracts, portalSession } from '@/lib/portal';
 import { supabaseServer } from '@/lib/supabase';
 import { checkoutUrl, wompiConfigured } from '@/lib/wompi';
 
@@ -93,6 +94,7 @@ export async function signUp(form: FormData): Promise<void> {
 export async function signOut(): Promise<void> {
   const sb = await supabaseServer();
   await sb.auth.signOut();
+  (await cookies()).delete(ACTING_COOKIE);
   go('/ingresar');
 }
 
@@ -369,7 +371,15 @@ export async function askPascal(form: FormData): Promise<void> {
   const back = s(form, 'back') || '/';
   const text = s(form, 'text');
   const reply = s(form, 'reply');
-  const { error } = await sb.rpc('portal_request', { p_text: text || null, p_reply: reply || null });
+  const contractId = s(form, 'contractId');
+  let { error } = await sb.rpc('portal_request', {
+    p_text: text || null,
+    p_reply: reply || null,
+    ...(contractId ? { p_contract: contractId } : {}),
+  });
+  // Before the ADR-065 migration the function has no contract argument.
+  if (error && contractId && /function|schema cache/i.test(error.message))
+    ({ error } = await sb.rpc('portal_request', { p_text: text || null, p_reply: reply || null }));
   if (error)
     go(
       back,
@@ -414,5 +424,86 @@ export async function sendTransferReceipt(form: FormData): Promise<void> {
   go(
     '/pagos',
     'Recibimos tu comprobante. Apenas confirmemos la transferencia, Pascal te avisa por WhatsApp.',
+  );
+}
+
+// ---------------------------------------------------------------------------
+// The draft on the web (ADR-065)
+// ---------------------------------------------------------------------------
+async function draftPeriod(form: FormData) {
+  const { sb, user } = await linked();
+  const contractId = s(form, 'contractId');
+  const number = Number(s(form, 'p'));
+  const contract = (await listContracts(sb)).find((c) => c.id === contractId);
+  if (!contract) go('/', 'No encontré ese contrato.', 'error');
+  const period = contract.periods.find((p) => p.number === number);
+  const back = `/contratos/${contract.id}/borrador?p=${number}`;
+  if (!period) go(`/contratos/${contract.id}`, 'No encontré esa cuenta.', 'error');
+  if (period.status === 'delivered' || period.status === 'generating')
+    go(back, 'Esta cuenta ya se generó: su borrador no cambia.', 'error');
+  return { sb, user, contract, period, back };
+}
+
+export async function saveDraftText(form: FormData): Promise<void> {
+  const { sb, contract, period, back } = await draftPeriod(form);
+  const obligationId = s(form, 'obligationId');
+  const text = s(form, 'text');
+  const o = contract.obligations.find((x) => x.id === obligationId);
+  if (!o) go(back, 'Elige una obligación del contrato.', 'error');
+  if (text.length < 10) go(`${back}#o-${o.id}`, 'Escribe al menos una frase completa.', 'error');
+  if (text.length > 6000) go(`${back}#o-${o.id}`, 'El texto es muy largo: resúmelo un poco.', 'error');
+  const { error } = await sb.rpc('portal_save_draft', {
+    p_period: period.id,
+    p_obligation: o.id,
+    p_text: text,
+  });
+  if (error) go(back, 'No pude guardar el texto. Intenta de nuevo.', 'error');
+  revalidatePath('/mi-cuenta', 'layout');
+  go(
+    `${back}#o-${o.id}`,
+    `Guardé el texto de la obligación ${o.kind === 'general' ? 'general ' : ''}${o.number}.`,
+  );
+}
+
+export async function approveDraft(form: FormData): Promise<void> {
+  const { sb, period, back } = await draftPeriod(form);
+  const { error } = await sb.rpc('portal_approve_draft', { p_period: period.id });
+  if (error)
+    go(
+      back,
+      /incomplete/.test(error.message)
+        ? 'Aún hay obligaciones sin texto: escríbelas o pídele a Pascal que las redacte.'
+        : 'No pude aprobar el borrador. Intenta de nuevo.',
+      'error',
+    );
+  revalidatePath('/mi-cuenta', 'layout');
+  go(back, '¡Borrador aprobado! Ya puedes generar los documentos.');
+}
+
+// ---------------------------------------------------------------------------
+// Gestor (ADR-065): whose accounts the portal shows
+// ---------------------------------------------------------------------------
+export async function switchPerson(form: FormData): Promise<void> {
+  const session = await portalSession();
+  if (!session?.me) redirect('/ingresar');
+  const id = s(form, 'person');
+  const target = session.people.find((p) => p.id === id);
+  if (!target) go('/', 'Ya no tienes autorización para las cuentas de esa persona.', 'error');
+  const store = await cookies();
+  if (target.isSelf) store.delete(ACTING_COOKIE);
+  else
+    store.set(ACTING_COOKIE, target.id, {
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production',
+      path: '/',
+      maxAge: 60 * 60 * 12,
+    });
+  revalidatePath('/mi-cuenta', 'layout');
+  go(
+    '/',
+    target.isSelf
+      ? 'Volviste a tus cuentas.'
+      : `Ahora trabajas con las cuentas de ${target.fullName.split(' ').slice(0, 3).join(' ')}.`,
   );
 }

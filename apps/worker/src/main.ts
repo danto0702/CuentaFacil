@@ -28,6 +28,7 @@ import {
   RECOVERY_WAITING,
   recoveryMessage,
   recoveryUrl,
+  runPortalTurn,
 } from './runtime/portal.js';
 import { Queue } from './runtime/queue.js';
 import { processRegistryImports, queueRegistryUploads } from './runtime/registry-import.js';
@@ -451,16 +452,15 @@ async function processPortal(inboxId: number): Promise<void> {
     const url = recoveryUrl(cfg.PORTAL_URL, data.properties.hashed_token);
     await deliver(deliverDeps, recipient(user), [recoveryMessage(url)], RECOVERY_WAITING);
   } else {
-    const message: Inbound = {
+    const actor = req.actorId ? await store.getUser(req.actorId) : null;
+    const asker = actor ?? user;
+    const out = await runPortalTurn((m) => withTurnIds(m.id, () => orchestrator.handle(m)), req, {
       id: `portal-${inboxId}`,
-      from: user.phone,
+      from: asker.phone,
       at: new Date(),
-      kind: req.text ? 'text' : 'reply',
-      ...(req.text ? { text: req.text } : { replyId: req.reply! }),
-    };
-    const out = await withTurnIds(message.id, () => orchestrator.handle(message));
-    const result = await deliver(deliverDeps, recipient(user), out, PORTAL_WAITING);
-    log.info('portal.turn', { userId: user.id, result });
+    });
+    const result = await deliver(deliverDeps, recipient(asker), out, PORTAL_WAITING);
+    log.info('portal.turn', { userId: user.id, actorId: actor?.id, result });
   }
   await pipelineDb.markInbox(inboxId, 'processed');
 }
@@ -473,7 +473,10 @@ async function senderOf(inboxId: number): Promise<string | null> {
   if (!data) return null;
   if (data.provider === 'portal') {
     const req = parsePortalRequest(data.body);
-    return req ? ((await store.getUser(req.userId).catch(() => null))?.phone ?? null) : null;
+    if (!req) return null;
+    // A gestor's request (ADR-065) is answered in the gestor's chat: ordered with their messages.
+    const who = req.action === 'turn' && req.actorId ? req.actorId : req.userId;
+    return (await store.getUser(who).catch(() => null))?.phone ?? null;
   }
   return parseWebhook(JSON.parse(data.body)).messages[0]?.from ?? null;
 }

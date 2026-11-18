@@ -408,3 +408,24 @@
 - **Contexto:** Meta puede aceptar el envío de la plantilla `autorizar_gestor` y rechazarla después. Por ejemplo, el error 131049 («para mantener un ecosistema saludable») se da con números que nunca le han escrito a Pascal. El gestor ya había leído «Le escribí a…» y la persona nunca recibió nada.
 - **Decisión:** cuando llega el estado `failed` de esa plantilla, Pascal le avisa al gestor que no llegó. Le pide que la persona escriba *Hola* al número de Pascal (enlace wa.me). Si la persona tiene una autorización pendiente, Pascal se la pide en cuanto escribe (ADR-042).
 - **Consecuencias:** el enlace del estado con la plantilla depende del resumen que se guarda en `messages` (`[plantilla autorizar_gestor] …`).
+
+## ADR-065 — Borrador en la web y gestor en el portal (2026-11-18)
+
+- **Contexto:** el portal (ADR-061) mandaba a WhatsApp para ver y aprobar el borrador. Un gestor (ADR-042) solo podía trabajar las cuentas de otras personas desde el chat.
+- **Decisión — borrador:**
+  - Nueva página `/contratos/<id>/borrador?p=<n>`. Muestra el texto de cada obligación y su estado: con texto, falta el texto, sin redactar o sin actividades (no va en el informe).
+  - Pasos visibles: actividades, borrador, aprobación y documentos.
+  - «Pedirle a Pascal que redacte» manda «ver borrador» con el contrato de la página. La redacción sigue en el worker, porque usa IA.
+  - La persona puede escribir el texto de una obligación (`portal_save_draft`). Su texto cuenta como aprobado y guarda las actividades de origen, así que Pascal no lo reescribe mientras esas actividades no cambien (la misma regla del chat para lo aprobado).
+  - «Aprobar borrador» (`portal_approve_draft`) exige que cada obligación tenga texto o haya quedado fuera. Aprueba lo propuesto y deja la cuenta en «aprobada».
+  - «Generar documentos» manda «generar» con el contrato. Los documentos llegan por WhatsApp y quedan en Documentos.
+  - Una cuenta entregada o generándose no cambia.
+- **Decisión — gestor:**
+  - Si alguien autorizó a la persona de la cuenta web, el portal muestra un selector de persona. La elección se guarda en una cookie `cf_acting`.
+  - En cada petición, el panel manda la cabecera `x-cf-acting`. `current_contractor_id()` la acepta solo si hay una delegación activa hacia quien inició sesión. Si no, devuelve sus propias filas. Así todas las políticas `own_*` y funciones `portal_*` sirven sin cambios.
+  - `portal_self_id()` y `portal_people()` dan la persona real y su lista. Storage no reenvía la cabecera, por eso sus políticas aceptan las carpetas propias y las de las personas autorizadas.
+  - Lo que pide un gestor desde la web lleva `actor_id`. El worker lo responde en el WhatsApp del gestor: primero `who:<persona>` y luego el pedido. Si Pascal pregunta «¿De cuál contrato?», responde el contrato de la página.
+  - La contraseña de la cuenta web no se muestra mientras el gestor trabaja para otra persona.
+- **Consecuencias:**
+  - Requiere la migración `20261118000001_portal_drafts_gestor.sql`. Mientras no esté aplicada, el portal sigue funcionando como antes: sin selector y con las solicitudes sin contrato.
+  - El chat del gestor queda en la persona que pidió desde la web. Cada respuesta lleva el encabezado «👤 Nombre».

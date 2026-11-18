@@ -10,14 +10,7 @@ import {
   shortDate,
   todayBogota,
 } from '@/lib/portal';
-import {
-  addActivity,
-  addPhotos,
-  askPascal,
-  deleteActivity,
-  removePhoto,
-  updateActivity,
-} from '../../../actions';
+import { addActivity, addPhotos, deleteActivity, removePhoto, updateActivity } from '../../../actions';
 import { Flash, flashOf, type Search } from '../../../parts';
 import { Submit } from '../../../ui';
 
@@ -193,23 +186,13 @@ export default async function ContractPage({
         <section className="pt-card">
           <h3>¿Listo para cerrar la cuenta?</h3>
           <p className="pt-muted">
-            Pascal te muestra el borrador por WhatsApp para que lo apruebes y luego genera tus documentos.
+            Revisa el borrador del informe aquí mismo: corrige lo que quieras, apruébalo y genera los
+            documentos.
           </p>
           <div className="pt-row">
-            <form action={askPascal}>
-              <input type="hidden" name="text" value="ver borrador" />
-              <input type="hidden" name="back" value={back} />
-              <Submit className="pt-btn" pending="Enviando…">
-                Ver el borrador en WhatsApp
-              </Submit>
-            </form>
-            <form action={askPascal}>
-              <input type="hidden" name="text" value="generar" />
-              <input type="hidden" name="back" value={back} />
-              <Submit className="pt-btn ghost" pending="Enviando…">
-                Generar mi cuenta
-              </Submit>
-            </form>
+            <a className="pt-btn" href={`/contratos/${contract.id}/borrador?p=${period.number}`}>
+              Revisar el borrador
+            </a>
           </div>
         </section>
       )}

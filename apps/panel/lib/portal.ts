@@ -1,5 +1,6 @@
 import 'server-only';
 import { compareIso, formatRangeLong, formatReportNumber, type IsoDate } from '@cuentasbot/shared';
+import { cookies } from 'next/headers';
 import { supabaseServer } from './supabase';
 
 /**
@@ -25,27 +26,68 @@ export interface PortalUser {
   email: string;
 }
 
+export interface PortalPerson {
+  id: string;
+  fullName: string;
+  isSelf: boolean;
+}
+
+/** The person a gestor picked in the portal (ADR-065); checked against portal_people on every request. */
+export const ACTING_COOKIE = 'cf_acting';
+export const ACTING_HEADER = 'x-cf-acting';
+
+export interface PortalSession {
+  sb: Sb;
+  email: string;
+  /** Whose accounts the pages show: the contractor, or the person the gestor works for. */
+  user: PortalUser | null;
+  /** The contractor behind the web account and the people who authorized them (ADR-042). */
+  me: PortalPerson | null;
+  people: PortalPerson[];
+  /** True while a gestor works someone else's accounts. */
+  acting: boolean;
+}
+
+const USER_COLUMNS =
+  'id, full_name, phone_e164, doc_type, doc_number_last4, doc_issued_in, bank_name, bank_account_type, bank_account_last4';
+
 /** The signed-in web account: linked to a contractor (`user`) or not yet (`user` null). */
-export async function portalSession(): Promise<{ sb: Sb; email: string; user: PortalUser | null } | null> {
-  const sb = await supabaseServer();
-  const { data } = await sb.auth.getUser();
+export async function portalSession(): Promise<PortalSession | null> {
+  const base = await supabaseServer();
+  const { data } = await base.auth.getUser();
   if (!data.user) return null;
-  const { data: u } = await sb
-    .from('users')
-    .select(
-      'id, full_name, phone_e164, doc_type, doc_number_last4, doc_issued_in, bank_name, bank_account_type, bank_account_last4',
-    )
-    .eq('auth_user_id', data.user.id)
-    .is('deleted_at', null)
-    .maybeSingle();
   const email = data.user.email ?? '';
+  const { data: rows, error } = await base.rpc('portal_people');
+  let people: PortalPerson[] = ((rows ?? []) as { id: string; full_name: string; is_self: boolean }[]).map(
+    (r) => ({ id: r.id, fullName: r.full_name, isSelf: r.is_self }),
+  );
+  if (error) {
+    // Before the ADR-065 migration: the contractor alone.
+    const { data: u } = await base
+      .from('users')
+      .select('id, full_name')
+      .eq('auth_user_id', data.user.id)
+      .is('deleted_at', null)
+      .maybeSingle();
+    people = u ? [{ id: u.id, fullName: u.full_name || 'Mis cuentas', isSelf: true }] : [];
+  }
+  const me = people.find((p) => p.isSelf) ?? null;
+  if (!me) return { sb: base, email, user: null, me: null, people: [], acting: false };
+  const wanted = (await cookies()).get(ACTING_COOKIE)?.value;
+  const target = people.find((p) => !p.isSelf && p.id === wanted) ?? me;
+  const acting = target.id !== me.id;
+  const sb = acting ? await supabaseServer({ [ACTING_HEADER]: target.id }) : base;
+  const { data: u } = await sb.from('users').select(USER_COLUMNS).eq('id', target.id).maybeSingle();
   return {
     sb,
     email,
+    me,
+    people,
+    acting,
     user: u
       ? {
           id: u.id,
-          fullName: u.full_name || 'Contratista',
+          fullName: u.full_name || target.fullName || 'Contratista',
           phone: u.phone_e164,
           docType: u.doc_type,
           docLast4: u.doc_number_last4,
@@ -379,6 +421,29 @@ export async function listPackages(sb: Sb, userId: string): Promise<PortalPackag
     }
   }
   return out.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+}
+
+export interface PortalDraft {
+  obligationId: string;
+  text: string;
+  status: 'pending' | 'needs_input' | 'proposed' | 'default' | 'approved' | 'not_applicable';
+  /** Written by the contractor on the web (or in the chat's edit). */
+  own: boolean;
+}
+
+export async function listDrafts(sb: Sb, periodId: string): Promise<PortalDraft[]> {
+  const { data, error } = await sb
+    .from('drafts')
+    .select('obligation_id, final_text, user_text, status')
+    .eq('period_id', periodId)
+    .eq('version', 1);
+  if (error) throw error;
+  return (data ?? []).map((d) => ({
+    obligationId: d.obligation_id,
+    text: String(d.final_text ?? ''),
+    status: d.status,
+    own: d.user_text != null,
+  }));
 }
 
 export const PERIOD_STATUS: Record<string, string> = {

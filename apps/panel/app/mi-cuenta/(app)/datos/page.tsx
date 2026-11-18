@@ -17,10 +17,10 @@ export default async function ProfilePage({ searchParams }: { searchParams: Sear
   const u = session.user;
   return (
     <>
-      <h1>Mis datos</h1>
+      <h1>{session.acting ? `Datos de ${u.fullName.split(' ').slice(0, 3).join(' ')}` : 'Mis datos'}</h1>
       <Flash {...flash} />
       <section className="pt-card">
-        <h2>Datos para tus documentos</h2>
+        <h2>{session.acting ? 'Datos para sus documentos' : 'Datos para tus documentos'}</h2>
         <dl className="pt-kv">
           <dt>Nombre</dt>
           <dd>{u.fullName}</dd>
@@ -56,28 +56,34 @@ export default async function ProfilePage({ searchParams }: { searchParams: Sear
         </div>
       </section>
 
-      <section className="pt-card">
-        <h2>Tu cuenta web</h2>
-        <dl className="pt-kv" style={{ marginBottom: 12 }}>
-          <dt>Correo</dt>
-          <dd>{u.email}</dd>
-        </dl>
-        <details>
-          <summary>Cambiar contraseña</summary>
-          <form action={setPassword}>
-            <input type="hidden" name="back" value="datos" />
-            <label>
-              Contraseña nueva (mínimo 8 caracteres)
-              <input type="password" name="password" autoComplete="new-password" minLength={8} required />
-            </label>
-            <label>
-              Repítela
-              <input type="password" name="password2" autoComplete="new-password" minLength={8} required />
-            </label>
-            <Submit>Guardar contraseña</Submit>
-          </form>
-        </details>
-      </section>
+      {session.acting ? (
+        <p className="pt-muted">
+          Tu correo y tu contraseña de la cuenta web están en «Mis datos» de tus propias cuentas.
+        </p>
+      ) : (
+        <section className="pt-card">
+          <h2>Tu cuenta web</h2>
+          <dl className="pt-kv" style={{ marginBottom: 12 }}>
+            <dt>Correo</dt>
+            <dd>{u.email}</dd>
+          </dl>
+          <details>
+            <summary>Cambiar contraseña</summary>
+            <form action={setPassword}>
+              <input type="hidden" name="back" value="datos" />
+              <label>
+                Contraseña nueva (mínimo 8 caracteres)
+                <input type="password" name="password" autoComplete="new-password" minLength={8} required />
+              </label>
+              <label>
+                Repítela
+                <input type="password" name="password2" autoComplete="new-password" minLength={8} required />
+              </label>
+              <Submit>Guardar contraseña</Submit>
+            </form>
+          </details>
+        </section>
+      )}
     </>
   );
 }
