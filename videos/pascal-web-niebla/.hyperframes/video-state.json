@@ -97015,7 +97015,6 @@
         {
           "id": "16760831-f497-4b8c-bd10-83aebb751f79",
           "scope": "project",
-          "report": "/home/user/CuentaFacil/videos/pascal-web-niebla/.hyperframes/artifacts/checks/16760831-f497-4b8c-bd10-83aebb751f79.json",
           "metadata": {
             "ok": true,
             "browserSkipped": false,
@@ -97037,7 +97036,9 @@
           "revision": "71d69c1e-06b3-421f-b06a-471f4ac7ac9f",
           "inputFingerprint": "fce135e00e69f98c2ba1843069a5573081facbec64341415f718f0d4405317e5",
           "inputScope": "local-project-files",
-          "attribution": "recorded-revision"
+          "attribution": "recorded-revision",
+          "status": "cleaned",
+          "cleanedAfterRender": "ccfa5641-7f06-4453-a800-f899788976e6"
         }
       ],
       "6be3386d-38e0-4e58-a6c8-ca19d9d27523": [
@@ -97432,5 +97433,18 @@
       ]
     },
     "unversioned": []
-  }
+  },
+  "renders": {
+    "latest": {
+      "id": "ccfa5641-7f06-4453-a800-f899788976e6",
+      "completedAt": 1794971369353,
+      "output": "/home/user/CuentaFacil/videos/pascal-web-niebla/renders/raw.mp4",
+      "status": "completed",
+      "revision": "6be3386d-38e0-4e58-a6c8-ca19d9d27523"
+    },
+    "retainedRevisions": [
+      "6be3386d-38e0-4e58-a6c8-ca19d9d27523"
+    ]
+  },
+  "pendingArtifactCleanup": []
 }
