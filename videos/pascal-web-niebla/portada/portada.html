@@ -1,0 +1,29 @@
+<!doctype html><html lang="es-CO"><head><meta charset="utf-8"><style>
+@font-face{font-family:"Montserrat";font-weight:800;src:url("../assets/fonts/montserrat-latin-800-normal.woff2")}
+@font-face{font-family:"Inter";font-weight:600;src:url("../assets/fonts/inter-latin-600-normal.woff2")}
+*{margin:0;padding:0;box-sizing:border-box}
+body{width:1080px;height:1920px;overflow:hidden;background:#0A0A0D;font-family:Inter,sans-serif;color:#fff;position:relative}
+.glow{position:absolute;inset:0;background:radial-gradient(55% 30% at 50% 62%,rgba(255,193,7,.32),transparent 72%),radial-gradient(90% 30% at 50% 15%,rgba(255,193,7,.12),transparent 70%)}
+.rays{position:absolute;left:-460px;top:250px;width:2000px;height:2000px;border-radius:50%;background:repeating-conic-gradient(rgba(255,193,7,.07) 0 6deg,transparent 6deg 18deg);-webkit-mask:radial-gradient(closest-side,#000 30%,transparent 75%)}
+h1{position:absolute;left:40px;right:40px;top:262px;text-align:center;font:800 96px/1.02 Montserrat;letter-spacing:-.035em}
+h1 em{font-style:normal;color:#FFC107;text-shadow:0 0 30px rgba(255,193,7,.6)}
+.ph{position:absolute;border-radius:54px;background:#16161B;padding:12px;box-shadow:0 0 0 3px #FFC107,0 40px 80px -24px rgba(0,0,0,.9)}
+.ph img{display:block;width:100%;border-radius:44px}
+.c{left:318px;top:600px;width:444px;z-index:3;box-shadow:0 0 0 4px #FFC107,0 0 90px rgba(255,193,7,.5),0 40px 80px -24px rgba(0,0,0,.9)}
+.l{left:40px;top:720px;width:370px;transform:rotate(-9deg);z-index:2;opacity:.95}
+.r{left:670px;top:720px;width:370px;transform:rotate(9deg);z-index:2;opacity:.95}
+.tag{position:absolute;z-index:4;padding:14px 22px;border-radius:999px;background:#fff;color:#111;font:800 32px/1 Montserrat;box-shadow:0 14px 30px -10px rgba(0,0,0,.6)}
+.t1{left:60px;top:1250px;transform:rotate(-6deg)}
+.t2{left:720px;top:1250px;transform:rotate(6deg)}
+.t3{left:390px;top:1190px;background:#FFC107}
+.pill{position:absolute;left:0;right:0;top:1585px;text-align:center}
+.pill span{display:inline-flex;align-items:center;gap:14px;padding:14px 28px 14px 14px;border-radius:999px;background:#1C1C22;box-shadow:inset 0 0 0 2px #3A3A44;font:800 34px/1 Montserrat}
+.pill img{width:52px}
+</style></head><body><div class="glow"></div><div class="rays"></div>
+<h1>¿Tu restaurante<br>tiene una página<br>que <em>dé hambre</em>?</h1>
+<div class="ph l"><img src="carta.jpg" alt=""></div>
+<div class="ph r"><img src="hora.jpg" alt=""></div>
+<div class="ph c"><img src="portada.jpg" alt=""></div>
+<div class="tag t1">📋 Carta digital</div><div class="tag t2">📅 Reservas</div><div class="tag t3">🌐 Español · English</div>
+<div class="pill"><span><img src="../assets/brand/flower.svg" alt="">Pascal Web · de PascalIA</span></div>
+</body></html>
