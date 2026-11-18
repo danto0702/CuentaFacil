@@ -75,12 +75,13 @@ fs.rmSync(OUT, { recursive: true, force: true }); fs.mkdirSync(OUT);
         const { data } = await cdp.send('Page.captureScreenshot', { format: 'jpeg', quality: 90, clip: { x: 0, y: 0, width: 390, height: 664, scale: 2.6 } });
         pending.push(fs.promises.writeFile(`${OUT}/${String(i).padStart(5, '0')}.jpg`, Buffer.from(data, 'base64'))); i++;
         frames.push(t);
-      } catch (e) {}
+      } catch (e) { errs++; if (errs < 5) console.log('CAPERR', e.message); }
     }
   }
+  let errs = 0;
   const marks = { __scale: SCALE }; let T0 = 0;
   const mark = (k) => { marks[k] = (Date.now() / 1000 - T0) / SCALE; console.log('mark', k, marks[k].toFixed(2)); };
-  const wait = (ms) => p.waitForTimeout(ms * SCALE);
+  const wait = (ms) => new Promise(r => setTimeout(r, ms * SCALE));  // Node timer: the page's setTimeout is slowed down already
   const center = async (sel) => { const r = await p.locator(sel).first().boundingBox(); return [r.x + r.width / 2, r.y + r.height / 2]; };
   let cur = [195, 500];
   async function glide(x, y, steps = 16) { const [x0, y0] = cur; for (let i = 1; i <= steps; i++) { const t = i / steps, e = t * t * (3 - 2 * t); await p.mouse.move(x0 + (x - x0) * e, y0 + (y - y0) * e); await wait(14); } cur = [x, y]; }
@@ -136,6 +137,6 @@ fs.rmSync(OUT, { recursive: true, force: true }); fs.mkdirSync(OUT);
   capturing = false; await looper; await Promise.all(pending);
   fs.writeFileSync(__dirname + '/frames.json', JSON.stringify({ t0: T0, scale: SCALE, frames }));
   fs.writeFileSync(__dirname + '/marks.json', JSON.stringify(marks));
-  console.log('frames', frames.length);
+  console.log('frames', frames.length, 'capture errors', errs);
   await b.close();
 })();
