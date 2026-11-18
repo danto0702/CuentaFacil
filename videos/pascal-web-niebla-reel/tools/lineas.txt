@@ -1,0 +1,6 @@
+w01|P|¿Tu restaurante tiene una página que de verdad dé hambre? Mira esta.|¿Tu restaurante tiene una página que de verdad dé hambre? Mira esta.
+w02|P|Logo animado, un menú limpio, y la página en español o en inglés con un toque.|Logo animado, un menú limpio, y la página en español o en inglés con un toque.
+w03|P|Al bajar: la historia, la galería, la chef y el equipo. Cada sección, con movimiento.|Al bajar: la historia, la galería, la chef y el equipo. Cada sección, con movimiento.
+w04|P|La carta, con precios y menú degustación. Sin pe de efe.|La carta, con precios y menú degustación. Sin PDF.
+w05|P|Y reservas paso a paso: personas, fecha y hora, con aviso a tu WhatsApp.|Y reservas paso a paso: personas, fecha y hora, con aviso a tu WhatsApp.
+w06|P|Pascal Web, de PascalIA: diseñamos, creamos y mantenemos tu página. Escanea el código, y mándaselo a tu amigo con restaurante.|Pascal Web, de PascalIA: diseñamos, creamos y mantenemos tu página. Escanea el código y mándaselo a tu amigo con restaurante.
