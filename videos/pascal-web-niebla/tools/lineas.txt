@@ -1,0 +1,9 @@
+w01|P|¿Tu restaurante tiene una página que de verdad dé hambre? Mira esta.|¿Tu restaurante tiene una página que de verdad dé hambre? Mira esta.
+w02|P|Esto es La Niebla, un bistró de ejemplo que diseñamos en Pascal Web. Abre con su logo animado, y una luz cálida que sigue tu dedo.|Esto es La Niebla, un bistró de ejemplo que diseñamos en Pascal Web. Abre con su logo animado y una luz cálida que sigue tu dedo.
+w03|P|Un menú limpio, y la página completa en español o en inglés, con un solo toque.|Un menú limpio, y la página completa en español o en inglés, con un solo toque.
+w04|P|Al bajar, la historia se va revelando: la cocina, la galería de fotos, y movimiento en cada sección.|Al bajar, la historia se va revelando: la cocina, la galería de fotos y movimiento en cada sección.
+w05|P|La inspiración, la chef y el equipo. Cada parte cuenta quiénes son, no solo qué venden.|La inspiración, la chef y el equipo. Cada parte cuenta quiénes son, no solo qué venden.
+w06|P|Reconocimientos, horarios, contacto y mapa. Todo a un desplazamiento.|Reconocimientos, horarios, contacto y mapa. Todo a un desplazamiento.
+w07|P|La carta, a la carta o en menú degustación, sin descargar ningún pe de efe.|La carta, a la carta o en menú degustación, sin descargar ningún PDF.
+w08|P|Y lo mejor: reservas paso a paso. Personas, fecha y hora en segundos, con aviso a tu WhatsApp.|Y lo mejor: reservas paso a paso. Personas, fecha y hora en segundos, con aviso a tu WhatsApp.
+w09|P|Pascal Web, de PascalIA: diseñamos, creamos y mantenemos la página de tu negocio. Dominio, hosting, WhatsApp y Google Maps incluidos. Escanea el código y mira los ejemplos. Y si tienes un amigo con restaurante, mándale este video.|Pascal Web, de PascalIA: diseñamos, creamos y mantenemos la página de tu negocio. Dominio, hosting, WhatsApp y Google Maps incluidos. Escanea el código y mira los ejemplos. Y si tienes un amigo con restaurante, mándale este video.
