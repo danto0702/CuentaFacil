@@ -12,7 +12,7 @@ import {
 } from '@/lib/portal';
 import { addActivity, addPhotos, deleteActivity, removePhoto, updateActivity } from '../../../actions';
 import { Flash, flashOf, type Search } from '../../../parts';
-import { Submit } from '../../../ui';
+import { PhotoInput, Submit } from '../../../ui';
 
 const clip = (t: string, n: number) => (t.length > n ? `${t.slice(0, n - 1)}…` : t);
 
@@ -103,10 +103,7 @@ export default async function ContractPage({
               />
             </label>
             <Extras obligations={contract.obligations} selected={[]} />
-            <label>
-              Fotos (opcional)
-              <input type="file" name="photos" accept="image/*" multiple />
-            </label>
+            <PhotoInput label="Fotos (opcional)" />
             <Submit>Guardar actividad</Submit>
           </form>
         </details>
@@ -331,14 +328,7 @@ function Activity({
           <form action={addPhotos} className="pt-row">
             <input type="hidden" name="noteId" value={note.id} />
             <input type="hidden" name="back" value={back} />
-            <input
-              type="file"
-              name="photos"
-              accept="image/*"
-              multiple
-              required
-              style={{ flex: 1, minWidth: 200 }}
-            />
+            <PhotoInput required style={{ flex: 1, minWidth: 200 }} />
             <Submit className="pt-btn ghost small" pending="Subiendo…">
               Agregar fotos
             </Submit>

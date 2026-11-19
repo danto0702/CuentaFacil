@@ -613,3 +613,20 @@
 .pt-ml {
   margin-left: 6px;
 }
+
+/* Photos: pasted from the clipboard or dropped */
+.pt-paste {
+  border: 1px dashed #cfc8b6;
+  border-radius: 12px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  background: #fff;
+}
+.pt-paste:focus-within {
+  border-color: var(--pt-yellow);
+}
+.pt-paste .pt-photo > button {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+}
