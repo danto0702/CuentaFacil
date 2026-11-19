@@ -73,7 +73,9 @@ export async function portalSession(): Promise<PortalSession | null> {
   }
   const me = people.find((p) => p.isSelf) ?? null;
   if (!me) return { sb: base, email, user: null, me: null, people: [], acting: false };
-  const wanted = (await cookies()).get(ACTING_COOKIE)?.value;
+  // The database decides whose rows every policy returns (ADR-067); the page shows that same person.
+  const { data: current, error: currentError } = await base.rpc('portal_current');
+  const wanted = currentError ? (await cookies()).get(ACTING_COOKIE)?.value : (current as string | null);
   const target = people.find((p) => !p.isSelf && p.id === wanted) ?? me;
   const acting = target.id !== me.id;
   const sb = acting ? await supabaseServer({ [ACTING_HEADER]: target.id }) : base;

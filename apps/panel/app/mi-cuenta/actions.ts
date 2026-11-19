@@ -99,6 +99,7 @@ export async function signUp(form: FormData): Promise<void> {
 
 export async function signOut(): Promise<void> {
   const sb = await supabaseServer();
+  await sb.rpc('portal_set_acting', { p_person: null });
   await sb.auth.signOut();
   (await cookies()).delete(ACTING_COOKIE);
   go('/ingresar');
@@ -495,6 +496,9 @@ export async function switchPerson(form: FormData): Promise<void> {
   const id = s(form, 'person');
   const target = session.people.find((p) => p.id === id);
   if (!target) go('/', 'Ya no tienes autorización para las cuentas de esa persona.', 'error');
+  const { error } = await session.sb.rpc('portal_set_acting', { p_person: target.isSelf ? null : target.id });
+  if (error && !/function|schema cache/i.test(error.message))
+    go('/', 'No pude cambiar de persona. Intenta de nuevo.', 'error');
   const store = await cookies();
   if (target.isSelf) store.delete(ACTING_COOKIE);
   else

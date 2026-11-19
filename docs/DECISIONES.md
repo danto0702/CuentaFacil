@@ -438,3 +438,13 @@
   - Elegir uno lo abre como «informe de julio»: si no se ha entregado, queda como el informe en trabajo y Pascal lo redacta; si ya se entregó, ofrece rehacerlo.
   - Para no pasar de las 10 opciones que permite WhatsApp, «Cambiar corte» sale de la lista. Sigue funcionando escribiendo *cambiar corte* y aparece en la ayuda.
 - **Decisión — portal:** nueva pestaña «Informes» con todos los informes de cada contrato por número, su estado y enlaces a actividades, borrador y documentos. Las páginas de contrato cuentan como esa pestaña, y el inicio tiene el botón «Otro informe».
+
+## ADR-067 — La persona elegida por el gestor se guarda en la base de datos (2026-11-19)
+
+- **Contexto:** en producción, la cabecera `x-cf-acting` (ADR-065) no llegaba a Postgres. Al elegir a otra persona, el portal mostraba su nombre pero los contratos, soportes y documentos del gestor.
+- **Decisión:**
+  - Nueva tabla `portal_acting`, con una fila por cuenta web, sin políticas y que solo usan funciones. `portal_set_acting(persona)` guarda la elección solo si hay una delegación activa.
+  - `current_contractor_id()` la lee y vuelve a revisar la delegación en cada consulta. Así cada política devuelve únicamente las filas de una persona.
+  - El panel le pregunta a `portal_current()` a quién está mostrando, para que el nombre del encabezado y los datos siempre coincidan.
+  - Al salir de la cuenta, el portal vuelve a «Mis cuentas».
+- **Consecuencias:** la elección vale para todos los dispositivos de la misma cuenta web. Si la persona revoca la autorización, se ignora sin más pasos.

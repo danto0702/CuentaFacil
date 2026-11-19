@@ -146,3 +146,34 @@ do $$ begin
   end if;
 end $$;
 delete from webhook_inbox where provider = 'portal';
+
+-- ADR-067: the choice kept in the database, without any header.
+insert into auth.users (id, email) values ('20000000-0000-4000-8000-000000000001', 'maria.web@example.invalid') on conflict do nothing;
+update users set auth_user_id = '20000000-0000-4000-8000-000000000001' where id = '00000000-0000-4000-8000-000000000101';
+insert into delegations (id, manager_id, person_id, person_name, person_phone, status) values
+  ('30000000-0000-4000-8000-000000000002', '00000000-0000-4000-8000-000000000101',
+   '00000000-0000-4000-8000-000000000102', 'Carlos Ejemplo', '+573000000002', 'active');
+set role authenticated;
+select set_config('request.jwt.claim.sub', '20000000-0000-4000-8000-000000000001', false);
+select set_config('request.headers', '', false);
+select portal_set_acting('00000000-0000-4000-8000-000000000102');
+select pg_temp.assert(portal_current() = '00000000-0000-4000-8000-000000000102', 'kept choice: Carlos');
+select pg_temp.assert((select count(*) from contracts) = 1
+  and (select user_id from contracts) = '00000000-0000-4000-8000-000000000102', 'only Carlos''s contracts, none of María''s');
+select pg_temp.assert((select count(*) from supports where user_id = '00000000-0000-4000-8000-000000000101') = 0, 'none of María''s supports');
+select portal_set_acting(null);
+select pg_temp.assert(portal_current() = '00000000-0000-4000-8000-000000000101', 'back to her own');
+do $$ begin
+  perform portal_set_acting('00000000-0000-4000-8000-000000000999');
+  raise exception 'FAILED: acted for someone without authorization';
+exception when insufficient_privilege then null;
+end $$;
+select portal_set_acting('00000000-0000-4000-8000-000000000102');
+reset role;
+update delegations set status = 'revoked' where id = '30000000-0000-4000-8000-000000000002';
+set role authenticated;
+select pg_temp.assert(portal_current() = '00000000-0000-4000-8000-000000000101', 'revoked: kept choice ignored');
+reset role;
+delete from portal_acting;
+delete from delegations where id = '30000000-0000-4000-8000-000000000002';
+update users set auth_user_id = null where id = '00000000-0000-4000-8000-000000000101';
