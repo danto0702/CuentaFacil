@@ -13,6 +13,17 @@ const one = <T>(v: One<T>): T | null => (Array.isArray(v) ? (v[0] ?? null) : v);
 
 export type Sb = Awaited<ReturnType<typeof supabaseServer>>;
 
+/**
+ * Whose rows a portal client reads (ADR-067). RLS alone is not enough: a web account that is also staff (or
+ * superadmin) sees everyone's rows through the staff policies, so every portal query also filters by this id.
+ */
+const owners = new WeakMap<object, string>();
+function ownerOf(sb: Sb): string {
+  const id = owners.get(sb);
+  if (!id) throw new Error('portal client without an owner');
+  return id;
+}
+
 export interface PortalUser {
   id: string;
   fullName: string;
@@ -79,6 +90,7 @@ export async function portalSession(): Promise<PortalSession | null> {
   const target = people.find((p) => !p.isSelf && p.id === wanted) ?? me;
   const acting = target.id !== me.id;
   const sb = acting ? await supabaseServer({ [ACTING_HEADER]: target.id }) : base;
+  owners.set(sb, target.id);
   const { data: u } = await sb.from('users').select(USER_COLUMNS).eq('id', target.id).maybeSingle();
   return {
     sb,
@@ -150,6 +162,7 @@ export async function listContracts(sb: Sb): Promise<PortalContract[]> {
       .select(
         'id, entity_id, number_full, number, short_label, object_text, start_date, end_date, payments_count, report_number_fmt, obligations(id, kind, number, literal_text), periods(id, report_number, date_from, date_to, status, amount)',
       )
+      .eq('user_id', ownerOf(sb))
       .order('start_date', { ascending: false }),
     sb.rpc('portal_entities'),
   ]);
@@ -285,10 +298,17 @@ export interface PortalSupport {
 /** Codes the chat keeps that are not certificates the contractor manages from the supports page. */
 export const INTERNAL_SUPPORTS = new Set(['FIRMA', 'COMPROBANTE_PAGO', 'INFORME_ANTERIOR']);
 
+async function entityIds(sb: Sb): Promise<string[]> {
+  const { data } = await sb.from('contracts').select('entity_id').eq('user_id', ownerOf(sb));
+  const ids = [...new Set((data ?? []).map((c) => c.entity_id as string))];
+  return ids.length ? ids : ['00000000-0000-0000-0000-000000000000'];
+}
+
 export async function listSupportTypes(sb: Sb): Promise<PortalSupportType[]> {
   const { data, error } = await sb
     .from('support_types')
     .select('code, label, required, frequency, max_age_days, official_url, instructions, stage, bundle_order')
+    .in('entity_id', await entityIds(sb))
     .order('bundle_order');
   if (error) throw error;
   const seen = new Set<string>();
@@ -315,6 +335,7 @@ export async function listSupports(sb: Sb): Promise<PortalSupport[]> {
   const { data, error } = await sb
     .from('supports')
     .select('id, code, filename, original_path, issued_on, created_at, status')
+    .eq('user_id', ownerOf(sb))
     .neq('status', 'rejected')
     .order('created_at', { ascending: false });
   if (error) throw error;
@@ -360,6 +381,7 @@ export async function listCharges(sb: Sb): Promise<PortalCharge[]> {
     .select(
       'id, product, amount, status, method, reference, raw, created_at, contracts(number_full), periods(report_number)',
     )
+    .eq('user_id', ownerOf(sb))
     .neq('status', 'cancelled')
     .order('created_at', { ascending: false });
   if (error) throw error;
