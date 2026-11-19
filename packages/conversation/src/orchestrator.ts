@@ -4258,6 +4258,21 @@ ${lines.join('\n')}${due.length ? '' : '\n\nNo tienes nada pendiente. 👍'}`,
       await this.savePeriodStatus(c, p, 'delivered');
       await this.deps.store.markPeriodCharge(c.id, p.number, charge);
     }
+    // Prepared by a gestor (ADR-068): the contractor gets the same documents in their own WhatsApp.
+    if (this.forOther(turn) && files.length) {
+      const by = actorOf(turn).fullName.split(/\s+/).slice(0, 2).join(' ');
+      await this.deps
+        .notify?.(turn.user.phone, [
+          text(`📄 *${by}* generó tu ${this.reportLabel(c, p)}. Aquí están tus documentos:`),
+          ...files.map((f) => ({
+            type: 'document' as const,
+            filename: f.filename,
+            mime: f.mime,
+            data: f.data,
+          })),
+        ])
+        .catch(() => undefined);
+    }
     turn.out.push(
       text(
         '🎉 ¡Listo! Lo que falta fuera de WhatsApp:\n1. Revisa y firma el informe de actividades.\n2. Entrega el borrador del informe de supervisión a tu supervisor para su firma.\n3. Carga los documentos en SECOP II (el ZIP ya tiene la carpeta *DOCUMENTOS A CARGAR*).',
@@ -4349,6 +4364,27 @@ ${lines.join('\n')}${due.length ? '' : '\n\nNo tienes nada pendiente. 👍'}`,
 
   /** Payment request for a report (p) or for the contract's configuration (p = null). */
   private async askPayment(turn: Turn, c: Contract, p: Period | null, charge: Charge): Promise<null> {
+    // A gestor's report (ADR-068): the contractor is asked to pay too; whoever pays first unlocks it for both.
+    const askedBefore = turn.state.flow === 'pay_wait' && turn.state.context.chargeId === charge.id;
+    if (p && this.forOther(turn) && !charge.transfer && !askedBefore) {
+      const by = actorOf(turn).fullName.split(/\s+/).slice(0, 2).join(' ');
+      const link = this.deps.payments?.checkoutUrl(charge, turn.user.phone);
+      const intro = `💳 *${by}* preparó tu ${this.reportLabel(c, p)}. Para entregarlo el valor es *${formatCOP(charge.amount)}*.`;
+      await this.deps
+        .notify?.(turn.user.phone, [
+          link
+            ? {
+                type: 'cta_url',
+                text: `${intro}\n\nPaga en línea y te envío los documentos apenas se confirme. Para pagar por transferencia escribe *mis pagos*.`,
+                button: 'Pagar en línea',
+                url: link,
+              }
+            : text(
+                `${intro}\n\nEscribe *mis pagos* para ver cómo pagar. Apenas se confirme te envío los documentos.`,
+              ),
+        ])
+        .catch(() => undefined);
+    }
     this.setFlow(turn, 'pay_wait', 'wait', {
       chargeId: charge.id,
       contractId: c.id,

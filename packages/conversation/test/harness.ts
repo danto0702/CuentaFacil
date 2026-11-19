@@ -19,7 +19,12 @@ export function harness(opts: { today?: string; generator?: Generator; phone?: s
   const store = new MemoryStore(demoData());
   const clock = new FixedClock(opts.today ?? '2026-09-28');
   let seq = 0;
+  /** What Pascal sent outside the turn (deps.notify): to another WhatsApp. */
+  const notified: { to: string; out: Outgoing[] }[] = [];
   const orchestrator = new Orchestrator({
+    notify: async (to, out) => {
+      notified.push({ to, out });
+    },
     store,
     ai: opts.ai ?? new FakeAI(),
     stt: new FakeSTT(),
@@ -43,6 +48,7 @@ export function harness(opts: { today?: string; generator?: Generator; phone?: s
   return {
     store,
     clock,
+    notified,
     orchestrator,
     as,
     say: (text: string) => send({ kind: 'text', text }),

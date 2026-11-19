@@ -918,6 +918,47 @@ describe('billing (ADR-034)', () => {
     expect(Object.values(charges(h))).toEqual(['paid']);
   });
 
+  it("a gestor's report: the contractor is asked to pay too and gets the documents (ADR-068)", async () => {
+    const h = await readyToGenerate();
+    h.store.data.billing = { mode: 'live', prices: { setup: 15_000, report: 50_000 } };
+    const maria = (await h.store.getUserByPhone(DEMO_PHONES.maria))!;
+    const carlos = (await h.store.getUserByPhone(DEMO_PHONES.carlos))!;
+    h.store.data.delegations = [
+      {
+        id: 'dlg-x',
+        managerId: carlos.id,
+        personId: maria.id,
+        personName: maria.fullName,
+        personPhone: maria.phone,
+        status: 'active',
+      },
+    ];
+    h.store.data.cashCodes = [
+      {
+        code: 'K7M4Q2P9',
+        userId: maria.id,
+        product: 'report',
+        amount: 50_000,
+        expiresAt: '2099-01-01T00:00:00Z',
+      },
+    ];
+    const g = h.as(DEMO_PHONES.carlos);
+    await g.press(`who:${maria.id}`);
+    await g.say('generar');
+    let out = show(await g.press(`c:${DEMO_IDS.ebs}`));
+    expect(out.join('\n')).toMatch(/💳 .*Para entregártelo el valor es/);
+    const ask = h.notified.filter((n) => n.to === maria.phone);
+    expect(ask).toHaveLength(1);
+    expect(show(ask[0]!.out)[0]).toMatch(/^💳 \*.+\* preparó tu informe .* el valor es \*\$ 50\.000\*/);
+
+    out = show(await g.press('pay:code'));
+    out = show(await g.say('k7m4-q2p9'));
+    expect(out.join('\n')).toMatch(/Estoy generando tus documentos/);
+    const docs = h.notified.filter((n) => n.to === maria.phone).at(-1)!;
+    expect(show(docs.out)[0]).toMatch(/^📄 \*.+\* generó tu informe .* Aquí están tus documentos:/);
+    expect(docs.out.some((o) => o.type === 'document')).toBe(true);
+  });
+
   it('keeps a contract inactive until its configuration is paid', async () => {
     const h = harness();
     h.store.data.billing = { mode: 'live', prices: { setup: 15_000, report: 50_000 } };

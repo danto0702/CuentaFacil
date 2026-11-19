@@ -448,3 +448,11 @@
   - El panel le pregunta a `portal_current()` a quién está mostrando, para que el nombre del encabezado y los datos siempre coincidan.
   - Al salir de la cuenta, el portal vuelve a «Mis cuentas».
 - **Consecuencias:** la elección vale para todos los dispositivos de la misma cuenta web. Si la persona revoca la autorización, se ignora sin más pasos.
+
+## ADR-068 — El informe de un gestor también le llega al contratista (2026-11-19)
+
+- **Contexto:** cuando un gestor generaba el informe de otra persona, el cobro y los documentos le llegaban solo al gestor. El contratista no se enteraba ni podía pagar.
+- **Decisión:**
+  - Al pedir el pago de un informe que generó un gestor, el contratista también recibe por WhatsApp el cobro, con el enlace de pago en línea (o *mis pagos* para transferencia). Se envía una sola vez por cobro. Es el mismo cobro: el pago de cualquiera de los dos lo desbloquea.
+  - Al generarse los documentos (después del pago, o sin cobro en piloto o con cuenta gratis), le llegan al gestor en su chat y al contratista en el suyo, con «*Gestor* generó tu informe…».
+  - Si la ventana de 24 horas del contratista está cerrada, se le avisa con la plantilla y los recibe al responder (ADR-043).
