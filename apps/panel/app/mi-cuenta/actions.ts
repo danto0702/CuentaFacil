@@ -5,6 +5,7 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { ACTING_COOKIE, listCharges, listContracts, portalSession } from '@/lib/portal';
 import { supabaseServer } from '@/lib/supabase';
+import { adminAuthConfigured, supabaseAdmin } from '@/lib/supabase-admin';
 import { checkoutUrl, wompiConfigured } from '@/lib/wompi';
 
 /**
@@ -74,7 +75,12 @@ export async function signUp(form: FormData): Promise<void> {
   if (form.get('terms') !== 'on')
     go('/registro', 'Para crear tu cuenta debes aceptar los términos y la política de datos.', 'error');
   const sb = await supabaseServer();
-  const { data, error } = await sb.auth.signUp({ email, password });
+  // The account opens nothing until the contractor links it from their WhatsApp (VINCULAR), which is the proof
+  // of identity: it is created confirmed, without depending on Supabase's e-mail sender.
+  const created = adminAuthConfigured()
+    ? await supabaseAdmin().auth.admin.createUser({ email, password, email_confirm: true })
+    : await sb.auth.signUp({ email, password });
+  const error = created.error;
   if (error) {
     const taken = /registered|exists/i.test(error.message);
     go(
@@ -85,7 +91,7 @@ export async function signUp(form: FormData): Promise<void> {
       'error',
     );
   }
-  // With e-mail confirmation on, Supabase returns no session until the link in the e-mail is opened.
+  const { data } = await sb.auth.signInWithPassword({ email, password });
   if (!data.session)
     go('/ingresar', 'Te enviamos un correo para confirmar tu cuenta. Ábrelo y luego ingresa.');
   go('/vincular');
