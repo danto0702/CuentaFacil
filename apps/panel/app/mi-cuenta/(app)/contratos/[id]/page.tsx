@@ -44,6 +44,7 @@ export default async function ContractPage({
   const general = contract.obligations.filter((o) => o.kind === 'general');
   const byObligation = (o: PortalObligation) =>
     notes.filter((n) => n.obligationId === o.id || n.extraIds.includes(o.id));
+  const noPhoto = notes.filter((n) => n.photos.length === 0).length;
   const unassigned = notes.filter(
     (n) => !n.obligationId || !contract.obligations.some((o) => o.id === n.obligationId),
   );
@@ -112,13 +113,31 @@ export default async function ContractPage({
       <section className="pt-card">
         <div className="pt-spread">
           <h2>Actividades de la cuenta</h2>
-          <span className="pt-muted">{notes.length} registradas</span>
+          <span className="pt-muted">
+            {notes.length} registradas
+            {notes.length > 0 && (
+              <>
+                {' · '}
+                <span className={`pt-pill ${noPhoto ? 'warn' : 'ok'}`}>
+                  📷 {notes.length - noPhoto} de {notes.length} con foto
+                </span>
+              </>
+            )}
+          </span>
         </div>
         {specific.map((o) => (
           <div key={o.id} className="pt-obl">
             <div className="pt-obl-title">
               Obligación {o.number}{' '}
-              {byObligation(o).length === 0 && <span className="pt-pill warn">Sin actividad</span>}
+              {byObligation(o).length === 0 ? (
+                <span className="pt-pill warn">Sin actividad</span>
+              ) : (
+                byObligation(o).some((n) => n.photos.length === 0) && (
+                  <span className="pt-pill warn">
+                    {byObligation(o).filter((n) => n.photos.length === 0).length} sin foto
+                  </span>
+                )
+              )}
               <small>{clip(o.text, 220)}</small>
             </div>
             {byObligation(o).map((n) => (
@@ -264,7 +283,16 @@ function Activity({
   return (
     <article className="pt-act">
       <div className="pt-spread">
-        <span className="pt-act-date">{shortDate(note.date)}</span>
+        <span className="pt-act-date">
+          {shortDate(note.date)}{' '}
+          {note.photos.length ? (
+            <span className="pt-pill ok">
+              📷 {note.photos.length} {note.photos.length === 1 ? 'foto' : 'fotos'}
+            </span>
+          ) : (
+            <span className="pt-pill warn">Sin foto</span>
+          )}
+        </span>
         {also.length > 0 && (
           <span className="pt-muted">
             {main ? 'También en' : 'Principal en'}: {also.map((o) => o.number).join(', ')}
