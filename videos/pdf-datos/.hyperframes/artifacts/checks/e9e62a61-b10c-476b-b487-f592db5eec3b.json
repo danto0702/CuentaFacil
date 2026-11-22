@@ -1,0 +1,352 @@
+{
+  "ok": false,
+  "strict": false,
+  "browserSkipped": false,
+  "lint": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": [],
+    "filesScanned": 11
+  },
+  "runtime": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": []
+  },
+  "layout": {
+    "ok": false,
+    "errorCount": 2,
+    "warningCount": 0,
+    "infoCount": 5,
+    "findings": [
+      {
+        "code": "content_overlap",
+        "severity": "error",
+        "time": 39.595,
+        "selector": "#fp05-pf > b:nth-of-type(1)",
+        "message": "Two text blocks overlap and may render unreadable.",
+        "rect": {
+          "left": 442,
+          "top": 698,
+          "right": 547.38,
+          "bottom": 756,
+          "width": 105.38,
+          "height": 58
+        },
+        "containerSelector": "#fp05-fr",
+        "text": "PDF",
+        "fixHint": "Give each block its own zone, or put data-layout-allow-overlap on the text or on a container inside the scene. A marker on the scene root does not apply.",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/fp05.html",
+        "bbox": {
+          "x": 442,
+          "y": 698,
+          "width": 105.38,
+          "height": 58
+        },
+        "firstSeen": 35.835,
+        "lastSeen": 40.259,
+        "occurrences": 12,
+        "heldMs": 4423.999999999999,
+        "times": [
+          35.835,
+          36.277,
+          36.719,
+          37.162,
+          37.604,
+          38.047,
+          38.489,
+          38.931,
+          39.374,
+          39.595,
+          39.816,
+          40.259
+        ]
+      },
+      {
+        "code": "content_overlap",
+        "severity": "error",
+        "time": 60.167,
+        "selector": "#fp08-nw",
+        "message": "Two text blocks overlap and may render unreadable.",
+        "rect": {
+          "left": 160,
+          "top": 645,
+          "right": 409.94,
+          "bottom": 699,
+          "width": 249.94,
+          "height": 54
+        },
+        "containerSelector": "#fp08-rest",
+        "text": "que la empr",
+        "fixHint": "Give each block its own zone, or put data-layout-allow-overlap on the text or on a container inside the scene. A marker on the scene root does not apply.",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/fp08.html",
+        "bbox": {
+          "x": 160,
+          "y": 645,
+          "width": 249.94,
+          "height": 54
+        },
+        "firstSeen": 60.167,
+        "lastSeen": 62.821,
+        "occurrences": 7,
+        "heldMs": 2653.9999999999964,
+        "times": [
+          60.167,
+          60.609,
+          61.052,
+          61.494,
+          61.936,
+          62.379,
+          62.821
+        ]
+      },
+      {
+        "code": "content_overlap",
+        "severity": "info",
+        "time": 0.885,
+        "selector": "#fp01-f3 > b:nth-of-type(1)",
+        "message": "Two text blocks overlap and may render unreadable.",
+        "rect": {
+          "left": 551.58,
+          "top": 718.85,
+          "right": 621.46,
+          "bottom": 763.6,
+          "width": 69.88,
+          "height": 44.75
+        },
+        "containerSelector": "#fp01-f9 > b:nth-of-type(1)",
+        "text": "PDF",
+        "fixHint": "Give each block its own zone, or put data-layout-allow-overlap on the text or on a container inside the scene. A marker on the scene root does not apply.",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/fp01.html",
+        "bbox": {
+          "x": 551.58,
+          "y": 718.85,
+          "width": 69.88,
+          "height": 44.75
+        },
+        "firstSeen": 0.885,
+        "lastSeen": 0.885,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          0.885
+        ]
+      },
+      {
+        "code": "text_occluded",
+        "severity": "info",
+        "time": 39.595,
+        "selector": "#fp05-pf > b:nth-of-type(1)",
+        "message": "Text is hidden beneath an opaque element.",
+        "rect": {
+          "left": 442,
+          "top": 698,
+          "right": 547.38,
+          "bottom": 756,
+          "width": 105.38,
+          "height": 58
+        },
+        "containerSelector": "#fp05-fr",
+        "text": "PDF",
+        "fixHint": "Give the text its own zone, raise its stacking order above the covering element, or mark intentional layering with data-layout-allow-occlusion.",
+        "coveredFraction": 0.81,
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/fp05.html",
+        "bbox": {
+          "x": 442,
+          "y": 698,
+          "width": 105.38,
+          "height": 58
+        },
+        "firstSeen": 39.595,
+        "lastSeen": 39.595,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          39.595
+        ]
+      },
+      {
+        "code": "text_occluded",
+        "severity": "info",
+        "time": 39.595,
+        "selector": "#fp05-fr",
+        "message": "Text is hidden beneath an opaque element.",
+        "rect": {
+          "left": 221.91,
+          "top": 532.17,
+          "right": 707.93,
+          "bottom": 771.83,
+          "width": 486.02,
+          "height": 239.66
+        },
+        "containerSelector": "#fp05 > div:nth-of-type(1) > div:nth-of-type(1)",
+        "text": "GRATIS",
+        "fixHint": "Give the text its own zone, raise its stacking order above the covering element, or mark intentional layering with data-layout-allow-occlusion.",
+        "coveredFraction": 0.15,
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/fp05.html",
+        "bbox": {
+          "x": 221.91,
+          "y": 532.17,
+          "width": 486.02,
+          "height": 239.66
+        },
+        "firstSeen": 39.595,
+        "lastSeen": 39.595,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          39.595
+        ]
+      },
+      {
+        "code": "container_overflow",
+        "severity": "info",
+        "time": 74.791,
+        "selector": "#fp10-rs",
+        "message": "Element extends outside a clipping layout container.",
+        "rect": {
+          "left": -859.4,
+          "top": -659.4,
+          "right": 1939.4,
+          "bottom": 2139.4,
+          "width": 2798.79,
+          "height": 2798.79
+        },
+        "containerSelector": "#fp10 > div:nth-of-type(1)",
+        "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1080,
+          "bottom": 1920,
+          "width": 1080,
+          "height": 1920
+        },
+        "overflow": {
+          "left": 859.4,
+          "right": 859.4,
+          "top": 659.4,
+          "bottom": 219.4
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/fp10.html",
+        "bbox": {
+          "x": -859.4,
+          "y": -659.4,
+          "width": 2798.79,
+          "height": 2798.79
+        },
+        "firstSeen": 74.791,
+        "lastSeen": 74.791,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          74.791
+        ]
+      },
+      {
+        "code": "escaped_container",
+        "severity": "info",
+        "time": 74.791,
+        "selector": "#fp10-rs",
+        "message": "Positioned element renders far outside its offset parent — its coordinates were likely computed in a different frame (canvas/viewport pixels).",
+        "rect": {
+          "left": -859.4,
+          "top": -659.4,
+          "right": 1939.4,
+          "bottom": 2139.4,
+          "width": 2798.79,
+          "height": 2798.79
+        },
+        "containerSelector": "#fp10 > div:nth-of-type(1)",
+        "text": "",
+        "fixHint": "Compute left/top in the offset parent's frame (subtract its rect), or mark intentional placement with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1080,
+          "bottom": 1920,
+          "width": 1080,
+          "height": 1920
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/fp10.html",
+        "bbox": {
+          "x": -859.4,
+          "y": -659.4,
+          "width": 2798.79,
+          "height": 2798.79
+        },
+        "firstSeen": 74.791,
+        "lastSeen": 74.791,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          74.791
+        ]
+      }
+    ],
+    "duration": 79.19,
+    "samples": [
+      4.399,
+      13.198,
+      21.997,
+      30.796,
+      39.595,
+      48.394,
+      57.193,
+      65.992,
+      74.791
+    ],
+    "transitionSamples": [],
+    "transitionSamplesDropped": 0,
+    "tolerance": 2,
+    "totalIssueCount": 7,
+    "truncated": false
+  },
+  "motion": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": [],
+    "enabled": false,
+    "samples": 0
+  },
+  "contrast": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": [],
+    "enabled": true,
+    "samples": [
+      4.399,
+      21.997,
+      39.595,
+      57.193,
+      74.791
+    ],
+    "checked": 56,
+    "passed": 56
+  },
+  "hdr": {
+    "autoPromotion": null,
+    "inspection": "available"
+  },
+  "snapshots": {
+    "enabled": false,
+    "files": [],
+    "times": [],
+    "findingFiles": []
+  }
+}
