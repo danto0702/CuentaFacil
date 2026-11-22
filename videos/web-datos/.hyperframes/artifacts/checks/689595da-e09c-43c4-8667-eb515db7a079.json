@@ -1,0 +1,263 @@
+{
+  "ok": true,
+  "strict": false,
+  "browserSkipped": false,
+  "lint": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": [],
+    "filesScanned": 11
+  },
+  "runtime": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": []
+  },
+  "layout": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 3,
+    "findings": [
+      {
+        "code": "container_overflow",
+        "severity": "info",
+        "time": 4.628,
+        "selector": "#fw01-pp",
+        "message": "Element extends outside a clipping layout container.",
+        "rect": {
+          "left": -30.94,
+          "top": 1112.09,
+          "right": 1110.94,
+          "bottom": 1192.44,
+          "width": 1141.88,
+          "height": 80.35
+        },
+        "containerSelector": "#fw01 > div:nth-of-type(1)",
+        "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1080,
+          "bottom": 1920,
+          "width": 1080,
+          "height": 1920
+        },
+        "overflow": {
+          "left": 30.94,
+          "right": 30.94
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/fw01.html",
+        "bbox": {
+          "x": -30.94,
+          "y": 1112.09,
+          "width": 1141.88,
+          "height": 80.35
+        },
+        "firstSeen": 4.628,
+        "lastSeen": 4.628,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          4.628
+        ]
+      },
+      {
+        "code": "container_overflow",
+        "severity": "info",
+        "time": 78.682,
+        "selector": "#fw10-rs",
+        "message": "Element extends outside a clipping layout container.",
+        "rect": {
+          "left": -865.72,
+          "top": -665.72,
+          "right": 1945.72,
+          "bottom": 2145.72,
+          "width": 2811.44,
+          "height": 2811.44
+        },
+        "containerSelector": "#fw10 > div:nth-of-type(1)",
+        "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1080,
+          "bottom": 1920,
+          "width": 1080,
+          "height": 1920
+        },
+        "overflow": {
+          "left": 865.72,
+          "right": 865.72,
+          "top": 665.72,
+          "bottom": 225.72
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/fw10.html",
+        "bbox": {
+          "x": -865.72,
+          "y": -665.72,
+          "width": 2811.44,
+          "height": 2811.44
+        },
+        "firstSeen": 78.682,
+        "lastSeen": 78.682,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          78.682
+        ]
+      },
+      {
+        "code": "escaped_container",
+        "severity": "info",
+        "time": 78.682,
+        "selector": "#fw10-rs",
+        "message": "Positioned element renders far outside its offset parent — its coordinates were likely computed in a different frame (canvas/viewport pixels).",
+        "rect": {
+          "left": -865.72,
+          "top": -665.72,
+          "right": 1945.72,
+          "bottom": 2145.72,
+          "width": 2811.44,
+          "height": 2811.44
+        },
+        "containerSelector": "#fw10 > div:nth-of-type(1)",
+        "text": "",
+        "fixHint": "Compute left/top in the offset parent's frame (subtract its rect), or mark intentional placement with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1080,
+          "bottom": 1920,
+          "width": 1080,
+          "height": 1920
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/fw10.html",
+        "bbox": {
+          "x": -865.72,
+          "y": -665.72,
+          "width": 2811.44,
+          "height": 2811.44
+        },
+        "firstSeen": 78.682,
+        "lastSeen": 78.682,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          78.682
+        ]
+      }
+    ],
+    "duration": 83.31,
+    "samples": [
+      4.628,
+      13.885,
+      23.142,
+      32.398,
+      41.655,
+      50.912,
+      60.168,
+      69.425,
+      78.682
+    ],
+    "transitionSamples": [],
+    "transitionSamplesDropped": 0,
+    "tolerance": 2,
+    "totalIssueCount": 3,
+    "truncated": false
+  },
+  "motion": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": [],
+    "enabled": false,
+    "samples": 0
+  },
+  "contrast": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 2,
+    "infoCount": 0,
+    "findings": [
+      {
+        "code": "contrast_aa_failure",
+        "severity": "warning",
+        "message": "Contrast is 2.28:1; WCAG AA requires 3:1.",
+        "text": "★★★★★ · Ver página",
+        "fg": "rgb(229,158,0)",
+        "bg": "rgb(255,255,255)",
+        "ratio": 2.28,
+        "requiredRatio": 3,
+        "suggestedColor": "rgb(198,137,0)",
+        "large": true,
+        "selector": "div > div:nth-of-type(8) > div > div:nth-of-type(5) > div > small",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/fw08.html",
+        "bbox": {
+          "x": 234,
+          "y": 636.09375,
+          "width": 444.109375,
+          "height": 33.59375
+        },
+        "time": 60.168,
+        "times": [
+          60.168
+        ]
+      },
+      {
+        "code": "contrast_aa_failure",
+        "severity": "warning",
+        "message": "Contrast is 2.28:1; WCAG AA requires 3:1.",
+        "text": "★★★★☆ · Ver página",
+        "fg": "rgb(229,158,0)",
+        "bg": "rgb(255,255,255)",
+        "ratio": 2.28,
+        "requiredRatio": 3,
+        "suggestedColor": "rgb(198,137,0)",
+        "large": true,
+        "selector": "div > div:nth-of-type(8) > div > div:nth-of-type(6) > div > small",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/fw08.html",
+        "bbox": {
+          "x": 234,
+          "y": 816.09375,
+          "width": 397.984375,
+          "height": 33.59375
+        },
+        "time": 60.168,
+        "times": [
+          60.168
+        ]
+      }
+    ],
+    "enabled": true,
+    "samples": [
+      4.628,
+      23.142,
+      41.655,
+      60.168,
+      78.682
+    ],
+    "checked": 39,
+    "passed": 37
+  },
+  "hdr": {
+    "autoPromotion": null,
+    "inspection": "available"
+  },
+  "snapshots": {
+    "enabled": false,
+    "files": [],
+    "times": [],
+    "findingFiles": []
+  }
+}
