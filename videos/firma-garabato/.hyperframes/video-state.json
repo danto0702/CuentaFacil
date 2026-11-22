@@ -569,5 +569,16 @@
         "attribution": "unversioned"
       }
     ]
-  }
+  },
+  "renders": {
+    "latest": {
+      "id": "7a010c66-a944-4a9f-8290-1a24695493ba",
+      "completedAt": 1795368815900,
+      "output": "/home/user/CuentaFacil/videos/firma-garabato/renders/raw.mp4",
+      "status": "completed",
+      "revision": null
+    },
+    "retainedRevisions": []
+  },
+  "pendingArtifactCleanup": []
 }
