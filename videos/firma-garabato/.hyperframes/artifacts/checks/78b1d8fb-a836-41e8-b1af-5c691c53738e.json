@@ -1,0 +1,423 @@
+{
+  "ok": true,
+  "strict": false,
+  "browserSkipped": false,
+  "lint": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": [],
+    "filesScanned": 11
+  },
+  "runtime": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": []
+  },
+  "layout": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 7,
+    "findings": [
+      {
+        "code": "text_occluded",
+        "severity": "info",
+        "time": 4.276,
+        "selector": "#fg01-q1",
+        "message": "Text is hidden beneath an opaque element.",
+        "rect": {
+          "left": 49.07,
+          "top": 164.9,
+          "right": 180.25,
+          "bottom": 364.13,
+          "width": 131.17,
+          "height": 199.23
+        },
+        "containerSelector": "#fg01 > div:nth-of-type(1) > div:nth-of-type(1)",
+        "text": "?",
+        "fixHint": "Give the text its own zone, raise its stacking order above the covering element, or mark intentional layering with data-layout-allow-occlusion.",
+        "coveredFraction": 0.44,
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/fg01.html",
+        "bbox": {
+          "x": 49.07,
+          "y": 164.9,
+          "width": 131.17,
+          "height": 199.23
+        },
+        "firstSeen": 4.276,
+        "lastSeen": 4.276,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          4.276
+        ]
+      },
+      {
+        "code": "text_occluded",
+        "severity": "info",
+        "time": 4.276,
+        "selector": "#fg01-q2",
+        "message": "Text is hidden beneath an opaque element.",
+        "rect": {
+          "left": 862.06,
+          "top": 1205.7,
+          "right": 987.71,
+          "bottom": 1403.32,
+          "width": 125.65,
+          "height": 197.62
+        },
+        "containerSelector": "#fg01 > div:nth-of-type(1) > div:nth-of-type(1)",
+        "text": "?",
+        "fixHint": "Give the text its own zone, raise its stacking order above the covering element, or mark intentional layering with data-layout-allow-occlusion.",
+        "coveredFraction": 0.44,
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/fg01.html",
+        "bbox": {
+          "x": 862.06,
+          "y": 1205.7,
+          "width": 125.65,
+          "height": 197.62
+        },
+        "firstSeen": 4.276,
+        "lastSeen": 4.276,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          4.276
+        ]
+      },
+      {
+        "code": "text_box_overflow",
+        "severity": "info",
+        "time": 38.48,
+        "selector": "#fg05-lt > text:nth-of-type(1)",
+        "message": "Text extends outside its nearest visual/container box.",
+        "rect": {
+          "left": 495.16,
+          "top": 457,
+          "right": 584.84,
+          "bottom": 611,
+          "width": 89.68,
+          "height": 154
+        },
+        "containerSelector": "#fg05-mo",
+        "text": "R",
+        "fixHint": "Text is 90px x 154px inside 600px x 600px and overflows by up to 13px; increase the container height to at least ~613px, or allow wrapping with max-width/fitTextFontSize.",
+        "containerRect": {
+          "left": 240,
+          "top": 470,
+          "right": 840,
+          "bottom": 1070,
+          "width": 600,
+          "height": 600
+        },
+        "overflow": {
+          "top": 13
+        },
+        "dataAttributes": {
+          "data-svg-origin": "300.65625 64"
+        },
+        "sourceFile": "compositions/frames/fg05.html",
+        "bbox": {
+          "x": 495.16,
+          "y": 457,
+          "width": 89.68,
+          "height": 154
+        },
+        "firstSeen": 38.48,
+        "lastSeen": 38.48,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          38.48
+        ]
+      },
+      {
+        "code": "text_box_overflow",
+        "severity": "info",
+        "time": 38.48,
+        "selector": "#fg05-lt > text:nth-of-type(2)",
+        "message": "Text extends outside its nearest visual/container box.",
+        "rect": {
+          "left": 505.42,
+          "top": 937,
+          "right": 574.58,
+          "bottom": 1091,
+          "width": 69.16,
+          "height": 154
+        },
+        "containerSelector": "#fg05-mo",
+        "text": "L",
+        "fixHint": "Text is 69px x 154px inside 600px x 600px and overflows by up to 21px; increase the container height to at least ~621px, or allow wrapping with max-width/fitTextFontSize.",
+        "containerRect": {
+          "left": 240,
+          "top": 470,
+          "right": 840,
+          "bottom": 1070,
+          "width": 600,
+          "height": 600
+        },
+        "overflow": {
+          "bottom": 21
+        },
+        "dataAttributes": {
+          "data-svg-origin": "300 544"
+        },
+        "sourceFile": "compositions/frames/fg05.html",
+        "bbox": {
+          "x": 505.42,
+          "y": 937,
+          "width": 69.16,
+          "height": 154
+        },
+        "firstSeen": 38.48,
+        "lastSeen": 38.48,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          38.48
+        ]
+      },
+      {
+        "code": "container_overflow",
+        "severity": "info",
+        "time": 38.48,
+        "selector": "#fg05-lt",
+        "message": "Element extends outside a clipping layout container.",
+        "rect": {
+          "left": 256.98,
+          "top": 457,
+          "right": 809.15,
+          "bottom": 1091,
+          "width": 552.17,
+          "height": 634
+        },
+        "containerSelector": "#fg05-mo",
+        "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 240,
+          "top": 470,
+          "right": 840,
+          "bottom": 1070,
+          "width": 600,
+          "height": 600
+        },
+        "overflow": {
+          "top": 13,
+          "bottom": 21
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/fg05.html",
+        "bbox": {
+          "x": 256.98,
+          "y": 457,
+          "width": 552.17,
+          "height": 634
+        },
+        "firstSeen": 38.48,
+        "lastSeen": 38.48,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          38.48
+        ]
+      },
+      {
+        "code": "container_overflow",
+        "severity": "info",
+        "time": 72.684,
+        "selector": "#fg10-rs",
+        "message": "Element extends outside a clipping layout container.",
+        "rect": {
+          "left": -859.8,
+          "top": -659.8,
+          "right": 1939.8,
+          "bottom": 2139.8,
+          "width": 2799.61,
+          "height": 2799.61
+        },
+        "containerSelector": "#fg10 > div:nth-of-type(1)",
+        "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1080,
+          "bottom": 1920,
+          "width": 1080,
+          "height": 1920
+        },
+        "overflow": {
+          "left": 859.8,
+          "right": 859.8,
+          "top": 659.8,
+          "bottom": 219.8
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/fg10.html",
+        "bbox": {
+          "x": -859.8,
+          "y": -659.8,
+          "width": 2799.61,
+          "height": 2799.61
+        },
+        "firstSeen": 72.684,
+        "lastSeen": 72.684,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          72.684
+        ]
+      },
+      {
+        "code": "escaped_container",
+        "severity": "info",
+        "time": 72.684,
+        "selector": "#fg10-rs",
+        "message": "Positioned element renders far outside its offset parent — its coordinates were likely computed in a different frame (canvas/viewport pixels).",
+        "rect": {
+          "left": -859.8,
+          "top": -659.8,
+          "right": 1939.8,
+          "bottom": 2139.8,
+          "width": 2799.61,
+          "height": 2799.61
+        },
+        "containerSelector": "#fg10 > div:nth-of-type(1)",
+        "text": "",
+        "fixHint": "Compute left/top in the offset parent's frame (subtract its rect), or mark intentional placement with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1080,
+          "bottom": 1920,
+          "width": 1080,
+          "height": 1920
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/fg10.html",
+        "bbox": {
+          "x": -859.8,
+          "y": -659.8,
+          "width": 2799.61,
+          "height": 2799.61
+        },
+        "firstSeen": 72.684,
+        "lastSeen": 72.684,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          72.684
+        ]
+      }
+    ],
+    "duration": 76.96,
+    "samples": [
+      4.276,
+      12.827,
+      21.378,
+      29.929,
+      38.48,
+      47.031,
+      55.582,
+      64.133,
+      72.684
+    ],
+    "transitionSamples": [],
+    "transitionSamplesDropped": 0,
+    "tolerance": 2,
+    "totalIssueCount": 7,
+    "truncated": false
+  },
+  "motion": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": [],
+    "enabled": false,
+    "samples": 0
+  },
+  "contrast": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 2,
+    "infoCount": 0,
+    "findings": [
+      {
+        "code": "contrast_aa_failure",
+        "severity": "warning",
+        "message": "Contrast is 1.58:1; WCAG AA requires 3:1.",
+        "text": "?",
+        "fg": "rgb(64,50,12)",
+        "bg": "rgb(10,10,13)",
+        "ratio": 1.58,
+        "requiredRatio": 3,
+        "suggestedColor": "rgb(104,93,63)",
+        "large": true,
+        "selector": "#fg01-q1",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/fg01.html",
+        "bbox": {
+          "x": 53.18622589111328,
+          "y": 181.3943328857422,
+          "width": 123.19005584716797,
+          "height": 167.2113494873047
+        },
+        "time": 4.276,
+        "times": [
+          4.276
+        ]
+      },
+      {
+        "code": "contrast_aa_failure",
+        "severity": "warning",
+        "message": "Contrast is 1.58:1; WCAG AA requires 3:1.",
+        "text": "?",
+        "fg": "rgb(64,50,12)",
+        "bg": "rgb(10,10,13)",
+        "ratio": 1.58,
+        "requiredRatio": 3,
+        "suggestedColor": "rgb(104,93,63)",
+        "large": true,
+        "selector": "#fg01-q2",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/fg01.html",
+        "bbox": {
+          "x": 865.3853149414062,
+          "y": 1222.3284912109375,
+          "width": 118.7918701171875,
+          "height": 165.343017578125
+        },
+        "time": 4.276,
+        "times": [
+          4.276
+        ]
+      }
+    ],
+    "enabled": true,
+    "samples": [
+      4.276,
+      21.378,
+      38.48,
+      55.582,
+      72.684
+    ],
+    "checked": 38,
+    "passed": 36
+  },
+  "hdr": {
+    "autoPromotion": null,
+    "inspection": "available"
+  },
+  "snapshots": {
+    "enabled": false,
+    "files": [],
+    "times": [],
+    "findingFiles": []
+  }
+}
