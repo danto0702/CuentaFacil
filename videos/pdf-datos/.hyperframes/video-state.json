@@ -632,5 +632,16 @@
       ]
     },
     "unversioned": []
-  }
+  },
+  "renders": {
+    "latest": {
+      "id": "92dd9df0-64bc-41db-97e1-f0e167258b7c",
+      "completedAt": 1795370847209,
+      "output": "/home/user/CuentaFacil/videos/pdf-datos/renders/raw.mp4",
+      "status": "completed",
+      "revision": null
+    },
+    "retainedRevisions": []
+  },
+  "pendingArtifactCleanup": []
 }
