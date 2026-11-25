@@ -251,12 +251,12 @@ export class MemoryStore implements Store {
     return this.goalCounts.get(`${contractId}:${periodNumber}`) ?? null;
   }
 
-  async saveSocialSecurity(ss: SocialSecurity, _supportId: string) {
+  async saveSocialSecurity(ss: SocialSecurity, supportId: string) {
     this.data.socialSecurity = [
       ...this.data.socialSecurity.filter(
         (x) => !(x.userId === ss.userId && x.contributionMonth === ss.contributionMonth),
       ),
-      clone(ss),
+      clone({ ...ss, supportId }),
     ];
   }
   async getSocialSecurity(userId: string, contributionMonth: IsoDate) {

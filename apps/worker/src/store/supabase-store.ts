@@ -1682,6 +1682,7 @@ export class SupabaseStore implements Store {
       ...(r.arl_entity ? { arl: str(r.arl_entity) } : {}),
       arlValue: num(r.arl_value),
       total: num(r.total_value),
+      ...(r.support_id ? { supportId: str(r.support_id) } : {}),
     };
   }
 

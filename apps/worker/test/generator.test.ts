@@ -85,6 +85,34 @@ describe.skipIf(!hasSoffice)('AccountGenerator (end to end with LibreOffice)', (
     ]);
   }, 180_000);
 
+  it('a period across two months carries both PILA files and both tables (ADR-069)', async () => {
+    const store = new MemoryStore(demoData());
+    await approveAll(store, DEMO_IDS.salud, 3);
+    const ps = await store.listPeriods(DEMO_IDS.salud);
+    await store.savePeriods(
+      DEMO_IDS.salud,
+      ps.map((p) => (p.number === 3 ? { ...p, from: '2026-08-15' as const, to: '2026-09-14' as const } : p)),
+    );
+    const pila = store.data.supports.find((x) => x.code === 'PILA')!;
+    store.data.supports.push({ ...pila, id: 'sup-pila-aug', filename: 'PILA AGOSTO.pdf' });
+    store.data.socialSecurity = store.data.socialSecurity.map((x) => ({
+      ...x,
+      supportId: x.contributionMonth === '2026-08-01' ? 'sup-pila-aug' : pila.id,
+    }));
+    const gen = new AccountGenerator({
+      store,
+      clock: new FixedClock('2026-09-20'),
+      templates: new CodeTemplateProvider(),
+    });
+    const files = await gen.generate(DEMO_IDS.salud, 3);
+    const names = files.map((f) => f.filename);
+    expect(names).toContain('PLANILLA AGOSTO 2026.pdf');
+    expect(names).toContain('PLANILLA SEPTIEMBRE 2026.pdf');
+    const act = text(await docxPlainText(files.find((f) => f.group === 'docx')!.data));
+    expect(act).toContain('APORTES AL SISTEMA DE SEGURIDAD SOCIAL – AGOSTO 2026');
+    expect(act).toContain('APORTES AL SISTEMA DE SEGURIDAD SOCIAL – SEPTIEMBRE 2026');
+  }, 180_000);
+
   it('prorated period: EBS, payment 01-05 from the clauses schedule', async () => {
     const store = new MemoryStore(demoData({ supportsIssuedOn: '2026-08-25' }));
     await approveAll(store, DEMO_IDS.ebs, 1);

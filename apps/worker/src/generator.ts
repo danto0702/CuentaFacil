@@ -5,6 +5,7 @@ import type {
   GeneratedFile,
   Generator,
   Period,
+  SocialSecurity,
   Store,
   SupportFile,
   SupportType,
@@ -66,6 +67,8 @@ export class AccountGenerator implements Generator {
     period: Period;
     supports: SupportFile[];
     types: SupportType[];
+    /** The PILA of each contribution month found, oldest first. */
+    pilas: SocialSecurity[];
   }> {
     const { store, clock } = this.opts;
     const contract = await store.getContract(contractId);
@@ -214,11 +217,11 @@ export class AccountGenerator implements Generator {
           : {}),
       },
     };
-    return { input, entity, contract, period, supports, types };
+    return { input, entity, contract, period, supports, types, pilas: ssAll };
   }
 
   async generate(contractId: string, periodNumber: number): Promise<GeneratedFile[]> {
-    const { input, entity, contract, period, supports, types } = await this.buildInput(
+    const { input, entity, contract, period, supports, types, pilas } = await this.buildInput(
       contractId,
       periodNumber,
     );
@@ -247,8 +250,27 @@ export class AccountGenerator implements Generator {
     };
     const antecedentes = await bundle('ANTECEDENTES');
     const afiliaciones = await bundle('AFILIACIONES');
-    const pila = latest(supports, 'PILA');
-    const pilaPdf = pila ? await mergeToPdf([{ data: pila.data, mime: pila.mime }]) : null;
+    // One PILA file per contribution month of the period (ADR-069); without the link, the latest PILA.
+    const pilaFiles: { name: string; data: Buffer }[] = [];
+    const usedPila = new Set<string>();
+    for (const s of pilas) {
+      const f = supports.find((x) => x.id === s.supportId);
+      if (!f || usedPila.has(f.id)) continue;
+      usedPila.add(f.id);
+      const m = parseIso(s.contributionMonth);
+      pilaFiles.push({
+        name: `PLANILLA ${monthNameEs(s.contributionMonth).toUpperCase()} ${m.year}`,
+        data: await mergeToPdf([{ data: f.data, mime: f.mime }]),
+      });
+    }
+    if (!pilaFiles.length) {
+      const pila = latest(supports, 'PILA');
+      if (pila)
+        pilaFiles.push({
+          name: `PLANILLA ${month} ${year}`,
+          data: await mergeToPdf([{ data: pila.data, mime: pila.mime }]),
+        });
+    }
 
     const files: GeneratedFile[] = [
       { filename: `INFORME ${month} ${year}.pdf`, mime: 'application/pdf', data: activityPdf, group: 'pdf' },
@@ -263,13 +285,8 @@ export class AccountGenerator implements Generator {
       files.push({ filename: 'ANTECEDENTES.pdf', mime: 'application/pdf', data: antecedentes, group: 'pdf' });
     if (afiliaciones)
       files.push({ filename: 'AFILIACIONES.pdf', mime: 'application/pdf', data: afiliaciones, group: 'pdf' });
-    if (pilaPdf)
-      files.push({
-        filename: `PLANILLA ${month} ${year}.pdf`,
-        mime: 'application/pdf',
-        data: pilaPdf,
-        group: 'pdf',
-      });
+    for (const f of pilaFiles)
+      files.push({ filename: `${f.name}.pdf`, mime: 'application/pdf', data: f.data, group: 'pdf' });
     files.push(
       { filename: `INFORME ${month} ${year}.docx`, mime: DOCX, data: activityDocx, group: 'docx' },
       {

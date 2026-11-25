@@ -234,6 +234,8 @@ export interface SocialSecurity {
   arl?: string;
   arlValue: number;
   total: number;
+  /** The PILA file it was read from (it goes into the package, ADR-069). */
+  supportId?: string;
 }
 
 export interface PriorPaymentRecord {
