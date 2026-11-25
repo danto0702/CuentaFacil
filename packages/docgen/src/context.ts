@@ -122,6 +122,8 @@ export interface CuentaInput {
   };
   priorPayments: PriorPayment[];
   socialSecurity?: SocialSecurityInput;
+  /** One per contribution month of the period, oldest first (ADR-069); `socialSecurity` is the latest. */
+  socialSecurities?: SocialSecurityInput[];
   certificates: { policia?: IsoDate; rnmc?: IsoDate; procuraduria?: IsoDate; contraloria?: IsoDate };
   variables?: Record<string, unknown>;
   /** Evidence image width in cm (2 per row on an "oficio" page ≈ 7.5 cm). */
@@ -280,7 +282,31 @@ export async function buildTemplateContext(input: CuentaInput): Promise<Template
     });
   }
 
-  const ss = input.socialSecurity;
+  const ssAll = input.socialSecurities?.length
+    ? input.socialSecurities
+    : input.socialSecurity
+      ? [input.socialSecurity]
+      : [];
+  const ss = input.socialSecurity ?? ssAll.at(-1);
+  const ssRow = (x: SocialSecurityInput | undefined) => ({
+    month: x ? upper(monthNameEs(x.contributionMonth)) : upper(monthNameEs(period.to)),
+    platform: upper(x?.platform ?? ''),
+    planilla: x?.sheetNumber ?? '',
+    pin: x?.pin ?? '',
+    bank: upper(x?.bank ?? ''),
+    payment_date: dd(x?.paymentDate),
+    period: x ? upper(`${monthNameEs(x.contributionMonth)} ${parseIso(x.contributionMonth).year}`) : '',
+    ibc: x ? formatCOP(x.ibc) : '',
+    eps: upper(x?.eps ?? ''),
+    eps_value: x ? formatCOP(x.epsValue) : '',
+    afp: upper(x?.afp ?? ''),
+    afp_value: x ? formatCOP(x.afpValue) : '',
+    fsp_value: x ? formatCOP(x.fspValue) : '',
+    afc_value: x ? formatCOP(x.afcValue) : '',
+    arl: upper(x?.arl ?? ''),
+    arl_value: x ? formatCOP(x.arlValue) : '',
+    total: x ? formatCOP(x.total) : '',
+  });
   const checkDate = (issued?: IsoDate) =>
     entity.backgroundCheckDate === 'report_date' ? dd(period.reportDate ?? issued) : dd(issued);
   const report = parseIso(period.reportDate ?? period.to);
@@ -368,6 +394,13 @@ export async function buildTemplateContext(input: CuentaInput): Promise<Template
     ss_arl: upper(ss?.arl ?? ''),
     ss_arl_value: ss ? formatCOP(ss.arlValue) : '',
     ss_total: ss ? formatCOP(ss.total) : '',
+    // One table per month (a blank one when there is no PILA yet), and the sheet numbers together.
+    ss_list: ssAll.length ? ssAll.map(ssRow) : [ssRow(undefined)],
+    ss_multi: ssAll.length > 1,
+    ss_planillas: ssAll
+      .map((x) => x.sheetNumber)
+      .filter(Boolean)
+      .join(' / '),
 
     policia_date: checkDate(input.certificates.policia),
     medidas_date: checkDate(input.certificates.rnmc),

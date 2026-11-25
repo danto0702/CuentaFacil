@@ -58,7 +58,7 @@ function generalData(): string {
       "{{bank_name}}  Tipo de Cuenta Ahorros ({{x_account_savings || '__'}}) Corriente ({{x_account_checking || '__'}})",
     ]),
     line([label('Pago No. '), '{{payment_label}}']),
-    line([label('No. de Planilla de Aportes Salud y Pensión: '), '{{ss_planilla}}']),
+    line([label('No. de Planilla de Aportes Salud y Pensión: '), '{{ss_planillas || ss_planilla}}']),
     line([label('ARL: '), "Si ({{x_arl_yes || '_'}}) NO ({{x_arl_no || '_'}})"]),
   ].join('');
 }
@@ -70,36 +70,41 @@ function socialSecurityTable(): string {
       cell(p(labelText, F), { width: W - valueW }),
       cell(p(tag, { ...F, align: 'right' }), { width: valueW }),
     ]);
-  return table(
-    [W - valueW, valueW],
-    [
-      row([
-        cell(p('APORTES AL SISTEMA DE SEGURIDAD SOCIAL', { ...F, bold: true }), {
-          width: W,
-          span: 2,
-          fill: BLUE,
-        }),
-      ]),
-      r('APORTES OBLIGATORIOS EN SALUD (*):', '{{ss_eps_value}}'),
-      r('APORTES OBLIGATORIOS EN PENSIÓN (*):', '{{ss_afp_value}}'),
-      r('FONDO DE SOLIDARIDAD PENSIONAL (*):', '{{ss_fsp_value}}'),
-      r('APORTE VOLUNTARIO AFC (*):', '{{ss_afc_value}}'),
-      r('APORTE ARL (*):', '{{ss_arl_value}}'),
-      row([
-        cell(p('TOTAL APORTADO (*):', { ...F, bold: true }), { width: W - valueW }),
-        cell(p('{{ss_total}}', { ...F, bold: true, align: 'right' }), { width: valueW }),
-      ]),
-      row([
-        cell(
-          p(
-            '(*) El valor de los pagos correspondientes a los aportes obligatorios en salud, pensión y Fondo de Solidaridad Pensional deben estar calculados con base en el 40% de los honorarios mensuales (sin incluir IVA); en este valor deben estar excluidos los intereses de mora si estos fueron causados.',
-            { ...SMALL, italic: true, align: 'both' },
+  // One table per contribution month (ADR-069).
+  return [
+    cmd('FOR s IN ss_list', F),
+    table(
+      [W - valueW, valueW],
+      [
+        row([
+          cell(p('APORTES AL SISTEMA DE SEGURIDAD SOCIAL – {{$s.period}}', { ...F, bold: true }), {
+            width: W,
+            span: 2,
+            fill: BLUE,
+          }),
+        ]),
+        r('APORTES OBLIGATORIOS EN SALUD (*):', '{{$s.eps_value}}'),
+        r('APORTES OBLIGATORIOS EN PENSIÓN (*):', '{{$s.afp_value}}'),
+        r('FONDO DE SOLIDARIDAD PENSIONAL (*):', '{{$s.fsp_value}}'),
+        r('APORTE VOLUNTARIO AFC (*):', '{{$s.afc_value}}'),
+        r('APORTE ARL (*):', '{{$s.arl_value}}'),
+        row([
+          cell(p('TOTAL APORTADO (*):', { ...F, bold: true }), { width: W - valueW }),
+          cell(p('{{$s.total}}', { ...F, bold: true, align: 'right' }), { width: valueW }),
+        ]),
+        row([
+          cell(
+            p(
+              '(*) El valor de los pagos correspondientes a los aportes obligatorios en salud, pensión y Fondo de Solidaridad Pensional deben estar calculados con base en el 40% de los honorarios mensuales (sin incluir IVA); en este valor deben estar excluidos los intereses de mora si estos fueron causados.',
+              { ...SMALL, italic: true, align: 'both' },
+            ),
+            { width: W, span: 2 },
           ),
-          { width: W, span: 2 },
-        ),
-      ]),
-    ],
-  );
+        ]),
+      ],
+    ),
+    cmd('END-FOR s', F),
+  ].join('');
 }
 
 function obligationsTable(): string {
@@ -553,25 +558,30 @@ function socialSecurityVertical(): string {
       cell(p(l, { ...SUPB, align: 'center', spacingAfter: 0 }), { width: a }),
       cell(p(v, { ...SUPB, align: 'center', spacingAfter: 0 }), { width: a }),
     ]);
-  return table(
-    [a, a],
-    [
-      r('MES', '{{period_month}}'),
-      r('Entidad de aporte en línea', '{{ss_platform}}'),
-      r('Empresa de pensiones', '{{ss_afp}}'),
-      r('Valor', '{{ss_afp_value}}'),
-      r('Empresa administradora de salud', '{{ss_eps}}'),
-      r('Valor', '{{ss_eps_value}}'),
-      r('Administradora de riesgos laborales', '{{ss_arl}}'),
-      r('Valor', '{{ss_arl_value}}'),
-      r('Valor total de cotización', '{{ss_total}}'),
-      r('N° de Planilla', '{{ss_planilla}}'),
-      r('PIN', '{{ss_pin}}'),
-      r('Entidad financiera', '{{ss_bank}}'),
-      r('Periodo Cotización', '{{ss_period}}'),
-      r('Fecha de pago', '{{ss_payment_date}}'),
-    ],
-  );
+  return [
+    cmd('FOR s IN ss_list', SUPB),
+    table(
+      [a, a],
+      [
+        r('MES', '{{$s.month}}'),
+        r('Entidad de aporte en línea', '{{$s.platform}}'),
+        r('Empresa de pensiones', '{{$s.afp}}'),
+        r('Valor', '{{$s.afp_value}}'),
+        r('Empresa administradora de salud', '{{$s.eps}}'),
+        r('Valor', '{{$s.eps_value}}'),
+        r('Administradora de riesgos laborales', '{{$s.arl}}'),
+        r('Valor', '{{$s.arl_value}}'),
+        r('Valor total de cotización', '{{$s.total}}'),
+        r('N° de Planilla', '{{$s.planilla}}'),
+        r('PIN', '{{$s.pin}}'),
+        r('Entidad financiera', '{{$s.bank}}'),
+        r('Periodo Cotización', '{{$s.period}}'),
+        r('Fecha de pago', '{{$s.payment_date}}'),
+      ],
+    ),
+    p('', SUPB),
+    cmd('END-FOR s', SUPB),
+  ].join('');
 }
 
 function activitiesApprovalTable(): string {

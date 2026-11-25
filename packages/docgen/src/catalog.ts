@@ -155,6 +155,31 @@ export const TemplateContextSchema = z.object({
   ss_arl: s('ARL.'),
   ss_arl_value: s('Aporte a ARL.'),
   ss_total: s('Total pagado en la planilla.'),
+  ss_list: z
+    .array(
+      z.object({
+        month: s('Mes de cotización ("JULIO").'),
+        platform: s('Operador PILA.'),
+        planilla: s('Número de planilla.'),
+        pin: s('PIN.'),
+        bank: s('Entidad financiera.'),
+        payment_date: s('Fecha de pago.'),
+        period: s('Periodo de cotización ("JULIO 2026").'),
+        ibc: s('IBC.'),
+        eps: s('EPS.'),
+        eps_value: s('Aporte a salud.'),
+        afp: s('Fondo de pensiones.'),
+        afp_value: s('Aporte a pensión.'),
+        fsp_value: s('Fondo de Solidaridad Pensional.'),
+        afc_value: s('AFC voluntario.'),
+        arl: s('ARL.'),
+        arl_value: s('Aporte a ARL.'),
+        total: s('Total de la planilla.'),
+      }),
+    )
+    .describe('Una planilla por cada mes que abarca el periodo, del más antiguo al más reciente.'),
+  ss_multi: b('El periodo abarca dos meses (dos planillas).'),
+  ss_planillas: s('Números de planilla separados por " / ".'),
 
   // Antecedentes (fecha según la regla de la entidad: revisión o expedición)
   policia_date: s('Fecha del certificado de Policía.'),

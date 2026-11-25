@@ -94,6 +94,27 @@
 | `ss_arl` | texto | ARL. |
 | `ss_arl_value` | texto | Aporte a ARL. |
 | `ss_total` | texto | Total pagado en la planilla. |
+| `ss_list[]` | lista | Una planilla por cada mes que abarca el periodo, del más antiguo al más reciente. |
+| `ss_list[]` | objeto |  |
+| `ss_list[].month` | texto | Mes de cotización ("JULIO"). |
+| `ss_list[].platform` | texto | Operador PILA. |
+| `ss_list[].planilla` | texto | Número de planilla. |
+| `ss_list[].pin` | texto | PIN. |
+| `ss_list[].bank` | texto | Entidad financiera. |
+| `ss_list[].payment_date` | texto | Fecha de pago. |
+| `ss_list[].period` | texto | Periodo de cotización ("JULIO 2026"). |
+| `ss_list[].ibc` | texto | IBC. |
+| `ss_list[].eps` | texto | EPS. |
+| `ss_list[].eps_value` | texto | Aporte a salud. |
+| `ss_list[].afp` | texto | Fondo de pensiones. |
+| `ss_list[].afp_value` | texto | Aporte a pensión. |
+| `ss_list[].fsp_value` | texto | Fondo de Solidaridad Pensional. |
+| `ss_list[].afc_value` | texto | AFC voluntario. |
+| `ss_list[].arl` | texto | ARL. |
+| `ss_list[].arl_value` | texto | Aporte a ARL. |
+| `ss_list[].total` | texto | Total de la planilla. |
+| `ss_multi` | sí/no | El periodo abarca dos meses (dos planillas). |
+| `ss_planillas` | texto | Números de planilla separados por " / ". |
 | `policia_date` | texto | Fecha del certificado de Policía. |
 | `medidas_date` | texto | Fecha del certificado de Medidas Correctivas (RNMC). |
 | `procuraduria_date` | texto | Fecha del certificado de Procuraduría. |

@@ -9,7 +9,7 @@ import type {
   SupportFile,
   SupportType,
 } from '@cuentasbot/conversation';
-import { contractSupportTypes, noteSupports, periodGoals, pilaMonthFor } from '@cuentasbot/conversation';
+import { contractSupportTypes, noteSupports, periodGoals, pilaMonthsFor } from '@cuentasbot/conversation';
 import {
   buildTemplateContext,
   buildZips,
@@ -110,7 +110,15 @@ export class AccountGenerator implements Generator {
       });
     }
 
-    const ss = await store.getSocialSecurity(user.id, pilaMonthFor(entity.settings, period.to));
+    // One PILA per month the period touches (ADR-069); the tables go out blank for a month without it.
+    const ssAll = (
+      await Promise.all(
+        pilaMonthsFor(entity.settings, period.from, period.to).map((m) =>
+          store.getSocialSecurity(user.id, m),
+        ),
+      )
+    ).filter((x): x is NonNullable<typeof x> => Boolean(x));
+    const ss = ssAll.at(-1) ?? null;
     const supports = await store.listSupports(user.id);
     const types = [...(await store.listSupportTypes(entity.id)), ...contractSupportTypes(contract)];
     // Payments before this report: the vouchers registered for them, or else each delivered report with
@@ -191,6 +199,7 @@ export class AccountGenerator implements Generator {
       },
       priorPayments: prior.map((p) => ({ voucher: p.voucher, amount: p.amount })),
       ...(ss ? { socialSecurity: ss } : {}),
+      ...(ssAll.length ? { socialSecurities: ssAll } : {}),
       ...(latest(supports, 'FIRMA')
         ? { contractorSignature: { data: latest(supports, 'FIRMA')!.data } }
         : {}),

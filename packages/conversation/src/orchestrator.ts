@@ -29,7 +29,7 @@ import type {
   User,
   WritingStyle,
 } from './domain.js';
-import { noteSupports, pilaMonthFor } from './domain.js';
+import { noteSupports, pilaMonthsFor } from './domain.js';
 import { dedupeNotes, sameActivity } from './duplicates.js';
 import { contractSupportTypes, GOAL_ALERT, goalLine, periodGoals } from './goals.js';
 import { type Command, forcedNote, isNoteRequest, matchCommand, matchMonthRequest } from './intents.js';
@@ -4221,10 +4221,22 @@ ${lines.join('\n')}${due.length ? '' : '\n\nNo tienes nada pendiente. 👍'}`,
       return;
     }
 
-    // Without the PILA of the right month the social security tables go out empty: ask for it first.
-    const pilaMonth = pilaMonthFor((await this.deps.store.getEntity(c.entityId)).settings, p.to);
-    if (flags.noPila !== key && !(await this.deps.store.getSocialSecurity(turn.user.id, pilaMonth))) {
-      const month = `${monthNameEs(pilaMonth).toLowerCase()} de ${pilaMonth.slice(0, 4)}`;
+    // Without the PILA of each month the social security tables go out empty: ask for them first. A period
+    // across two months needs both (ADR-069).
+    const pilaMonths = pilaMonthsFor((await this.deps.store.getEntity(c.entityId)).settings, p.from, p.to);
+    const missingPila: IsoDate[] = [];
+    for (const m of pilaMonths)
+      if (!(await this.deps.store.getSocialSecurity(turn.user.id, m))) missingPila.push(m);
+    if (flags.noPila !== key && missingPila.length) {
+      const name = (m: IsoDate) => `*${monthNameEs(m).toLowerCase()} de ${m.slice(0, 4)}*`;
+      const months =
+        missingPila.length === 1
+          ? `la planilla PILA de ${name(missingPila[0]!)}`
+          : `las planillas PILA de ${missingPila.map(name).join(' y ')}`;
+      const why =
+        pilaMonths.length > 1
+          ? ` Esta cuenta abarca dos meses, así que van dos cuadros de seguridad social, uno por mes.`
+          : '';
       this.setFlow(turn, 'generate_no_pila', 'ask', {
         contractId: c.id,
         periodNumber: p.number,
@@ -4233,7 +4245,7 @@ ${lines.join('\n')}${due.length ? '' : '\n\nNo tienes nada pendiente. 👍'}`,
       });
       turn.out.push(
         buttons(
-          `🧾 Para llenar la tabla de seguridad social de tu ${this.reportLabel(c, p)} necesito la planilla PILA de *${month}* y no la tengo. Envíamela en PDF (o una foto) y luego escribe ${again}.`,
+          `🧾 Para llenar la tabla de seguridad social de tu ${this.reportLabel(c, p)} necesito ${months} y no ${missingPila.length === 1 ? 'la tengo' : 'las tengo'}.${why} Envíame${missingPila.length === 1 ? 'la' : 'las'} en PDF (o foto) y luego escribe ${again}.`,
           [{ id: 'nopila:go', title: 'Generar sin planilla' }],
         ),
       );

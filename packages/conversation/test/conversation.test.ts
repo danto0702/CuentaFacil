@@ -330,6 +330,21 @@ describe('other flows', () => {
     expect(out[0]).toBe('⏳ Estoy generando tus documentos, dame un momento…');
   });
 
+  it('asks for the PILA of both months when the report spans two (ADR-069)', async () => {
+    const h = harness();
+    h.store.data.socialSecurity = [];
+    const ps = await h.store.listPeriods(DEMO_IDS.ebs);
+    await h.store.savePeriods(
+      DEMO_IDS.ebs,
+      ps.map((p) =>
+        p.number === 1 ? { ...p, status: 'delivered', from: '2026-08-20', to: '2026-09-19' } : p,
+      ),
+    );
+    const out = show(await h.press(`redo:${DEMO_IDS.ebs}:1`));
+    expect(out[0]).toMatch(/necesito las planillas PILA de \*\w+ de 2026\* y \*\w+ de 2026\*/);
+    expect(out[0]).toContain('Esta cuenta abarca dos meses');
+  });
+
   it('blocks generation when a required support is missing, with links', async () => {
     const h = harness();
     // One EBS note, then the rest of the drafts quickly with default texts.

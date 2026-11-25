@@ -456,3 +456,12 @@
   - Al pedir el pago de un informe que generó un gestor, el contratista también recibe por WhatsApp el cobro, con el enlace de pago en línea (o *mis pagos* para transferencia). Se envía una sola vez por cobro. Es el mismo cobro: el pago de cualquiera de los dos lo desbloquea.
   - Al generarse los documentos (después del pago, o sin cobro en piloto o con cuenta gratis), le llegan al gestor en su chat y al contratista en el suyo, con «*Gestor* generó tu informe…».
   - Si la ventana de 24 horas del contratista está cerrada, se le avisa con la plantilla y los recibe al responder (ADR-043).
+
+## ADR-069 — Una planilla y un cuadro de seguridad social por cada mes del periodo (2026-11-25)
+
+- **Contexto:** las cuentas fecha a fecha (por ejemplo, del 24 de septiembre al 23 de octubre) abarcan dos meses. El informe solo llevaba la planilla PILA de un mes.
+- **Decisión:**
+  - `pilaMonthsFor(settings, from, to)` da un mes de cotización por cada mes calendario que toca el periodo (con el mismo corrimiento de `pilaMonthFor`).
+  - Antes de generar, Pascal pide la planilla de cada mes que falte y explica que la cuenta abarca dos meses. «Generar sin planilla» sigue disponible.
+  - El generador pasa todas las planillas. Las plantillas recorren `ss_list`: en el informe de actividades va un cuadro «APORTES AL SISTEMA DE SEGURIDAD SOCIAL – MES AÑO» por mes, y en el de supervisión una tabla 2.1 por mes. El número de planilla une los dos (`ss_planillas`, «X / Y»).
+  - Sin planillas queda un cuadro en blanco, como antes. Las etiquetas `ss_*` sueltas siguen con la planilla más reciente, para las plantillas de otras entidades.

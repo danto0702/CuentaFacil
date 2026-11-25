@@ -154,6 +154,20 @@ export function pilaMonthFor(
   return settings.pilaContributionMonth === 'previous' ? addMonthsClamped(monthStart, -1) : monthStart;
 }
 
+/**
+ * Every PILA a report needs: one per calendar month the period touches (a period from 12 Jul to 11 Aug needs
+ * July and August), shifted like pilaMonthFor. Oldest first.
+ */
+export function pilaMonthsFor(
+  settings: Pick<EntitySettings, 'pilaContributionMonth'>,
+  periodFrom: IsoDate,
+  periodTo: IsoDate,
+): IsoDate[] {
+  const first = pilaMonthFor(settings, periodFrom);
+  const last = pilaMonthFor(settings, periodTo);
+  return first === last ? [last] : [first, last];
+}
+
 export function noteSupports(note: Note, key: string): boolean {
   return note.obligationKey === key || (note.alsoKeys ?? []).includes(key);
 }
