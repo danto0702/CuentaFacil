@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import {
   INTERNAL_SUPPORTS,
+  listContracts,
   listSupports,
   listSupportTypes,
   type PortalSupport,
@@ -27,7 +28,21 @@ export default async function SupportsPage({ searchParams }: { searchParams: Sea
   const session = await portalSession();
   if (!session?.user) redirect('/ingresar');
   const flash = await flashOf(searchParams);
-  const [types, supports] = await Promise.all([listSupportTypes(session.sb), listSupports(session.sb)]);
+  const [types, supports, contracts] = await Promise.all([
+    listSupportTypes(session.sb),
+    listSupports(session.sb),
+    listContracts(session.sb),
+  ]);
+  // PILA: one per month the report in course spans (ADR-069).
+  const month = (d: string) =>
+    new Date(`${d}T12:00:00Z`).toLocaleDateString('es-CO', { month: 'long', timeZone: 'UTC' });
+  const pilaNeeds = contracts
+    .filter((c) => c.current)
+    .map((c) => {
+      const p = c.current!;
+      const months = p.from.slice(0, 7) === p.to.slice(0, 7) ? [month(p.from)] : [month(p.from), month(p.to)];
+      return { label: c.label, period: p.label.split(' · ')[1] ?? '', months };
+    });
   const latest = (code: string) => supports.find((s) => s.code === code);
   const visible = types.filter((t) => !INTERNAL_SUPPORTS.has(t.code));
   const monthly = visible.filter((t) => t.frequency === 'every_period' && t.stage !== 'after_signature');
@@ -69,6 +84,20 @@ export default async function SupportsPage({ searchParams }: { searchParams: Sea
             : él lee los valores para la tabla de seguridad social.
           </p>
         )}
+        {t.code === 'PILA' &&
+          pilaNeeds.map((n) => (
+            <p key={n.label} className="pt-muted" style={{ margin: '4px 0 0' }}>
+              Contrato {n.label} ({n.period}):{' '}
+              {n.months.length > 1 ? (
+                <strong>
+                  abarca dos meses: necesita la planilla de {n.months[0]} y la de {n.months[1]}
+                </strong>
+              ) : (
+                <>planilla de {n.months[0]}</>
+              )}
+              .
+            </p>
+          ))}
         {t.officialUrl && (
           <p className="pt-muted" style={{ margin: '4px 0 0' }}>
             <a href={t.officialUrl} target="_blank" rel="noopener">

@@ -298,22 +298,44 @@ export interface PortalSupport {
 /** Codes the chat keeps that are not certificates the contractor manages from the supports page. */
 export const INTERNAL_SUPPORTS = new Set(['FIRMA', 'COMPROBANTE_PAGO', 'INFORME_ANTERIOR']);
 
-async function entityIds(sb: Sb): Promise<string[]> {
-  const { data } = await sb.from('contracts').select('entity_id').eq('user_id', ownerOf(sb));
-  const ids = [...new Set((data ?? []).map((c) => c.entity_id as string))];
-  return ids.length ? ids : ['00000000-0000-0000-0000-000000000000'];
+async function ownContracts(sb: Sb) {
+  const { data } = await sb
+    .from('contracts')
+    .select('entity_id, contract_profile, requires_certification')
+    .eq('user_id', ownerOf(sb));
+  return (data ?? []) as {
+    entity_id: string;
+    contract_profile: string | null;
+    requires_certification: boolean;
+  }[];
 }
 
+/**
+ * The supports this person's contracts ask for, with the chat's rules: a type limited to some profiles only for
+ * contracts of that profile, and the compliance certificate only if a contract requires it.
+ */
 export async function listSupportTypes(sb: Sb): Promise<PortalSupportType[]> {
+  const contracts = await ownContracts(sb);
+  const ids = [...new Set(contracts.map((c) => c.entity_id))];
   const { data, error } = await sb
     .from('support_types')
-    .select('code, label, required, frequency, max_age_days, official_url, instructions, stage, bundle_order')
-    .in('entity_id', await entityIds(sb))
+    .select(
+      'entity_id, code, label, required, frequency, max_age_days, official_url, instructions, stage, bundle_order, profiles',
+    )
+    .in('entity_id', ids.length ? ids : ['00000000-0000-0000-0000-000000000000'])
     .order('bundle_order');
   if (error) throw error;
+  const applies = (t: { entity_id: string; code: string; profiles: string[] | null }) =>
+    contracts.some(
+      (c) =>
+        c.entity_id === t.entity_id &&
+        (!t.profiles?.length || (c.contract_profile !== null && t.profiles.includes(c.contract_profile))) &&
+        !(t.code === 'CERT_CUMPLIMIENTO' && !c.requires_certification),
+    );
   const seen = new Set<string>();
   return (data ?? [])
     .filter((t) => {
+      if (!applies(t)) return false;
       // A contractor with contracts in two entities sees each support once.
       if (seen.has(t.code)) return false;
       seen.add(t.code);
