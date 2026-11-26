@@ -1,7 +1,14 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { BRAND } from '@cuentasbot/conversation';
-import { allowedOrigins, PASCALBOT_LIMITS, parseChat, RateLimiter } from '@/lib/pascalbot';
-import { PASCALBOT_SYSTEM } from '@/lib/pascalbot-knowledge';
+import {
+  allowedOrigins,
+  clientIp,
+  PASCALBOT_LIMITS,
+  parseChat,
+  parsePage,
+  RateLimiter,
+} from '@/lib/pascalbot';
+import { PASCALBOT_PAGE_NOTE, PASCALBOT_SYSTEM } from '@/lib/pascalbot-knowledge';
 
 export const runtime = 'nodejs';
 
@@ -32,14 +39,16 @@ export function OPTIONS(req: Request) {
   return new Response(null, { status: 204, headers: cors(req) });
 }
 
-/** Website chat (PascalBot): answers about the scope of CuentaFacil only, never about an account. */
+/** Website chat (PascalBot): answers about PascalIA and its solutions, never about anyone's account. */
 export async function POST(req: Request) {
   if (!ORIGINS.has(req.headers.get('origin') ?? ''))
     return new Response('Origen no permitido', { status: 403 });
-  const turns = parseChat(await req.json().catch(() => null));
+  const body = await req.json().catch(() => null);
+  const turns = parseChat(body);
+  const page = parsePage(body);
   if (!turns) return json(req, { error: 'bad_request' }, 400);
 
-  const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+  const ip = clientIp(req.headers);
   const gate = limiter.take(ip);
   if (gate !== 'ok') {
     const reply =
@@ -55,7 +64,10 @@ export async function POST(req: Request) {
     const res = await client.messages.create({
       model: MODEL,
       max_tokens: PASCALBOT_LIMITS.maxTokens,
-      system: [{ type: 'text', text: PASCALBOT_SYSTEM, cache_control: { type: 'ephemeral' } }],
+      system: [
+        { type: 'text', text: PASCALBOT_SYSTEM, cache_control: { type: 'ephemeral' } },
+        { type: 'text', text: PASCALBOT_PAGE_NOTE[page] },
+      ],
       messages: turns,
     });
     const reply = res.content
@@ -65,6 +77,7 @@ export async function POST(req: Request) {
     console.log(
       JSON.stringify({
         event: 'pascalbot.reply',
+        page,
         model: res.model,
         input: res.usage.input_tokens,
         cacheRead: res.usage.cache_read_input_tokens ?? 0,

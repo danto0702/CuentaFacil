@@ -79,3 +79,22 @@ export function allowedOrigins(extra = process.env.PASCALBOT_ORIGINS ?? ''): Set
       .filter(Boolean),
   ]);
 }
+
+/**
+ * Visitor IP for the rate limit. Railway's edge sets X-Real-IP to the address that connected and
+ * appends it as the last X-Forwarded-For entry; the first entries come from the client and can be forged.
+ */
+export function clientIp(headers: Headers): string {
+  const real = headers.get('x-real-ip')?.trim();
+  if (real) return real;
+  const hops = (headers.get('x-forwarded-for') ?? '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+  return hops[hops.length - 1] || 'unknown';
+}
+
+/** Page the widget says it is on; anything unknown is the PascalIA home. */
+export function parsePage(body: unknown): 'pascalia' | 'cuentafacil' {
+  return (body as { page?: unknown })?.page === 'cuentafacil' ? 'cuentafacil' : 'pascalia';
+}
