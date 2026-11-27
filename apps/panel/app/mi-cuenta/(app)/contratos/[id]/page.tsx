@@ -10,7 +10,14 @@ import {
   shortDate,
   todayBogota,
 } from '@/lib/portal';
-import { addActivity, addPhotos, deleteActivity, removePhoto, updateActivity } from '../../../actions';
+import {
+  addActivity,
+  addPhotos,
+  copyPreviousActivities,
+  deleteActivity,
+  removePhoto,
+  updateActivity,
+} from '../../../actions';
 import { Flash, flashOf, type Search } from '../../../parts';
 import { PhotoInput, Submit } from '../../../ui';
 
@@ -34,7 +41,15 @@ export default async function ContractPage({
   const period =
     contract.periods.find((p) => p.number === wanted) ?? contract.current ?? contract.periods.at(-1);
   if (!period) notFound();
-  const notes = await listNotes(session.sb, contract.id, period);
+  const prev = contract.periods.find((p) => p.number === period.number - 1);
+  const [notes, prevNotes] = await Promise.all([
+    listNotes(session.sb, contract.id, period),
+    prev && period.status !== 'delivered' ? listNotes(session.sb, contract.id, prev) : Promise.resolve([]),
+  ]);
+  const obligationLabel = (id: string | null) => {
+    const o = contract.obligations.find((x) => x.id === id);
+    return o ? (o.kind === 'general' ? `General ${o.number}` : `Obligación ${o.number}`) : 'Sin obligación';
+  };
   const locked = period.status === 'delivered';
   const back = `/contratos/${contract.id}?p=${period.number}`;
   const today = todayBogota();
@@ -106,6 +121,39 @@ export default async function ContractPage({
             <Extras obligations={contract.obligations} selected={[]} />
             <PhotoInput label="Fotos (opcional)" />
             <Submit>Guardar actividad</Submit>
+          </form>
+        </details>
+      )}
+
+      {!locked && prev && prevNotes.length > 0 && (
+        <details className="pt-card" id="copiar">
+          <summary>📋 Copiar actividades del informe anterior ({prevNotes.length})</summary>
+          <p className="pt-muted">
+            Marca las que también hiciste este mes. Se copian con el mismo texto y obligación, en el mismo día
+            contado desde el inicio de esta cuenta. Las fotos no se copian: agrega las de este mes.
+          </p>
+          <form action={copyPreviousActivities}>
+            <input type="hidden" name="contractId" value={contract.id} />
+            <input type="hidden" name="p" value={period.number} />
+            <div className="pt-extras" style={{ maxHeight: 360 }}>
+              {prevNotes
+                .filter((n) => !n.photoOnly && n.text.trim())
+                .map((n) => (
+                  <label key={n.id} className="pt-check">
+                    <input type="checkbox" name="note" value={n.id} defaultChecked />
+                    <span>
+                      <strong>
+                        {shortDate(n.date)} · {obligationLabel(n.obligationId)}
+                      </strong>
+                      <br />
+                      {clip(n.text, 220)}
+                    </span>
+                  </label>
+                ))}
+            </div>
+            <Submit pending="Copiando…" confirm="¿Copiar las actividades marcadas a esta cuenta?">
+              Copiar a este informe
+            </Submit>
           </form>
         </details>
       )}

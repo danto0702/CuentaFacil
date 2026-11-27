@@ -466,3 +466,12 @@
   - El generador pasa todas las planillas. Las plantillas recorren `ss_list`: en el informe de actividades va un cuadro «APORTES AL SISTEMA DE SEGURIDAD SOCIAL – MES AÑO» por mes, y en el de supervisión una tabla 2.1 por mes. El número de planilla une los dos (`ss_planillas`, «X / Y»).
   - Sin planillas queda un cuadro en blanco, como antes. Las etiquetas `ss_*` sueltas siguen con la planilla más reciente, para las plantillas de otras entidades.
 - **Ampliación (2026-11-25):** el paquete también lleva la planilla de cada mes, en «PLANILLA AGOSTO 2026.pdf» y «PLANILLA SEPTIEMBRE 2026.pdf». Cada archivo es el soporte del que se leyó esa planilla (`social_security_payments.support_id`). Si una planilla no tiene su archivo ligado, va la PILA más reciente, como antes.
+
+## ADR-070 — Copiar las actividades del informe anterior en el portal (2026-11-27)
+
+- **Contexto:** muchos contratistas repiten casi las mismas actividades cada mes y volvían a escribirlas una por una.
+- **Decisión:**
+  - En la página de actividades de un informe sin entregar, «📋 Copiar actividades del informe anterior» lista las del informe con número anterior, todas marcadas, para escoger.
+  - Al copiar, cada actividad conserva su texto, su obligación y sus obligaciones adicionales. Queda en el mismo día contado desde el inicio de la cuenta, sin salirse del periodo.
+  - Las fotos no se copian, porque son la evidencia de cada mes. Tampoco se ofrecen las actividades que eran solo fotos.
+  - El trigger del portal borra los borradores de esas obligaciones, así que Pascal vuelve a redactarlas.

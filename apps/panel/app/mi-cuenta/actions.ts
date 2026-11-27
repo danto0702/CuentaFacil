@@ -517,3 +517,60 @@ export async function switchPerson(form: FormData): Promise<void> {
       : `Ahora trabajas con las cuentas de ${target.fullName.split(' ').slice(0, 3).join(' ')}.`,
   );
 }
+
+// ---------------------------------------------------------------------------
+// Copy the previous report's activities (ADR-070)
+// ---------------------------------------------------------------------------
+const dayMs = 86_400_000;
+const isoOf = (t: number) => new Date(t).toISOString().slice(0, 10);
+const timeOf = (d: string) => Date.parse(`${d}T12:00:00Z`);
+
+/**
+ * The chosen activities of the previous report, again in this one: same text and obligations, each on the same
+ * day counted from the start of the period (kept inside it). Photos are not copied: they are this month's proof.
+ */
+export async function copyPreviousActivities(form: FormData): Promise<void> {
+  const { sb, user } = await linked();
+  const contractId = s(form, 'contractId');
+  const number = Number(s(form, 'p'));
+  const contract = (await listContracts(sb)).find((c) => c.id === contractId);
+  if (!contract) go('/', 'No encontré ese contrato.', 'error');
+  const period = contract.periods.find((p) => p.number === number);
+  const prev = contract.periods.find((p) => p.number === number - 1);
+  const back = `/contratos/${contract.id}?p=${number}`;
+  if (!period || !prev) go(back, 'Este informe no tiene uno anterior para copiar.', 'error');
+  if (period.status === 'delivered' || period.status === 'generating')
+    go(back, 'Esta cuenta ya fue entregada: no puedo cambiar sus actividades.', 'error');
+  const ids = form.getAll('note').map(String).filter(Boolean);
+  if (!ids.length) go(`${back}#copiar`, 'Marca al menos una actividad para copiar.', 'error');
+  const { data: notes, error } = await sb
+    .from('activity_notes')
+    .select('id, activity_date, text, transcript, confirmed_obligation_id, extra_obligation_ids')
+    .eq('contract_id', contract.id)
+    .gte('activity_date', prev.from)
+    .lte('activity_date', prev.to)
+    .in('id', ids);
+  if (error || !notes?.length) go(back, 'No encontré esas actividades.', 'error');
+  const from = timeOf(period.from);
+  const to = timeOf(period.to);
+  const rows = notes.map((n) => {
+    const offset = Math.round((timeOf(n.activity_date) - timeOf(prev.from)) / dayMs);
+    return {
+      id: randomUUID(),
+      user_id: user.id,
+      contract_id: contract.id,
+      activity_date: isoOf(Math.min(to, Math.max(from, from + offset * dayMs))),
+      text: (n.text ?? n.transcript ?? '').trim() || null,
+      confirmed_obligation_id: n.confirmed_obligation_id,
+      extra_obligation_ids: n.extra_obligation_ids ?? [],
+      confidence: 1,
+    };
+  });
+  const { error: insertError } = await sb.from('activity_notes').insert(rows.filter((r) => r.text));
+  if (insertError) go(back, 'No pude copiar las actividades. Intenta de nuevo.', 'error');
+  revalidatePath('/mi-cuenta', 'layout');
+  go(
+    back,
+    `Copié ${rows.length === 1 ? '1 actividad' : `${rows.length} actividades`} del informe anterior. Revisa las fechas y agrégales las fotos de este mes.`,
+  );
+}
