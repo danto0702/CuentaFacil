@@ -1,0 +1,64 @@
+<!doctype html><html lang="es-CO"><head><meta charset="utf-8"><style>
+@font-face{font-family:"Montserrat";font-weight:800;src:url("../../assets/fonts/montserrat-latin-800-normal.woff2")}
+@font-face{font-family:"Inter";font-weight:600;src:url("../../assets/fonts/inter-latin-600-normal.woff2")}
+*{margin:0;padding:0;box-sizing:border-box}
+body{width:1080px;height:1350px;overflow:hidden;background:#0A0A0D;font-family:Inter,sans-serif;color:#fff;position:relative}
+.glow{position:absolute;inset:0;background:radial-gradient(60% 34% at 50% 50%,rgba(255,193,7,.22),transparent 72%)}
+.rays{position:absolute;left:-460px;top:-300px;width:2000px;height:2000px;border-radius:50%;background:repeating-conic-gradient(rgba(255,193,7,.05) 0 6deg,transparent 6deg 18deg);-webkit-mask:radial-gradient(closest-side,#000 30%,transparent 75%)}
+.top{position:absolute;left:60px;right:60px;top:56px;display:flex;align-items:center;justify-content:space-between}
+.top .br{display:flex;align-items:center;gap:14px;font:800 30px/1 Montserrat}
+.top .br img{width:56px;height:56px;border-radius:14px}
+.top .pg{font:800 26px/1 Montserrat;color:#8A8A94}
+.kick{position:absolute;left:0;right:0;top:170px;text-align:center}
+.kick span{display:inline-flex;align-items:center;gap:12px;padding:12px 26px 12px 12px;border-radius:999px;background:#16161B;box-shadow:inset 0 0 0 2px #3A3A44;font:800 30px/1 Montserrat}
+.kick b{display:grid;place-items:center;width:46px;height:46px;border-radius:50%;background:#FFC107;color:#111;font:800 26px/1 Montserrat}
+h1{position:absolute;left:60px;right:60px;top:250px;text-align:center;font:800 76px/1.05 Montserrat;letter-spacing:-.025em}
+h1 em{font-style:normal;color:#FFC107;text-shadow:0 0 26px rgba(255,193,7,.45)}
+.sub{position:absolute;left:90px;right:90px;text-align:center;font:600 36px/1.35 Inter;color:#D9D9DE}
+.dots{position:absolute;left:0;right:0;bottom:56px;display:flex;justify-content:center;gap:10px}
+.dots i{width:40px;height:8px;border-radius:4px;background:rgba(255,255,255,.2)}
+.dots i.on{background:#FFC107}
+.swipe{position:absolute;right:60px;bottom:40px;font:800 28px/1 Montserrat;color:#FFC107}
+.phn{position:absolute;left:300px;width:480px;height:720px;border-radius:64px;background:#0E0E12;box-shadow:inset 0 0 0 12px #2A2A33,0 0 0 4px #FFC107,0 0 80px rgba(255,193,7,.35),0 40px 80px -30px rgba(0,0,0,.9);overflow:hidden}
+.phn .sc{position:absolute;inset:12px;border-radius:52px;background:#FFF8E1;padding:80px 26px 26px;color:#1F1F1F}
+.phn .nt{position:absolute;left:50%;top:26px;width:120px;height:32px;margin-left:-60px;border-radius:20px;background:#000;z-index:2}
+.hdr{display:flex;align-items:center;gap:12px;font:800 26px/1 Montserrat;margin-bottom:18px}
+.hdr img{width:44px;height:44px;border-radius:12px}
+.opt{display:flex;align-items:center;gap:16px;padding:18px;border-radius:20px;background:#fff;box-shadow:inset 0 0 0 2px #E9E9E9;margin-bottom:14px;font:800 26px/1.1 Montserrat}
+.opt i{flex:none;width:58px;height:58px;border-radius:16px;display:grid;place-items:center;font-size:32px;font-style:normal}
+.opt small{display:block;margin-top:4px;font:600 19px/1.2 Inter;color:#5C5C5C}
+.opt.hot{box-shadow:inset 0 0 0 4px #FFC107}
+.pgw{background:#fff;border-radius:10px;padding:22px;box-shadow:0 10px 24px -12px rgba(0,0,0,.35)}
+.pgw .t{font:800 22px/1.2 Montserrat;text-align:center;margin-bottom:6px}
+.pgw .ln{height:11px;border-radius:6px;background:#E3E3E3;margin:13px 0}
+.place{position:relative;margin-top:16px;height:120px;border-radius:12px;outline:3px dashed #FFB300;background:rgba(255,193,7,.12)}
+.place svg{position:absolute;left:8px;top:4px;width:300px;height:111px}
+.asa{position:absolute;right:-14px;bottom:-14px;width:34px;height:34px;border-radius:50%;background:#FFC107;box-shadow:0 2px 6px rgba(0,0,0,.3)}
+.stamp{margin-top:6px;font:600 15px/1.2 ui-monospace,Menlo,monospace;color:#555}
+.btn{margin-top:18px;padding:18px;border-radius:999px;background:#FFC107;text-align:center;font:800 26px/1 Montserrat;color:#1F1F1F}
+.btn.dk{background:#1F1F1F;color:#fff}
+.hand{position:absolute;font-size:110px;line-height:1;filter:drop-shadow(0 10px 20px rgba(0,0,0,.6))}
+.list{position:absolute;left:80px;right:80px;display:grid;gap:22px}
+.it{display:flex;align-items:center;gap:26px;padding:34px 32px;border-radius:32px;background:#16161B;box-shadow:inset 0 0 0 2px #2E2E36}
+.it b{flex:none;display:grid;place-items:center;width:84px;height:84px;border-radius:50%;background:#FFC107;color:#111;font:800 44px/1 Montserrat}
+.it p{font:800 38px/1.2 Montserrat}
+.it small{display:block;margin-top:8px;font:600 27px/1.3 Inter;color:#BFBFC6}
+.sigs{position:absolute;left:80px;right:80px;display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.sg{height:300px;border-radius:30px;background:#fff;color:#1F1F1F;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:20px;box-shadow:0 24px 50px -24px rgba(0,0,0,.8)}
+.sg svg{width:100%;height:90px}
+.sg span{font:800 30px/1 Montserrat}
+.sg em{font:400 64px/1 "Liberation Serif","DejaVu Serif",serif;font-style:italic;color:#1B2A6B}
+.lock{position:absolute;left:0;right:0;text-align:center}
+.lock span{display:inline-flex;align-items:center;gap:16px;padding:20px 34px;border-radius:999px;background:#FFC107;color:#111;font:800 36px/1 Montserrat}
+.row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 20px;border-radius:18px;background:#fff;box-shadow:inset 0 0 0 2px #E9E9E9;margin-bottom:12px;font:800 23px/1.1 Montserrat}
+.row small{display:block;margin-top:4px;font:600 17px/1.2 Inter;color:#5C5C5C}
+.st{flex:none;padding:8px 14px;border-radius:999px;font:800 18px/1 Montserrat}
+.ok{background:#DCFCE7;color:#166534}.wait{background:#FEF3C7;color:#8A6100}
+.card2{position:absolute;top:470px;width:440px;height:330px;border-radius:44px;background:#16161B;box-shadow:inset 0 0 0 3px rgba(255,193,7,.45);text-align:center;padding-top:40px}
+.card2 .n{font:800 190px/1 Montserrat;letter-spacing:-.04em;color:#FFC107;text-shadow:0 0 40px rgba(255,193,7,.45)}
+.card2 .l{margin-top:14px;font:800 54px/1 Montserrat}
+.qrb{position:absolute;left:390px;top:560px;width:300px;padding:20px 20px 14px;border-radius:30px;background:#fff;text-align:center}
+.qrb img{width:100%;display:block}
+.qrb b{display:block;margin-top:8px;font:800 21px/1.1 Montserrat;color:#1F1F1F;white-space:nowrap}
+.legal{position:absolute;left:90px;right:90px;bottom:120px;text-align:center;font:600 24px/1.35 Inter;color:#8A8A94}
+</style></head><body><div class="glow"></div><div class="rays"></div><div class="top"><div class="br"><img src="../../assets/brand/pascal-sign-logo.webp" alt="">Pascal Sign</div><div class="pg">4/9</div></div><p class="kick"><span><b>2</b>Firma</span></p><h1>Arrastra tu firma<br>a <em>su lugar</em></h1><div class="phn" style="top:470px;height:700px"><div class="nt"></div><div class="sc"><div class="hdr"><img src="../../assets/brand/pascal-sign-logo.webp" alt="">Pascal Sign</div><div class="pgw"><div class="t">CONTRATO</div><div class="ln"></div><div class="ln" style="width:75%"></div><div class="ln"></div><div class="ln" style="width:55%"></div><div class="place"><svg viewBox="0 0 620 230" style=""><path d="M30 150 C60 60 120 40 110 120 C100 190 50 170 90 120 C130 70 170 160 200 120 C225 85 240 70 250 110 C260 150 280 160 300 120 C320 80 340 60 350 100 C360 140 330 170 380 130 C420 100 440 90 470 110 C500 130 520 100 560 80 M60 190 C200 175 380 185 590 165" fill="none" stroke="#1B2A6B" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/></svg><div class="asa"></div></div><p class="stamp">Firmado electrónicamente · 2026-11-27 10:24</p></div></div></div><p class="hand" style="left:690px;top:930px">👆</p><div class="dots"><i class=""></i><i class=""></i><i class=""></i><i class="on"></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i></div><div class="swipe">Desliza →</div></body></html>
