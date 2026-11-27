@@ -475,3 +475,4 @@
   - Al copiar, cada actividad conserva su texto, su obligación y sus obligaciones adicionales. Queda en el mismo día contado desde el inicio de la cuenta, sin salirse del periodo.
   - Las fotos no se copian, porque son la evidencia de cada mes. Tampoco se ofrecen las actividades que eran solo fotos.
   - El trigger del portal borra los borradores de esas obligaciones, así que Pascal vuelve a redactarlas.
+  - Copiar dos veces no duplica: se salta lo que ya está en el informe (misma obligación y mismo texto, sin contar mayúsculas, tildes ni espacios), y la lista lo muestra como «Ya está en este informe».

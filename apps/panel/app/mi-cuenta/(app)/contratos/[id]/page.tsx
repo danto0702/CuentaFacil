@@ -7,6 +7,7 @@ import {
   type PortalNote,
   type PortalObligation,
   portalSession,
+  sameKey,
   shortDate,
   todayBogota,
 } from '@/lib/portal';
@@ -46,6 +47,9 @@ export default async function ContractPage({
     listNotes(session.sb, contract.id, period),
     prev && period.status !== 'delivered' ? listNotes(session.sb, contract.id, prev) : Promise.resolve([]),
   ]);
+  const here = new Set(notes.map((n) => sameKey(n.text, n.obligationId)));
+  const copied = (n: { text: string; obligationId: string | null }) =>
+    here.has(sameKey(n.text, n.obligationId));
   const obligationLabel = (id: string | null) => {
     const o = contract.obligations.find((x) => x.id === id);
     return o ? (o.kind === 'general' ? `General ${o.number}` : `Obligación ${o.number}`) : 'Sin obligación';
@@ -139,14 +143,26 @@ export default async function ContractPage({
               {prevNotes
                 .filter((n) => !n.photoOnly && n.text.trim())
                 .map((n) => (
-                  <label key={n.id} className="pt-check">
-                    <input type="checkbox" name="note" value={n.id} defaultChecked />
+                  <label key={n.id} className="pt-check" style={copied(n) ? { opacity: 0.55 } : undefined}>
+                    <input
+                      type="checkbox"
+                      name="note"
+                      value={n.id}
+                      defaultChecked={!copied(n)}
+                      disabled={copied(n)}
+                    />
                     <span>
                       <strong>
                         {shortDate(n.date)} · {obligationLabel(n.obligationId)}
                       </strong>
                       <br />
                       {clip(n.text, 220)}
+                      {copied(n) && (
+                        <>
+                          {' '}
+                          <span className="pt-pill ok">Ya está en este informe</span>
+                        </>
+                      )}
                     </span>
                   </label>
                 ))}

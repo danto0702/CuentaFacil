@@ -516,3 +516,12 @@ export const moment = (iso: string) =>
     dateStyle: 'medium',
     timeStyle: 'short',
   });
+
+/** Same activity: same obligation and the same text, ignoring case, accents and spacing. */
+export const sameKey = (text: string | null | undefined, obligationId: string | null) =>
+  `${obligationId ?? ''}|${(text ?? '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+    .trim()}`;

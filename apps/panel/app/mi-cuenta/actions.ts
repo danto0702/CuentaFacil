@@ -3,7 +3,7 @@ import { createHash, randomUUID } from 'node:crypto';
 import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { ACTING_COOKIE, listCharges, listContracts, portalSession } from '@/lib/portal';
+import { ACTING_COOKIE, listCharges, listContracts, portalSession, sameKey } from '@/lib/portal';
 import { supabaseServer } from '@/lib/supabase';
 import { adminAuthConfigured, supabaseAdmin } from '@/lib/supabase-admin';
 import { checkoutUrl, wompiConfigured } from '@/lib/wompi';
@@ -566,11 +566,30 @@ export async function copyPreviousActivities(form: FormData): Promise<void> {
       confidence: 1,
     };
   });
-  const { error: insertError } = await sb.from('activity_notes').insert(rows.filter((r) => r.text));
+  // Already in this report (same text and obligation): copying twice adds nothing.
+  const { data: current } = await sb
+    .from('activity_notes')
+    .select('text, transcript, confirmed_obligation_id')
+    .eq('contract_id', contract.id)
+    .gte('activity_date', period.from)
+    .lte('activity_date', period.to);
+  const seen = new Set(
+    (current ?? []).map((n) => sameKey(n.text ?? n.transcript, n.confirmed_obligation_id)),
+  );
+  const fresh = rows.filter((r) => {
+    if (!r.text) return false;
+    const k = sameKey(r.text, r.confirmed_obligation_id);
+    if (seen.has(k)) return false;
+    seen.add(k);
+    return true;
+  });
+  const skipped = rows.length - fresh.length;
+  if (!fresh.length) go(back, 'Esas actividades ya estaban en este informe: no copié nada.');
+  const { error: insertError } = await sb.from('activity_notes').insert(fresh);
   if (insertError) go(back, 'No pude copiar las actividades. Intenta de nuevo.', 'error');
   revalidatePath('/mi-cuenta', 'layout');
   go(
     back,
-    `Copié ${rows.length === 1 ? '1 actividad' : `${rows.length} actividades`} del informe anterior. Revisa las fechas y agrégales las fotos de este mes.`,
+    `Copié ${fresh.length === 1 ? '1 actividad' : `${fresh.length} actividades`} del informe anterior${skipped ? ` (${skipped} ya ${skipped === 1 ? 'estaba' : 'estaban'} y no las repetí)` : ''}. Revisa las fechas y agrégales las fotos de este mes.`,
   );
 }
