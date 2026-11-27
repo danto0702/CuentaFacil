@@ -473,6 +473,6 @@
 - **Decisión:**
   - En la página de actividades de un informe sin entregar, «📋 Copiar actividades del informe anterior» lista las del informe con número anterior, todas marcadas, para escoger.
   - Al copiar, cada actividad conserva su texto, su obligación y sus obligaciones adicionales. Queda en el mismo día contado desde el inicio de la cuenta, sin salirse del periodo.
-  - Las fotos no se copian, porque son la evidencia de cada mes. Tampoco se ofrecen las actividades que eran solo fotos.
+  - Las fotos se copian solo si se marca «Copiar también las fotos». Cada archivo se duplica en la carpeta de la persona, así que borrar una foto no afecta la otra. Las actividades que eran solo fotos no se ofrecen.
   - El trigger del portal borra los borradores de esas obligaciones, así que Pascal vuelve a redactarlas.
   - Copiar dos veces no duplica: se salta lo que ya está en el informe (misma obligación y mismo texto, sin contar mayúsculas, tildes ni espacios), y la lista lo muestra como «Ya está en este informe».

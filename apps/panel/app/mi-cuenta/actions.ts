@@ -556,6 +556,7 @@ export async function copyPreviousActivities(form: FormData): Promise<void> {
   const rows = notes.map((n) => {
     const offset = Math.round((timeOf(n.activity_date) - timeOf(prev.from)) / dayMs);
     return {
+      source: n.id,
       id: randomUUID(),
       user_id: user.id,
       contract_id: contract.id,
@@ -576,6 +577,7 @@ export async function copyPreviousActivities(form: FormData): Promise<void> {
   const seen = new Set(
     (current ?? []).map((n) => sameKey(n.text ?? n.transcript, n.confirmed_obligation_id)),
   );
+  const withPhotos = form.get('photos') === 'on';
   const fresh = rows.filter((r) => {
     if (!r.text) return false;
     const k = sameKey(r.text, r.confirmed_obligation_id);
@@ -585,11 +587,46 @@ export async function copyPreviousActivities(form: FormData): Promise<void> {
   });
   const skipped = rows.length - fresh.length;
   if (!fresh.length) go(back, 'Esas actividades ya estaban en este informe: no copié nada.');
-  const { error: insertError } = await sb.from('activity_notes').insert(fresh);
+  const { error: insertError } = await sb
+    .from('activity_notes')
+    .insert(fresh.map(({ source: _source, ...r }) => r));
   if (insertError) go(back, 'No pude copiar las actividades. Intenta de nuevo.', 'error');
+  // Photos too, when asked: a copy of each file in the person's folder, so deleting one never touches the other.
+  let photoCount = 0;
+  let photoFailed = 0;
+  if (withPhotos) {
+    const { data: evs } = await sb
+      .from('evidences')
+      .select('note_id, obligation_id, file_path, sort_order')
+      .in(
+        'note_id',
+        fresh.map((r) => r.source),
+      );
+    for (const r of fresh) {
+      for (const e of (evs ?? []).filter((x) => x.note_id === r.source)) {
+        const id = randomUUID();
+        const ext = e.file_path.split('.').pop() || 'jpg';
+        const path = `${user.id}/${id}.${ext}`;
+        const cp = await sb.storage.from('evidences').copy(e.file_path, path);
+        const ins = cp.error
+          ? cp
+          : await sb.from('evidences').insert({
+              id,
+              user_id: user.id,
+              note_id: r.id,
+              obligation_id: e.obligation_id ?? r.confirmed_obligation_id,
+              file_path: path,
+              taken_on: r.activity_date,
+              sort_order: e.sort_order,
+            });
+        if (ins.error) photoFailed++;
+        else photoCount++;
+      }
+    }
+  }
   revalidatePath('/mi-cuenta', 'layout');
   go(
     back,
-    `Copié ${fresh.length === 1 ? '1 actividad' : `${fresh.length} actividades`} del informe anterior${skipped ? ` (${skipped} ya ${skipped === 1 ? 'estaba' : 'estaban'} y no las repetí)` : ''}. Revisa las fechas y agrégales las fotos de este mes.`,
+    `Copié ${fresh.length === 1 ? '1 actividad' : `${fresh.length} actividades`} del informe anterior${skipped ? ` (${skipped} ya ${skipped === 1 ? 'estaba' : 'estaban'} y no las repetí)` : ''}${withPhotos ? `, con ${photoCount === 1 ? '1 foto' : `${photoCount} fotos`}` : ''}.${photoFailed ? ` No pude copiar ${photoFailed === 1 ? '1 foto' : `${photoFailed} fotos`}.` : ''} Revisa las fechas${withPhotos ? '' : ' y agrégales las fotos de este mes'}.`,
   );
 }

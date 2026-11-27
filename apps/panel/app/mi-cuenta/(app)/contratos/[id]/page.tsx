@@ -134,7 +134,7 @@ export default async function ContractPage({
           <summary>📋 Copiar actividades del informe anterior ({prevNotes.length})</summary>
           <p className="pt-muted">
             Marca las que también hiciste este mes. Se copian con el mismo texto y obligación, en el mismo día
-            contado desde el inicio de esta cuenta. Las fotos no se copian: agrega las de este mes.
+            contado desde el inicio de esta cuenta. Si quieres, copia también sus fotos.
           </p>
           <form action={copyPreviousActivities}>
             <input type="hidden" name="contractId" value={contract.id} />
@@ -157,6 +157,7 @@ export default async function ContractPage({
                       </strong>
                       <br />
                       {clip(n.text, 220)}
+                      {n.photos.length > 0 && <span className="pt-muted"> · 📷 {n.photos.length}</span>}
                       {copied(n) && (
                         <>
                           {' '}
@@ -167,6 +168,10 @@ export default async function ContractPage({
                   </label>
                 ))}
             </div>
+            <label className="pt-check" style={{ margin: '10px 0' }}>
+              <input type="checkbox" name="photos" />
+              <span>📷 Copiar también las fotos de esas actividades</span>
+            </label>
             <Submit pending="Copiando…" confirm="¿Copiar las actividades marcadas a esta cuenta?">
               Copiar a este informe
             </Submit>
